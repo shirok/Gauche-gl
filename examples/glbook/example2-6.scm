@@ -1,4 +1,4 @@
-;; Example 2-6
+;; Example 2-6  Polygon Stipple Patterns
 
 (use gl)
 (use gl.glut)
@@ -63,7 +63,7 @@
   (gl-viewport 0 0 w h)
   (gl-matrix-mode |GL_PROJECTION|)
   (gl-load-identity)
-  (gl-ortho 0 w 0 h -1 1)
+  (glu-ortho-2d 0 w 0 h)
   )
 
 (define (main args)

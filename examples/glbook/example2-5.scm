@@ -1,4 +1,4 @@
-;; Example 2-5
+;; Example 2-5  Line Stipple Patterns
 
 (use gl)
 (use gl.glut)
@@ -60,7 +60,7 @@
   (gl-viewport 0 0 w h)
   (gl-matrix-mode |GL_PROJECTION|)
   (gl-load-identity)
-  (gl-ortho 0 400 0 150 -1 1)
+  (glu-ortho-2d 0 w 0 h)
   )
 
 (define (main args)

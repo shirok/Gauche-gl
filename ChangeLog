@@ -1,5 +1,6 @@
 2002-02-14  Shiro Kawai  <shiro@acm.org>
 
+	* release 0.1.2
 	* examples/glbook/*.scm : fix some files that require (use srfi-4).
 
 2002-02-11  Shiro Kawai  <shiro@acm.org>

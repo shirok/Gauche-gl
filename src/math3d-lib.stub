@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.13 2002-09-29 11:51:29 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.14 2002-09-29 11:57:18 shirok Exp $
 ;;;
 
 "
@@ -355,6 +355,10 @@
     SCM_MATRIX4F_SET(m, 3, i, SCM_VECTOR4F_REF(v, 3));
     SCM_RETURN(SCM_UNDEFINED);")
   )
+
+(define-cproc matrix4f-column/shared (m::<matrix4f> i::<fixnum>)
+  "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+  SCM_RETURN(Scm_MakeVector4fvShared(SCM_MATRIX4F_COLVEC(m, i)));")
 
 ;; basic transformation
 

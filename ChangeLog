@@ -1,3 +1,7 @@
+2003-12-16  Shiro Kawai  <shiro@acm.org>
+
+	* release 0.3.1
+
 2003-12-04  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-gl.c (Scm_Init_libgauche_gl) : adapted to Gauche-0.7.3

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.17 2002-08-18 02:30:27 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.18 2002-08-18 02:34:37 shirok Exp $
 ;;;
 
 "
@@ -77,7 +77,7 @@
    SCM_RETURN(SCM_UNDEFINED);")
 
 (if "defined(GL_VERSION_1_1)"
-    (define-cproc gl-polygon-offset (factor::<float> pattern::<ushort>)
+    (define-cproc gl-polygon-offset (factor::<float> units::<float>)
       (return <void> "glPolygonOffset"))
     )
 

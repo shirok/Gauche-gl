@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.7 2001-10-03 10:17:18 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.8 2001-10-14 10:01:11 shirok Exp $
  */
 
 #include <gauche.h>
@@ -61,6 +61,87 @@ int Scm_GLStateInfoSize(GLenum state)
 #include "gettype-sizes.c"
    }
    return -1;
+}
+
+/* given pixel format and pixel type, return # of elements used for
+   pixel data. */
+int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
+                        int *eltsize, int *packed)
+{
+    int components = 0, packedsize = 0, typesize = 0;
+
+    switch (type) {
+    case GL_BITMAP: 
+        /* special handling is required for bitmap */
+        break;
+    case GL_UNSIGNED_BYTE:;
+    case GL_BYTE:;
+        typesize = 1; break;
+    case GL_UNSIGNED_BYTE_3_3_2:;
+    case GL_UNSIGNED_BYTE_2_3_3_REV:;
+        packedsize = 3;
+        typesize = 1; break;
+    case GL_UNSIGNED_SHORT:;
+    case GL_SHORT:;
+        typesize = 2; break;
+    case GL_UNSIGNED_SHORT_5_6_5:;
+    case GL_UNSIGNED_SHORT_5_6_5_REV:;
+    case GL_UNSIGNED_SHORT_4_4_4_4:;
+    case GL_UNSIGNED_SHORT_4_4_4_4_REV:;
+    case GL_UNSIGNED_SHORT_5_5_5_1:;
+    case GL_UNSIGNED_SHORT_1_5_5_5_REV:;
+        packedsize = 4;
+        typesize = 2; break;
+    case GL_UNSIGNED_INT:;
+    case GL_INT:;
+    case GL_FLOAT:;
+        typesize = 4; break;
+    case GL_UNSIGNED_INT_8_8_8_8:;
+    case GL_UNSIGNED_INT_8_8_8_8_REV:;
+    case GL_UNSIGNED_INT_10_10_10_2:;
+    case GL_UNSIGNED_INT_2_10_10_10_REV:;
+        packedsize = 4;
+        typesize = 4; break;
+    default:
+        /* TODO: packedsize types added to GL1.2 */
+        Scm_Error("unsupported or invalid pixel data type: %d", type);
+    }
+    switch (format) {
+    case GL_COLOR_INDEX:;
+    case GL_RED:;
+    case GL_GREEN:;
+    case GL_BLUE:;
+    case GL_ALPHA:;
+    case GL_LUMINANCE:;
+    case GL_STENCIL_INDEX:;
+    case GL_DEPTH_COMPONENT:;
+        components = 1; break;
+    case GL_RGB:;
+    /*case GL_BGR:;*/
+        components = 3; break;
+    case GL_LUMINANCE_ALPHA:;
+        components = 2; break;
+    case GL_RGBA:;
+    /*case GL_BGRA:;*/
+        components = 4; break;
+    }
+    if (typesize == 0) {
+        /* bitmap.  each raster line is rounded up to byte boundary. */
+        *eltsize = 1;
+        return ((components*w+7)/8)*h;
+    }
+    *eltsize = typesize;
+    if (packedsize > 0) {
+        if  (components != packedsize) {
+            Scm_Error("pixel format %d doesn't match pixel data type %d",
+                      format, type);
+        }
+        *packed = TRUE;
+        return w*h;
+    } else {
+        *packed = FALSE;
+        return w*h*components;
+    }
 }
 
 /* Initialization */

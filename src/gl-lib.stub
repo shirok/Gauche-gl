@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.10 2001-10-07 09:11:35 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.11 2001-10-14 10:01:11 shirok Exp $
 ;;;
 
 "
@@ -21,6 +21,14 @@
 
 ;; The functions are ordered in the same way as Mesa's header file.
 
+"#define CHECK_ERROR(msg__)                            \\
+  do {                                                 \\
+    GLenum e = glGetError();                           \\
+    if (e != GL_NO_ERROR) {                            \\
+      Scm_Error(\"%s: %s\", msg__, gluErrorString(e)); \\
+    }                                                  \\
+  } while (0)
+"
 ;;=============================================================
 ;; Miscellaneous
 ;;
@@ -1126,6 +1134,177 @@
 ;; Raster functions
 ;;
 
+(define-cproc gl-pixel-zoom (xfactor yfactor)
+  (assert (real? xfactor))
+  (assert (real? yfactor))
+  "glPixelZoom(xfactor, yfactor);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-pixel-store (pname param)
+  (assert (small-integer? pname))
+  "if (SCM_EXACTP(param)) {
+     glPixelStorei(pname, Scm_GetInteger(param));
+   } else if (SCM_FLONUMP(param)) {
+     glPixelStoref(pname, (float)SCM_FLONUM_VALUE(param));
+   } else {
+     Scm_Error(\"real number required for param, but got %S\", param);
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-pixel-map (map values)
+  (assert (small-integer? map))
+  "if (SCM_U32VECTORP(values)) {
+    glPixelMapuiv(map, SCM_U32VECTOR_SIZE(values),
+                  SCM_U32VECTOR_ELEMENTS(values));
+  } else if (SCM_U16VECTORP(values)) {
+    glPixelMapusv(map, SCM_U16VECTOR_SIZE(values),
+                  SCM_U16VECTOR_ELEMENTS(values));
+  } else if (SCM_F32VECTORP(values)) {
+    glPixelMapfv(map, SCM_F32VECTOR_SIZE(values),
+                 SCM_F32VECTOR_ELEMENTS(values));
+  } else {
+     Scm_Error(\"map value vector must be u16, u32 or f32 vector, but got %S\",
+               values);
+  }
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; values must have enough size
+(define-cproc gl-get-pixel-map! (map values)
+  (assert (small-integer? map))
+  "if (SCM_U32VECTORP(values)) {
+    glGetPixelMapuiv(map, SCM_U32VECTOR_ELEMENTS(values));
+  } else if (SCM_U16VECTORP(values)) {
+    glGetPixelMapusv(map, SCM_U16VECTOR_ELEMENTS(values));
+  } else if (SCM_F32VECTORP(values)) {
+    glGetPixelMapfv(map, SCM_F32VECTOR_ELEMENTS(values));
+  } else {
+     Scm_Error(\"map value vector must be u16, u32 or f32 vector, but got %S\",
+               values);
+  }
+  SCM_RETURN(values);")
+
+;; allocate the vector in it.  type can be a class 
+;; <u32vector> (default), <u16vector> or <f32vector>
+(define-cproc gl-get-pixel-map (map &optional type)
+  (assert (small-integer? map))
+  " int size; ScmObj vec = SCM_UNDEFINED;
+  glGetIntegerv(map, &size);
+  CHECK_ERROR(\"couldn't get pixel map size\");
+  SCM_ASSERT(size >= 0);
+  if (SCM_UNBOUNDP(type) || type == SCM_OBJ(SCM_CLASS_U32VECTOR)) {
+    vec = Scm_MakeU32Vector(size, 0);
+    glGetPixelMapuiv(map, SCM_U32VECTOR_ELEMENTS(vec));
+  } else if (type == SCM_OBJ(SCM_CLASS_U16VECTOR)) {
+    vec = Scm_MakeU16Vector(size, 0);
+    glGetPixelMapusv(map, SCM_U16VECTOR_ELEMENTS(vec));
+  } else if (type == SCM_OBJ(SCM_CLASS_F32VECTOR)) {
+    vec = Scm_MakeF32Vector(size, 0);
+    glGetPixelMapfv(map, SCM_F32VECTOR_ELEMENTS(vec));
+  } else {
+     Scm_Error(\"pixel map vector class must be either <u32vector>, <u16vector> or <f32vector>, but got %S\", type);
+  }
+  SCM_RETURN(vec);")
+
+(define-cproc gl-bitmap (width height xbo ybo xbi ybi bitmap)
+  (assert (exact? width))
+  (assert (exact? height))
+  (assert (exact? xbo))
+  (assert (exact? ybo))
+  (assert (exact? xbi))
+  (assert (exact? ybi))
+  "if (!SCM_U8VECTORP(bitmap)) {
+    Scm_Error(\"bitmap must be an u8vector, but got %S\", bitmap);
+  }
+  if (SCM_U8VECTOR_SIZE(bitmap) != ((width+7)/8)*height) {
+    Scm_Error(\"size (width=%d, height=%d) doesn't match bitmap vector %S\",
+              width, height, bitmap);
+  }
+  glBitmap(width, height, xbo, ybo, xbi, ybi, SCM_U8VECTOR_ELEMENTS(bitmap));
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-read-pixels (x y width height format type)
+  (assert (small-integer? x))
+  (assert (small-integer? y))
+  (assert (small-integer? width))
+  (assert (small-integer? height))
+  (assert (small-integer? format))
+  (assert (small-integer? type))
+  "  int eltsize, size, packed; ScmObj vec = SCM_UNDEFINED;
+  size = Scm_GLPixelDataSize(width, height, format, type, &eltsize, &packed);
+  SCM_ASSERT(eltsize == 1 || eltsize == 2 || eltsize == 4);
+  switch (eltsize) {
+    case 1:
+      vec = Scm_MakeU8Vector(size, 0);
+      glReadPixels(x, y, width, height, format, type,
+                   SCM_U8VECTOR_ELEMENTS(vec));
+      break;
+    case 2:
+      vec = Scm_MakeU16Vector(size, 0);
+      glReadPixels(x, y, width, height, format, type,
+                   SCM_U16VECTOR_ELEMENTS(vec));
+      break;
+    case 4:
+      if (packed) {
+        vec = Scm_MakeU32Vector(size, 0);
+        glReadPixels(x, y, width, height, format, type,
+                     SCM_U32VECTOR_ELEMENTS(vec));
+      } else {
+        vec = Scm_MakeF32Vector(size, 0);
+        glReadPixels(x, y, width, height, format, type,
+                     SCM_F32VECTOR_ELEMENTS(vec));
+      }
+      break;
+  }
+  SCM_RETURN(vec);")
+
+; gl-read-pixels!
+
+(define-cproc gl-draw-pixels (width height format type pixels)
+  (assert (small-integer? width))
+  (assert (small-integer? height))
+  (assert (small-integer? format))
+  (assert (small-integer? type))
+  "  int eltsize, size, packed; ScmObj vec = SCM_UNDEFINED;
+  size = Scm_GLPixelDataSize(width, height, format, type, &eltsize, &packed);
+  SCM_ASSERT(eltsize == 1 || eltsize == 2 || eltsize == 4);
+  switch (eltsize) {
+    case 1:
+      if (!SCM_U8VECTORP(pixels)) {
+        Scm_Error(\"u8vector required, but got %S\", pixels);
+      }
+      glDrawPixels(width, height, format, type,
+                   SCM_U8VECTOR_ELEMENTS(pixels));
+      break;
+    case 2:
+      if (!SCM_U16VECTORP(pixels)) {
+        Scm_Error(\"u16vector required, but got %S\", pixels);
+      }
+      glDrawPixels(width, height, format, type,
+                   SCM_U16VECTOR_ELEMENTS(pixels));
+      break;
+    case 4:
+      if (SCM_U32VECTORP(pixels)) {
+        glDrawPixels(width, height, format, type,
+                     SCM_U32VECTOR_ELEMENTS(pixels));
+      } else if (SCM_F32VECTORP(pixels)) {
+        glDrawPixels(width, height, format, type,
+                     SCM_F32VECTOR_ELEMENTS(pixels));
+      } else {
+        Scm_Error(\"u32vector or f32vector required, but got %S\", pixels);
+      }
+      break;
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-copy-pixels (x y width height type)
+  (assert (small-integer? x))
+  (assert (small-integer? y))
+  (assert (small-integer? width))
+  (assert (small-integer? height))
+  (assert (small-integer? type))
+  "glCopyPixels(x, y, width, height, type);
+  SCM_RETURN(SCM_UNDEFINED);")
+
 ;;=============================================================
 ;; Stenciling
 ;;
@@ -1157,6 +1336,8 @@
 ;;=============================================================
 ;; Texture mapping
 ;;
+
+
 
 ;;=============================================================
 ;; Fog

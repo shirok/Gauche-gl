@@ -2,7 +2,7 @@ dnl
 dnl Configuring gauche-gl 
 dnl  process this file with "autoconf -l `gauche-config --ac`" to
 dnl  generate 'configure'.
-dnl $Id: configure.in,v 1.14 2003-10-05 05:54:48 shirok Exp $
+dnl $Id: configure.in,v 1.15 2003-10-05 05:55:29 shirok Exp $
 AC_PREREQ(2.54)
 AC_INIT(Gauche-gl, 0.2.3, shiro@acm.org)
 AC_GAUCHE_INIT_EXT
@@ -98,4 +98,4 @@ AC_GAUCHE_EXT_FIXUP(src/gl, gauche_gl)
 AC_GAUCHE_EXT_FIXUP(src/glut, gauche_glut)
 AC_GAUCHE_EXT_FIXUP(src/math3d, gauche_math3d)
 echo $PACKAGE_VERSION > VERSION
-AC_OUTPUT(Makefile src/Makefile lib/Makefile doc/Makefile src/extralibs.sh)
+AC_OUTPUT(Makefile src/Makefile lib/Makefile doc/Makefile)

@@ -34,8 +34,7 @@
 
 (define (main args)
   (glut-init args)
-  (glut-init-display-mode (logior |GLUT_SINGLE|
-                                   (logior |GLUT_RGB| |GLUT_DEPTH|)))
+  (glut-init-display-mode (logior |GLUT_SINGLE| |GLUT_RGB| |GLUT_DEPTH|)))
   (glut-init-window-size 500 500)
   (glut-init-window-position 100 100)
   (glut-create-window *program-name*)

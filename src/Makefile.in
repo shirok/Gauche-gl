@@ -36,6 +36,8 @@ gauche-glut.so : $(GLUTOBJS)
 glut-lib.c : glut-lib.stub
 	$(GOSH) genstub glut-lib.stub
 
+$(GLUTOBJS) : gauche-glut.h
+
 test : all
 	@rm -f test.log
 	$(GOSH) test.scm > test.log

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.2 2001-09-29 11:56:39 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.3 2001-09-29 20:54:16 shirok Exp $
 ;;;
 
 "
@@ -20,6 +20,7 @@
 #include <GL/glu.h>
 #include <GL/glx.h>
 #include <GL/glut.h>
+#include \"gauche-glut.h\"
 "
 
 ;;========================================================
@@ -464,7 +465,6 @@
   SCM_RETURN(SCM_UNDEFINED);")
 
 ;; MenuState ---------------
-
 "static ScmObj menu_state_fn = SCM_FALSE;
  static void menu_state_callback(int state)
  {
@@ -473,38 +473,246 @@
    }
  }"
 
-(define-cproc glut-menu_state-func (fn)
+(define-cproc glut-menu-state-func (fn)
   "  menu_state_fn = fn;
   glutMenuStateFunc(menu_state_callback);
   SCM_RETURN(SCM_UNDEFINED);")
 
-;; Special
+;; Special ------------------
+"static ScmObj special_fn = SCM_FALSE;
+ static void special_callback(int key, int x, int y)
+ {
+   if (SCM_PROCEDUREP(special_fn)) {
+      Scm_Apply(special_fn, SCM_LIST3(SCM_MAKE_INT(key),
+                                      SCM_MAKE_INT(x),
+                                      SCM_MAKE_INT(y)));
+   }
+ }"
 
-;; SpaceballMotion
+(define-cproc glut-special-func (fn)
+  "  special_fn = fn;
+  glutSpecialFunc(special_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
 
-;; SpaceballRotate
+;; SpaceballMotion -----------
+"static ScmObj spaceball_motion_fn = SCM_FALSE;
+ static void spaceball_motion_callback(int x, int y, int z)
+ {
+   if (SCM_PROCEDUREP(spaceball_motion_fn)) {
+      Scm_Apply(spaceball_motion_fn, SCM_LIST3(SCM_MAKE_INT(x),
+                                               SCM_MAKE_INT(y),
+                                               SCM_MAKE_INT(z)));
+   }
+ }"
 
-;; SpaceballButton
+(define-cproc glut-spaceball-motion-func (fn)
+  "  spaceball_motion_fn = fn;
+  glutSpaceballMotionFunc(spaceball_motion_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
 
-;; ButtonBox
+;; SpaceballRotate ----------------------
+"static ScmObj spaceball_rotate_fn = SCM_FALSE;
+ static void spaceball_rotate_callback(int x, int y, int z)
+ {
+   if (SCM_PROCEDUREP(spaceball_rotate_fn)) {
+      Scm_Apply(spaceball_rotate_fn, SCM_LIST3(SCM_MAKE_INT(x),
+                                               SCM_MAKE_INT(y),
+                                               SCM_MAKE_INT(z)));
+   }
+ }"
 
-;; Dials
+(define-cproc glut-spaceball-rotate-func (fn)
+  "  spaceball_rotate_fn = fn;
+  glutSpaceballRotateFunc(spaceball_rotate_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
 
-;; TabletMotion
+;; SpaceballButton ----------------------
+"static ScmObj spaceball_button_fn = SCM_FALSE;
+ static void spaceball_button_callback(int button, int state)
+ {
+   if (SCM_PROCEDUREP(spaceball_button_fn)) {
+      Scm_Apply(spaceball_button_fn, SCM_LIST2(SCM_MAKE_INT(button),
+                                               SCM_MAKE_INT(state)));
+   }
+ }"
 
-;; TabletButton
+(define-cproc glut-spaceball-button-func (fn)
+  "  spaceball_button_fn = fn;
+  glutSpaceballButtonFunc(spaceball_button_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
 
-;; MenuStatus
+;; ButtonBox ----------------------------
+"static ScmObj button_box_fn = SCM_FALSE;
+ static void button_box_callback(int button, int state)
+ {
+   if (SCM_PROCEDUREP(button_box_fn)) {
+      Scm_Apply(button_box_fn, SCM_LIST2(SCM_MAKE_INT(button),
+                                         SCM_MAKE_INT(state)));
+   }
+ }"
+
+(define-cproc glut-button-box-func (fn)
+  "  button_box_fn = fn;
+  glutButtonBoxFunc(button_box_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; Dials -----------------------------------
+"static ScmObj dials_fn = SCM_FALSE;
+ static void dials_callback(int button, int state)
+ {
+   if (SCM_PROCEDUREP(dials_fn)) {
+      Scm_Apply(dials_fn, SCM_LIST2(SCM_MAKE_INT(button),
+                                    SCM_MAKE_INT(state)));
+   }
+ }"
+
+(define-cproc glut-dials-func (fn)
+  "  dials_fn = fn;
+  glutDialsFunc(dials_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; TabletMotion -------------------------
+"static ScmObj tablet_motion_fn = SCM_FALSE;
+ static void tablet_motion_callback(int x, int y)
+ {
+   if (SCM_PROCEDUREP(tablet_motion_fn)) {
+      Scm_Apply(tablet_motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
+                                            SCM_MAKE_INT(y)));
+   }
+ }"
+
+(define-cproc glut-tablet-motion-func (fn)
+  "  tablet_motion_fn = fn;
+  glutTabletMotionFunc(tablet_motion_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; TabletButton -------------------------
+"static ScmObj tablet_button_fn = SCM_FALSE;
+ static void tablet_button_callback(int button, int state, int x, int y)
+ {
+   if (SCM_PROCEDUREP(tablet_button_fn)) {
+      Scm_Apply(tablet_button_fn, SCM_LIST4(SCM_MAKE_INT(button),
+                                            SCM_MAKE_INT(state),
+                                            SCM_MAKE_INT(x),
+                                            SCM_MAKE_INT(y)));
+   }
+ }"
+
+(define-cproc glut-tablet-button-func (fn)
+  "  tablet_button_fn = fn;
+  glutTabletButtonFunc(tablet_button_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+
+;; MenuStatus -----------------------------
+"static ScmObj menu_status_fn = SCM_FALSE;
+ static void menu_status_callback(int state, int x, int y)
+ {
+   if (SCM_PROCEDUREP(menu_status_fn)) {
+      Scm_Apply(menu_status_fn, SCM_LIST3(SCM_MAKE_INT(state),
+                                          SCM_MAKE_INT(x),
+                                          SCM_MAKE_INT(y)));
+   }
+ }"
+
+(define-cproc glut-menu-status-func (fn)
+  "  menu_status_fn = fn;
+  glutMenuStatusFunc(menu_status_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
 
 ;; OverlayDisplay
+"static ScmObj overlay_display_fn = SCM_FALSE;
+ static void overlay_display_callback(void)
+ {
+   if (SCM_PROCEDUREP(overlay_display_fn)) {
+      Scm_Apply(overlay_display_fn, SCM_NIL);
+   }
+ }"
 
-;; WindowStatus
+(define-cproc glut-ovelay-display-func (fn)
+  "  overlay_display_fn = fn;
+  glutOverlayDisplayFunc(overlay_display_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
 
-;; KeyboardUp
+;; WindowStatus ---------------------------------
+"#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
+ static ScmObj window_status_fn = SCM_FALSE;
+ static void window_status_callback(int state)
+ {
+   if (SCM_PROCEDUREP(window_status_fn)) {
+      Scm_Apply(window_status_fn, SCM_LIST1(SCM_MAKE_INT(state)));
+   }
+ }
+#endif"
 
-;; SpecialUp
+(define-cproc glut-window-status-func (fn)
+  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
+  window_status_fn = fn;
+  glutWindowStatusFunc(window_status_callback);
+#endif
+  SCM_RETURN(SCM_UNDEFINED);")
 
-;; Joystick
+;; KeyboardUp ----------------------------
+"#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
+ static ScmObj keyboard_up_fn = SCM_FALSE;
+ static void keyboard_up_callback(unsigned char key, int x, int y)
+ {
+   if (SCM_PROCEDUREP(keyboard_up_fn)) {
+      Scm_Apply(keyboard_up_fn, SCM_LIST3(SCM_MAKE_INT(key),
+                                          SCM_MAKE_INT(x),
+                                          SCM_MAKE_INT(y)));
+   }
+ }
+#endif"
+
+(define-cproc glut-keyboard-up-func (fn)
+  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
+  keyboard_up_fn = fn;
+  glutKeyboardUpFunc(keyboard_up_callback);
+#endif
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; SpecialUp --------------------------------
+"#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
+ static ScmObj special_up_fn = SCM_FALSE;
+ static void special_up_callback(int key, int x, int y)
+ {
+   if (SCM_PROCEDUREP(special_up_fn)) {
+      Scm_Apply(special_up_fn, SCM_LIST3(SCM_MAKE_INT(key),
+                                         SCM_MAKE_INT(x),
+                                         SCM_MAKE_INT(y)));
+   }
+ }
+#endif"
+
+(define-cproc glut-special-up-func (fn)
+  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
+  special_up_fn = fn;
+  glutSpecialUpFunc(special_up_callback);
+#endif
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; Joystick ------------------------------------
+"#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
+ static ScmObj joystick_fn = SCM_FALSE;
+ static void joystick_callback(unsigned int mask, int x, int y, int z)
+ {
+   if (SCM_PROCEDUREP(joystick_fn)) {
+      Scm_Apply(joystick_fn, SCM_LIST4(Scm_MakeIntegerFromUI(mask),
+                                       SCM_MAKE_INT(x),
+                                       SCM_MAKE_INT(y),
+                                       SCM_MAKE_INT(z)));
+   }
+ }
+#endif"
+
+(define-cproc glut-joystick-func (fn interval)
+  (assert (exact? interval))
+  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
+  joystick_fn = fn;
+  glutJoystickFunc(joystick_callback, interval);
+#endif
+  SCM_RETURN(SCM_UNDEFINED);")
 
 ;;========================================================
 ;; Colormap
@@ -567,10 +775,53 @@
 #endif")
 
 ;;========================================================
-;; font
+;; Font
 ;;
 
-;; TODO: font object
+(define-type "glut-font" glut-font?
+  "ScmGlutFont*" "SCM_GLUT_FONT_P" "SCM_GLUT_FONT")
+
+(define-cproc glut-bitmap-character (font character)
+  (assert (glut-font? font))
+  (assert (exact? character))
+  "glutBitmapCharacter(font->font, character);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-bitmap-width (font character)
+  (assert (glut-font? font))
+  (assert (exact? character))
+  "SCM_RETURN(Scm_MakeInteger(glutBitmapWidth(font->font, character)));")
+
+(define-cproc glut-stroke-character (font character)
+  (assert (glut-font? font))
+  (assert (exact? character))
+  "glutStrokeCharacter(font->font, character);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-stroke-width (font character)
+  (assert (glut-font? font))
+  (assert (exact? character))
+  "SCM_RETURN(Scm_MakeInteger(glutStrokeWidth(font->font, character)));")
+
+(define-cproc glut-bitmap-length (font string)
+  (assert (glut-font? font))
+  (assert (string? string))
+  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
+  SCM_RETURN(Scm_MakeInteger(glutBitmapLength(font->font,
+                                              (const unsigned char*)Scm_GetStringConst(string))));
+#else
+  SCM_RETURN(SCM_MAKE_INT(0));
+#endif")
+
+(define-cproc glut-stroke-length (font string)
+  (assert (glut-font? font))
+  (assert (string? string))
+  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
+  SCM_RETURN(Scm_MakeInteger(glutStrokeLength(font->font,
+                                              (const unsigned char*)Scm_GetStringConst(string))));
+#else
+  SCM_RETURN(SCM_MAKE_INT(0));
+#endif")
 
 ;;========================================================
 ;; pre-built models

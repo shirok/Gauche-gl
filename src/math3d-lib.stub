@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.4 2002-09-29 00:29:11 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.5 2002-09-29 02:04:53 shirok Exp $
 ;;;
 
 "
@@ -62,6 +62,19 @@
   for (i=0; i<4; i++) SCM_F32VECTOR_ELEMENTS(fv)[i] = SCM_VECTOR4F_D(v)[i];
   SCM_RETURN(fv);")
 
+(define-cproc vector4f-copy (v::<vector4f>)
+  "SCM_RETURN(Scm_MakeVector4fv(SCM_VECTOR4F_D(v)));")
+
+(define-cproc vector4f-copy! (dst::<vector4f> src::<vector4f>)
+  "float *dp = SCM_VECTOR4F_D(dst), *sp = SCM_VECTOR4F_D(src);
+  SCM_VECTOR4F_OP(i, dp[i] = sp[i]);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc vector4f-set! (x::<vector4f> i::<fixnum> v::<real>)
+  "if (i < 0 || i > 3) Scm_Error(\"vector index out of range: %d\", i);
+   SCM_VECTOR4F_D(x)[i] = v;
+   SCM_RETURN(SCM_UNDEFINED);")
+
 (define-cproc vector4f-ref (x::<vector4f> i::<fixnum> &optional fallback)
   "if (i < 0 || i > 3) {
      if (SCM_UNBOUNDP(fallback)) {
@@ -70,10 +83,7 @@
      SCM_RETURN(fallback);
   }
   SCM_RETURN(Scm_MakeFlonum(SCM_VECTOR4F_REF(x, i)));"
-  (setter (x::<vector4f> i::<fixnum> v::<real>)
-   "if (i < 0 || i > 3) Scm_Error(\"vector index out of range: %d\", i);
-    SCM_VECTOR4F_D(x)[i] = v;
-    SCM_RETURN(SCM_UNDEFINED);"))
+  (setter vector4f-set!))
 
 (define-cproc vector4f-dot (x::<vector4f> y::<vector4f>)
   (return <float> "Scm_Vector4fDot"))
@@ -90,8 +100,16 @@
 (define-cproc vector4f-add (x::<vector4f> y::<vector4f>)
   (return "Scm_Vector4fAdd"))
 
+(define-cproc vector4f-add! (x::<vector4f> y::<vector4f>)
+  "Scm_Vector4fAddv(SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(y));
+  SCM_RETURN(SCM_OBJ(x));")
+
 (define-cproc vector4f-sub (x::<vector4f> y::<vector4f>)
   (return "Scm_Vector4fSub"))
+
+(define-cproc vector4f-sub! (x::<vector4f> y::<vector4f>)
+  "Scm_Vector4fSubv(SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(y));
+  SCM_RETURN(SCM_OBJ(x));")
 
 ;; VectorArray --------------------------------------------------
 
@@ -113,11 +131,14 @@
 (define-cproc vector4f-array-length (v::<vector4f-array>)
   (return <fixnum> "SCM_VECTOR4F_ARRAY_SIZE"))
 
-;(define-cproc f32vector->vector4f-array (v::<f32vector>)
-;  (return "Scm_F32VectorToVectorArray"))
+(define-cproc f32vector->vector4f-array/shared (v::<f32vector>)
+  (return "Scm_MakeVector4fArrayV"))
 
-;(define-cproc vector4f-array->f32vector (a::<vector4f-array>)
-;  (return "Scm_Vector4fArrayToF32Vector"))
+(define-cproc vector4f-array->f32vector (a::<vector4f-array>)
+  "ScmObj v = Scm_MakeF32Vector(SCM_VECTOR4F_ARRAY_SIZE(a)*4, 0.0);
+  int i; float *dp = SCM_F32VECTOR_ELEMENTS(v), *sp = SCM_VECTOR4F_ARRAY_D(a);
+  for (i=0; i<SCM_F32VECTOR_SIZE(v); i++) *dp++ = *sp++;
+  SCM_RETURN(v);")
 
 (define-cproc vector4f-array-set! (a::<vector4f-array>
                                    i::<fixnum> x::<vector4f>)
@@ -127,6 +148,10 @@
                                   i::<fixnum> &optional fallback)
   (return "Scm_Vector4fArrayRef")
   (setter vector4f-array-set!))
+
+(define-cproc vector4f-array-ref/shared (a::<vector4f-array>
+                                         i::<fixnum> &optional fallback)
+  (return "Scm_Vector4fArrayRefShared"))
 
 ;; point4f ------------------------------------------------------
 
@@ -142,25 +167,47 @@
 (define-cproc point4f->list (x::<point4f>)
   (return "Scm_Point4fToList"))
 
-;(define-cproc f32vector->point4f (v::<f32vector>)
-;  (return "Scm_F32VectorToPoint4f"))
+(define-cproc f32vector->point4f (v::<f32vector> &optional (start::<fixnum> 0))
+  "int size = SCM_F32VECTOR_SIZE(v);
+  if (start < 0 || size-start < 4)
+    Scm_Error(\"f32vector too small: %S (start=%d)\", v, start);
+  SCM_RETURN(Scm_MakePoint4fv(SCM_F32VECTOR_ELEMENTS(v)+start));")
+  
+(define-cproc point4f->f32vector (v::<point4f>)
+  "ScmObj fv = Scm_MakeF32Vector(4, 0.0);
+  int i;
+  for (i=0; i<4; i++) SCM_F32VECTOR_ELEMENTS(fv)[i] = SCM_POINT4F_D(v)[i];
+  SCM_RETURN(fv);")
 
-;(define-cproc point4f->f32vector (x::<point4f>)
-;  (return "Scm_Point4fToF32Vector"))
+(define-cproc point4f-copy (v::<point4f>)
+  "SCM_RETURN(Scm_MakePoint4fv(SCM_POINT4F_D(v)));")
+
+(define-cproc point4f-copy! (dst::<point4f> src::<point4f>)
+  "float *dp = SCM_POINT4F_D(dst), *sp = SCM_POINT4F_D(src);
+  SCM_VECTOR4F_OP(i, dp[i] = sp[i]);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc point4f-set! (x::<point4f> i::<fixnum> v::<real>)
+  "if (i < 0 || i > 3) Scm_Error(\"point index out of range: %d\", i);
+   SCM_POINT4F_D(x)[i] = v;
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc point4f-ref (x::<point4f> i::<fixnum>)
   "if (i < 0 || i > 3) Scm_Error(\"vpoint index out of range: %d\", i);
   SCM_RETURN(Scm_MakeFlonum(SCM_POINT4F_REF(x, i)));"
-  (setter (x::<point4f> i::<fixnum> v::<real>)
-   "if (i < 0 || i > 3) Scm_Error(\"point index out of range: %d\", i);
-    SCM_POINT4F_D(x)[i] = v;
-    SCM_RETURN(SCM_UNDEFINED);"))
+  (setter point4f-set!))
 
 (define-cproc point4f-add (x::<point4f> y::<vector4f>)
   (return "Scm_Point4fAdd"))
 
+(define-cproc point4f-add! (x::<point4f> y::<vector4f>)
+  "Scm_Vector4fAddv(SCM_POINT4F_D(x), SCM_POINT4F_D(x), SCM_VECTOR4F_D(y));
+  SCM_RETURN(SCM_OBJ(x));")
+
 (define-cproc point4f-sub (x::<point4f> y)
   (return "Scm_Point4fSub"))
+
+;point4f-sub!
 
 ;; Point4fArray ---------------------------------------------------
 
@@ -182,20 +229,28 @@
 (define-cproc point4f-array-length (v::<point4f-array>)
   (return <fixnum> "SCM_POINT4F_ARRAY_SIZE"))
 
-;(define-cproc f32vector->point4f-array (v::<f32vector>)
-;  (return "Scm_F32VectorToPoint4fArray"))
+(define-cproc f32vector->point4f-array/shared (v::<f32vector>)
+  (return "Scm_MakePoint4fArrayV"))
 
-;(define-cproc point4f-array->f32vector (a::<point4f-array>)
-;  (return "Scm_Point4fArrayToF32Vector"))
+(define-cproc point4f-array->f32vector (a::<point4f-array>)
+  "ScmObj v = Scm_MakeF32Vector(SCM_POINT4F_ARRAY_SIZE(a)*4, 0.0);
+  int i; float *dp = SCM_F32VECTOR_ELEMENTS(v), *sp = SCM_POINT4F_ARRAY_D(a);
+  for (i=0; i<SCM_F32VECTOR_SIZE(v); i++) *dp++ = *sp++;
+  SCM_RETURN(v);")
 
 (define-cproc point4f-array-set! (a::<point4f-array>
                                   i::<fixnum>
                                   x::<point4f>)
   (return <void> "Scm_Point4fArraySet"))
 
-(define-cproc point4f-array-ref (a::<point4f-array> i::<fixnum> &optional fallback)
+(define-cproc point4f-array-ref (a::<point4f-array>
+                                 i::<fixnum> &optional fallback)
   (return "Scm_Point4fArrayRef")
   (setter point4f-array-set!))
+
+(define-cproc point4f-array-ref/shared (a::<point4f-array>
+                                        i::<fixnum> &optional fallback)
+  (return "Scm_Point4fArrayRefShared"))
 
 ;; Matrix4f -------------------------------------------------------
 

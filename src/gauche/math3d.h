@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.6 2002-09-29 00:29:11 shirok Exp $
+ *  $Id: math3d.h,v 1.7 2002-09-29 02:04:53 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -54,8 +54,8 @@ SCM_CLASS_DECL(Scm_Vector4fClass);
 #define SCM_VECTOR4F_REF(obj, i) (SCM_VECTOR4F_D(obj)[i])
 
 extern ScmObj Scm_MakeVector4fv(const float d[]);
+extern ScmObj Scm_MakeVector4fvShared(float d[]);
 extern ScmObj Scm_MakeVector4f(float x, float y, float z, float w);
-extern ScmObj Scm_MakeVector4fV(ScmF32Vector *v);
 extern ScmObj Scm_ListToVector4f(ScmObj l);
 extern ScmObj Scm_Vector4fToList(const ScmVector4f *v);
 
@@ -129,6 +129,7 @@ extern ScmObj Scm_MakeVector4fArrayV(ScmF32Vector *src);
     SCM_VECTOR4F_ARRAY_D(obj)[(n)*4+3] = (w))
 
 extern ScmObj Scm_Vector4fArrayRef(const ScmVector4fArray *obj, int n, ScmObj fallback);
+extern ScmObj Scm_Vector4fArrayRefShared(ScmVector4fArray *obj, int n, ScmObj fallback);
 extern float *Scm_Vector4fArrayRefv(ScmVector4fArray *obj, int n);
 extern void   Scm_Vector4fArraySet(ScmVector4fArray *obj, int n, ScmVector4f *v);
 extern void   Scm_Vector4fArraySetv(ScmVector4fArray *obj, int n, float d[]);
@@ -148,7 +149,7 @@ SCM_CLASS_DECL(Scm_Point4fClass);
 
 extern ScmObj Scm_MakePoint4f(float x, float y, float z, float w);
 extern ScmObj Scm_MakePoint4fv(const float d[]);
-extern ScmObj Scm_MakePoint4fV(ScmF32Vector *v);
+extern ScmObj Scm_MakePoint4fvShared(float d[]);
 extern ScmObj Scm_ListToPoint4f(ScmObj l);
 extern ScmObj Scm_Point4fToList(const ScmPoint4f *p);
 extern ScmObj Scm_Point4fAdd(const ScmPoint4f *p, const ScmVector4f *q);
@@ -178,6 +179,7 @@ extern ScmObj Scm_MakePoint4fArrayV(ScmF32Vector *src);
     SCM_POINT4F_ARRAY_D(obj)[(n)*4+3] = (w))
 
 extern ScmObj Scm_Point4fArrayRef(const ScmPoint4fArray *obj, int n, ScmObj fallback);
+extern ScmObj Scm_Point4fArrayRefShared(ScmPoint4fArray *obj, int n, ScmObj fallback);
 extern float *Scm_Point4fArrayRefv(ScmPoint4fArray *obj, int n);
 extern void   Scm_Point4fArraySet(ScmPoint4fArray *obj, int n, ScmPoint4f *v);
 extern void   Scm_Point4fArraySetv(ScmPoint4fArray *obj, int n, float d[]);

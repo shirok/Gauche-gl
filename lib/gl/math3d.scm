@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.5 2002-09-29 00:52:23 shirok Exp $
+;;;  $Id: math3d.scm,v 1.6 2002-09-29 02:04:45 shirok Exp $
 ;;;
 
 (define-module gl.math3d
@@ -29,6 +29,16 @@
 (define-reader-ctor '<point4f>  point4f)
 (define-reader-ctor '<matrix4f> matrix4f)
 (define-reader-ctor '<quatf>    quatf)
+
+;; Auxiliary fns
+
+(define (f32vector->vector4f-array v)
+  (check-arg f32vector? v)
+  (f32vector->vector4f-array/shared (f32vector-copy v)))
+
+(define (f32vector->point4f-array v)
+  (check-arg f32vector? v)
+  (f32vector->point4f-array/shared (f32vector-copy v)))
 
 ;; collection framework
 (define-method ref ((x <vector4f>) (i <integer>))

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.6 2002-09-29 00:29:11 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.7 2002-09-29 02:04:53 shirok Exp $
  */
 
 #include <gauche.h>
@@ -82,13 +82,12 @@ ScmObj Scm_MakeVector4f(float x, float y, float z, float w)
     return SCM_OBJ(v);
 }
 
-ScmObj Scm_MakeVector4fV(ScmF32Vector *fv)
+ScmObj Scm_MakeVector4fvShared(float d[])
 {
     ScmVector4f *v;
-    CHECK_F32V(fv, 4);
     v = SCM_NEW(ScmVector4f);
     SCM_SET_CLASS(v, SCM_CLASS_VECTOR4F);
-    v->v = SCM_F32VECTOR_ELEMENTS(fv); /* share the vector */
+    v->v = d;
     return SCM_OBJ(v);
 }
 
@@ -283,6 +282,15 @@ ScmObj Scm_Vector4fArrayRef(const ScmVector4fArray *a, int n, ScmObj fallback)
     return Scm_MakeVector4fv(SCM_VECTOR4F_ARRAY_REFV(a, n));
 }
 
+ScmObj Scm_Vector4fArrayRefShared(ScmVector4fArray *a, int n, ScmObj fallback)
+{
+    if (n < 0 || n >= SCM_VECTOR4F_ARRAY_SIZE(a)) {
+        if (SCM_UNBOUNDP(fallback)) Scm_Error("index out of range");
+        return fallback;
+    }
+    return Scm_MakeVector4fvShared(SCM_VECTOR4F_ARRAY_REFV(a, n));
+}
+
 float *Scm_Vector4fArrayRefv(ScmVector4fArray *a, int n)
 {
     return SCM_VECTOR4F_ARRAY_REFV(a, n);
@@ -334,13 +342,12 @@ ScmObj Scm_MakePoint4fv(const float *d)
     else   return Scm_MakePoint4f(0.0, 0.0, 0.0, 0.0);
 }
 
-ScmObj Scm_MakePoint4fV(ScmF32Vector *fv)
+ScmObj Scm_MakePoint4fvShared(float d[])
 {
     ScmPoint4f *v;
-    CHECK_F32V(fv, 4);
     v = SCM_NEW(ScmPoint4f);
     SCM_SET_CLASS(v, SCM_CLASS_POINT4F);
-    v->v = SCM_F32VECTOR_ELEMENTS(fv);
+    v->v = d;
     return SCM_OBJ(v);
 }
 
@@ -443,6 +450,15 @@ ScmObj Scm_Point4fArrayRef(const ScmPoint4fArray *a, int n, ScmObj fallback)
         return fallback;
     }
     return Scm_MakePoint4fv(SCM_POINT4F_ARRAY_REFV(a, n));
+}
+
+ScmObj Scm_Point4fArrayRefShared(ScmPoint4fArray *a, int n, ScmObj fallback)
+{
+    if (n < 0 || n >= SCM_POINT4F_ARRAY_SIZE(a)) {
+        if (SCM_UNBOUNDP(fallback)) Scm_Error("index out of range");
+        return fallback;
+    }
+    return Scm_MakePoint4fvShared(SCM_POINT4F_ARRAY_REFV(a, n));
 }
 
 float *Scm_Point4fArrayRefv(ScmPoint4fArray *a, int n)

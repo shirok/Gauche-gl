@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.5 2002-07-24 15:39:20 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.6 2002-07-31 10:51:38 shirok Exp $
 ;;;
 
 "
@@ -58,8 +58,7 @@
   "glutInitDisplayMode(mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-init-display-string (string)
-  (assert (string? string))
+(define-cproc glut-init-display-string (string::<string>)
   "
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
   glutInitDisplayString(Scm_GetStringConst(string));
@@ -78,8 +77,7 @@
   "glutMainLoop();
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-create-window (name)
-  (assert (string? name))
+(define-cproc glut-create-window (name::<string>)
   "SCM_RETURN(Scm_MakeInteger(glutCreateWindow(Scm_GetStringConst(name))));")
 
 (define-cproc glut-create-sub-window (win::<int> x::<int> y::<int>
@@ -112,13 +110,11 @@
   "glutSetWindow(win);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-set-window-title (title)
-  (assert (string? title))
+(define-cproc glut-set-window-title (title::<string>)
   "glutSetWindowTitle(Scm_GetStringConst(title));
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-set-icon-title (title)
-  (assert (string? title))
+(define-cproc glut-set-icon-title (title::<string>)
   "glutSetIconTitle(Scm_GetStringConst(title));
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -232,8 +228,7 @@
     }
  }"
 
-(define-cproc glut-create-menu (callback)
-  (assert (procedure? callback))
+(define-cproc glut-create-menu (callback::<procedure>)
   "  int menu = glutCreateMenu(menu_callback);
   if (menu >= 0) {
     menu_fn_assoc = Scm_Acons(SCM_MAKE_INT(menu), SCM_OBJ(callback), menu_fn_assoc);
@@ -712,8 +707,7 @@
 (define-cproc glut-device-get (type::<int>)
   "SCM_RETURN(Scm_MakeInteger(glutDeviceGet(type)));")
 
-(define-cproc glut-extension-supported (name)
-  (assert (string? name))
+(define-cproc glut-extension-supported (name::<string>)
   "#if (GLUT_API_VERSION >= 2)
    SCM_RETURN(SCM_MAKE_BOOL(glutExtensionSupported(Scm_GetStringConst(name))));
 #else
@@ -738,30 +732,24 @@
 ;; Font
 ;;
 
-(define-type "glut-font" glut-font?
-  "ScmGlutFont*" "SCM_GLUT_FONT_P" "SCM_GLUT_FONT")
+(define-type <glut-font> "ScmGlutFont*" #f
+  "SCM_GLUT_FONT_P" "SCM_GLUT_FONT")
 
-(define-cproc glut-bitmap-character (font character::<int>)
-  (assert (glut-font? font))
+(define-cproc glut-bitmap-character (font::<glut-font> character::<int>)
   "glutBitmapCharacter(font->font, character);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-bitmap-width (font character::<int>)
-  (assert (glut-font? font))
+(define-cproc glut-bitmap-width (font::<glut-font> character::<int>)
   "SCM_RETURN(Scm_MakeInteger(glutBitmapWidth(font->font, character)));")
 
-(define-cproc glut-stroke-character (font character::<int>)
-  (assert (glut-font? font))
+(define-cproc glut-stroke-character (font::<glut-font> character::<int>)
   "glutStrokeCharacter(font->font, character);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-stroke-width (font character::<int>)
-  (assert (glut-font? font))
+(define-cproc glut-stroke-width (font::<glut-font> character::<int>)
   "SCM_RETURN(Scm_MakeInteger(glutStrokeWidth(font->font, character)));")
 
-(define-cproc glut-bitmap-length (font string)
-  (assert (glut-font? font))
-  (assert (string? string))
+(define-cproc glut-bitmap-length (font::<glut-font> string::<string>)
   "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
   SCM_RETURN(Scm_MakeInteger(glutBitmapLength(font->font,
                                               (const unsigned char*)Scm_GetStringConst(string))));
@@ -769,9 +757,7 @@
   SCM_RETURN(SCM_MAKE_INT(0));
 #endif")
 
-(define-cproc glut-stroke-length (font string)
-  (assert (glut-font? font))
-  (assert (string? string))
+(define-cproc glut-stroke-length (font::<glut-font> string::<string>)
   "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
   SCM_RETURN(Scm_MakeInteger(glutStrokeLength(font->font,
                                               (const unsigned char*)Scm_GetStringConst(string))));
@@ -783,15 +769,11 @@
 ;; pre-built models
 ;;
 
-(define-cproc glut-wire-sphere (radius slices::<int> stacks::<int>)
-  (assert (number? radius))
-  "glutWireSphere((GLdouble)Scm_GetDouble(radius), (GLint)slices, (GLint)stacks);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-wire-sphere (radius::<real> slices::<int> stacks::<int>)
+  (return <void> "glutWireSphere"))
 
-(define-cproc glut-solid-sphere (radius slices::<int> stacks::<int>)
-  (assert (number? radius))
-  "glutSolidSphere((GLdouble)Scm_GetDouble(radius), (GLint)slices, (GLint)stacks);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-solid-sphere (radius::<real> slices::<int> stacks::<int>)
+  (return <void> "glutSolidSphere"))
 
 (define-cproc glut-wire-cone (radius::<real> height::<real>
                               slices::<int> stacks::<int>)

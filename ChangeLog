@@ -1,3 +1,7 @@
+2003-01-19  Shiro Kawai  <shiro@acm.org>
+
+	* lib/gl/math3d.scm (call-with-iterator): fixed typos.
+
 2003-01-07  Shiro Kawai  <shiro@acm.org>
 
 	* src/math3d-lib.stub (matrix4f->rotation!): returns axis and angle,

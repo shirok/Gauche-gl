@@ -37,7 +37,7 @@ glu-lib.c : glu-lib.stub
 gauche-gl.c : gettype-sizes.c
 
 gettype-sizes.c : glstate.scm
-	$(GOSH) glstate.scm -o gettype-sizes.c gettype
+	$(GOSH) ./glstate.scm -o gettype-sizes.c gettype
 
 $(GLOBJS) : gauche-gl.h
 

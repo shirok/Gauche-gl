@@ -1,3 +1,8 @@
+2001-12-21  Shiro Kawai  <shiro@acm.org>
+
+	* release 0.1.1
+	* src/Makefile.in : adapted to Gauche-0.4.11
+
 2001-11-21  Shiro Kawai  <shiro@acm.org>
 
 	* src/glu-lib.stub : added more Nurbs support fns.

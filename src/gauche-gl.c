@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.6 2001-10-02 11:08:28 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.7 2001-10-03 10:17:18 shirok Exp $
  */
 
 #include <gauche.h>
@@ -77,10 +77,10 @@ void Scm_Init_gauche_gl(void)
 #define DEF(name)  SCM_DEFINE(mod, #name, Scm_MakeInteger(name))
 
 #ifdef GL_TEXTURE_BINDING_3D
-    DEF(GL_TEXTIRE_BINDING_3D);
+    DEF(GL_TEXTURE_BINDING_3D);
 #endif
 #ifdef GL_TEXTURE_3D_BINDING_EXT
-    DEF(GL_TEXTIRE_3D_BINDING_EXT);
+    DEF(GL_TEXTURE_3D_BINDING_EXT);
 #endif
 #ifdef GL_COLOR_TABLE_FORMAT
     DEF(GL_COLOR_TABLE_FORMAT);

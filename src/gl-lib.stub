@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.11 2001-10-14 10:01:11 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.12 2001-10-14 13:02:33 shirok Exp $
 ;;;
 
 "
@@ -1337,15 +1337,126 @@
 ;; Texture mapping
 ;;
 
+(define-cproc gl-tex-gen (coord pname param)
+  (assert (small-integer? coord))
+  (assert (small-integer? pname))
+  "switch (pname) {
+    case GL_TEXTURE_GEN_MODE:
+      if (!SCM_INTP(param)) {
+        Scm_Error(\"integer parameter required for GL_TEXTURE_GEN_MODE, but got %S\", param);
+      }
+      glTexGeni(coord, pname, SCM_INT_VALUE(param));
+      break;
+    case GL_OBJECT_PLANE:;
+    case GL_EYE_PLANE:;
+      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
+        glTexGenfv(coord, pname, SCM_F32VECTOR_ELEMENTS(param));
+      } else if (SCM_F64VECTORP(param) && SCM_F64VECTOR_SIZE(param) == 4) {
+        glTexGendv(coord, pname, SCM_F64VECTOR_ELEMENTS(param));
+      } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
+        glTexGeniv(coord, pname, SCM_S32VECTOR_ELEMENTS(param));
+      } else {
+        Scm_Error(\"s32, f32 or f64 vector of size 4 is required for parameter, but got %S\", param);
+      }
+      break;
+     default:
+      Scm_Error(\"unknown or unsupported glTexGen pname: %d\", pname);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
 
+(define-cproc gl-tex-env (target pname param)
+  (assert (small-integer? target))
+  (assert (small-integer? pname))
+  "switch (pname) {
+    case GL_TEXTURE_ENV_MODE:
+      if (SCM_INT_P(param)) {
+        glTexEnvi(target, pname, SCM_INT_VALUE(param));
+      } else {
+        Scm_Error(\"integer parameter required for GL_TEXTURE_ENV_MODE, but got %S\", param);
+      }
+      break;
+    case GL_TEXTURE_ENV_COLOR:
+      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
+        glTexEnvfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
+      } else {
+        Scm_Error(\"f32 vector of size 4 is required for GL_TEXTURE_ENV_COLOR parameter, but got %S\", param);
+      }
+      break;
+    default:
+      Scm_Error(\"unknown or unsupported glTexEnv pname: %d\", pname);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;(define-cproc gl-tex-parameter (target pname param)
+;  (assert (small-integer? target))
+;  (assert (small-integer? pname))
+  
 
 ;;=============================================================
 ;; Fog
 ;;
 
+(define-cproc gl-fog (pname param)
+  (assert (small-integer? pname))
+  "switch (pname) {
+    case GL_FOG_MODE:;
+    case GL_FOG_INDEX:;
+      if (SCM_INTP(param)) {
+        glFogi(pname, SCM_INT_VALUE(param));
+      } else {
+        Scm_Error(\"integer parameter required, but got %S\", param);
+      }
+      break;
+    case GL_FOG_DENSITY:;
+    case GL_FOG_START:;
+    case GL_FOG_END:;
+      if (SCM_REALP(param)) {
+        glFogf(pname, (GLfloat)Scm_GetDouble(param));
+      } else {
+        Scm_Error(\"real number parameter required, but got %S\", param);
+      }
+      break;
+    case GL_FOG_COLOR:
+      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
+        glFogfv(pname, SCM_F32VECTOR_ELEMENTS(param));
+      } else {
+        Scm_Error(\"f32 vector of size 4 is required, but got %S\", param);
+      }
+      break;
+    default:
+      Scm_Error(\"unknown or unsupported glFog pname: %d\", pname);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
 ;;=============================================================
 ;; Selection and feedback
 ;;
+
+; gl-feedback-buffer
+; gl-select-buffer
+
+(define-cproc gl-pass-through (token)
+  (assert (real? token))
+  "glPassThrough((GLfloat)token);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-init-names ()
+  "glInitNames();
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-load-name (name)
+  (assert (exact? name))
+  "glLoadName(name);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-push-name (name)
+  (assert (exact? name))
+  "glPushName(name);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-pop-name ()
+  "glPopName();
+  SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; Extensions

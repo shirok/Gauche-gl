@@ -1,0 +1,100 @@
+MANPAGES = 
+EXTRACTED = gauche-gl-refe.texi gauche-gl-refj.texi
+GENERATED = Makefile $(MANPAGES)
+GOSH = @GOSH@
+INSTALL = @INSTALL@
+MAKEINFO = @MAKEINFO@
+GZIP_PROGRAM = @GZIP_PROGRAM@
+
+# Manual page destination.  Default @mandir@ doesn't include 'share'
+# in the path, so I redefine it---a user can still override it by
+# make mandir=wherever
+prefix  = @prefix@
+datadir = @datadir@
+mandir  = $(datadir)/man/man1
+infodir = $(datadir)/info
+
+all: info
+
+install: all
+	if test ! -d $(infodir); then $(INSTALL) -d $(infodir); fi
+	if test -f gauche-gl-refe.info.gz -o -f gauche-gl-refj.info.gz; then \
+	  for info in *.info*; do \
+	    $(INSTALL) -m 444 $$info $(infodir)/; \
+	  done; \
+	fi
+
+uninstall:
+	(cd $(infodir); \
+	 if test -f gauche-gl-refe.info -o -f gauche-gl-refe.info.gz; \
+	   then rm -rf gauche-gl-refe.*; \
+	 fi; \
+	 if test -f gauche-gl-refj.info -o -f gauche-gl-refj.info.gz; \
+	   then rm -rf gauche-gl-refj.*; \
+	 fi)
+
+texi : gauche-gl-refe.texi gauche-gl-refj.texi
+
+html : gauche-gl-refe.html gauche-gl-refj.html
+
+htmls : gauche-gl-refe_toc.html gauche-gl-refj_toc.html
+
+dvi : gauche-gl-refe.dvi
+
+pdf : gauche-gl-refe.pdf
+
+info : gauche-gl-refe.info.gz gauche-gl-refj.info.gz
+
+gauche-gl-refe.html : gauche-gl-refe.texi
+	texi2html -number gauche-gl-refe.texi
+
+gauche-gl-refe_toc.html : gauche-gl-refe.texi
+	texi2html -split section -number gauche-gl-refe.texi
+
+gauche-gl-refe.dvi : gauche-gl-refe.texi
+	texi2dvi gauche-gl-refe.texi
+
+gauche-gl-refe.pdf : gauche-gl-refe.texi
+	texi2pdf gauche-gl-refe.texi
+
+gauche-gl-refe.texi : gauche-gl-ref.texi extract
+	gosh ./extract -en -o gauche-gl-refe.texi gauche-gl-ref.texi
+
+gauche-gl-refe.info.gz : gauche-gl-refe.texi
+	if test X$(MAKEINFO) != X -a X$(GZIP_PROGRAM) != X; then \
+	  $(MAKEINFO) --no-warn gauche-gl-refe.texi; \
+	  rm -rf gauche-gl-refe.info*.gz; \
+	  $(GZIP_PROGRAM) gauche-gl-refe.info gauche-gl-refe.info-[0-9]*; \
+	fi
+
+gauche-gl-refj.html : gauche-gl-refj.texi
+	texi2html -number gauche-gl-refj.texi
+
+gauche-gl-refj_toc.html : gauche-gl-refj.texi
+	texi2html -split section -number gauche-gl-refj.texi
+
+gauche-gl-refj.dvi : gauche-gl-refj.texi
+	texi2dvi gauche-gl-refj.texi
+
+gauche-gl-refj.pdf : gauche-gl-refj.texi
+	texi2pdf gauche-gl-refj.texi
+
+gauche-gl-refj.texi : gauche-gl-ref.texi extract
+	gosh ./extract -jp -o gauche-gl-refj.texi gauche-gl-ref.texi
+
+gauche-gl-refj.info.gz : gauche-gl-refj.texi
+	if test X$(MAKEINFO) != X -a X$(GZIP_PROGRAM) != X; then \
+	  $(MAKEINFO) --no-warn gauche-gl-refj.texi; \
+	  rm -rf gauche-gl-refj.info*.gz; \
+	  $(GZIP_PROGRAM) gauche-gl-refj.info ; \
+	fi
+
+clean:
+	rm -rf core *~ *.aux *.cl *.cls *.cp *.fn *.fns *.ky *.log *.md *.mds \
+	       *.pg *.toc *.tp *.tps *.vr *.vrs *.pdf *.dvi *.info*
+
+distclean : clean
+	rm -rf $(GENERATED)
+
+realclean : clean
+	rm -f gauche-gl-ref*.html gauche-gl-ref.dvi Makefile $(GENERATED) $(EXTRACTED)

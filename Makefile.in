@@ -4,6 +4,7 @@ CONFIG_GENERATED = Makefile config.cache config.log config.status autom4te*.cach
 
 all :
 	cd src; $(MAKE) all
+	cd doc; $(MAKE) all
 
 test : all
 	cd src; $(MAKE) test
@@ -12,18 +13,22 @@ clean :
 	rm -rf core *~
 	cd src; $(MAKE) clean
 	cd lib; $(MAKE) clean
+	cd doc; $(MAKE) clean
 
 distclean : clean
 	cd src; $(MAKE) distclean
 	cd lib; $(MAKE) distclean
+	cd doc; $(MAKE) distclean
 	rm -rf $(CONFIG_GENERATED)
 
 install :
 	cd src; $(MAKE) install
 	cd lib; $(MAKE) install
+	cd doc; $(MAKE) install
 
 realclean : clean
 	cd src; $(MAKE) realclean
 	cd lib; $(MAKE) realclean
+	cd doc; $(MAKE) realclean
 	rm -rf configure $(CONFIG_GENERATED)
 

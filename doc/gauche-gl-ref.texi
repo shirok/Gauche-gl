@@ -1,0 +1,770 @@
+\input texinfo  @c -*-texinfo-*-
+@comment %**start of header
+@c EN
+@setfilename gauche-gl-refe.info
+@settitle Gauche-gl : OpenGL binding for Gauche
+@c JP
+@setfilename gauche-gl-refj.info
+@settitle Gauche-gl : OpenGL binding for Gauche
+@c COMMON
+@comment %**end of header
+
+@c $Id: gauche-gl-ref.texi,v 1.1 2002-10-08 22:16:29 shirok Exp $
+
+@c module and class index
+@defcodeindex md
+@defcodeindex cl
+
+@iftex
+@finalout
+@parskip 4pt plus 1pt
+@end iftex
+
+@titlepage
+@c EN
+@title Gauche-gl : OpenGL binding for Gauche
+@c JP
+@title Gauche-gl : OpenGL binding for Gauche
+@c COMMON
+@subtitle version @VERSION@
+@author Shiro Kawai (shiro@@acm.org)
+
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2002 Shiro Kawai (shiro@@acm.org)
+
+@end titlepage
+
+@node Top, Introduction, (dir), (dir)
+
+@ifnottex
+This is a reference manual of Gauche-gl, an OpenGL binding for the
+Gauche Scheme implementation.
+This manual is for version @VERSION@.
+@end ifnottex
+
+@c ======================================================================
+@menu
+* Introduction::                
+* Installation::                
+* Getting Started::             
+* OpenGL API::                  
+* GLUT API::                    
+* 3D Vector and matrix utility::  
+* GL-Scheme utility::           
+* Indices::                     
+@end menu
+
+@node Introduction, Installation, Top, Top
+@chapter Introduction
+@c NODE はじめに
+
+@c ======================================================================
+@node Installation, Getting Started, Introduction, Top
+@chapter Installation
+
+
+@c ======================================================================
+@node Getting Started, OpenGL API, Installation, Top
+@chapter Getting Started
+
+
+@c ======================================================================
+@node OpenGL API, GLUT API, Getting Started, Top
+@chapter OpenGL API
+
+
+@c ======================================================================
+@node GLUT API, 3D Vector and matrix utility, OpenGL API, Top
+@chapter GLUT API
+
+@c ----------------------------------------------------------------------
+@menu
+* GLUT window manipulation::    
+* GLUT overlay::                
+* GLUT menu API::               
+* GLUT callbacks::              
+* GLUT colormap::               
+* GLUT state retrieval::        
+* GLUT font::                   
+* GLUT pre-built models::       
+@end menu
+
+@node GLUT window manipulation, GLUT overlay, GLUT API, GLUT API
+@section GLUT window manipulation
+
+@defun glut-init args
+@end defun
+
+@defun glut-init-display-mode mode
+@end defun
+
+@defvr {Constant} GLUT_RGB
+@defvrx {Constant} GLUT_RGBA
+@defvrx {Constant} GLUT_INDEX
+@defvrx {Constant} GLUT_SINGLE
+@defvrx {Constant} GLUT_DOUBLE
+@defvrx {Constant} GLUT_ACCUM
+@defvrx {Constant} GLUT_ALPHA
+@defvrx {Constant} GLUT_DEPTH
+@defvrx {Constant} GLUT_STENCIL
+@defvrx {Constant} GLUT_MULTISAMPLE
+@defvrx {Constant} GLUT_STEREO
+@defvrx {Constant} GLUT_LUMINANCE
+@end defvr
+
+@defun glut-init-display-string string
+@end defun
+
+@defun glut-init-window-size width height
+@end defun
+
+@defun glut-init-window-position x y
+@end defun
+
+@defun glut-main-loop
+@end defun
+
+@defun glut-create-widnow name
+@end defun
+
+@defun glut-create-sub-window win x y width height
+@end defun
+
+@defun glut-destroy-window win
+@end defun
+
+@defun glut-post-redisplay
+@end defun
+
+@defun glut-post-window-redisplay win
+@end defun
+
+@defun glut-swap-buffers
+@end defun
+
+@defun glut-get-window
+@end defun
+
+@defun glut-set-window win
+@end defun
+
+@defun glut-set-window-title title
+@end defun
+
+@defun glut-set-icon-title title
+@end defun
+
+@defun glut-position-window x y
+@end defun
+
+@defun glut-reshape-window width height
+@end defun
+
+@defun glut-push-window
+@defunx glut-pop-window
+@end defun
+
+@defun glut-iconify-window
+@end defun
+
+@defun glut-show-window
+@defunx glut-hide-window
+@end defun
+
+@defun glut-full-screen
+@end defun
+
+@defun glut-set-cursor cursor
+@end defun
+
+@defun glut-warp-pointer x y
+@end defun
+
+@c ----------------------------------------------------------------------
+@node GLUT overlay, GLUT menu API, GLUT window manipulation, GLUT API
+@section GLUT overlay
+
+@defun glut-establish-overlay
+@end defun
+
+@defun glut-remove-overlay
+@end defun
+
+@defun glut-use-layer layer
+@end defun
+
+@defun glut-post-overlay-redisplay
+@end defun
+
+@defun glut-post-window-overlay-redisplay win
+@end defun
+
+@defun glut-show-overlay
+@end defun
+
+@defun glut-hide-overlay
+@end defun
+
+@c ----------------------------------------------------------------------
+@node GLUT menu API, GLUT callbacks, GLUT overlay, GLUT API
+@section GLUT menu API
+
+@defun glut-create-menu callback
+@end defun
+
+@defun glut-destroy-menu menu
+@end defun
+
+@defun glut-get-emnu
+@end defun
+
+@defun glut-set-menu menu
+@end defun
+
+@defun glut-add-menu-entry label value
+@end defun
+
+@defun glut-add-sub-menu label submenu
+@end defun
+
+@defun glut-change-to-menu-entry item label value
+@end defun
+
+@defun glut-change-to-sub-menu item label submenu
+@end defun
+
+@defun glut-remove-menu-item item
+@end defun
+
+@defun gult-attach-menu button
+@end defun
+
+@defun glut-detach-menu button
+@end defun
+
+@c ----------------------------------------------------------------------
+@node GLUT callbacks, GLUT colormap, GLUT menu API, GLUT API
+@section GLUT callbacks
+
+@defun glut-display-func fn
+@end defun
+
+@defun glut-reshape-func fn
+@end defun
+
+@defun glut-keyboard-func fn
+@end defun
+
+@defvr {Constant} GLUT_KEY_F1
+@defvrx {Constant} GLUT_KEY_F2
+@defvrx {Constant} GLUT_KEY_F3
+@defvrx {Constant} GLUT_KEY_F4
+@defvrx {Constant} GLUT_KEY_F5
+@defvrx {Constant} GLUT_KEY_F6
+@defvrx {Constant} GLUT_KEY_F7
+@defvrx {Constant} GLUT_KEY_F8
+@defvrx {Constant} GLUT_KEY_F9
+@defvrx {Constant} GLUT_KEY_F10
+@defvrx {Constant} GLUT_KEY_F11
+@defvrx {Constant} GLUT_KEY_F12
+@defvrx {Constant} GLUT_KEY_LEFT
+@defvrx {Constant} GLUT_KEY_UP
+@defvrx {Constant} GLUT_KEY_RIGHT
+@defvrx {Constant} GLUT_KEY_DOWN
+@defvrx {Constant} GLUT_KEY_PAGE_UP
+@defvrx {Constant} GLUT_KEY_PAGE_DOWN
+@defvrx {Constant} GLUT_KEY_HOME
+@defvrx {Constant} GLUT_KEY_END
+@defvrx {Constant} GLUT_KEY_INSERT
+@end defvr
+
+
+@defun glut-mouse-func fn
+@end defun
+
+@defvr {Constant} GLUT_LEFT_BUTTON
+@defvrx {Constant} GLUT_MIDDLE_BUTTON
+@defvrx {Constant} GLUT_RIGHT_BUTTON
+@defvrx {Constant} GLUT_DOWN
+@defvrx {Constant} GLUT_UP
+@end defvr
+
+@defun glut-motion-func fn
+@end defun
+
+@defun glut-passive-motion-func fn
+@end defun
+
+@defun glut-entry-func fn
+@end defun
+
+@defun glut-visibility-func fn
+@end defun
+
+@defun glut-idle-func fn
+@end defun
+
+@defun glut-timer-func millis fn value
+@end defun
+
+@defun glut-menu-state-func fn
+@end defun
+
+@defun glut-special-func fn
+@end defun
+
+@defun glut-spaceball-motion-func fn
+@end defun
+
+@defun glut-spaceball-rotate-func fn
+@end defun
+
+@defun glut-spaceball-button-func fn
+@end defun
+
+@defun glut-button-box-func fn
+@end defun
+
+@defun glut-dials-func fn
+@end defun
+
+@defun glut-tablet-motion-func fn
+@end defun
+
+@defun glut-tablet-button-func fn
+@end defun
+
+@defun glut-menu-status-func fn
+@end defun
+
+@defun glut-overlay-dislay-func fn
+@end defun
+
+@defun glut-window-status-func fn
+@end defun
+
+@defun glut-keyboard-up-func fn
+@end defun
+
+@defun glut-special-up-func fn
+@end defun
+
+@defun glut-joystick-func fn interval
+@end defun
+
+@c ----------------------------------------------------------------------
+@node GLUT colormap, GLUT state retrieval, GLUT callbacks, GLUT API
+@section GLUT colormap
+
+@defun glut-set-color index r g b
+@end defun
+
+@defun glut-get-color index component
+@end defun
+
+@defun glut-copy-colormap win
+@end defun
+
+@c ----------------------------------------------------------------------
+@node GLUT state retrieval, GLUT font, GLUT colormap, GLUT API
+@section GLUT state retrieval
+
+@defun glut-get type
+@end defun
+
+@defun glut-device-get type
+@end defun
+
+@defun glut-extenson-supported name
+@end defun
+
+@defun glut-get-modifiers 
+@end defun
+
+@defun glut-layer-get type
+@end defun
+
+@c ----------------------------------------------------------------------
+@node GLUT font, GLUT pre-built models, GLUT state retrieval, GLUT API
+@section GLUT font
+
+@deftp {Class} <glut-font>
+@clindex glut-font
+@end deftp
+
+@defun glut-bitmap-character font character
+@end defun
+
+@defun glut-bitmap-width font character
+@end defun
+
+@defun glut-stroke-character font character
+@end defun
+
+@defun glut-stroke-width font character
+@end defun
+
+@defun glut-bitmap-length font string
+@end defun
+
+@defun glut-stroke-length font string
+@end defun
+
+@c ----------------------------------------------------------------------
+@node GLUT pre-built models,  , GLUT font, GLUT API
+@section GLUT pre-built models
+
+@defun glut-wire-sphere radius slices stacks
+@defunx glut-solid-sphere radius slices stacks
+@end defun
+
+@defun glut-wire-cone radius height slices stacks
+@defunx glut-solid-cone radius height slices stacks
+@end defun
+
+@defun glut-wire-cube size
+@defunx glut-solid-cube size
+@end defun
+
+@defun glut-wire-torus inner outer sides rings
+@defunx glut-solid-torus inner outer sides rings
+@end defun
+
+@defun glut-wire-dodecahedron 
+@defunx glut-solid-dodecahedron
+@end defun
+
+@defun glut-wire-teapot size
+@defunx glut-soild-teapot size
+@end defun
+
+@defun glut-wire-octahedron
+@defunx glut-solid-octahedron
+@end defun
+
+@defun glut-wire-tetrahedron
+@defunx glut-solid-tetrahedron
+@end defun
+
+@defun glut-wire-icosahedron
+@defunx glut-solid-icosahedron
+@end defun
+
+
+@c ======================================================================
+@node 3D Vector and matrix utility, GL-Scheme utility, GLUT API, Top
+@chapter 3D Vector and matrix utility
+
+@c ----------------------------------------------------------------------
+@menu
+* Vectors and points::          
+* Vector arrays and point arrays::  
+* Matrices::                    
+* Quaternions::                 
+@end menu
+
+@node Vectors and points, Vector arrays and point arrays, 3D Vector and matrix utility, 3D Vector and matrix utility
+@section Vectors and points
+
+@deftp {Class} <vector4f>
+@deftpx {Class} <point4f>
+@end deftp
+
+@defun vector4f? obj
+@defunx point4f? obj
+@end defun
+
+@defun vector4f x y z &optional w
+@defunx point4f x y z &optional w
+@end defun
+
+@defun make-vector4f
+@defunx make-point4f
+@end defun
+
+@defun list->vector4f l
+@defunx list->point4f l
+@end defun
+
+@defun vector4f->list v
+@defunx point4f->list p
+@end defun
+
+@defun f32vector->vector4f v &optional start
+@defunx f32vector->point4f v &optional start
+@end defun
+
+@defun vector4f->f32vector v
+@defunx point4f->f32vector p
+@end defun
+
+@defun vector4f-copy v
+@defunx point4f-copy p
+@end defun
+
+@defun vector4f-copy! dstv srcv
+@defunx point4f-copy! dstp srcp
+@end defun
+
+@defun vector4f-set! v k value
+@defunx point4f-set! p k value
+@end defun
+
+@defun vector4f-ref v k &optional fallback
+@defunx point4f-ref p k &optional fallback
+@end defun
+
+@defun vector4f-dot x y
+@end defun
+
+@defun vector4f-cross x y
+@end defun
+
+@defun vector4f-normalize x
+@defunx vector4f-normalize! x
+@end defun
+
+@defun vector4f-add x y
+@defunx vector4f-sub x y
+@defunx vector4f-add! x y
+@defunx vector4f-sub! x y
+@end defun
+
+@defun point4f-add x y
+@defunx point4f-add! x y
+@defunx point4f-sub x y
+@defunx point4f-sub! x y
+@end defun
+
+@c ----------------------------------------------------------------------
+@node Vector arrays and point arrays, Matrices, Vectors and points, 3D Vector and matrix utility
+@section Vector arrays and point arrays
+
+@deftp {Class} <vector4f-array>
+@deftpx {Class} <point4f-array>
+@end deftp
+
+@defun vector4f-array? obj
+@defunx point4f-array? obj
+@end defun
+
+@defun vector4f-array-length v
+@defunx point4f-array-length v
+@end defun
+
+@defun f32vector->vector4f-array/shared v
+@defunx f32vector->point4f-array/shared v
+@end defun
+
+@defun vector4f-array->f32vector v
+@defunx point4f-array->f32vector v
+@end defun
+
+@defun vector4f-array-set! array i vector
+@defunx point4f-array-set! array i point
+@end defun
+
+@defun vector4f-array-ref array i &optional fallback
+@defunx point4f-array-ref array i &optional fallback
+@end defun
+
+@defun vector4f-array-ref/shared array i &optional fallback
+@defunx point4f-array-ref/shared array i &optional fallback
+@end defun
+
+
+@c ----------------------------------------------------------------------
+@node Matrices, Quaternions, Vector arrays and point arrays, 3D Vector and matrix utility
+@section Matrices
+
+@deftp {Class} <matrix4f>
+@end deftp
+
+@defun make-matrix4f &optional init
+@end defun
+
+@defun matrix4f &rest args
+@end defun
+
+@defun matrix4f? obj
+@end defun
+
+@defun list->matrix4f l
+@defunx matrix4f->list m
+@end defun
+
+@defun f32vector->matrix4f v &optional start
+@end defun
+
+@defun matrix4f->f32vector m
+@end defun
+
+@defun matrix4f-copy m
+@defunx matrix4f-copy! dstm srcm
+@end defun
+
+@defun matrix4f-mul m obj
+@end defun
+
+@defun matrix4f-mul! m obj
+@end defun
+
+@defun matrix4f-transpose m
+@defunx matrix4f-transpose! m
+@end defun
+
+@defun matrix4f-set! m i value
+@end defun
+
+@defun matrix4f-ref m i &optional fallback
+@end defun
+
+@defun matrix4f-set2! m i j value
+@end defun
+
+@defun matrix4f-ref2 m i j
+@end defun
+
+@defun matrix4f-row m i
+@defunx matrix4f-column m i
+@defunx matrix4f-column/shared m i
+@end defun
+
+@defun translation->matrix4f translation-vector
+@defunx translation->matrix4f! m translation-vector
+@end defun
+
+@defun rotation->matrix4f axis angle
+@defunx rotation->matrix4f! m axis angle
+@end defun
+
+@defun scale->matrix4f scale-vector
+@defunx scale->matrix4f! m scale-vector
+@end defun
+
+@defun trs->matrix4f translation rotation-axis rotation-angle scale
+@defunx trs->matrix4f! m translation rotation-axis rotation-angle scale
+@end defun
+
+@defun tqs->matrix4f translation rotation-quat scale
+@defunx tqs->matrix4f! m translation rotation-quat scale
+@end defun
+
+
+@c ----------------------------------------------------------------------
+@node Quaternions,  , Matrices, 3D Vector and matrix utility
+@section Quaternions
+
+@deftp {Class} <quatf>
+@end deftp
+
+@defun quatf? obj
+@end defun
+
+@defun make-quatf &optional axis (angle 0)
+@end defun
+
+@defun list->quatf l
+@defunx quatf->list q
+@end defun
+
+@defun f32vector->quatf x &optional start
+@end defun
+
+@defun quatf->f32vector q
+@end defun
+
+@defun quatf-copy q
+@defunx quatf-copy! dstq srcq
+@end defun
+
+@defun rotation->quatf! quat axis angle
+@end defun
+
+@defun quatf-add p q
+@defunx quatf-add! p q
+@defunx quatf-sub p q
+@defunx quatf-sub! p q
+@end defun
+
+@defun quatf-scale q s
+@defunx quatf-scale! q s
+@end defun
+
+@defun quatf-mul p q
+@defunx quatf-mul! p q
+@end defun
+
+@defun quatf-transform quatf vector
+@end defun
+
+@defun quatf-conjugate q
+@end defun
+
+@defun quatf-norm q
+@end defun
+
+@defun quatf-normalize q
+@defunx quatf-normalize! q
+@end defun
+
+@defun quatf->matrix4f q
+@defunx quatf->matrix4f! m q
+@end defun
+
+@defun quatf-slerp p q t
+@defunx quatf-slerp r p q t
+@end defun
+
+
+@c ======================================================================
+@node GL-Scheme utility, Indices, 3D Vector and matrix utility, Top
+@chapter GL-Scheme utility
+
+
+
+
+@c ======================================================================
+@node Indices,  , GL-Scheme utility, Top
+@appendix Indices
+@c NODE 索引
+
+@menu
+* Function and Syntax Index::   
+* Module Index::                
+* Class Index::                 
+* Variable Index::              
+@end menu
+
+@node Function and Syntax Index, Module Index, Indices, Indices
+@appendixsec Function and Syntax Index
+@c NODE 手続きと構文索引
+@printindex fn
+
+@node Module Index, Class Index, Function and Syntax Index, Indices
+@appendixsec Module Index
+@c NODE モジュール索引
+@printindex md
+
+@node Class Index, Variable Index, Module Index, Indices
+@appendixsec Class Index
+@c NODE クラス索引
+
+For readability, the surrounding @code{<} and @code{>} are stripped off.
+
+@printindex cl
+
+@node Variable Index,  , Class Index, Indices
+@appendixsec Variable Index
+@c NODE 変数索引
+@printindex vr
+
+
+@contents
+@bye
+
+@c Local variables:
+@c outline-regexp: "@chap\\|@unnu\\|@\\(sub\\)*section"
+@c end:
+

@@ -29,7 +29,7 @@
 
 (define (print-3d-color-vertex buffer count)
   (display "  ")
-  (for-each (lambda (i) (display (ref buffer (+ count i))))
+  (for-each (lambda (i) (display #`",(ref buffer (+ count i)) "))
             (iota 8))
   (print))
 

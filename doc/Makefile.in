@@ -64,7 +64,7 @@ gauche-gl-refe.info.gz : gauche-gl-refe.texi
 	if test X$(MAKEINFO) != X -a X$(GZIP_PROGRAM) != X; then \
 	  $(MAKEINFO) --no-warn gauche-gl-refe.texi; \
 	  rm -rf gauche-gl-refe.info*.gz; \
-	  $(GZIP_PROGRAM) gauche-gl-refe.info gauche-gl-refe.info-[0-9]*; \
+	  $(GZIP_PROGRAM) gauche-gl-refe.info; \
 	fi
 
 gauche-gl-refj.html : gauche-gl-refj.texi

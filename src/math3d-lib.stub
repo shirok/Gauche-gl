@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.20 2003-01-06 12:23:36 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.21 2003-01-06 13:12:15 shirok Exp $
 ;;;
 
 "
@@ -513,6 +513,16 @@
                              SCM_VECTOR4F_D(H),
                              SCM_VECTOR4F_D(S));
   SCM_RETURN(SCM_MAKE_BOOL(r));")
+
+(define-cproc matrix4f->rotation (m::<matrix4f>)
+  "float v[4];
+  float angle = Scm_Matrix4fToRotationv(SCM_MATRIX4F_D(m), v);
+  SCM_RETURN(Scm_Values2(Scm_MakeVector4fv(v), Scm_MakeFlonum((double)angle)));")
+
+(define-cproc matrix4f->rotation! (m::<matrix4f> v::<vector4f>)
+  "float angle = Scm_Matrix4fToRotationv(SCM_MATRIX4F_D(m),
+                                         SCM_VECTOR4F_D(v));
+  SCM_RETURN(Scm_MakeFlonum((double)angle));")
 
 ;; Quatf ----------------------------------------------------
 

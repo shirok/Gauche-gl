@@ -12,9 +12,10 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.19 2003-01-06 12:23:36 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.20 2003-01-06 13:12:15 shirok Exp $
  */
 
+#include <math.h>
 #include <gauche.h>
 #include <gauche/extend.h>
 #include <gauche/uvector.h>
@@ -1003,6 +1004,29 @@ int Scm_Matrix4fDecomposev(const float m[], float T[], float R[],
 
     if (S[0] == 0.0 || S[1] == 0.0 || S[2] == 0.0) return FALSE;
     else return TRUE;
+}
+
+/*
+ * Recover rotation from orthogonal matrix.
+ */
+float Scm_Matrix4fToRotationv(const float m[], float v[])
+{
+    float q[4];
+    float theta, sint;
+    
+    Scm_Matrix4fToQuatfv(q, m);
+    theta = atan2f(sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]), q[3]);
+    sint = sinf(theta);
+    if (fabs(sint) < 1.0e-6) {
+        v[0] = v[1] = v[2] = v[3] = 0.0;
+        return 0.0;
+    } else {
+        v[0] = q[0]/sint;
+        v[1] = q[1]/sint;
+        v[2] = q[2]/sint;
+        v[3] = 0.0;
+        return theta*2;
+    }
 }
 
 /*=============================================================

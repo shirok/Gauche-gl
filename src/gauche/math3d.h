@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.18 2003-01-06 12:23:36 shirok Exp $
+ *  $Id: math3d.h,v 1.19 2003-01-06 13:12:32 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -300,11 +300,6 @@ extern void   Scm_Matrix4fToQuatfv(float *q, const float *m);
 /* p[] and q[] must be unit quaternions */
 extern void   Scm_QuatfSlerp(float *r, const float *p, const float *q, float t);
 
-/* Decompose matrix m to translation vector T, rotation matrix R,
-   shear vector H, and scale vector S. */
-int Scm_Matrix4fDecomposev(const float m[], float T[], float R[],
-                           float H[], float S[]);
-
 /*=============================================================
  * Matrix
  */
@@ -368,5 +363,16 @@ extern void   Scm_TQSToMatrix4fv(float *m, const float *t,
 
 extern void   Scm_EulerToMatrix4fv(float m[], float x, float y, float z,
                                    int order);
+
+/* Decompose matrix m to translation vector T, rotation matrix R,
+   shear vector H, and scale vector S. */
+extern int    Scm_Matrix4fDecomposev(const float m[], float T[], float R[],
+                                     float H[], float S[]);
+
+/* Recover rotation from orthogonal matrix */
+extern float  Scm_Matrix4fToRotationv(const float m[], float v[]);
+
+/* Factorize Euler angles from orthogonal matrix */
+extern void   Scm_Matrix4fToEuler(const float m[], float xyz[], int order);
 
 #endif /* GAUCHE_MATH3D_H */

@@ -376,6 +376,15 @@
  (vector4f 0 0 0 0)
  (vector4f -1 -2 -3))
 
+(test "matrix4f->rotation" #t
+      (lambda ()
+        (let* ((axis  (vector4f-normalize (vector4f 1 2 3)))
+               (angle (* 45 pi/180))
+               (m     (rotation->matrix4f axis angle)))
+          (receive (raxis rangle)
+              (matrix4f->rotation m)
+            (and (nearly=? axis raxis)
+                 (< (abs (- rangle angle)) 1.0e-4))))))
 
 ;; sequence access
 (test "sequence"

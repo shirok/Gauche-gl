@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.1 2004-08-21 10:32:45 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.2 2004-08-22 10:33:50 shirok Exp $
 ;;;
 
 "
@@ -168,6 +168,16 @@
 (define-enum GL_MAX_TEXTURE_IMAGE_UNITS_ARB)
 
 )) ;; GL_ARB_fragment_program
+
+;;=============================================================
+;; GL_ARB_fragment_shadow
+;;
+
+(if "defined(GL_ARB_fragment_program_shadow)" (begin
+
+(define-constant GL_ARB_fragment_program_shadow #t)
+
+)) ;; GL_ARB_fragment_program_shadow
 
 ;;=============================================================
 ;; GL_ARB_fragment_shader
@@ -588,7 +598,7 @@
    logstr = SCM_NEW_ATOMIC2(char*, (loglen+1)*sizeof(GLcharARB));
    glGetInfoLogARB(object, loglen, NULL, logstr);
    CHECK_ERROR(\"glGetInfoLogARB\");
-   SCM_RETURN(Scm_MakeString((const char*)logstr, loglen, -1, 0));")
+   SCM_RETURN(Scm_MakeString((const char*)logstr, loglen-1, -1, 0));")
 
 (define-cproc gl-get-attached-objects-arb (program::<gl-handle>)
   "GLint numobjs = 0; GLhandleARB *objs; ScmObj r; int i;
@@ -632,9 +642,19 @@
    srcstr = SCM_NEW_ATOMIC2(char*, (srclen+1)*sizeof(GLcharARB));
    glGetShaderSourceARB(object, srclen, NULL, srcstr);
    CHECK_ERROR(\"glGetShaderSourceARB\");
-   SCM_RETURN(Scm_MakeString((const char*)srcstr, srclen, -1, 0));")
+   SCM_RETURN(Scm_MakeString((const char*)srcstr, srclen-1, -1, 0));")
 
 )) ;; GL_ARB_shader_objects
+
+;;=============================================================
+;; GL_ARB_shading_language_100
+;;
+
+(if "defined(GL_ARB_shading_language_100)" (begin
+
+(define-constant GL_ARB_shading_language_100 #t)
+
+)) ;; GL_ARB_shading_language_100
 
 
 ;;=============================================================
@@ -730,6 +750,16 @@
 )) ;; GL_ARB_texture_cube_map
 
 ;;=============================================================
+;; GL_ARB_texture_env_add
+;;
+
+(if "defined(GL_ARB_texture_env_add)" (begin
+
+(define-constant GL_ARB_texture_env_add #t)
+
+)) ;; GL_ARB_texture_env_add
+
+;;=============================================================
 ;; GL_ARB_texture_env_combine
 ;;
 
@@ -788,6 +818,16 @@
 (define-enum GL_MIRRORED_REPEAT_ARB)
 
 )) ;; GL_ARB_texture_mirrored_repeat
+
+;;=============================================================
+;; GL_ARB_texture_non_power_of_two
+;;
+
+(if "defined(GL_ARB_texture_non_power_of_two)" (begin
+
+(define-constant GL_ARB_texture_non_power_of_two #t)
+
+)) ;; GL_ARB_texture_non_power_of_two
 
 ;;=============================================================
 ;; GL_ARB_transpose_matrix
@@ -1175,6 +1215,16 @@
 (define-enum GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB)
 
 )) ;; GL_ARB_vertex_shader
+
+;;=============================================================
+;; GL_ARB_window_pos
+;;
+
+(if "defined(GL_ARB_window_pos)" (begin
+
+(define-constant GL_ARB_window_pos #t)
+
+)) ;; GL_ARB_window_pos
 
 
 ;; Local variables:

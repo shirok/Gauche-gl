@@ -1,7 +1,7 @@
 /*
  * gauche-gl.c - Gauche GL binding
  *
- *  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+ *  Copyright(C) 2001-2004 by Shiro Kawai (shiro@acm.org)
  *
  *  Permission to use, copy, modify, distribute this software and
  *  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.19 2003-12-05 03:26:38 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.20 2004-08-22 10:33:49 shirok Exp $
  */
 
 #include <gauche.h>
@@ -287,6 +287,7 @@ SCM_DEFINE_BUILTIN_CLASS(Scm_GluTesselatorClass,
 /* Initialization */
 extern void Scm_Init_gl_lib(ScmModule *mod);
 extern void Scm_Init_gl_syms(ScmModule *mod);
+extern void Scm_Init_glext_lib(ScmModule *mod);
 extern void Scm_Init_glu_lib(ScmModule *mod);
 
 void Scm_Init_libgauche_gl(void)
@@ -302,5 +303,6 @@ void Scm_Init_libgauche_gl(void)
                          NULL, 0, mod);
     Scm_Init_gl_lib(mod);
     Scm_Init_gl_syms(mod);
+    Scm_Init_glext_lib(mod);
     Scm_Init_glu_lib(mod);
 }

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.33 2004-08-21 10:32:45 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.34 2004-08-22 10:33:50 shirok Exp $
 ;;;
 
 "
@@ -256,7 +256,9 @@
   (return <int> "glGetError"))
 
 (define-cproc gl-get-string (name::<fixnum>)
-  "SCM_RETURN(Scm_MakeString(glGetString(name), -1, -1, 0));")
+  "const GLubyte *s = glGetString(name);
+  if (s) SCM_RETURN(Scm_MakeString(s, -1, -1, SCM_MAKSTR_COPYING));
+  else   SCM_RETURN(SCM_FALSE);")
 
 (define-cproc gl-flush ()
   (return <void> "glFlush"))

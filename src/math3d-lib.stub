@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.10 2002-09-29 11:04:36 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.11 2002-09-29 11:24:04 shirok Exp $
 ;;;
 
 "
@@ -66,7 +66,7 @@
 (define-cproc vector4f-copy! (dst::<vector4f> src::<vector4f>)
   "float *dp = SCM_VECTOR4F_D(dst), *sp = SCM_VECTOR4F_D(src);
   SCM_VECTOR4F_OP(i, dp[i] = sp[i]);
-  SCM_RETURN(SCM_UNDEFINED);")
+  SCM_RETURN(SCM_OBJ(dst));")
 
 (define-cproc vector4f-set! (x::<vector4f> i::<fixnum> v::<real>)
   "if (i < 0 || i > 3) Scm_Error(\"vector index out of range: %d\", i);
@@ -178,7 +178,7 @@
 (define-cproc point4f-copy! (dst::<point4f> src::<point4f>)
   "float *dp = SCM_POINT4F_D(dst), *sp = SCM_POINT4F_D(src);
   SCM_VECTOR4F_OP(i, dp[i] = sp[i]);
-  SCM_RETURN(SCM_UNDEFINED);")
+  SCM_RETURN(SCM_OBJ(dst));")
 
 (define-cproc point4f-set! (x::<point4f> i::<fixnum> v::<real>)
   "if (i < 0 || i > 3) Scm_Error(\"point index out of range: %d\", i);
@@ -273,6 +273,13 @@
   SCM_RETURN(Scm_MakeMatrix4fv(SCM_F32VECTOR_ELEMENTS(v)+start));")
 (define-cproc matrix4f->f32vector (m::<matrix4f>)
   "SCM_RETURN(Scm_MakeF32VectorFromArray(16, SCM_MATRIX4F_D(m)));")
+
+(define-cproc matrix4f-copy (m::<matrix4f>)
+  "SCM_RETURN(Scm_MakeMatrix4fv(SCM_MATRIX4F_D(m)));")
+(define-cproc matrix4f-copy! (dst::<matrix4f> src::<matrix4f>)
+  "int i; float *dp = SCM_MATRIX4F_D(dst), *sp = SCM_MATRIX4F_D(src);
+  for (i=0; i<16; i++) *dp++ = *sp++;
+  SCM_RETURN(SCM_OBJ(dst));")
 
 (define-cproc matrix4f-mul (p::<matrix4f> q)
   "if (SCM_MATRIX4FP(q)) SCM_RETURN(Scm_Matrix4fMulMatrix4f(p, SCM_MATRIX4F(q)));

@@ -1,7 +1,7 @@
 dnl
 dnl Example of configuring Gauche extension
 dnl
-dnl $Id: configure.in,v 1.1 2001-09-28 11:39:33 shirok Exp $
+dnl $Id: configure.in,v 1.2 2001-09-29 11:47:51 shirok Exp $
 AC_INIT(src/gl-lib.stub)
 
 dnl Determine if we're configuring inside of Gauche main source tree or not.
@@ -35,6 +35,9 @@ AC_SUBST(CFLAGS)
 
 dnl Check for other programs.
 AC_PROG_INSTALL
+
+dnl Check for libraries
+AC_PATH_XTRA
 
 dnl Set LDFLAGS to generate shared library.
 dnl This has to come after all the tests that requre linking, or those test

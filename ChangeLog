@@ -1,3 +1,7 @@
+2004-07-05  Shiro Kawai  <shiro@acm.org>
+
+	* doc/gauche-gl-ref.texi : adding docs
+
 2004-05-16  Shiro Kawai  <shiro@acm.org>
 
 	* configure.in : 0.3.2_pre1

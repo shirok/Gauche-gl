@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.11 2003-12-17 03:34:53 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.12 2004-07-05 20:33:17 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -349,9 +349,701 @@ fast, and the latter handles complicated logic).
 @node OpenGL API, GLU API, Getting Started, Top
 @chapter OpenGL API
 
+In this chapter we list a OpenGL procedures accessible from
+Gauche-gl, with brief descriptions to help programmers
+to remind what the functions are.  We don't intend to make
+this an OpenGL reference; you should look at the OpenGL book
+for the details of what each API do.
+
+The following sections follow the structure of
+the gl.h header file.
+
+@menu
+* Miscellaneous functions::     
+* GL states::                   
+* Depth buffer and accumulation buffer::  
+* Transformation::              
+* Display lists::               
+* Drawing functions::           
+* Vertex arrays::               
+* Lighting::                    
+* Raster functions::            
+* Stenciling::                  
+* Texture mapping::             
+* Fog::                         
+* Selection and feedback::      
+* Color operations::            
+@end menu
+
+@node Miscellaneous functions, GL states, OpenGL API, OpenGL API
+@section Miscellaneous functions
+
+@defun gl-clear-index c
+@var{c} must be a real number.
+@end defun
+
+@defun gl-clear-color r g b a
+Sets the current clearing color.
+Each color value sould be a real number, and is clamped to
+@code{[0.0,1.0]}.
+@end defun
+
+@defun gl-clear mask
+Clears the specified buffer.   @var{Mask} is a logical-or of
+the following constants.
+
+@defvr {Constant} GL_COLOR_BUFFER_BIT
+@defvrx {Constant} GL_DEPTH_BUFFER_BIT
+@defvrx {Constant} GL_ACCUM_BUFFER_BIT
+@defvrx {Constant} GL_STENCIL_BUFFER_BIT
+@end defvr
+
+@end defun
+
+@defun gl-index-mask mask
+@end defun
+
+@defun gl-color-mask r g b a
+@end defun
+
+@defun gl-alpha-func func ref
+@end defun
+
+@defun gl-blend-func func factor
+@end defun
+
+@defun gl-logic-op opcode
+@end defun
+
+@defun gl-cull-face mode
+@end defun
+
+@defun gl-front-face mode
+@end defun
+
+@defun gl-point-size size
+@end defun
+
+@defun gl-line-width width
+@end defun
+
+@defun gl-line-stipple factor pat
+@end defun
+
+@defun gl-polygon-mode face mode
+@end defun
+
+@defun gl-polygon-offset factor units
+[GL1.1]
+@end defun
+
+@defun gl-polygon-stipple mask
+@end defun
+
+@defun gl-edge-flag flag
+@end defun
+
+@defun gl-scissor x y width height
+@end defun
+
+@defun gl-clip-plane plane equation
+@end defun
+
+@defun gl-get-clip-plane plane
+@end defun
+
+@defun gl-draw-buffer mode
+@end defun
+
+@defun gl-read-buffer mode
+@end defun
+
+@node GL states, Depth buffer and accumulation buffer, Miscellaneous functions, OpenGL API
+@section GL states
+
+@subsubheading Capabilities
+
+@defun gl-enable cap
+@defunx gl-disable cap
+@end defun
+
+@defun gl-is-enabled cap
+@end defun
+
+@defun gl-enable-client-state cap
+@defunx gl-disable-client-state cap
+@end defun
+
+@subsubheading State values
+
+Gauche has two variations for each type of OpenGL @code{glGetTYPE} APIs;
+nondestructive version and destructive versions.  Nondestructive versions
+such as @code{gl-get-boolean} allocates and returns the vector of
+appropriate type for the state.  For destructive versions such as
+@code{gl-get-boolean!}, you need to pass a vector to be filled in.
+
+The destructive version is non-allocating operation, so it is suitable
+if you call it within the drawing loop.
+
+@defun gl-state-vector-size state
+[Gauche specific]
+Returns the required size of the vector to retrieve GL state @var{state}.
+It is useful to prepare the vector to pass to the destructive version
+of @code{glGetTYPE} API.
+@end defun
+
+@defun gl-get-boolean state
+@defunx gl-get-boolean! vec state
+@end defun
+
+@defun gl-get-integer state
+@defunx gl-get-integer! vec state
+@end defun
+
+@defun gl-get-float state
+@defunx gl-get-float! vec state
+@end defun
+
+@defun gl-get-double state
+@defunx gl-get-double! state
+@end defun
+
+@subsubheading Attributes
+
+@defun gl-push-attrib mask
+@defunx gl-pop-attribu
+@end defun
+
+@defun gl-push-client-attrib mask
+@defunx gl-pop-client-attrib 
+@end defun
+
+@subsubheading Other states
+
+@defun gl-render-mode mode
+@end defun
+
+@defun gl-get-error
+@end defun
+
+@defun gl-get-string name
+@end defun
+
+@defun gl-flush
+Flush the GL command buffer.
+@end defun
+
+@defun gl-finish
+Make sure all previously issued GL commands are completed.
+@end defun
+
+@defun gl-hint target mode
+@end defun
+
+@node Depth buffer and accumulation buffer, Transformation, GL states, OpenGL API
+@section Depth buffer and accumulation buffer
+
+@defun gl-clear-depth depth
+@end defun
+
+@defun gl-depth-func func
+@end defun
+
+@defun gl-depth-mask flag
+@end defun
+
+@defun gl-depth-range nearv farv
+@end defun
+
+@defun gl-clear-accum r g b a
+@end defun
+
+@defun gl-accum op value
+@end defun
+
+@node Transformation, Display lists, Depth buffer and accumulation buffer, OpenGL API
+@section Transformation
+
+@defun gl-matrix-mode mode
+@end defun
+
+@defun gl-ortho left right bottom top nearv farv
+@end defun
+
+@defun gl-frustum left right bottom top nearv farv
+@end defun
+
+@defun gl-viewport x y width height
+@end defun
+
+@defun gl-push-matrix
+@defunx gl-pop-matrix
+@end defun
+
+@defun gl-load-identity
+@end defun
+
+@defun gl-load-matrix mat
+@end defun
+
+@defun gl-mult-matrix mat
+@end defun
+
+@defun gl-rotate angle x y z
+@end defun
+
+@defun gl-scale x y z
+@end defun
+
+@defun gl-translate x y z
+@end defun
+
+@node Display lists, Drawing functions, Transformation, OpenGL API
+@section Display lists
+
+@defun gl-is-list list-no
+@end defun
+
+@defun gl-delete-lists list-no-start range
+@end defun
+
+@defun gl-gen-lists range
+@end defun
+
+@defun gl-new-list list-no mode
+@end defun
+
+@defun gl-end-list
+@end defun
+
+@defun gl-call-list list-no
+@end defun
+
+@defun gl-call-lists n type lists
+@end defun
+
+@defun gl-list-base base
+@end defun
+
+@node Drawing functions, Vertex arrays, Display lists, OpenGL API
+@section Drawing functions
+
+@defun gl-begin mode
+@end defun
+
+@defun gl-end
+@end defun
+
+@defun gl-vertex point
+@defunx gl-vertex x y &optional z w
+@end defun
+
+@defun gl-normal vector
+@defunx gl-normal x y z
+@end defun
+
+@defun gl-color color
+@defunx gl-color r g b &optional a
+@end defun
+
+@defun gl-tex-coord coord
+@defunx gl-tex-coord u v &optional s t
+@end defun
+
+@defun gl-raster-pos pos
+@defunx gl-raster-pos x y &optional z w
+@end defun
+
+@defun gl-rect point1 point2
+@defunx gl-rect x1 y1 x2 y2
+Draws a rectangle.  In the first form,
+@var{Point1} and @var{point2} can be either
+@code{<point4f>}, or f32vector, f64vector, s32vector, or s16vector of
+length 2.   Types of both args should match.  
+In the second form, all args should be areal numbers (@code{glRectd} is used).
+@end defun
+
+@node Vertex arrays, Lighting, Drawing functions, OpenGL API
+@section Vertex arrays
+
+NOTE: it is caller's responsibility to guarantee the passed vector
+has enough length.  GL doesn't have an interface to specify the boundary,
+so Gauche can't detect an invalid length vector.
+
+@defun gl-vertex-pointer size vec &optional stride offset
+@end defun
+
+@defun gl-normal-pointer vec &optional stride offset
+@end defun
+
+@defun gl-color-pointer size vec &optional stride offset
+@end defun
+
+@defun gl-index-pointer vec &optional stride offset
+@end defun
+
+@defun gl-tex-coord-pointer size vec &optional stride offset
+@end defun
+
+@defun gl-edge-flag-pointer vec &optional stride offset
+@end defun
+
+@defun gl-array-element ith
+@end defun
+
+@defun gl-draw-elements mode indices
+@end defun
+
+@defun gl-interleaved-arrays format vec &optional stride offset
+@end defun
+
+@node Lighting, Raster functions, Vertex arrays, OpenGL API
+@section Lighting
+
+@defun gl-shade-model mode
+@end defun
+
+@defun gl-light light pname param
+@end defun
+
+@defun gl-get-light light pname
+@end defun
+
+@defun gl-light-model pname param
+@end defun
+
+@defun gl-matrial face pname param
+@end defun
+
+@defun gl-get-material face pname
+@end defun
+
+@defun gl-color-material face mode
+@end defun
+
+@node Raster functions, Stenciling, Lighting, OpenGL API
+@section Raster functions
+
+@defun gl-pixel-zoom xfactor yfactor
+@end defun
+
+@defun gl-pixel-store pname param
+@end defun
+
+@defun gl-pixel-map map values
+@end defun
+
+@defun gl-get-pixel-map map &optional type
+@defunx gl-get-pixel-map! map values
+@end defun
+
+@defun gl-bitmap width height xbo ybo xbi ybi bitmap
+@end defun
+
+@defun gl-read-pixels x y width height format type
+@end defun
+
+@defun gl-draw-pixels width height format type pixels
+@end defun
+
+@defun gl-copy-pixels x y width height type
+@end defun
+
+@node Stenciling, Texture mapping, Raster functions, OpenGL API
+@section Stenciling
+
+@defun gl-stencil-func func ref mask
+@end defun
+
+@defun gl-stencil-mask mask
+@end defun
+
+@defun gl-stencil-op func zfail zpass
+@end defun
+
+@defun gl-clear-stencil s
+@end defun
+
+@node Texture mapping, Fog, Stenciling, OpenGL API
+@section Texture mapping
+
+@defun gl-tex-gen coord pname param
+@end defun
+
+@defun gl-tex-env target pname param
+@end defun
+
+@defun gl-tex-parameter target pname param
+@end defun
+
+@defun gl-get-tex-parameter target pname
+@end defun
+
+@defun gl-tex-image-1d target level internalformat width border format type texels
+@end defun
+
+@defun gl-tex-image-2d target level internalformat width height border format type texels
+@end defun
+
+@defun gl-tex-image-3d target level internalformat width height depth border format type texels
+[GL1.2]
+@end defun
+
+
+@defun gl-gen-textures size
+@end defun
+
+@defun gl-delete-textures names
+@end defun
+
+@defun gl-bind-texture target name
+@end defun
+
+@defun gl-prioritize-textures n names properties
+@end defun
+
+@defun gl-are-texture-resident n names
+@end defun
+
+@defun gl-is-texture name
+@end defun
+
+@defun gl-tex-sub-image-1d target level xoffset width format type texels
+[GL1.1]
+@end defun
+
+@defun gl-tex-sub-image-2d target level xoffset yoffset width height format type texels
+[GL1.1]
+@end defun
+
+@defun gl-tex-sub-image-3d target level xoffset yoffset zoffset width height depth format type texels
+[GL1.2]
+@end defun
+
+
+@defun gl-copy-tex-image-1d target level internal-format x y width border
+@end defun
+
+@defun gl-copy-tex-image-2d target level internal-format x y width height border
+@end defun
+
+@defun gl-copy-tex-sub-image-1d target level xoffset x y width
+[GL1.1]
+@end defun
+
+@defun gl-copy-tex-sub-image-2d target level xoffset yoffset x y width height
+[GL1.1]
+@end defun
+
+@defun gl-copy-tex-sub-image-3d target level xoffset yoffset zoffset x y width height
+[GL1.2]
+@end defun
+
+@node Fog, Selection and feedback, Texture mapping, OpenGL API
+@section Fog
+
+@defun gl-fog pname param
+@end defun
+
+@node Selection and feedback, Color operations, Fog, OpenGL API
+@section Selection and feedback
+
+@defun gl-feedback-buffer type buffer
+@end defun
+
+@defun gl-select-buffer buffer
+@end defun
+
+@defun gl-pass-through token
+@end defun
+
+@defun gl-init-names
+@end defun
+
+@defun gl-load-name name
+@end defun
+
+@defun gl-push-name name
+@end defun
+
+@defun gl-pop-name
+@end defun
+
+@node Color operations,  , Selection and feedback, OpenGL API
+@section Color operations
+
+@defun gl-color-table target internal-format width format type data
+@end defun
+
+@defun gl-color-sub-table target start count format type data
+@end defun
+
+@defun gl-color-table-parameter target pname param
+@end defun
+
+@defun gl-copy-color-sub-table target start x y width
+@end defun
+
+@defun gl-copy-color-table target internal-format x y width
+@end defun
+
+@defun gl-blend-equation mode
+@end defun
+
+@defun gl-blend-color red green blue alpha
+@end defun
+
+@defun gl-histogram target width internal-format sink
+@end defun
+
+@defun gl-reset-histogram target
+@end defun
+
+@defun gl-minmax target internal-format sink
+@end defun
+
+@defun gl-reset-minmax target
+@end defun
+
+
+
 @c ======================================================================
 @node GLU API, GLUT API, OpenGL API, Top
 @chapter GLU API
+
+@menu
+* Projection::                  
+* Quadrics::                    
+* Nurbs::                       
+* Polygon tesselation::         
+* GLU miscellaneous utilities::  
+@end menu
+
+@node Projection, Quadrics, GLU API, GLU API
+@section Projection
+
+@defun glu-look-at eyex eyey eyez ctrx ctry ctrz upx upy upz
+@end defun
+
+@defun glu-ortho-2d left right bottom top
+@end defun
+
+@defun glu-perspective fovy aspect znear zfar
+@end defun
+
+@defun glu-pick-matrix x y w h vp
+@end defun
+
+@defun glu-project objx objy objz model-mat proj-mat vp
+@end defun
+
+@defun glu-un-project winx winy winz model-mat proj-mat vp
+@end defun
+
+@defun glu-project! win obj model-mat proj-mat vp
+@end defun
+
+@defun glu-un-project! obj win model-map proj-mat vp
+@end defun
+
+@node Quadrics, Nurbs, Projection, GLU API
+@section Quadrics
+
+@deftp {Class} <glu-quadric>
+@end deftp
+
+@defun glu-quadric-draw-style quad style
+
+@defvr {Constant} GLU_POINT
+@defvrx {Constant} GLU_LINE
+@defvrx {Constant} GLU_FILL
+@defvrx {Constant} GLU_SILHUETTE
+@end defvr
+
+@end defun
+
+@defun glu-quadric-orientation quad orientation
+
+@defvr {Constant} GLU_OUTSIDE
+@defvrx {Constant} GLU_INSIDE
+@end defvr
+
+@end defun
+
+@defun glu-quadric-normals quad normals
+
+@defvr {Constant} GLU_SMOOTH
+@defvrx {Constant} GLU_FLAT
+@defvrx {Constant} GLU_NONE
+@end defvr
+
+@end defun
+
+@defun glu-quadric-texture quad texcoords
+@end defun
+
+@defun glu-cylinder quad base-radius top-radius height slices stacks
+@end defun
+
+@defun glu-sphere quad radius slices stacks
+@end defun
+
+@defun glu-disk quad inner-radius outer-radius slices loops
+@end defun
+
+@defun glu-partial-disk quad inner-radius outer-radius slices loops start-angle sweep-angle
+@end defun
+
+@node Nurbs, Polygon tesselation, Quadrics, GLU API
+@section Nurbs
+
+@deftp {Class} <glu-nurbs>
+@end deftp
+
+@defun glu-load-sampling-matrices nurbs model-matrix proj-matrix viewport
+@end defun
+
+@defun glu-nurbs-property nurbs property value
+@end defun
+
+@defun glu-get-nurbs-property nurbs property
+@end defun
+
+@defun glu-begin-curve nurbs
+@end defun
+
+@defun glu-end-curve nurbs
+@end defun
+
+@defun glu-nurbs-curve nurbs knot stride ctlarray order type
+@end defun
+
+@defun glu-begin-surface nurbs
+@end defun
+
+@defun glu-end-surface nurbs
+@end defun
+
+
+@node Polygon tesselation, GLU miscellaneous utilities, Nurbs, GLU API
+@section Polygon tesselation
+
+@deftp {Class} <glu-tesselator>
+@end deftp
+
+
+@node GLU miscellaneous utilities,  , Polygon tesselation, GLU API
+@section Miscellaneous utilities
+
+@defun glu-error-string code
+@end defun
+
+@defun glu-get-string name
+[GLU1.1]
+@end defun
+
+
+
 
 @c ======================================================================
 @node GLUT API, Vectors and matrices, GLU API, Top

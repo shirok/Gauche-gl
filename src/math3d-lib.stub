@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.6 2002-09-29 05:56:25 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.7 2002-09-29 08:20:14 shirok Exp $
 ;;;
 
 "
@@ -281,6 +281,17 @@
   Scm_Error(\"bad object, matrix4f, vector4f, point4f or real number required, but got %S\", q);
   SCM_RETURN(SCM_UNDEFINED);")
 
+(define-cproc matrix4f-transpose (m::<matrix4f>)
+  "float r[16];
+  Scm_Matrix4fTransposev(r, SCM_MATRIX4F_D(m));
+  SCM_RETURN(Scm_MakeMatrix4fv(r));")
+
+(define-cproc matrix4f-transpose! (m::<matrix4f>)
+  "float r[16], *p = SCM_MATRIX4F_D(m); int i;
+  Scm_Matrix4fTransposev(r, p);
+  for (i=0;i<16;i++) p[i] = r[i];
+  SCM_RETURN(SCM_OBJ(m));")
+
 (define-cproc matrix4f-ref (m::<matrix4f> i::<fixnum> j::<fixnum>)
   "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
   if (j < 0 || j > 3) Scm_Error(\"index j out of range: %d\", j);
@@ -319,6 +330,35 @@
     SCM_MATRIX4F_SET(m, 3, i, SCM_VECTOR4F_REF(v, 3));
     SCM_RETURN(SCM_UNDEFINED);")
   )
+
+;; basic transformation
+
+;; t can be a vector4f, point4f, f32vector
+(define-cproc translation->matrix4f (t)
+  "float r[16], *p;
+  SCM_MATH3D_X3FP(p, t);
+  Scm_TranslationToMatrix4fv(r, p);
+  SCM_RETURN(Scm_MakeMatrix4fv(r));")
+
+(define-cproc rotation->matrix4f (v angle::<real>)
+  "float r[16], *p = NULL;
+  SCM_MATH3D_X3FP(p, v);
+  Scm_RotationToMatrix4fv(r, p, angle);
+  SCM_RETURN(Scm_MakeMatrix4fv(r));")
+
+(define-cproc scale->matrix4f (s)
+  "float r[16], *p = NULL;
+  SCM_MATH3D_X3FP(p, s);
+  Scm_ScaleToMatrix4fv(r, p);
+  SCM_RETURN(Scm_MakeMatrix4fv(r));")
+
+(define-cproc trs->matrix4f (t v angle::<real> s)
+  "float r[16], *pt, *pv, *ps;
+  SCM_MATH3D_X3FP(pt, t);
+  SCM_MATH3D_X3FP(pv, v);
+  SCM_MATH3D_X3FP(ps, s);
+  Scm_TRSToMatrix4fv(r, pt, pv, angle, ps);
+  SCM_RETURN(Scm_MakeMatrix4fv(r));")
 
 ;; Quatf ----------------------------------------------------
 

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.8 2002-09-29 05:56:27 shirok Exp $
+ *  $Id: math3d.h,v 1.9 2002-09-29 08:20:29 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -36,7 +36,40 @@
        var = 2; { expr; }                       \
        var = 3; { expr; }                       \
     } while (0)
-       
+
+/* Check the given ScmObj val can be accepted as triple or quadraple
+   of floats.  If so, sets ptr to the pointer to the floats.  Otherwise,
+   report an error. */
+#define SCM_MATH3D_X3FP(ptr, val)                                       \
+    do {                                                                \
+      if (SCM_VECTOR4FP(val))                                           \
+        (ptr) = SCM_VECTOR4F_D(val);                                    \
+      else if (SCM_POINT4FP(val))                                       \
+        (ptr) = SCM_POINT4F_D(val);                                     \
+      else if (SCM_F32VECTORP(val) && SCM_F32VECTOR_SIZE(val) >= 3)     \
+        (ptr) = SCM_F32VECTOR_ELEMENTS(val);                            \
+      else {                                                            \
+        Scm_Error("vector4f, point4f or f32vector required,"            \
+                  " but got %S", val);                                  \
+        (ptr) = NULL;                                                   \
+      }                                                                 \
+    } while (0)
+
+#define SCM_MATH3D_X4FP(ptr, val)                                       \
+    do {                                                                \
+      if (SCM_VECTOR4FP(val))                                           \
+        (ptr) = SCM_VECTOR4F_D(val);                                    \
+      else if (SCM_POINT4FP(val))                                       \
+        (ptr) = SCM_POINT4F_D(val);                                     \
+      else if (SCM_F32VECTORP(val) && SCM_F32VECTOR_SIZE(val) >= 4)     \
+        (ptr) = SCM_F32VECTOR_ELEMENTS(val);                            \
+      else {                                                            \
+        Scm_Error("vector4f, point4f or f32vector required,"            \
+                  " but got %S", val);                                  \
+        (ptr) = NULL;                                                   \
+      }                                                                 \
+    } while (0)
+
 /*=============================================================
  * 3D Vector (homogeneous coordinates)
  */
@@ -279,5 +312,14 @@ extern ScmObj Scm_Matrix4fMulPoint4f(const ScmMatrix4f *, const ScmPoint4f *);
 
 extern void   Scm_Matrix4fScalev(float *, double f);
 extern ScmObj Scm_Matrix4fScale(const ScmMatrix4f *, double f);
+extern void   Scm_Matrix4fTransposev(float *r, const float *m);
+
+extern void   Scm_TranslationToMatrix4fv(float *m, const float *t);
+extern void   Scm_RotationToMatrix4fv(float *m, const float *v, float phi);
+extern void   Scm_ScaleToMatrix4fv(float *m, const float *s);
+
+extern void   Scm_TRSToMatrix4fv(float *m, const float *t,
+                                 const float *v, float phi,
+                                 const float *s);
 
 #endif /* GAUCHE_MATH3D_H */

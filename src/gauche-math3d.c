@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.8 2002-09-29 05:56:25 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.9 2002-09-29 08:20:14 shirok Exp $
  */
 
 #include <gauche.h>
@@ -620,6 +620,70 @@ ScmObj Scm_Matrix4fScale(const ScmMatrix4f *m, double f)
     ScmMatrix4f *r = SCM_MATRIX4F(Scm_MakeMatrix4fv(NULL));
     Scm_Matrix4fScalev(SCM_MATRIX4F_D(r), f);
     return SCM_OBJ(r);
+}
+
+void   Scm_Matrix4fTransposev(float *r, const float *m)
+{
+    r[0] = m[0];  r[4] = m[1];  r[8] = m[2];  r[12]= m[3];
+    r[1] = m[4];  r[5] = m[5];  r[9] = m[6];  r[13]= m[7];
+    r[2] = m[8];  r[6] = m[9];  r[10]= m[10]; r[14]= m[11];
+    r[3] = m[12]; r[7] = m[13]; r[11]= m[14]; r[15]= m[15];
+}
+
+/*
+ * Transformation and matrices.
+ */
+void Scm_TRSToMatrix4fv(float *m, const float *t,
+                        const float *v, float phi,
+                        const float *s)
+{
+    float cosp = cos(phi), sinp = sin(phi);
+    float vxx = v[0]*v[0], vyy = v[1]*v[1], vzz = v[2]*v[2];
+    float vxy = v[0]*v[1], vyz = v[1]*v[2], vzx = v[2]*v[0];
+
+    m[0]  = s[0] * (cosp + (1.-cosp)*vxx);
+    m[1]  = (1.-cosp)*vxy + v[2]*sinp;
+    m[2]  = (1.-cosp)*vzx - v[1]*sinp;
+    m[3]  = 0.0;
+    
+    m[4]  = (1.-cosp)*vxy - v[2]*sinp;
+    m[5]  = s[1] * (cosp + (1.-cosp)*vyy);
+    m[6]  = (1.-cosp)*vyz + v[0]*sinp;
+    m[7]  = 0.0;
+    
+    m[8]  = (1.-cosp)*vzx + v[1]*sinp;
+    m[9]  = (1.-cosp)*vyz - v[0]*sinp;
+    m[10] = s[2] * (cosp + (1.-cosp)*vzz);
+    m[11] = 0.0;
+    
+    m[12] = t[0];
+    m[13] = t[1];
+    m[14] = t[2];
+    m[15] = 1.0;
+}
+
+
+void Scm_TranslationToMatrix4fv(float *m, const float *t)
+{
+    m[0] = 1.0;  m[4] = 0.0;  m[8] = 0.0;  m[12] = t[0];
+    m[1] = 0.0;  m[5] = 1.0;  m[9] = 0.0;  m[13] = t[1];
+    m[2] = 0.0;  m[6] = 0.0;  m[10] = 1.0; m[14] = t[2];
+    m[3] = 0.0;  m[7] = 1.0;  m[11] = 0.0; m[15] = 1.0;
+}
+
+void Scm_RotationToMatrix4fv(float *m, const float *v, float phi)
+{
+    static const float t[3] = { 0.0, 0.0, 0.0 };
+    static const float s[3] = { 1.0, 1.0, 1.0 };
+    Scm_TRSToMatrix4fv(m, t, v, phi, s);
+}
+
+void Scm_ScaleToMatrix4fv(float *m, const float *s)
+{
+    m[0] = s[0]; m[4] = 0.0; m[8] = 0.0; m[12] = 0.0;
+    m[1] = 0.0; m[5] = s[1]; m[9] = 0.0; m[13] = 0.0;
+    m[2] = 0.0; m[6] = 0.0; m[10] = s[2]; m[14] = 0.0;
+    m[3] = 0.0; m[7] = 0.0; m[11] = 0.0; m[15] = 1.0;
 }
 
 /*=============================================================

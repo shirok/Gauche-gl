@@ -1,3 +1,7 @@
+2002-09-02  Shiro Kawai  <shiro@acm.org>
+
+	* release 0.1.5
+
 2002-09-01  Shiro Kawai  <shiro@acm.org>
 
 	* src/gl-syms.stub : applied a patch for MacOS X contributed by

@@ -1,3 +1,12 @@
+2002-12-15  Shiro Kawai  <shiro@acm.org>
+
+	* configure.in : add -lX11 -lXext to link gauche-gl if we're
+	  on X11 systems.  FreeBSD seems to need it, and it won't do
+	  harm as far as we're on X11.
+	* src/gauche-gl.c : add brackets around GLU object classes
+	  for consistency.
+	* src/Makefile.in : install math3d.h under gauche subdirectory.
+	
 2002-11-12  Shiro Kawai  <shiro@acm.org>
 
 	* INSTALL.esc : added note about compiling on FreeBSD (based on

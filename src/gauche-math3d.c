@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.21 2003-01-30 05:50:12 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.22 2003-02-08 09:51:19 shirok Exp $
  */
 
 #include <math.h>
@@ -739,19 +739,19 @@ void Scm_TRSToMatrix4fv(float *m, const float *t,
     float vxx = v[0]*v[0], vyy = v[1]*v[1], vzz = v[2]*v[2];
     float vxy = v[0]*v[1], vyz = v[1]*v[2], vzx = v[2]*v[0];
 
-    m[0]  = s[0] * (cosp + (1.-cosp)*vxx);
-    m[1]  = (1.-cosp)*vxy + v[2]*sinp;
-    m[2]  = (1.-cosp)*vzx - v[1]*sinp;
+    m[0]  = s[0] * (cosp + (1.0-cosp)*vxx);
+    m[1]  = s[0] * ((1.0-cosp)*vxy + v[2]*sinp);
+    m[2]  = s[0] * ((1.0-cosp)*vzx - v[1]*sinp);
     m[3]  = 0.0;
     
-    m[4]  = (1.-cosp)*vxy - v[2]*sinp;
-    m[5]  = s[1] * (cosp + (1.-cosp)*vyy);
-    m[6]  = (1.-cosp)*vyz + v[0]*sinp;
+    m[4]  = s[1] * ((1.0-cosp)*vxy - v[2]*sinp);
+    m[5]  = s[1] * (cosp + (1.0-cosp)*vyy);
+    m[6]  = s[1] * ((1.0-cosp)*vyz + v[0]*sinp);
     m[7]  = 0.0;
     
-    m[8]  = (1.-cosp)*vzx + v[1]*sinp;
-    m[9]  = (1.-cosp)*vyz - v[0]*sinp;
-    m[10] = s[2] * (cosp + (1.-cosp)*vzz);
+    m[8]  = s[2] * ((1.0-cosp)*vzx + v[1]*sinp);
+    m[9]  = s[2] * ((1.0-cosp)*vyz - v[0]*sinp);
+    m[10] = s[2] * (cosp + (1.0-cosp)*vzz);
     m[11] = 0.0;
     
     m[12] = t[0];
@@ -769,17 +769,17 @@ void Scm_TQSToMatrix4fv(float *m, const float *t,
     float xw = q[0]*q[3], yw = q[1]*q[3], zw = q[2]*q[3];
 
     m[0]  = s[0] * (1-2*(y2+z2));
-    m[1]  = 2*(xy+zw);
-    m[2]  = 2*(zx-yw);
+    m[1]  = s[0] * 2*(xy+zw);
+    m[2]  = s[0] * 2*(zx-yw);
     m[3]  = 0.0;
     
-    m[4]  = 2*(xy-zw);
+    m[4]  = s[1] * 2*(xy-zw);
     m[5]  = s[1] * (1-2*(z2+x2));
-    m[6]  = 2*(yz+xw);
+    m[6]  = s[1] * 2*(yz+xw);
     m[7]  = 0.0;
     
-    m[8]  = 2*(zx+yw);
-    m[9]  = 2*(yz-xw);
+    m[8]  = s[2] * 2*(zx+yw);
+    m[9]  = s[2] * 2*(yz-xw);
     m[10] = s[2] * (1-2*(x2+y2));
     m[11] = 0.0;
     

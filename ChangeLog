@@ -1,3 +1,9 @@
+2003-02-07  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-math3d.c (Scm_TRSToMatrix4fv): The order of
+	  multiplication was wrong (was TSR, not TRS).  So as in
+	  Scm_TQSToMatrix4fv.
+
 2003-01-29  Shiro Kawai  <shiro@acm.org>
 
 	* various files: applied patch from Yokota Hiroshi

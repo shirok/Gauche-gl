@@ -252,38 +252,41 @@
 (test* "matrix4f inverse (singular)" *test-error*
        (matrix4f-inverse (matrix4f 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)))
 
-(test* "matrix4 and transform"
-       (let* ((phi (* 60 pi/180))
-              (cosphi   (cos phi))
-              (1-cosphi (- 1 cosphi))
-              (sinphi   (sin phi))
-              (sqrt14   (sqrt 14))
-              (vx       (/ 1 sqrt14))
-              (vy       (/ 2 sqrt14))
-              (vz       (/ 3 sqrt14)))
-         (matrix4f (* 1.1 (+ cosphi (* 1-cosphi vx vx)))
-                   (+ (* 1-cosphi vx vy) (* sinphi vz))
-                   (- (* 1-cosphi vx vz) (* sinphi vy))
-                   0.0
-                   (- (* 1-cosphi vx vy) (* sinphi vz))
-                   (* 1.2 (+ cosphi (* 1-cosphi vy vy)))
-                   (+ (* 1-cosphi vy vz) (* sinphi vx))
-                   0.0
-                   (+ (* 1-cosphi vx vz) (* sinphi vy))
-                   (- (* 1-cosphi vy vz) (* sinphi vx))
-                   (* 1.3 (+ cosphi (* 1-cosphi vz vz)))
-                   0.0
-                   -2.0
-                   -3.0
-                   -4.0
-                   1.0))
-       (trs->matrix4f #,(vector4f -2.0 -3.0 -4.0)
-                      (vector4f (/ 1 (sqrt 14))
-                                (/ 2 (sqrt 14))
-                                (/ 3 (sqrt 14)))
-                      (* 60 pi/180)
-                      #,(vector4f 1.1 1.2 1.3))
-       nearly=?)
+(let ((t0 -2.0) (t1 -3.0) (t2 -4.0)
+      (phi (* 60 pi/180))
+      (s0  1.1) (s1  1.2) (s2  1.3))
+  (test* "matrix4 and transform"
+         (let* ((cosphi   (cos phi))
+                (1-cosphi (- 1 cosphi))
+                (sinphi   (sin phi))
+                (sqrt14   (sqrt 14))
+                (vx       (/ 1 sqrt14))
+                (vy       (/ 2 sqrt14))
+                (vz       (/ 3 sqrt14))
+                (T (matrix4f 1 0 0 0 0 1 0 0 0 0 1 0 t0 t1 t2 1))
+                (R (matrix4f (+ cosphi (* 1-cosphi vx vx))
+                             (+ (* 1-cosphi vx vy) (* sinphi vz))
+                             (- (* 1-cosphi vx vz) (* sinphi vy))
+                             0.0
+                             (- (* 1-cosphi vx vy) (* sinphi vz))
+                             (+ cosphi (* 1-cosphi vy vy))
+                             (+ (* 1-cosphi vy vz) (* sinphi vx))
+                             0.0
+                             (+ (* 1-cosphi vx vz) (* sinphi vy))
+                             (- (* 1-cosphi vy vz) (* sinphi vx))
+                             (+ cosphi (* 1-cosphi vz vz))
+                             0.0
+                             0.0 0.0 0.0 1.0))
+                (S (matrix4f s0 0 0 0 0 s1 0 0 0 0 s2 0 0 0 0 1))
+                )
+           (matrix4f-mul T (matrix4f-mul R S)))
+         (trs->matrix4f (vector4f t0 t1 t2)
+                        (vector4f (/ 1 (sqrt 14))
+                                  (/ 2 (sqrt 14))
+                                  (/ 3 (sqrt 14)))
+                        phi
+                        (vector4f s0 s1 s2))
+         nearly=?))
 
 ;; tests euler angles
 (let* ((rotx (* 23 pi/180))

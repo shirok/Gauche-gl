@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.11 2002-02-11 09:32:09 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.12 2002-07-19 02:33:27 shirok Exp $
  */
 
 #include <gauche.h>
@@ -223,6 +223,7 @@ SCM_DEFINE_BUILTIN_CLASS(Scm_GluTesselatorClass,
 
 /* Initialization */
 extern void Scm_Init_gl_lib(ScmModule *mod);
+extern void Scm_Init_gl_syms(ScmModule *mod);
 extern void Scm_Init_glu_lib(ScmModule *mod);
 
 void Scm_Init_gauche_gl(void)
@@ -240,6 +241,7 @@ void Scm_Init_gauche_gl(void)
                          NULL, sizeof(Scm_GluTesselatorClass)/sizeof(ScmObj),
                          mod);
     Scm_Init_gl_lib(mod);
+    Scm_Init_gl_syms(mod);
     Scm_Init_glu_lib(mod);
 
     /* Constants that may not defined in some platforms */

@@ -1,5 +1,5 @@
 CC = @CC@
-CFLAGS = @CFLAGS@ @X_CFLAGS@
+CFLAGS = @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@
 LDFLAGS = @LDFLAGS@
 LIBS = -lGLU -lGL @LIBS@ @X_LIBS@ @X_PRE_LIBS@ -lXext -lX11
 GOSH = @GOSH@
@@ -42,7 +42,7 @@ gettype-sizes.c : glstate.scm
 $(GLOBJS) : gauche-gl.h
 
 gauche-glut.so : $(GLUTOBJS)
-	$(CC) $(LDFLAGS) gauche-glut.so $(GLUTOBJS) -lglut -lXmu -lXi $(LIBS)
+	$(CC) $(LDFLAGS) gauche-glut.so $(GLUTOBJS) @GLUT_LIBDIR@ @GLUT_LIB@ -lXmu -lXi $(LIBS)
 
 glut-lib.c : glut-lib.stub
 	$(GOSH) genstub glut-lib.stub

@@ -2,17 +2,14 @@ MANPAGES =
 EXTRACTED = gauche-gl-refe.texi gauche-gl-refj.texi
 GENERATED = Makefile $(MANPAGES)
 GOSH = @GOSH@
+GAUCHE_CONFIG = @GAUCHE_CONFIG@
 INSTALL = @INSTALL@
 MAKEINFO = @MAKEINFO@
 GZIP_PROGRAM = @GZIP_PROGRAM@
 
-# Manual page destination.  Default @mandir@ doesn't include 'share'
-# in the path, so I redefine it---a user can still override it by
-# make mandir=wherever
-prefix  = @prefix@
-datadir = @datadir@
-mandir  = $(datadir)/man/man1
-infodir = $(datadir)/info
+# Manual page destination.
+mandir  = `$(GAUCHE_CONFIG) --mandir`
+infodir = `$(GAUCHE_CONFIG) --infodir`
 
 all: info
 

@@ -1,3 +1,8 @@
+2002-10-23  Shiro Kawai  <shiro@acm.org>
+
+	* doc/Makefile.in : obtain the install path of info files from
+	  gauche-config.
+
 2002-10-22  Shiro Kawai  <shiro@acm.org>
 
 	* lib/gl/math3d.scm : added reader ctor for vector4f-array and

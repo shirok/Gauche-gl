@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.5 2001-10-15 08:33:27 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.6 2001-11-21 10:40:09 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -23,6 +23,8 @@
 #include <GL/glx.h>
 
 #include <gauche/uvector.h>
+
+/* GL auxiliary routines */
 
 /* acceptable data type */
 enum {
@@ -45,5 +47,48 @@ extern int Scm_GLPixelDataType(GLenum type, int *packed);
 extern int Scm_GLPixelDataSize(GLsizei w, GLsizei h,
                                GLenum format, GLenum type,
                                int *elttype, int *packed);
+
+/* GLU objects */
+
+/* Quadrics */
+typedef struct ScmGluQuadricRec {
+    SCM_HEADER;
+    GLUquadricObj* quadric;
+} ScmGluQuadric;
+
+extern ScmClass Scm_GluQuadricClass;
+#define SCM_CLASS_GLU_QUADRIC    (&Scm_GluQuadricClass)
+#define SCM_GLU_QUADRIC(obj)     ((ScmGluQuadric*)(obj))
+#define SCM_GLU_QUADRIC_P(obj)   SCM_XTYPEP(obj, SCM_CLASS_GLU_QUADRIC)
+
+/* Nurbs */
+typedef struct ScmGluNurbsRec {
+    SCM_HEADER;
+    GLUnurbsObj* nurbs;
+} ScmGluNurbs;
+
+extern ScmClass Scm_GluNurbsClass;
+#define SCM_CLASS_GLU_NURBS    (&Scm_GluNurbsClass)
+#define SCM_GLU_NURBS(obj)     ((ScmGluNurbs*)(obj))
+#define SCM_GLU_NURBS_P(obj)   SCM_XTYPEP(obj, SCM_CLASS_GLU_NURBS)
+
+extern ScmObj Scm_GLUMakeNurbs(GLUnurbsObj*);
+
+/* Tessalator */
+/* GLU 1.0 and 1.1 interface */
+typedef struct ScmGluTesselatorRec {
+    SCM_HEADER;
+    GLUtriangulatorObj* tesselator;
+} ScmGluTesselator;
+
+extern ScmClass Scm_GluTesselatorClass;
+#define SCM_CLASS_GLU_TESSELATOR    (&Scm_GluTesselatorClass)
+#define SCM_GLU_TESSELATOR(obj)     ((ScmGluTesselator*)(obj))
+#define SCM_GLU_TESSELATOR_P(obj)   SCM_XTYPEP(obj, SCM_CLASS_GLU_TESSELATOR)
+
+extern ScmObj Scm_GLUMakeTesselator(GLUtriangulatorObj*);
+
+/* GLU 1.2 and later uses GLUtesselator. (not yet implemented */
+
 
 #endif /* GAUCHE_GL_H */

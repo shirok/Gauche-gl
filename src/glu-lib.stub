@@ -12,13 +12,14 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.2 2001-10-02 09:08:52 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.3 2001-11-21 10:40:09 shirok Exp $
 ;;;
 
 "
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <gauche/uvector.h>
+#include \"gauche-gl.h\"
 "
 ;;================================================================
 ;; Miscellaneous
@@ -141,13 +142,142 @@
 ;; Quadrics
 ;;
 
+(define-type "glu-quadric" glu-quadric?
+  "ScmGluQuadric*" "SCM_GLU_QUADRIC_P" "SCM_GLU_QUADRIC")
+
+;; gluNewQuadric : (make <glu-quadric>)
+;; gluDeleteQuadric : GC takes care of this
+
+(define-cproc glu-quadric-draw-style (quad style)
+  (assert (glu-quadric? quad))
+  (assert (small-integer? style))
+  "gluQuadricDrawStyle(quad->quadric, style);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-quadric-orientation (quad orientation)
+  (assert (glu-quadric? quad))
+  (assert (small-integer? orientation))
+  "gluQuadricOrientation(quad->quadric, orientation);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-quadric-normals (quad normals)
+  (assert (glu-quadric? quad))
+  (assert (small-integer? normals))
+  "gluQuadricNormals(quad->quadric, normals);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-quadric-texture (quad texcoords)
+  (assert (glu-quadric? quad))
+  (assert (small-integer? texcoords))
+  "gluQuadricTexture(quad->quadric, texcoords);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; glu-quadric-callback - gluQuadricCallback doesn't pass the closure
+;;   information, so it is practially impossible to implement this in
+;;   reasonable way.
+
+(define-cproc glu-cylinder (quad base-radius top-radius height slices stacks)
+  (assert (glu-quadric? quad))
+  (assert (real? base-radius))
+  (assert (real? top-radius))
+  (assert (real? height))
+  (assert (small-integer? slices))
+  (assert (small-integer? stacks))
+  "gluCylinder(quad->quadric, base_radius, top_radius, height, slices, stacks);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-sphere (quad radius slices stacks)
+  (assert (glu-quadric? quad))
+  (assert (real? radius))
+  (assert (small-integer? slices))
+  (assert (small-integer? stacks))
+  "gluSphere(quad->quadric, radius, slices, stacks);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-disk (quad inner-radius outer-radius slices loops)
+  (assert (glu-quadric? quad))
+  (assert (real? inner-radius))
+  (assert (real? outer-radius))
+  (assert (small-integer? slices))
+  (assert (small-integer? loops))
+  "gluDisk(quad->quadric, inner_radius, outer_radius, slices, loops);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-partial-disk (quad inner-radius outer-radius slices
+                                loops start-angle sweep-angle)
+  (assert (glu-quadric? quad))
+  (assert (real? inner-radius))
+  (assert (real? outer-radius))
+  (assert (small-integer? slices))
+  (assert (small-integer? loops))
+  (assert (real? start-angle))
+  (assert (real? sweep-angle))
+  "gluPartialDisk(quad->quadric, inner_radius, outer_radius, slices, loops,
+                  start_angle, sweep_angle);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+
 ;;=============================================================
 ;; Nurbs
 ;;
 
+(define-type "glu-nurbs" glu-nurbs?
+  "ScmGluNurbs*" "SCM_GLU_NURBS_P" "SCM_GLU_NURBS")
+
+;; glu-new-nurbs-renderer : (make <glu-nurbs>)
+;; glu-delete-nurbs-renderer : GC takes care of this.
+
+(define-cproc glu-load-sampling-matrices (nurbs model-matrix proj-matrix viewport)
+  (assert (glu-nurbs? nurbs))
+  "if (!SCM_F32VECTORP(model_matrix)
+       || SCM_F32VECTOR_SIZE(model_matrix) != 16) {
+     Scm_Error(\"f32vector of length 16 required for model-matrix, but got %S\", model_matrix);
+   }
+   if (!SCM_F32VECTORP(proj_matrix)
+       || SCM_F32VECTOR_SIZE(proj_matrix) != 16) {
+     Scm_Error(\"f32vector of length 16 required for proj-matrix, but got %S\", proj_matrix);
+   }
+   if (!SCM_S32VECTORP(viewport)
+       || SCM_S32VECTOR_SIZE(viewport) != 4) {
+     Scm_Error(\"s32vector of length 4 required for viewport, but got %S\", viewport);
+   }
+   gluLoadSamplingMatrices(nurbs->nurbs,
+                           SCM_F32VECTOR_ELEMENTS(model_matrix),
+                           SCM_F32VECTOR_ELEMENTS(proj_matrix),
+                           SCM_S32VECTOR_ELEMENTS(viewport));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-nurbs-property (nurbs property value)
+  (assert (glu-nurbs? nurbs))
+  (assert (small-integer? property))
+  (assert (real? value))
+  "gluNurbsProperty(nurbs->nurbs, (GLenum)property, (GLfloat)value);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-get-nurbs-property (nurbs property)
+  (assert (glu-nurbs? nurbs))
+  (assert (small-integer? property))
+  "GLfloat value;
+   gluGetNurbsProperty(nurbs->nurbs, (GLenum)property, &value);
+   SCM_RETURN(Scm_MakeFlonum((double)value));")
+
+(define-cproc glu-begin-curve (nurbs)
+  (assert (glu-nurbs? nurbs))
+  "gluBeginCurve(nurbs->nurbs);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-end-curve (nurbs)
+  (assert (glu-nurbs? nurbs))
+  "gluEndCurve(nurbs->nurbs);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 ;;================================================================
 ;; Polygon tesselation
 ;;
+
+(define-type "glu-tesselator" glu-tesselator?
+  "ScmGluTesselator*" "SCM_GLU_TESSELATOR_P" "SCM_GLU_TESSELATOR")
+
 
 ;;================================================================
 ;; New function in GLU 1.1

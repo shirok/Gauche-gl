@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.9 2001-10-15 08:33:27 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.10 2001-11-21 10:40:09 shirok Exp $
  */
 
 #include <gauche.h>
@@ -147,6 +147,79 @@ int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
     }
 }
 
+/* GLU objects */
+
+/* Quadric */
+static void quadric_finalize(GC_PTR obj, GC_PTR data)
+{
+    gluDeleteQuadric((GLUquadricObj*)obj);
+}
+
+static ScmObj quadric_allocate(ScmClass *klass, ScmObj initargs)
+{
+    ScmGluQuadric *q = SCM_NEW(ScmGluQuadric);
+    GC_finalization_proc ofn; GC_PTR ocd;
+    SCM_SET_CLASS(q, SCM_CLASS_GLU_QUADRIC);
+    if ((q->quadric = gluNewQuadric()) == NULL) {
+        Scm_Error("gluNewQuadric failed");
+    }
+    GC_REGISTER_FINALIZER(q, quadric_finalize, NULL, &ofn, &ocd);
+    return SCM_OBJ(q);
+}
+
+SCM_DEFINE_BUILTIN_CLASS(Scm_GluQuadricClass,
+                         NULL, NULL, NULL,
+                         quadric_allocate,
+                         SCM_CLASS_DEFAULT_CPL);
+
+/* Nurbs */
+static void nurbs_finalize(GC_PTR obj, GC_PTR data)
+{
+    gluDeleteNurbsRenderer((GLUnurbsObj*)obj);
+}
+
+static ScmObj nurbs_allocate(ScmClass *klass, ScmObj initargs)
+{
+    ScmGluNurbs *n = SCM_NEW(ScmGluNurbs);
+    GC_finalization_proc ofn; GC_PTR ocd;
+    SCM_SET_CLASS(n, SCM_CLASS_GLU_NURBS);
+    if ((n->nurbs = gluNewNurbsRenderer()) == NULL) {
+        Scm_Error("gluNewNurbsRenderer failed");
+    }
+    GC_REGISTER_FINALIZER(n, nurbs_finalize, NULL, &ofn, &ocd);
+    return SCM_OBJ(n);
+}
+
+SCM_DEFINE_BUILTIN_CLASS(Scm_GluNurbsClass,
+                         NULL, NULL, NULL,
+                         nurbs_allocate,
+                         SCM_CLASS_DEFAULT_CPL);
+
+
+/* Tesselator */
+static void tesselator_finalize(GC_PTR obj, GC_PTR data)
+{
+    gluDeleteTess((GLUtriangulatorObj*)obj);
+}
+
+static ScmObj tesselator_allocate(ScmClass *klass, ScmObj initargs)
+{
+    ScmGluTesselator *q = SCM_NEW(ScmGluTesselator);
+    GC_finalization_proc ofn; GC_PTR ocd;
+    SCM_SET_CLASS(q, SCM_CLASS_GLU_TESSELATOR);
+    if ((q->tesselator = gluNewTess()) == NULL) {
+        Scm_Error("gluNewTess failed");
+    }
+    GC_REGISTER_FINALIZER(q, tesselator_finalize, NULL, &ofn, &ocd);
+    return SCM_OBJ(q);
+}
+
+SCM_DEFINE_BUILTIN_CLASS(Scm_GluTesselatorClass,
+                         NULL, NULL, NULL,
+                         tesselator_allocate,
+                         SCM_CLASS_DEFAULT_CPL);
+
+
 /* Initialization */
 extern void Scm_Init_gl_lib(ScmModule *mod);
 extern void Scm_Init_glu_lib(ScmModule *mod);
@@ -154,6 +227,15 @@ extern void Scm_Init_glu_lib(ScmModule *mod);
 void Scm_Init_gauche_gl(void)
 {
     ScmModule *mod = SCM_MODULE(SCM_FIND_MODULE("gl", TRUE));
+    Scm_InitBuiltinClass(&Scm_GluQuadricClass, "glu-quadric",
+                         NULL, sizeof(Scm_GluQuadricClass)/sizeof(ScmObj),
+                         mod);
+    Scm_InitBuiltinClass(&Scm_GluNurbsClass, "glu-nurbs",
+                         NULL, sizeof(Scm_GluNurbsClass)/sizeof(ScmObj),
+                         mod);
+    Scm_InitBuiltinClass(&Scm_GluTesselatorClass, "glu-tesselator",
+                         NULL, sizeof(Scm_GluTesselatorClass)/sizeof(ScmObj),
+                         mod);
     Scm_Init_gl_lib(mod);
     Scm_Init_glu_lib(mod);
 

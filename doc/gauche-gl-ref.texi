@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.6 2003-01-06 12:23:36 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.7 2003-01-08 10:08:33 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -1203,6 +1203,15 @@ and @var{s}.  The return value is a boolean value indicates
 @var{m} is non-singular or not.
 @end defun
 
+@defun matrix4f->rotation m
+From given orthogonal matrix @var{m}, extracts and returns
+and rotation axis and angle, as a vector4f and a real number.
+@end defun
+
+@defun matrix4f->rotation! m v
+Same as above, except the storage of vector4f @var{v} is reused
+to store the result axis.
+@end defun
 
 @c ----------------------------------------------------------------------
 @node Quaternions,  , Matrices, 3D vectors and matrices

@@ -1,3 +1,8 @@
+2003-01-07  Shiro Kawai  <shiro@acm.org>
+
+	* src/math3d-lib.stub (matrix4f->rotation!): returns axis and angle,
+	  as matrix->rotation does.
+
 2003-01-05  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-math3d.c, src/math3d-lib.stub : added more matrix ops:

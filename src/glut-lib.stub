@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.7 2002-08-17 11:58:55 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.8 2002-08-26 10:50:33 shirok Exp $
 ;;;
 
 "
@@ -34,14 +34,11 @@
   int argc, i;
   char **argv;
   ScmObj ap;
-  static char arg0[] = \"\";    /* dummy argv[0] */
 
   argc = Scm_Length(args);
   if (argc < 0) Scm_Error(\"list expected, but got %S\", args);
-  argc++;
   argv = SCM_NEW2(char **, argc * sizeof(char*));
-  i = 1;
-  argv[0] = arg0;
+  i = 0;
   SCM_FOR_EACH(ap, args) {
     if (!SCM_STRINGP(SCM_CAR(ap))) {
       Scm_Error(\"string expected, but got %S\", SCM_CAR(ap));
@@ -49,7 +46,6 @@
     argv[i] = Scm_GetString(SCM_STRING(SCM_CAR(ap)));
     i++;
   }
-
   glutInit(&argc, argv);
   SCM_RETURN(Scm_MakeInteger(argc));
   ")

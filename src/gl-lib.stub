@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.27 2002-09-28 02:51:46 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.28 2002-09-28 03:09:17 shirok Exp $
 ;;;
 
 "
@@ -137,7 +137,7 @@
 
 ;; Gauche-gl specific
 (define-cproc gl-state-vector-size (state::<fixnum>)
-  (return <integer> "Scm_GLStateInfoSize"))
+  (return <int> "Scm_GLStateInfoSize"))
 
 (define-cproc gl-get-boolean (state::<fixnum>)
   "int vsize = Scm_GLStateInfoSize(state);
@@ -250,10 +250,10 @@
   (return <void> "glPopClientAttrib"))
 
 (define-cproc gl-render-mode (mode::<fixnum>)
-  (return <integer> "glRenderMode"))
+  (return <int> "glRenderMode"))
 
 (define-cproc gl-get-error ()
-  (return <integer> "glGetError"))
+  (return <int> "glGetError"))
 
 (define-cproc gl-get-string (name::<fixnum>)
   "SCM_RETURN(Scm_MakeString(glGetString(name), -1, -1, 0));")

@@ -12,12 +12,12 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl.scm,v 1.3 2002-09-28 02:51:44 shirok Exp $
+;;;  $Id: gl.scm,v 1.4 2002-09-28 03:09:17 shirok Exp $
 ;;;
 
 (define-module gl
   (use srfi-4)                          ;uniform vector
-  (use gl.math3d)
+  (extend gl.math3d)
   (export-all)
   )
 (select-module gl)

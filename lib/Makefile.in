@@ -6,6 +6,7 @@ INSTALL_TYPE = @INSTALL_TYPE@
 SCM_INSTALL_DIR = `$(GAUCHE_CONFIG) --$(INSTALL_TYPE)libdir`
 
 SCMFILES = gl.scm \
+	   gl/math3d.scm \
 	   gl/glut.scm
 
 CONFIG_GENERATED = Makefile

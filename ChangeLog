@@ -1,5 +1,6 @@
 2002-09-27  Shiro Kawai  <shiro@acm.org>
 
+	* src/gl-lib.stub, lib/gl.scm : let some gl calls accept math3d object
 	* src/math3d-lib.stub : added.
 
 2002-09-26  Shiro Kawai  <shiro@acm.org>

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.5 2001-10-02 09:07:54 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.6 2001-10-02 11:08:28 shirok Exp $
  */
 
 #include <gauche.h>
@@ -55,28 +55,13 @@ int Scm_GLGetDoubles(ScmObj val1, ScmObj list, double *result,
 
 /* returns # of values returned by glGetTYPEv call for given state.
    -1 if the state can't be queried by glGetTYPEv. */
-#if 0 /* not finished */
 int Scm_GLStateInfoSize(GLenum state)
 {
    switch(state) {
-     case GL_CURRENT_COLOR:;
-     case GL_CURRENT_TEXTURE_COORDS:;
-     case GL_CURRENT_RASTER_POSITION:;
-     case GL_CURRENT_RASTER_COLOR:;
-     case GL_CURRENT_RASTER_TEXTURE_COORDS:;
-     case GL_FOG_COLOR:;
-     case GL_LIGHT_MODEL_AMBIENT:;
-     case GL_COLOR_CLEAR_VALUE:;
-     case GL_MAP2_GRID_DOMAIN: return 4;
-
-     case GL_CURRENT_NORMAL: return 3;
-
-     case GL_DEPTH_RANGE:;
-     case GL_MAP1_GRID_DOMAIN:;
-   case GL_MAP2_GRID_SEGMENTS: return 2;
+#include "gettype-sizes.c"
    }
+   return -1;
 }
-#endif
 
 /* Initialization */
 extern void Scm_Init_gl_lib(ScmModule *mod);

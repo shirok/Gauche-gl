@@ -1,3 +1,7 @@
+2004-05-16  Shiro Kawai  <shiro@acm.org>
+
+	* configure.in : 0.3.2_pre1
+
 2004-04-23  Shiro Kawai  <shiro@acm.org>
 
 	* Makefile.in, */Makefile.in, configure.in : adapted to the new

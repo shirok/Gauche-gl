@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.8 2003-01-09 01:36:25 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.9 2003-01-10 10:01:50 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -186,7 +186,7 @@ The mixed case names in OpenGL C API is expanded to hyphenated name,
 e.g. @code{glClearColor} @result{} @code{gl-clear-color}.
 OpenGL enums are mapped as is, e.g. 
 @code{GL_POLYGON}.  (Note that Gauche is case-sensitive by default.
-Also not the underscore, not hyphen, in constants).
+Also note the underscore, not hyphen, in constants).
 
 A few convenience macros, such as @code{gl-begin*}, is defined.
 There are straight bindings of @code{gl-begin} and @code{gl-end},

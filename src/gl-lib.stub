@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.18 2002-08-18 02:34:37 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.19 2002-08-18 08:04:50 shirok Exp $
 ;;;
 
 "
@@ -399,7 +399,72 @@
   "glCallList(list);
    SCM_RETURN(SCM_UNDEFINED);")
 
-;; glCallLists  
+(define-cproc gl-call-lists (list::<int> type::<int> lists)
+  "switch (type) {
+  case GL_BYTE:
+    if (!SCM_S8VECTORP(lists)) {
+      Scm_Error(\"s8vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_S8VECTOR_ELEMENTS(lists));
+    break;
+  case GL_UNSIGNED_BYTE:
+    if (!SCM_U8VECTORP(lists)) {
+      Scm_Error(\"u8vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_U8VECTOR_ELEMENTS(lists));
+    break;
+  case GL_SHORT:
+    if (!SCM_S16VECTORP(lists)) {
+      Scm_Error(\"s16vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_S16VECTOR_ELEMENTS(lists));
+    break;
+  case GL_UNSIGNED_SHORT:
+    if (!SCM_U16VECTORP(lists)) {
+      Scm_Error(\"u16vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_U16VECTOR_ELEMENTS(lists));
+    break;
+  case GL_INT:
+    if (!SCM_S32VECTORP(lists)) {
+      Scm_Error(\"s32vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_S32VECTOR_ELEMENTS(lists));
+    break;
+  case GL_UNSIGNED_INT:
+    if (!SCM_U32VECTORP(lists)) {
+      Scm_Error(\"u32vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_U32VECTOR_ELEMENTS(lists));
+    break;
+  case GL_FLOAT:
+    if (!SCM_F32VECTORP(lists)) {
+      Scm_Error(\"f32vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_F32VECTOR_ELEMENTS(lists));
+    break;
+  case GL_2_BYTES:
+    if (!SCM_U8VECTORP(lists)) {
+      Scm_Error(\"u8vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_U8VECTOR_ELEMENTS(lists));
+    break;
+  case GL_3_BYTES:
+    if (!SCM_U8VECTORP(lists)) {
+      Scm_Error(\"u8vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_U8VECTOR_ELEMENTS(lists));
+    break;
+  case GL_4_BYTES:
+    if (!SCM_U8VECTORP(lists)) {
+      Scm_Error(\"u8vector required, but got %S\", lists);
+    }
+    glCallLists(list, type, SCM_U8VECTOR_ELEMENTS(lists));
+    break;
+  default:
+    Scm_Error(\"bad value %d for type argument\", type);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-list-base (base::<int>)
   "glListBase(base);

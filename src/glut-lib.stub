@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.6 2002-07-31 10:51:38 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.7 2002-08-17 11:58:55 shirok Exp $
 ;;;
 
 "
@@ -839,6 +839,229 @@
 ;; Device control
 ;;
 
+;;========================================================
+;; Constants
+;;
+
+;; Display mode bit masks
+(define-enum GLUT_RGB)
+(define-enum GLUT_RGBA)
+(define-enum GLUT_INDEX)
+(define-enum GLUT_SINGLE)
+(define-enum GLUT_DOUBLE)
+(define-enum GLUT_ACCUM)
+(define-enum GLUT_ALPHA)
+(define-enum GLUT_DEPTH)
+(define-enum GLUT_STENCIL)
+(if "(GLUT_API_VERSION >= 2)"
+    (begin
+      (define-enum GLUT_MULTISAMPLE)
+      (define-enum GLUT_STEREO)
+      ))
+(if "(GLUT_API_VERSION >= 3)"
+    (define-enum GLUT_LUMINANCE))
+
+;; Mouse
+(define-enum GLUT_LEFT_BUTTON)
+(define-enum GLUT_MIDDLE_BUTTON)
+(define-enum GLUT_RIGHT_BUTTON)
+(define-enum GLUT_DOWN)
+(define-enum GLUT_UP)
+
+;; Function Keys
+(if "(GLUT_API_VERSION >= 2)"
+    (begin
+      (define-enum GLUT_KEY_F1)
+      (define-enum GLUT_KEY_F2)
+      (define-enum GLUT_KEY_F3)
+      (define-enum GLUT_KEY_F4)
+      (define-enum GLUT_KEY_F5)
+      (define-enum GLUT_KEY_F6)
+      (define-enum GLUT_KEY_F7)
+      (define-enum GLUT_KEY_F8)
+      (define-enum GLUT_KEY_F9)
+      (define-enum GLUT_KEY_F10)
+      (define-enum GLUT_KEY_F11)
+      (define-enum GLUT_KEY_F12)
+      (define-enum GLUT_KEY_LEFT)
+      (define-enum GLUT_KEY_UP)
+      (define-enum GLUT_KEY_RIGHT)
+      (define-enum GLUT_KEY_DOWN)
+      (define-enum GLUT_KEY_PAGE_UP)
+      (define-enum GLUT_KEY_PAGE_DOWN)
+      (define-enum GLUT_KEY_HOME)
+      (define-enum GLUT_KEY_END)
+      (define-enum GLUT_KEY_INSERT)
+      ))
+
+;; Entry/exit  state.
+(define-enum GLUT_LEFT)
+(define-enum GLUT_ENTERED)
+
+;; Menu usage  state.
+(define-enum GLUT_MENU_NOT_IN_USE)
+(define-enum GLUT_MENU_IN_USE)
+
+;; Visibility  state.
+(define-enum GLUT_NOT_VISIBLE)
+(define-enum GLUT_VISIBLE)
+
+;; Window status  state.
+(define-enum GLUT_HIDDEN)
+(define-enum GLUT_FULLY_RETAINED)
+(define-enum GLUT_PARTIALLY_RETAINED)
+(define-enum GLUT_FULLY_COVERED)
+
+;; Color index component selection values
+(define-enum GLUT_RED)
+(define-enum GLUT_GREEN)
+(define-enum GLUT_BLUE)
+
+;; Layers for use
+(define-enum GLUT_NORMAL)
+(define-enum GLUT_OVERLAY)
+
+;; glutGet parameters
+(define-enum GLUT_WINDOW_X)
+(define-enum GLUT_WINDOW_Y)
+(define-enum GLUT_WINDOW_WIDTH)
+(define-enum GLUT_WINDOW_HEIGHT)
+(define-enum GLUT_WINDOW_BUFFER_SIZE)
+(define-enum GLUT_WINDOW_STENCIL_SIZE)
+(define-enum GLUT_WINDOW_DEPTH_SIZE)
+(define-enum GLUT_WINDOW_RED_SIZE)
+(define-enum GLUT_WINDOW_GREEN_SIZE)
+(define-enum GLUT_WINDOW_BLUE_SIZE)
+(define-enum GLUT_WINDOW_ALPHA_SIZE)
+(define-enum GLUT_WINDOW_ACCUM_RED_SIZE)
+(define-enum GLUT_WINDOW_ACCUM_GREEN_SIZE)
+(define-enum GLUT_WINDOW_ACCUM_BLUE_SIZE)
+(define-enum GLUT_WINDOW_ACCUM_ALPHA_SIZE)
+(define-enum GLUT_WINDOW_DOUBLEBUFFER)
+(define-enum GLUT_WINDOW_RGBA)
+(define-enum GLUT_WINDOW_PARENT)
+(define-enum GLUT_WINDOW_NUM_CHILDREN)
+(define-enum GLUT_WINDOW_COLORMAP_SIZE)
+(if "(GLUT_API_VERSION >= 2)"
+    (begin
+      (define-enum GLUT_WINDOW_NUM_SAMPLES)
+      (define-enum GLUT_WINDOW_STEREO)
+      ))
+(if "(GLUT_API_VERSION >= 3)"
+    (begin
+      (define-enum GLUT_WINDOW_CURSOR)
+      ))
+(define-enum GLUT_SCREEN_WIDTH)
+(define-enum GLUT_SCREEN_HEIGHT)
+(define-enum GLUT_SCREEN_WIDTH_MM)
+(define-enum GLUT_SCREEN_HEIGHT_MM)
+(define-enum GLUT_MENU_NUM_ITEMS)
+(define-enum GLUT_DISPLAY_MODE_POSSIBLE)
+(define-enum GLUT_INIT_WINDOW_X)
+(define-enum GLUT_INIT_WINDOW_Y)
+(define-enum GLUT_INIT_WINDOW_WIDTH)
+(define-enum GLUT_INIT_WINDOW_HEIGHT)
+(define-enum GLUT_INIT_DISPLAY_MODE)
+(if "(GLUT_API_VERSION >= 2)"
+    (define-enum GLUT_ELAPSED_TIME)
+    )
+(if "(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)"
+    (define-enum GLUT_WINDOW_FORMAT_ID)
+    )
+
+;; glutDeviceGet parameters
+(if "(GLUT_API_VERSION >= 2)"
+    (begin
+      (define-enum GLUT_HAS_KEYBOARD)
+      (define-enum GLUT_HAS_MOUSE)
+      (define-enum GLUT_HAS_SPACEBALL)
+      (define-enum GLUT_HAS_DIAL_AND_BUTTON_BOX)
+      (define-enum GLUT_HAS_TABLET)
+      (define-enum GLUT_NUM_MOUSE_BUTTONS)
+      (define-enum GLUT_NUM_SPACEBALL_BUTTONS)
+      (define-enum GLUT_NUM_BUTTON_BOX_BUTTONS)
+      (define-enum GLUT_NUM_DIALS)
+      (define-enum GLUT_NUM_TABLET_BUTTONS)
+      ))
+(if "(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)"
+    (begin
+      (define-enum GLUT_DEVICE_IGNORE_KEY_REPEAT)
+      (define-enum GLUT_DEVICE_KEY_REPEAT)
+      (define-enum GLUT_HAS_JOYSTICK)
+      (define-enum GLUT_OWNS_JOYSTICK)
+      (define-enum GLUT_JOYSTICK_BUTTONS)
+      (define-enum GLUT_JOYSTICK_AXES)
+      (define-enum GLUT_JOYSTICK_POLL_RATE)
+      ))
+
+;; glutLayerGet parameters.
+(if "(GLUT_API_VERSION >= 3)"
+    (begin
+      (define-enum GLUT_OVERLAY_POSSIBLE)
+      (define-enum GLUT_LAYER_IN_USE)
+      (define-enum GLUT_HAS_OVERLAY)
+      (define-enum GLUT_TRANSPARENT_INDEX)
+      (define-enum GLUT_NORMAL_DAMAGED)
+      (define-enum GLUT_OVERLAY_DAMAGED)
+      ))
+
+;; glutVideoResizeGet parameters
+(if "(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
+    (begin
+      (define-enum GLUT_VIDEO_RESIZE_POSSIBLE)
+      (define-enum GLUT_VIDEO_RESIZE_IN_USE)
+      (define-enum GLUT_VIDEO_RESIZE_X_DELTA)
+      (define-enum GLUT_VIDEO_RESIZE_Y_DELTA)
+      (define-enum GLUT_VIDEO_RESIZE_WIDTH_DELTA)
+      (define-enum GLUT_VIDEO_RESIZE_HEIGHT_DELTA)
+      (define-enum GLUT_VIDEO_RESIZE_X)
+      (define-enum GLUT_VIDEO_RESIZE_Y)
+      (define-enum GLUT_VIDEO_RESIZE_WIDTH)
+      (define-enum GLUT_VIDEO_RESIZE_HEIGHT)
+      ))
+
+;; glutGetModifiers return mask
+(if "(GLUT_API_VERSION >= 3)"
+    (begin
+      (define-enum GLUT_ACTIVE_SHIFT)
+      (define-enum GLUT_ACTIVE_CTRL)
+      (define-enum GLUT_ACTIVE_ALT)
+      ))
+
+;; glutSetCursor parameters
+(if "(GLUT_API_VERSION >= 3)"
+    (begin
+      ;;  Basic arrows
+      (define-enum GLUT_CURSOR_RIGHT_ARROW)
+      (define-enum GLUT_CURSOR_LEFT_ARROW)
+      ;;  Symbolic cursor shapes
+      (define-enum GLUT_CURSOR_INFO)
+      (define-enum GLUT_CURSOR_DESTROY)
+      (define-enum GLUT_CURSOR_HELP)
+      (define-enum GLUT_CURSOR_CYCLE)
+      (define-enum GLUT_CURSOR_SPRAY)
+      (define-enum GLUT_CURSOR_WAIT)
+      (define-enum GLUT_CURSOR_TEXT)
+      (define-enum GLUT_CURSOR_CROSSHAIR)
+      ;;   Directional cursors
+      (define-enum GLUT_CURSOR_UP_DOWN)
+      (define-enum GLUT_CURSOR_LEFT_RIGHT)
+      ;;   Sizing cursors
+      (define-enum GLUT_CURSOR_TOP_SIDE)
+      (define-enum GLUT_CURSOR_BOTTOM_SIDE)
+      (define-enum GLUT_CURSOR_LEFT_SIDE)
+      (define-enum GLUT_CURSOR_RIGHT_SIDE)
+      (define-enum GLUT_CURSOR_TOP_LEFT_CORNER)
+      (define-enum GLUT_CURSOR_TOP_RIGHT_CORNER)
+      (define-enum GLUT_CURSOR_BOTTOM_RIGHT_CORNER)
+      (define-enum GLUT_CURSOR_BOTTOM_LEFT_CORNER)
+      ;;   Inherit from parent window
+      (define-enum GLUT_CURSOR_INHERIT)
+      ;;   Blank cursor
+      (define-enum GLUT_CURSOR_NONE)
+      ;;   Fullscreen crosshair (if available)
+      (define-enum GLUT_CURSOR_FULL_CROSSHAIR)
+      ))
 
 ;; Local variables:
 ;; mode: scheme

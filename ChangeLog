@@ -1,8 +1,12 @@
+2002-08-17  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-glut.c, src/glut-lib.stub : rewrote using define-enum
+
 2002-08-16  Shiro Kawai  <shiro@acm.org>
 
 	* src/glstate.scm: added code to generate #ifdef swithc for OpenGL1.2
 	  state variables.
-	* examples/glbook/example6-3.scm: added
+	* examples/glbook/example6-[345].scm: added
 
 2002-07-31  Shiro Kawai  <shiro@acm.org>
 

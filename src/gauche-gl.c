@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.2 2001-09-30 03:38:37 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.3 2001-09-30 04:52:01 shirok Exp $
  */
 
 #include <gauche.h>
@@ -24,7 +24,7 @@
 int Scm_GLGetDoubles(ScmObj val1, ScmObj list, double *result,
                      int maxresult, int minresult)
 {
-    int i;
+    int i = 0;
     ScmObj lp;
 
     if (!SCM_UNBOUNDP(val1)) {

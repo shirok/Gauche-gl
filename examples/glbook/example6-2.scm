@@ -49,10 +49,10 @@
   (gl-material GL_FRONT GL_EMISSION '#f32(0.0 0.3 0.3 0.6))
   (gl-material GL_FRONT GL_DIFFUSE '#f32(0.0 0.8 0.8 0.6))
   (gl-enable GL_BLEND)
-  (gl-depth-mask GL_FALSE)
+  (gl-depth-mask #f)
   (gl-blend-func GL_SRC_ALPHA GL_ONE)
   (gl-call-list *cube-list*)
-  (gl-depth-mask GL_TRUE)
+  (gl-depth-mask #t)
   (gl-disable GL_BLEND)
   (gl-pop-matrix)
 

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.1 2001-09-28 11:39:33 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.2 2001-09-28 20:26:40 shirok Exp $
 ;;;
 
 "
@@ -43,12 +43,10 @@
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-clear (mask)
-  (assert (exact? mask))
   "glClear((GLbitfield)Scm_GetUInteger(mask));
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-index-mask (mask)
-  (assert (exact? mask))
   "glIndexMask((GLuint)Scm_GetUInteger(mask));
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -160,7 +158,6 @@
 ;; glGetPointerv
 
 (define-cproc gl-push-attrib (mask)
-  (assert (exact? mask))
   "glPushAttrib((GLbitfield)Scm_GetUInteger(mask));
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -169,7 +166,6 @@
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-push-client-attrib (mask)
-  (assert (exact? mask))
   "glPushClientAttrib((GLbitfield)Scm_GetUInteger(mask));
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -186,7 +182,7 @@
 
 (define-cproc gl-get-string (name)
   (assert (small-integer? name))
-  "SCM_RETURN(SCM_MAKSTR_IMMUTABLE(glGetString(SCM_INT_VALUE(name))));")
+  "SCM_RETURN(Scm_MakeString(glGetString(SCM_INT_VALUE(name)), -1, -1, 0));")
 
 (define-cproc gl-flush ()
   "glFlush();

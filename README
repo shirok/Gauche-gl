@@ -3,7 +3,7 @@ This is Gauche-gl, OpenGL binding for Gauche.
 See INSTALL (English) or INSTALL.eucjp (Japanese) for installation
 instructions.
 
-No document is written yet.  There're several examples ported from
+No document is written yet.  There are several examples ported from
 ``OpenGL Programming Guide'' under examples/glbook.
 
 The mapping from Scheme to C call is mostly straightforward.
@@ -25,3 +25,9 @@ it doesn't need to check type of every values in it.
 Among variations of uniform vectors, f32vector is usually
 the most efficient.
 
+Variables GL_VERSION_1_1, GL_VERSION_1_2 and GL_VERSION_1_3
+may be defined and bound to #t if the platform on which
+Gauche-gl is compiled supports OpenGL version 1.1, 1.2 or
+1.3, respectively.  You can use symbol-bound? to check these
+variables are bound.   You can also use symbol-bound? to
+check the existence of extensions, such as GL_ARB_multitexture.

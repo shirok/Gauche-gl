@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-syms.stub,v 1.4 2002-08-26 10:56:35 shirok Exp $
+;;;  $Id: gl-syms.stub,v 1.5 2002-08-29 08:39:54 shirok Exp $
 ;;;
 
 "
@@ -22,6 +22,14 @@
 ;;=============================================================
 ;; Constants
 ;;
+
+(if "defined(GL_VERSION_1_1)"
+    (define-constant GL_VERSION_1_1 #t))
+(if "defined(GL_VERSION_1_2)"
+    (define-constant GL_VERSION_1_2 #t))
+(if "defined(GL_VERSION_1_3)"
+    (define-constant GL_VERSION_1_3 #t))
+
 (define-enum GL_FALSE)
 (define-enum GL_TRUE)
 (define-enum GL_BYTE)
@@ -594,6 +602,8 @@
 ;; Extensions
 (if "defined(GL_EXT_blend_color)"
     (begin
+      (define-constant GL_EXT_blend_color #t)
+      (define-enum GL_BLEND_COLOR_EXT)
       (define-enum GL_CONSTANT_COLOR_EXT)
       (define-enum GL_ONE_MINUS_CONSTANT_COLOR_EXT)
       (define-enum GL_CONSTANT_ALPHA_EXT)
@@ -601,22 +611,24 @@
       (define-enum GL_BLEND_EQUATION_EXT)))
 (if "defined(GL_EXT_blend_minmax)"
     (begin
+      (define-constant GL_EXT_blend_minmax #t)
       (define-enum GL_MIN_EXT)
       (define-enum GL_MAX_EXT)
       (define-enum GL_FUNC_ADD_EXT)))
 (if "defined(GL_EXT_blend_subtract)"
     (begin
+      (define-constant GL_EXT_blend_subtract #t)
       (define-enum GL_FUNC_SUBTRACT_EXT)
       (define-enum GL_FUNC_REVERSE_SUBTRACT_EXT)))
-(if "defined(GL_EXT_blend_color)"
-    (define-enum GL_BLEND_COLOR_EXT))
 (if "defined(GL_EXT_polygon_offset)"
     (begin
+      (define-constant GL_EXT_polygon_offset #t)
       (define-enum GL_POLYGON_OFFSET_EXT)
       (define-enum GL_POLYGON_OFFSET_FACTOR_EXT)
       (define-enum GL_POLYGON_OFFSET_BIAS_EXT)))
 (if "defined(GL_EXT_vertex_array)"
     (begin
+      (define-constant GL_EXT_vertex_array #t)
       (define-enum GL_VERTEX_ARRAY_EXT)
       (define-enum GL_NORMAL_ARRAY_EXT)
       (define-enum GL_COLOR_ARRAY_EXT)
@@ -651,6 +663,7 @@
       (define-enum GL_EDGE_FLAG_ARRAY_POINTER_EXT)))
 (if "defined(GL_EXT_texture_object)"
     (begin
+      (define-constant GL_EXT_texture_object #t)
       (if "defined(GL_TEXTURE_PRIORITY_EXT)"
           (define-enum GL_TEXTURE_PRIORITY_EXT))
       (if "defined(GL_TEXTURE_RESIDENT_EXT)"
@@ -661,6 +674,7 @@
           (define-enum GL_TEXTURE_2D_BINDING_EXT))))
 (if "defined(GL_EXT_texture3D)"
     (begin
+      (define-constant GL_EXT_texture3D #t)
       (if "defined(GL_TEXTURE_3D_BINDING_EXT)"
           (define-enum GL_TEXTURE_3D_BINDING_EXT))
       (define-enum GL_PACK_SKIP_IMAGES_EXT)
@@ -674,6 +688,7 @@
       (define-enum GL_MAX_3D_TEXTURE_SIZE_EXT)))
 (if "defined(GL_EXT_paletted_texture)"
     (begin
+      (define-constant GL_EXT_paletted_texture #t)
       (define-enum GL_TABLE_TOO_LARGE_EXT)
       (define-enum GL_COLOR_TABLE_FORMAT_EXT)
       (define-enum GL_COLOR_TABLE_WIDTH_EXT)
@@ -691,11 +706,17 @@
       (define-enum GL_COLOR_INDEX12_EXT)
       (define-enum GL_COLOR_INDEX16_EXT)))
 (if "defined(GL_EXT_rescale_normal)"
-    (define-enum GL_RESCALE_NORMAL_EXT))
+    (begin
+      (define-constant GL_EXT_rescale_normal #t)
+      (define-enum GL_RESCALE_NORMAL_EXT)))
 (if "defined(GL_EXT_abgr)"
-    (define-enum GL_ABGR_EXT))
+    (begin
+      (define-constant GL_EXT_abgr #t)
+      (define-enum GL_ABGR_EXT)))
 (if "defined(GL_SGIS_texture_edge_clamp)"
-    (define-enum GL_CLAMP_TO_EDGE_SGIS))
+    (begin
+      (define-constant GL_SGIS_texture_edge_clamp #t)
+      (define-enum GL_CLAMP_TO_EDGE_SGIS)))
 
 ;; glPush/PopAttrib bits
 (define-enum GL_CURRENT_BIT)
@@ -728,6 +749,7 @@
 ;; GL ARB multitexture extensionx
 (if "defined(GL_ARB_multitexture)"
     (begin
+      (define-constant GL_ARB_multitexture #t)
       (define-enum GL_TEXTURE0_ARB)
       (define-enum GL_TEXTURE1_ARB)
       (define-enum GL_TEXTURE2_ARB)

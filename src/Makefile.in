@@ -18,7 +18,7 @@ GLUTOBJS = glut_head.o gauche-glut.o glut-lib.o glut_tail.o
 OBJS = $(GLOBJS) $(GLUTOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status \
                    gl_head.c gl_tail.c glut_head.c glut_tail.c
-GENERATED = gl-lib.c glu-lib.c glut-lib.c gettype-sizes.c 
+GENERATED = gl-lib.c gl-syms.c glu-lib.c glut-lib.c gettype-sizes.c 
 
 INSTALL_TYPE = @INSTALL_TYPE@
 HEADER_INSTALL_DIR  = `$(GAUCHE_CONFIG) --$(INSTALL_TYPE)incdir`

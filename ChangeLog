@@ -1,3 +1,8 @@
+2002-09-26  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-math3d.c, src/gauche/math3d.h, lib/gl/math3d : adding
+	  gl.math3d module
+
 2002-09-22  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.1.6

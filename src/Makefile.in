@@ -16,6 +16,7 @@ GLOBJS = gauche-gl.o gl-lib.o glu-lib.o
 GLUTOBJS = gauche-glut.o glut-lib.o
 OBJS = $(GLOBJS) $(GLUTOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status
+GENERATED = gl-lib.c glu-lib.c glut-lib.c gettype-sizes.c 
 
 INSTALL_TYPE = @INSTALL_TYPE@
 HEADER_INSTALL_DIR  = `$(GAUCHE_CONFIG) --$(INSTALL_TYPE)incdir`
@@ -32,6 +33,11 @@ gl-lib.c : gl-lib.stub
 
 glu-lib.c : glu-lib.stub
 	$(GOSH) genstub glu-lib.stub
+
+gauche-gl.c : gettype-sizes.c
+
+gettype-sizes.c : glstate.scm
+	$(GOSH) glstate.scm -o gettype-sizes.c gettype
 
 $(GLOBJS) : gauche-gl.h
 
@@ -71,4 +77,4 @@ distclean : clean
 	rm -rf $(CONFIG_GENERATED)
 
 realclean : clean
-	rm -rf $(CONFIG_GENERATED) configure
+	rm -rf $(CONFIG_GENERATED) $(GENERATED) configure

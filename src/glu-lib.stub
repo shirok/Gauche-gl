@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.1 2001-09-30 11:03:22 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.2 2001-10-02 09:08:52 shirok Exp $
 ;;;
 
 "
@@ -201,7 +201,7 @@
 (define-symbol |GLU_TESS_ERROR6| "sym_GLU_TESS_ERROR6" "Scm_MakeInteger(GLU_TESS_ERROR6)")
 (define-symbol |GLU_TESS_ERROR7| "sym_GLU_TESS_ERROR7" "Scm_MakeInteger(GLU_TESS_ERROR7)")
 (define-symbol |GLU_TESS_ERROR8| "sym_GLU_TESS_ERROR8" "Scm_MakeInteger(GLU_TESS_ERROR8)")
-(define-symbol |GLU_TESS_ERROR9| "sym_GLU_TESS_ERROR9" "Scm_MakeInteger(GLU_TESS_ERROR9)")
+;(define-symbol |GLU_TESS_ERROR9| "sym_GLU_TESS_ERROR9" "Scm_MakeInteger(GLU_TESS_ERROR9)")
 
 ;; NURBS 
 (define-symbol |GLU_AUTO_LOAD_MATRIX| "sym_GLU_AUTO_LOAD_MATRIX" "Scm_MakeInteger(GLU_AUTO_LOAD_MATRIX)")

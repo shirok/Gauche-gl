@@ -1,6 +1,6 @@
 #
 # Makefile.in for Gauche-gl/src
-#  $Id: Makefile.in,v 1.29 2004-04-23 12:12:05 shirok Exp $
+#  $Id: Makefile.in,v 1.30 2004-08-21 10:32:45 shirok Exp $
 #
 
 # prelude ---------------------------------------------
@@ -49,14 +49,15 @@ HEADERS = gauche/math3d.h
 
 TARGET = $(ARCHFILES)
 GLOBJS = gl_head.$(OBJEXT) gauche-gl.$(OBJEXT) gl-lib.$(OBJEXT) \
-         gl-syms.$(OBJEXT) glu-lib.$(OBJEXT) gl_tail.$(OBJEXT)
+         gl-syms.$(OBJEXT) glext-lib.$(OBJEXT) glu-lib.$(OBJEXT) \
+         gl_tail.$(OBJEXT)
 GLUTOBJS = glut_head.$(OBJEXT) gauche-glut.$(OBJEXT) \
            glut-lib.$(OBJEXT) glut_tail.$(OBJEXT)
 MATHOBJS = math3d_head.$(OBJEXT) gauche-math3d.$(OBJEXT) \
            math3d-lib.$(OBJEXT) math3d_tail.$(OBJEXT)
 OBJS = $(GLOBJS) $(GLUTOBJS) $(MATHOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status
-GENERATED = gl-lib.c gl-syms.c glu-lib.c glut-lib.c \
+GENERATED = gl-lib.c gl-syms.c glext-lib.c glu-lib.c glut-lib.c \
             math3d-lib.c gettype-sizes.c \
             gl_head.c gl_tail.c glut_head.c glut_tail.c \
             math3d_head.c math3d_tail.c
@@ -74,6 +75,7 @@ libgauche-gl.$(SOEXT) : $(GLOBJS)
 math3d-lib.c : math3d-lib.stub
 gl-lib.c : gl-lib.stub
 gl-syms.c : gl-syms.stub
+glext-lib.c : glext-lib.stub
 glu-lib.c : glu-lib.stub
 gauche-gl.c : gettype-sizes.c
 

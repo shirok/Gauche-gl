@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-syms.stub,v 1.7 2003-10-05 05:05:25 shirok Exp $
+;;;  $Id: gl-syms.stub,v 1.8 2004-08-21 10:32:45 shirok Exp $
 ;;;
 
 "
@@ -751,47 +751,6 @@
 (if "defined(GL_ALL_CLIENT_ATTRIB_BITS)"
   (define-enum GL_ALL_CLIENT_ATTRIB_BITS)
   )
-
-;; GL ARB multitexture extensionx
-(if "defined(GL_ARB_multitexture)"
-    (begin
-      (define-constant GL_ARB_multitexture #t)
-      (define-enum GL_TEXTURE0_ARB)
-      (define-enum GL_TEXTURE1_ARB)
-      (define-enum GL_TEXTURE2_ARB)
-      (define-enum GL_TEXTURE3_ARB)
-      (define-enum GL_TEXTURE4_ARB)
-      (define-enum GL_TEXTURE5_ARB)
-      (define-enum GL_TEXTURE6_ARB)
-      (define-enum GL_TEXTURE7_ARB)
-      (define-enum GL_TEXTURE8_ARB)
-      (define-enum GL_TEXTURE9_ARB)
-      (define-enum GL_TEXTURE10_ARB)
-      (define-enum GL_TEXTURE11_ARB)
-      (define-enum GL_TEXTURE12_ARB)
-      (define-enum GL_TEXTURE13_ARB)
-      (define-enum GL_TEXTURE14_ARB)
-      (define-enum GL_TEXTURE15_ARB)
-      (define-enum GL_TEXTURE16_ARB)
-      (define-enum GL_TEXTURE17_ARB)
-      (define-enum GL_TEXTURE18_ARB)
-      (define-enum GL_TEXTURE19_ARB)
-      (define-enum GL_TEXTURE20_ARB)
-      (define-enum GL_TEXTURE21_ARB)
-      (define-enum GL_TEXTURE22_ARB)
-      (define-enum GL_TEXTURE23_ARB)
-      (define-enum GL_TEXTURE24_ARB)
-      (define-enum GL_TEXTURE25_ARB)
-      (define-enum GL_TEXTURE26_ARB)
-      (define-enum GL_TEXTURE27_ARB)
-      (define-enum GL_TEXTURE28_ARB)
-      (define-enum GL_TEXTURE29_ARB)
-      (define-enum GL_TEXTURE30_ARB)
-      (define-enum GL_TEXTURE31_ARB)
-      (define-enum GL_ACTIVE_TEXTURE_ARB)
-      (define-enum GL_CLIENT_ACTIVE_TEXTURE_ARB)
-      (define-enum GL_MAX_TEXTURE_UNITS_ARB)
-      ))
 
 ;; OpenGL1.3 texture
 (if "defined(GL_VERSION_1_3)"

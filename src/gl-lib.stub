@@ -1,7 +1,7 @@
 ;;;
 ;;; gl-lib.stub - glue functions for GL
 ;;;
-;;;  Copyright(C) 2001-2002 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2001-2004 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.32 2003-10-05 05:05:25 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.33 2004-08-21 10:32:45 shirok Exp $
 ;;;
 
 "
@@ -1681,26 +1681,6 @@
 ; gl-get-separable-filter
 
 )) ;; end defined(GL_VERSION_1_2)
-
-;;=============================================================
-;; Extensions
-;;
-
-;; GL_ARB_multitexture
-(if "defined(GL_ARB_multitexture)" (begin
-
-(define-cproc gl-active-texture-arb (texture::<int>)
-  (return <void> "glActiveTextureARB"))
-(define-cproc gl-client-active-texture-arb (texture::<int>)
-  (return <void> "glClientActiveTextureARB"))
-; gl-multi-tex-coord1
-; gl-multi-tex-coord2
-; gl-multi-tex-coord3
-; gl-multi-tex-coord4
-
-)) ;; end defined(GL_ARB_multitexture)
-    
-
 
 ;; Local variables:
 ;; mode: scheme

@@ -1,0 +1,1182 @@
+;;;
+;;; glext-lib.stub - glue functions for GL extensions
+;;;
+;;;  Copyright(C) 2004 by Shiro Kawai (shiro@acm.org)
+;;;
+;;;  Permission to use, copy, modify, distribute this software and
+;;;  accompanying documentation for any purpose is hereby granted,
+;;;  provided that existing copyright notices are retained in all
+;;;  copies and that this notice is included verbatim in all
+;;;  distributions.
+;;;  This software is provided as is, without express or implied
+;;;  warranty.  In no circumstances the author(s) shall be liable
+;;;  for any damages arising out of the use of this software.
+;;;
+;;;  $Id: glext-lib.stub,v 1.1 2004-08-21 10:32:45 shirok Exp $
+;;;
+
+"
+#include \"gauche-gl.h\"
+"
+
+"#define CHECK_ERROR(msg__)                            \\
+  do {                                                 \\
+    GLenum e = glGetError();                           \\
+    if (e != GL_NO_ERROR) {                            \\
+      Scm_Error(\"%s: %s\", msg__, gluErrorString(e)); \\
+    }                                                  \\
+  } while (0)
+
+/* GLhandle is (currently) typedef'ed to uint. */
+#define SCM_GL_HANDLE_P(obj)  SCM_INTEGERP(obj)
+#define SCM_MAKE_GL_HANDLE(handle)  Scm_MakeIntegerU(handle)
+#define SCM_GL_HANDLE_VALUE(shandle) Scm_GetIntegerU(shandle)
+"
+
+;; NB: this should be taken care of by genstub.
+(define-type <u32vector> "ScmU32Vector*" "u32vector"
+  "SCM_U32VECTORP" "SCM_U32VECTOR")
+(define-type <s32vector> "ScmS32Vector*" "s32vector"
+  "SCM_S32VECTORP" "SCM_S32VECTOR")
+(define-type <f32vector> "ScmF32Vector*" "f32vector"
+  "SCM_F32VECTORP" "SCM_F32VECTOR")
+
+;;=============================================================
+;; GL_ARB_imaging
+;;
+
+(if "defined(GL_ARB_imaging)" (begin
+
+(define-constant GL_ARB_imaging #t)
+
+(define-enum GL_CONSTANT_COLOR)
+(define-enum GL_ONE_MINUS_CONSTANT_COLOR)
+(define-enum GL_CONSTANT_ALPHA)
+(define-enum GL_ONE_MINUS_CONSTANT_ALPHA)
+(define-enum GL_BLEND_COLOR)
+(define-enum GL_FUNC_ADD)
+(define-enum GL_MIN)
+(define-enum GL_MAX)
+(define-enum GL_BLEND_EQUATION)
+(define-enum GL_FUNC_SUBTRACT)
+(define-enum GL_FUNC_REVERSE_SUBTRACT)
+(define-enum GL_CONVOLUTION_1D)
+(define-enum GL_CONVOLUTION_2D)
+(define-enum GL_SEPARABLE_2D)
+(define-enum GL_CONVOLUTION_BORDER_MODE)
+(define-enum GL_CONVOLUTION_FILTER_SCALE)
+(define-enum GL_CONVOLUTION_FILTER_BIAS)
+(define-enum GL_REDUCE)
+(define-enum GL_CONVOLUTION_FORMAT)
+(define-enum GL_CONVOLUTION_WIDTH)
+(define-enum GL_CONVOLUTION_HEIGHT)
+(define-enum GL_MAX_CONVOLUTION_WIDTH)
+(define-enum GL_MAX_CONVOLUTION_HEIGHT)
+(define-enum GL_POST_CONVOLUTION_RED_SCALE)
+(define-enum GL_POST_CONVOLUTION_GREEN_SCALE)
+(define-enum GL_POST_CONVOLUTION_BLUE_SCALE)
+(define-enum GL_POST_CONVOLUTION_ALPHA_SCALE)
+(define-enum GL_POST_CONVOLUTION_RED_BIAS)
+(define-enum GL_POST_CONVOLUTION_GREEN_BIAS)
+(define-enum GL_POST_CONVOLUTION_BLUE_BIAS)
+(define-enum GL_POST_CONVOLUTION_ALPHA_BIAS)
+(define-enum GL_HISTOGRAM)
+(define-enum GL_PROXY_HISTOGRAM)
+(define-enum GL_HISTOGRAM_WIDTH)
+(define-enum GL_HISTOGRAM_FORMAT)
+(define-enum GL_HISTOGRAM_RED_SIZE)
+(define-enum GL_HISTOGRAM_GREEN_SIZE)
+(define-enum GL_HISTOGRAM_BLUE_SIZE)
+(define-enum GL_HISTOGRAM_ALPHA_SIZE)
+(define-enum GL_HISTOGRAM_LUMINANCE_SIZE)
+(define-enum GL_HISTOGRAM_SINK)
+(define-enum GL_MINMAX)
+(define-enum GL_MINMAX_FORMAT)
+(define-enum GL_MINMAX_SINK)
+(define-enum GL_TABLE_TOO_LARGE)
+(define-enum GL_COLOR_MATRIX)
+(define-enum GL_COLOR_MATRIX_STACK_DEPTH)
+(define-enum GL_MAX_COLOR_MATRIX_STACK_DEPTH)
+(define-enum GL_POST_COLOR_MATRIX_RED_SCALE)
+(define-enum GL_POST_COLOR_MATRIX_GREEN_SCALE)
+(define-enum GL_POST_COLOR_MATRIX_BLUE_SCALE)
+(define-enum GL_POST_COLOR_MATRIX_ALPHA_SCALE)
+(define-enum GL_POST_COLOR_MATRIX_RED_BIAS)
+(define-enum GL_POST_COLOR_MATRIX_GREEN_BIAS)
+(define-enum GL_POST_COLOR_MATRIX_BLUE_BIAS)
+(define-enum GL_POST_COLOR_MATRIX_ALPHA_BIAS)
+(define-enum GL_COLOR_TABLE)
+(define-enum GL_POST_CONVOLUTION_COLOR_TABLE)
+(define-enum GL_POST_COLOR_MATRIX_COLOR_TABLE)
+(define-enum GL_PROXY_COLOR_TABLE)
+(define-enum GL_PROXY_POST_CONVOLUTION_COLOR_TABLE)
+(define-enum GL_PROXY_POST_COLOR_MATRIX_COLOR_TABLE)
+(define-enum GL_COLOR_TABLE_SCALE)
+(define-enum GL_COLOR_TABLE_BIAS)
+(define-enum GL_COLOR_TABLE_FORMAT)
+(define-enum GL_COLOR_TABLE_WIDTH)
+(define-enum GL_COLOR_TABLE_RED_SIZE)
+(define-enum GL_COLOR_TABLE_GREEN_SIZE)
+(define-enum GL_COLOR_TABLE_BLUE_SIZE)
+(define-enum GL_COLOR_TABLE_ALPHA_SIZE)
+(define-enum GL_COLOR_TABLE_LUMINANCE_SIZE)
+(define-enum GL_COLOR_TABLE_INTENSITY_SIZE)
+(define-enum GL_CONSTANT_BORDER)
+(define-enum GL_REPLICATE_BORDER)
+(define-enum GL_CONVOLUTION_BORDER_COLOR)
+
+)) ;; GL_ARB_imaging
+
+;;=============================================================
+;; GL_ARB_depth_texture
+;;
+
+(if "defined(GL_ARB_depth_texture)" (begin
+
+(define-constant GL_ARB_depth_texture #t)
+
+(define-enum GL_DEPTH_COMPONENT16_ARB)
+(define-enum GL_DEPTH_COMPONENT24_ARB)
+(define-enum GL_DEPTH_COMPONENT32_ARB)
+(define-enum GL_TEXTURE_DEPTH_SIZE_ARB)
+(define-enum GL_DEPTH_TEXTURE_MODE_ARB)
+
+)) ;; GL_ARB_depth_texture
+
+;;=============================================================
+;; GL_ARB_fragment_program
+;;
+
+(if "defined(GL_ARB_fragment_program)" (begin
+
+(define-constant GL_ARB_fragment_program #t)
+
+(define-enum GL_FRAGMENT_PROGRAM_ARB)
+(define-enum GL_PROGRAM_ALU_INSTRUCTIONS_ARB)
+(define-enum GL_PROGRAM_TEX_INSTRUCTIONS_ARB)
+(define-enum GL_PROGRAM_TEX_INDIRECTIONS_ARB)
+(define-enum GL_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB)
+(define-enum GL_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB)
+(define-enum GL_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB)
+(define-enum GL_MAX_PROGRAM_ALU_INSTRUCTIONS_ARB)
+(define-enum GL_MAX_PROGRAM_TEX_INSTRUCTIONS_ARB)
+(define-enum GL_MAX_PROGRAM_TEX_INDIRECTIONS_ARB)
+(define-enum GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB)
+(define-enum GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB)
+(define-enum GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB)
+(define-enum GL_MAX_TEXTURE_COORDS_ARB)
+(define-enum GL_MAX_TEXTURE_IMAGE_UNITS_ARB)
+
+)) ;; GL_ARB_fragment_program
+
+;;=============================================================
+;; GL_ARB_fragment_shader
+;;
+
+(if "defined(GL_ARB_fragment_shader)" (begin
+
+(define-constant GL_ARB_fragment_shader #t)
+
+(define-enum GL_FRAGMENT_SHADER_ARB)
+(define-enum GL_MAX_FRAGMENT_UNIFORM_COMPONENTS_ARB)
+
+
+)) ;; GL_ARB_fragment_shader
+
+;;=============================================================
+;; GL_ARB_matrix_palette
+;;
+
+(if "defined(GL_ARB_matrix_palette)" (begin
+
+(define-constant GL_ARB_matrix_palette #t)
+
+(define-enum GL_MATRIX_PALETTE_ARB)
+(define-enum GL_MAX_MATRIX_PALETTE_STACK_DEPTH_ARB)
+(define-enum GL_MAX_PALETTE_MATRICES_ARB)
+(define-enum GL_CURRENT_PALETTE_MATRIX_ARB)
+(define-enum GL_MATRIX_INDEX_ARRAY_ARB)
+(define-enum GL_CURRENT_MATRIX_INDEX_ARB)
+(define-enum GL_MATRIX_INDEX_ARRAY_SIZE_ARB)
+(define-enum GL_MATRIX_INDEX_ARRAY_TYPE_ARB)
+(define-enum GL_MATRIX_INDEX_ARRAY_STRIDE_ARB)
+(define-enum GL_MATRIX_INDEX_ARRAY_POINTER_ARB)
+
+)) ;; GL_ARB_matrix_palette
+
+;;=============================================================
+;; GL_ARB_multisample
+;;
+
+(if "defined(GL_ARB_multisample)" (begin
+
+(define-constant GL_ARB_multisample #t)
+
+(define-enum WGL_SAMPLE_BUFFERS_ARB)
+(define-enum WGL_SAMPLES_ARB)
+(define-enum GL_MULTISAMPLE_ARB)
+(define-enum GL_SAMPLE_ALPHA_TO_COVERAGE_ARB)
+(define-enum GL_SAMPLE_ALPHA_TO_ONE_ARB)
+(define-enum GL_SAMPLE_COVERAGE_ARB)
+(define-enum GL_SAMPLE_BUFFERS_ARB)
+(define-enum GL_SAMPLES_ARB)
+(define-enum GL_SAMPLE_COVERAGE_VALUE_ARB)
+(define-enum GL_SAMPLE_COVERAGE_INVERT_ARB)
+(define-enum GL_MULTISAMPLE_BIT_ARB)
+
+(define-cproc gl-sample-coverage-arb (value::<float> invert::<boolean>)
+  (return <void> "glSampleCoverageARB"))
+
+)) ;; GL_ARB_multisample
+
+;;=============================================================
+;; GL_ARB_multitexture
+;;
+
+(if "defined(GL_ARB_multitexture)" (begin
+
+(define-constant GL_ARB_multitexture #t)
+
+(define-enum GL_TEXTURE0_ARB)
+(define-enum GL_TEXTURE1_ARB)
+(define-enum GL_TEXTURE2_ARB)
+(define-enum GL_TEXTURE3_ARB)
+(define-enum GL_TEXTURE4_ARB)
+(define-enum GL_TEXTURE5_ARB)
+(define-enum GL_TEXTURE6_ARB)
+(define-enum GL_TEXTURE7_ARB)
+(define-enum GL_TEXTURE8_ARB)
+(define-enum GL_TEXTURE9_ARB)
+(define-enum GL_TEXTURE10_ARB)
+(define-enum GL_TEXTURE11_ARB)
+(define-enum GL_TEXTURE12_ARB)
+(define-enum GL_TEXTURE13_ARB)
+(define-enum GL_TEXTURE14_ARB)
+(define-enum GL_TEXTURE15_ARB)
+(define-enum GL_TEXTURE16_ARB)
+(define-enum GL_TEXTURE17_ARB)
+(define-enum GL_TEXTURE18_ARB)
+(define-enum GL_TEXTURE19_ARB)
+(define-enum GL_TEXTURE20_ARB)
+(define-enum GL_TEXTURE21_ARB)
+(define-enum GL_TEXTURE22_ARB)
+(define-enum GL_TEXTURE23_ARB)
+(define-enum GL_TEXTURE24_ARB)
+(define-enum GL_TEXTURE25_ARB)
+(define-enum GL_TEXTURE26_ARB)
+(define-enum GL_TEXTURE27_ARB)
+(define-enum GL_TEXTURE28_ARB)
+(define-enum GL_TEXTURE29_ARB)
+(define-enum GL_TEXTURE30_ARB)
+(define-enum GL_TEXTURE31_ARB)
+(define-enum GL_ACTIVE_TEXTURE_ARB)
+(define-enum GL_CLIENT_ACTIVE_TEXTURE_ARB)
+(define-enum GL_MAX_TEXTURE_UNITS_ARB)
+
+
+(define-cproc gl-active-texture-arb (texture::<int>)
+  (return <void> "glActiveTextureARB"))
+(define-cproc gl-client-active-texture-arb (texture::<int>)
+  (return <void> "glClientActiveTextureARB"))
+; gl-multi-tex-coord1
+; gl-multi-tex-coord2
+; gl-multi-tex-coord3
+; gl-multi-tex-coord4
+
+)) ;; end defined(GL_ARB_multitexture)
+    
+;;=============================================================
+;; GL_ARB_occlusion_query
+;;
+
+(if "defined(GL_ARB_occlusion_query)" (begin
+
+(define-constant GL_ARB_occlusion_query #t)
+
+(define-enum GL_QUERY_COUNTER_BITS_ARB)
+(define-enum GL_CURRENT_QUERY_ARB)
+(define-enum GL_QUERY_RESULT_ARB)
+(define-enum GL_QUERY_RESULT_AVAILABLE_ARB)
+(define-enum GL_SAMPLES_PASSED_ARB)
+
+;; gl-genqueries-arb
+;; gl-delete-queries-arb
+
+(define-cproc gl-is-query-arb (query::<uint>)
+  (return <boolean> "glIsQueryARB"))
+
+(define-cproc gl-begin-query-arb (op::<uint> query::<uint>)
+  (return <void> "glBeginQueryARB"))
+
+(define-cproc gl-end-query-arb (op::<uint>)
+  (return <void> "glEndQueryARB"))
+
+;; gl-get-query-rab
+;; gl-get-query-object-arb
+
+)) ;; GL_ARB_occlusion_query
+
+;;=============================================================
+;; GL_ARB_point_parameters
+;;
+
+(if "defined(GL_ARB_point_parameters)" (begin
+
+(define-constant GL_ARB_point_parameters #t)
+
+(define-enum GL_POINT_SIZE_MIN_ARB)
+(define-enum GL_POINT_SIZE_MAX_ARB)
+(define-enum GL_POINT_FADE_THRESHOLD_SIZE_ARB)
+(define-enum GL_POINT_DISTANCE_ATTENUATION_ARB)
+
+)) ;; GL_ARB_point_parameters
+
+;;=============================================================
+;; GL_ARB_point_sprite
+;;
+
+(if "defined(GL_ARB_point_sprite)" (begin
+
+(define-constant GL_ARB_point_sprite #t)
+
+(define-enum GL_POINT_SPRITE_ARB)
+(define-enum GL_COORD_REPLACE_ARB)
+
+)) ;; GL_ARB_point_sprite
+
+;;=============================================================
+;; GL_ARB_shader_objects
+;;
+
+(if "defined(GL_ARB_shader_objects)" (begin
+
+(define-constant GL_ARB_shader_objects #t)
+
+(define-enum GL_PROGRAM_OBJECT_ARB)
+(define-enum GL_OBJECT_TYPE_ARB)
+(define-enum GL_OBJECT_SUBTYPE_ARB)
+(define-enum GL_SHADER_OBJECT_ARB)
+(define-enum GL_FLOAT_VEC2_ARB)
+(define-enum GL_FLOAT_VEC3_ARB)
+(define-enum GL_FLOAT_VEC4_ARB)
+(define-enum GL_INT_VEC2_ARB)
+(define-enum GL_INT_VEC3_ARB)
+(define-enum GL_INT_VEC4_ARB)
+(define-enum GL_BOOL_ARB)
+(define-enum GL_BOOL_VEC2_ARB)
+(define-enum GL_BOOL_VEC3_ARB)
+(define-enum GL_BOOL_VEC4_ARB)
+(define-enum GL_FLOAT_MAT2_ARB)
+(define-enum GL_FLOAT_MAT3_ARB)
+(define-enum GL_FLOAT_MAT4_ARB)
+(define-enum GL_OBJECT_DELETE_STATUS_ARB)
+(define-enum GL_OBJECT_COMPILE_STATUS_ARB)
+(define-enum GL_OBJECT_LINK_STATUS_ARB)
+(define-enum GL_OBJECT_VALIDATE_STATUS_ARB)
+(define-enum GL_OBJECT_INFO_LOG_LENGTH_ARB)
+(define-enum GL_OBJECT_ATTACHED_OBJECTS_ARB)
+(define-enum GL_OBJECT_ACTIVE_UNIFORMS_ARB)
+(define-enum GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB)
+(define-enum GL_OBJECT_SHADER_SOURCE_LENGTH_ARB)
+
+(define-type <gl-handle> "GLhandleARB" "glhandle"
+  "SCM_GL_HANDLE_P" "SCM_GL_HANDLE_VALUE" "SCM_MAKE_GL_HANDLE")
+
+(define-cproc gl-delete-object-arb (h::<gl-handle>)
+  (return <void> "glDeleteObjectARB"))
+(define-cproc gl-get-handle-arb (type::<uint>)
+  (return <gl-handle> "glGetHandleARB"))
+(define-cproc gl-create-shader-object-arb (type::<uint>)
+  (return <gl-handle> "glCreateShaderObjectARB"))
+
+(define-cproc gl-shader-source-arb (shader::<gl-handle> strings)
+  "GLint nstrings = Scm_Length(strings); int i = 0;
+  GLint *lengths;
+  GLcharARB **ss;
+  if (nstrings < 0) goto einval;
+  lengths = SCM_NEW_ATOMIC2(GLint*, nstrings*sizeof(GLint));
+  /* NB: we can use atomic here, since all strings are pointed by the
+     input parameter, and we don't need this array after calling
+     glShaderSourceARB. */
+  ss = SCM_NEW_ATOMIC2(GLcharARB**, nstrings*sizeof(GLcharARB*));
+  ScmObj sp;
+  SCM_FOR_EACH(sp, strings) {
+    if (!SCM_STRINGP(SCM_CAR(sp))) goto einval;
+    lengths[i] = SCM_STRING_SIZE(SCM_CAR(sp));
+    ss[i] = (GLcharARB*)SCM_STRING_START(SCM_CAR(sp));
+    i++;
+  }
+  glShaderSourceARB(shader, nstrings, ss, lengths);
+  SCM_RETURN(SCM_UNDEFINED);
+ einval:
+  Scm_Error(\"list of strings required, but got %S\", strings);
+  SCM_RETURN(SCM_UNDEFINED);
+ ")
+
+(define-cproc gl-compile-shader-arb (shader::<gl-handle>)
+  (return <void> "glCompileShaderARB"))
+(define-cproc gl-create-program-object-arb ()
+  (return <gl-handle> "glCreateProgramObjectARB"))
+(define-cproc gl-attach-object-arb (program::<gl-handle> shader::<gl-handle>)
+  (return <void> "glAttachObjectARB"))
+(define-cproc gl-detach-object-arb (program::<gl-handle> shader::<gl-handle>)
+  (return <void> "glDetachObjectARB"))
+(define-cproc gl-link-program-arb (program::<gl-handle>)
+  (return <void> "glLinkProgramARB"))
+(define-cproc gl-use-program-object-arb (program::<gl-handle>)
+  (return <void> "glUseProgramObjectARB"))
+(define-cproc gl-validate-program-arb (program::<gl-handle>)
+  (return <void> "glValidateProgramARB"))
+
+(define-cproc gl-uniform-1f-arb (location::<int> v0)
+  "glUniform1fARB(location, (GLfloat)Scm_GetDouble(v0));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-2f-arb (location::<int> v0 v1)
+  "glUniform2fARB(location, (GLfloat)Scm_GetDouble(v0),
+                  (GLfloat)Scm_GetDouble(v1));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-3f-arb (location::<int> v0 v1 v2)
+  "glUniform3fARB(location, (GLfloat)Scm_GetDouble(v0),
+                  (GLfloat)Scm_GetDouble(v1),
+                  (GLfloat)Scm_GetDouble(v2));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-4f-arb (location::<int> v0 v1 v2 v3)
+  "glUniform4fARB(location, (GLfloat)Scm_GetDouble(v0),
+                  (GLfloat)Scm_GetDouble(v1),
+                  (GLfloat)Scm_GetDouble(v2),
+                  (GLfloat)Scm_GetDouble(v3));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-1i-arb (location::<int> v0)
+  "glUniform1iARB(location, Scm_GetInteger(v0));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-2i-arb (location::<int> v0 v1)
+  "glUniform2iARB(location, Scm_GetInteger(v0),
+                  Scm_GetInteger(v1));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-3i-arb (location::<int> v0 v1 v2)
+  "glUniform3iARB(location, Scm_GetInteger(v0),
+                  Scm_GetInteger(v1),
+                  Scm_GetInteger(v2));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-4i-arb (location::<int> v0 v1 v2 v3)
+  "glUniform4iARB(location, Scm_GetInteger(v0),
+                  Scm_GetInteger(v1),
+                  Scm_GetInteger(v2),
+                  Scm_GetInteger(v3));
+   SCM_RETURN(SCM_UNDEFINED);")
+  
+(define-cproc gl-uniform-1fv-arb (location::<int> count::<uint> v::<f32vector>)
+  "if (SCM_F32VECTOR_SIZE(v) < 1*count)
+     Scm_Error(\"not enough value for gl-uniform-1fv-arb: %S\", v);
+   glUniform1fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-2fv-arb (location::<int> count::<uint> v::<f32vector>)
+  "if (SCM_F32VECTOR_SIZE(v) < 2*count) 
+     Scm_Error(\"not enough value for gl-uniform-2fv-arb: %S\", v);
+   glUniform2fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-3fv-arb (location::<int> count::<uint> v::<f32vector>)
+  "if (SCM_F32VECTOR_SIZE(v) < 3*count) 
+     Scm_Error(\"not enough value for gl-uniform-3fv-arb: %S\", v);
+   glUniform3fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-4fv-arb (location::<int> count::<uint> v::<f32vector>)
+  "if (SCM_F32VECTOR_SIZE(v) < 4*count) 
+     Scm_Error(\"not enough value for gl-uniform-4fv-arb: %S\", v);
+   glUniform4fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-uniform-1iv-arb (location::<int> count::<uint> v::<s32vector>)
+  "if (SCM_S32VECTOR_SIZE(v) < 1*count) 
+     Scm_Error(\"not enough value for gl-uniform-1iv-arb: %S\", v);
+   glUniform1ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-2iv-arb (location::<int> count::<uint> v::<s32vector>)
+  "if (SCM_S32VECTOR_SIZE(v) < 2*count) 
+     Scm_Error(\"not enough value for gl-uniform-2iv-arb: %S\", v);
+   glUniform2ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-3iv-arb (location::<int> count::<uint> v::<s32vector>)
+  "if (SCM_S32VECTOR_SIZE(v) < 3*count) 
+     Scm_Error(\"not enough value for gl-uniform-3iv-arb: %S\", v);
+   glUniform3ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-4iv-arb (location::<int> count::<uint> v::<s32vector>)
+  "if (SCM_S32VECTOR_SIZE(v) < 4*count) 
+     Scm_Error(\"not enough value for gl-uniform-4iv-arb: %S\", v);
+   glUniform4ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-uniform-matrix-2fv-arb (location::<int>
+                                         count::<uint>
+                                         transpose::<boolean>
+                                         v::<f32vector>)
+  "if (SCM_F32VECTOR_SIZE(v) < 4*count)
+     Scm_Error(\"not enough value for gl-uniform-matrix-2fv-arb: %S\", v);
+   glUniformMatrix2fvARB(location, count, transpose, 
+                         SCM_F32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-matrix-3fv-arb (location::<int>
+                                         count::<uint>
+                                         transpose::<boolean>
+                                         v::<f32vector>)
+  "if (SCM_F32VECTOR_SIZE(v) < 9*count)
+     Scm_Error(\"not enough value for gl-uniform-matrix-3fv-arb: %S\", v);
+   glUniformMatrix3fvARB(location, count, transpose, 
+                         SCM_F32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform-matrix-4fv-arb (location::<int>
+                                         count::<uint>
+                                         transpose::<boolean>
+                                         v::<f32vector>)
+  "if (SCM_F32VECTOR_SIZE(v) < 16*count)
+     Scm_Error(\"not enough value for gl-uniform-matrix-4fv-arb: %S\", v);
+   glUniformMatrix4fvARB(location, count, transpose, 
+                         SCM_F32VECTOR_ELEMENTS(v));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; glGetObjectParameter
+;;  In OpenGL 2.0 these functions only returns a single value.  In future
+;;  they might be extended to return an array of values, hence we may need
+;;  a similar mechanism of the gl-get-integer and gl-get-integer! pair
+;;  later.
+
+"static int get_object_parameter_num_values(GLenum pname)
+ {
+   switch (pname) {
+     case GL_OBJECT_TYPE_ARB:;
+     case GL_OBJECT_SUBTYPE_ARB:;
+     case GL_OBJECT_DELETE_STATUS_ARB:;
+     case GL_OBJECT_COMPILE_STATUS_ARB:;
+     case GL_OBJECT_LINK_STATUS_ARB:;
+     case GL_OBJECT_VALIDATE_STATUS_ARB:;
+     case GL_OBJECT_INFO_LOG_LENGTH_ARB:;
+     case GL_OBJECT_ATTACHED_OBJECTS_ARB:;
+     case GL_OBJECT_ACTIVE_ATTRIBUTES_ARB:; 
+     case GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB:;
+     case GL_OBJECT_ACTIVE_UNIFORMS_ARB:;
+     case GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB:;
+     case GL_OBJECT_SHADER_SOURCE_LENGTH_ARB:;
+      return 1;
+     default:
+      return 0;
+   }
+ }"
+
+
+(define-cproc gl-get-object-parameter-f-arb (object::<gl-handle>
+                                             pname::<uint>)
+  "GLfloat r;
+  if (get_object_parameter_num_values(pname) != 1) {
+    Scm_Error(\"invalid pname for gl-get-object-parameter-f-arb: %d\", pname);
+  }
+  glGetObjectParameterfvARB(object, pname, &r);
+  SCM_RETURN(Scm_MakeFlonum((double)r));")
+
+(define-cproc gl-get-object-parameter-i-arb (object::<gl-handle>
+                                             pname::<uint>)
+  "GLint r;
+  if (get_object_parameter_num_values(pname) != 1) {
+    Scm_Error(\"invalid pname for gl-get-object-parameter-i-arb: %d\", pname);
+  }
+  glGetObjectParameterivARB(object, pname, &r);
+  SCM_RETURN(Scm_MakeInteger(r));")
+
+(define-cproc gl-get-info-log-arb (object::<gl-handle>)
+  "GLint loglen = 0; GLcharARB *logstr;
+   glGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &loglen);
+   logstr = SCM_NEW_ATOMIC2(char*, (loglen+1)*sizeof(GLcharARB));
+   glGetInfoLogARB(object, loglen, NULL, logstr);
+   CHECK_ERROR(\"glGetInfoLogARB\");
+   SCM_RETURN(Scm_MakeString((const char*)logstr, loglen, -1, 0));")
+
+(define-cproc gl-get-attached-objects-arb (program::<gl-handle>)
+  "GLint numobjs = 0; GLhandleARB *objs; ScmObj r; int i;
+   glGetObjectParameterivARB(program, GL_OBJECT_ATTACHED_OBJECTS_ARB, &numobjs);
+   CHECK_ERROR(\"glGetObjectParameterivARB\");
+   objs = SCM_NEW_ATOMIC2(GLhandleARB*, numobjs * sizeof(GLhandleARB));
+   glGetAttachedObjectsARB(program, numobjs, NULL, objs);
+   CHECK_ERROR(\"glGetInfoLogARB\");
+   r = Scm_MakeVector(numobjs, SCM_FALSE);
+   for (i=0; i<numobjs; i++) {
+     SCM_VECTOR_ELEMENT(r, i) = SCM_MAKE_GL_HANDLE(objs[i]);
+   }
+   SCM_RETURN(r);")
+
+(define-cproc gl-get-uniform-location-arb (program::<gl-handle>
+                                           expr::<string>)
+  "GLint r = glGetUniformLocationARB(program, (const GLcharARB*)Scm_GetStringConst(expr));
+   CHECK_ERROR(\"glGetUniformLocationARB\");
+   SCM_RETURN(Scm_MakeInteger(r));")
+
+;; returns (size, type, name)
+(define-cproc gl-get-active-uniform-arb (program::<gl-handle>
+                                         index::<uint>)
+  "GLint maxlen, size; GLsizei len; GLenum type; GLcharARB *namebuf;
+   glGetObjectParameterivARB(program, GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB,
+                            &maxlen);
+   CHECK_ERROR(\"glGetObjectParameterivARB\");
+   namebuf = SCM_NEW_ATOMIC2(GLcharARB*, (maxlen+1)*sizeof(GLcharARB*));
+   glGetActiveUniformARB(program, index, maxlen, &len, &type, namebuf);
+   CHECK_ERROR(\"glGetActiveUniformARB\");
+   SCM_RETURN(Scm_Values3(Scm_MakeInteger(size),
+                          Scm_MakeInteger(type),
+                          Scm_MakeString(namebuf, len, -1, 0)));")
+
+; get-uniform-f-arb
+; get-uniform-i-arb
+
+(define-cproc gl-get-shader-source-arb (object::<gl-handle>)
+  "GLint srclen = 0; GLcharARB *srcstr;
+   glGetObjectParameterivARB(object, GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &srclen);
+   srcstr = SCM_NEW_ATOMIC2(char*, (srclen+1)*sizeof(GLcharARB));
+   glGetShaderSourceARB(object, srclen, NULL, srcstr);
+   CHECK_ERROR(\"glGetShaderSourceARB\");
+   SCM_RETURN(Scm_MakeString((const char*)srcstr, srclen, -1, 0));")
+
+)) ;; GL_ARB_shader_objects
+
+
+;;=============================================================
+;; GL_ARB_shadow
+;;
+
+(if "defined(GL_ARB_shadow)" (begin
+
+(define-constant GL_ARB_shadow #t)
+
+(define-enum GL_TEXTURE_COMPARE_MODE_ARB)
+(define-enum GL_TEXTURE_COMPARE_FUNC_ARB)
+(define-enum GL_COMPARE_R_TO_TEXTURE_ARB)
+
+)) ;; GL_ARB_shadow
+
+;;=============================================================
+;; GL_ARB_shadow_ambient
+;;
+
+(if "defined(GL_ARB_shadow_ambient)" (begin
+
+(define-constant GL_ARB_shadow_ambient #t)
+
+(define-enum GL_TEXTURE_COMPARE_FAIL_VALUE_ARB)
+
+)) ;; GL_ARB_shadow_ambient
+
+;;=============================================================
+;; GL_ARB_texture_border_clamp
+;;
+
+(if "defined(GL_ARB_texture_border_clamp)" (begin
+
+(define-constant GL_ARB_texture_border_clamp #t)
+
+(define-enum GL_CLAMP_TO_BORDER_ARB)
+
+)) ;; GL_ARB_texture_border_clamp
+
+;;=============================================================
+;; GL_ARB_texture_compression
+;;
+
+(if "defined(GL_ARB_texture_compression)" (begin
+
+(define-constant GL_ARB_texture_compression #t)
+
+(define-enum GL_COMPRESSED_ALPHA_ARB)
+(define-enum GL_COMPRESSED_LUMINANCE_ARB)
+(define-enum GL_COMPRESSED_LUMINANCE_ALPHA_ARB)
+(define-enum GL_COMPRESSED_INTENSITY_ARB)
+(define-enum GL_COMPRESSED_RGB_ARB)
+(define-enum GL_COMPRESSED_RGBA_ARB)
+(define-enum GL_TEXTURE_COMPRESSION_HINT_ARB)
+(define-enum GL_TEXTURE_IMAGE_SIZE_ARB)
+(define-enum GL_TEXTURE_COMPRESSED_ARB)
+(define-enum GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB)
+(define-enum GL_COMPRESSED_TEXTURE_FORMATS_ARB)
+
+; gl-compressed-tex-image-3d-arb
+; gl-compressed-tex-image-2d-arb
+; gl-compressed-tex-image-1d-arb
+; gl-compressed-tex-subimage-3d-arb
+; gl-compressed-tex-subimage-2d-arb
+; gl-compressed-tex-subimage-1d-arb
+; gl-get-compressed-tex-image-arb
+
+
+)) ;; GL_ARB_texture_compression
+
+;;=============================================================
+;; GL_ARB_texture_cube_map
+;;
+
+(if "defined(GL_ARB_texture_cube_map)" (begin
+
+(define-constant GL_ARB_texture_cube_map #t)
+
+(define-enum GL_NORMAL_MAP_ARB)
+(define-enum GL_REFLECTION_MAP_ARB)
+(define-enum GL_TEXTURE_CUBE_MAP_ARB)
+(define-enum GL_TEXTURE_BINDING_CUBE_MAP_ARB)
+(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB)
+(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB)
+(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB)
+(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB)
+(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB)
+(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB)
+(define-enum GL_PROXY_TEXTURE_CUBE_MAP_ARB)
+(define-enum GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB)
+
+)) ;; GL_ARB_texture_cube_map
+
+;;=============================================================
+;; GL_ARB_texture_env_combine
+;;
+
+(if "defined(GL_ARB_texture_env_combine)" (begin
+
+(define-constant GL_ARB_texture_env_combine #t)
+
+(define-enum GL_COMBINE_ARB)
+(define-enum GL_COMBINE_RGB_ARB)
+(define-enum GL_COMBINE_ALPHA_ARB)
+(define-enum GL_RGB_SCALE_ARB)
+(define-enum GL_ADD_SIGNED_ARB)
+(define-enum GL_INTERPOLATE_ARB)
+(define-enum GL_CONSTANT_ARB)
+(define-enum GL_PRIMARY_COLOR_ARB)
+(define-enum GL_PREVIOUS_ARB)
+(define-enum GL_SOURCE0_RGB_ARB)
+(define-enum GL_SOURCE1_RGB_ARB)
+(define-enum GL_SOURCE2_RGB_ARB)
+(define-enum GL_SOURCE0_ALPHA_ARB)
+(define-enum GL_SOURCE1_ALPHA_ARB)
+(define-enum GL_SOURCE2_ALPHA_ARB)
+(define-enum GL_OPERAND0_RGB_ARB)
+(define-enum GL_OPERAND1_RGB_ARB)
+(define-enum GL_OPERAND2_RGB_ARB)
+(define-enum GL_OPERAND0_ALPHA_ARB)
+(define-enum GL_OPERAND1_ALPHA_ARB)
+(define-enum GL_OPERAND2_ALPHA_ARB)
+(define-enum GL_SUBTRACT_ARB)
+
+)) ;; GL_ARB_texture_env_combine
+
+;;=============================================================
+;; GL_ARB_texture_env_dot3
+;;
+
+(if "defined(GL_ARB_texture_env_dot3)" (begin
+
+(define-constant GL_ARB_texture_env_dot3 #t)
+
+;(define-enum GL_CLAMP_TO_BORDER_ARB)
+
+(define-enum GL_DOT3_RGB_ARB)
+(define-enum GL_DOT3_RGBA_ARB)
+
+)) ;; GL_ARB_texture_env_dot3
+
+;;=============================================================
+;; GL_ARB_texture_mirrored_repeat
+;;
+
+(if "defined(GL_ARB_texture_mirrored_repeat)" (begin
+
+(define-constant GL_ARB_texture_mirrored_repeat #t)
+
+(define-enum GL_MIRRORED_REPEAT_ARB)
+
+)) ;; GL_ARB_texture_mirrored_repeat
+
+;;=============================================================
+;; GL_ARB_transpose_matrix
+;;
+
+(if "defined(GL_ARB_transpose_matrix)" (begin
+
+(define-constant GL_ARB_transpose_matrix #t)
+
+(define-enum GL_TRANSPOSE_MODELVIEW_MATRIX_ARB)
+(define-enum GL_TRANSPOSE_PROJECTION_MATRIX_ARB)
+(define-enum GL_TRANSPOSE_TEXTURE_MATRIX_ARB)
+(define-enum GL_TRANSPOSE_COLOR_MATRIX_ARB)
+
+(define-cproc gl-load-transpose-matrix-arb (m)
+  "if (SCM_MATRIX4FP(m)) {
+    glLoadTransposeMatrixfARB(SCM_MATRIX4F_D(m));
+  } else if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
+    glLoadTransposeMatrixfARB(SCM_F32VECTOR_ELEMENTS(m));
+  } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
+    glLoadTransposeMatrixdARB(SCM_F64VECTOR_ELEMENTS(m));
+  } else {
+     Scm_Error(\"3dmatrix, f32vector or f64vector of length 16 is required, but got %S\", m);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-mult-transpose-matrix-arb (m)
+  "if (SCM_MATRIX4FP(m)) {
+    glMultTransposeMatrixfARB(SCM_MATRIX4F_D(m));
+  } else if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
+    glMultTransposeMatrixfARB(SCM_F32VECTOR_ELEMENTS(m));
+  } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
+    glMultTransposeMatrixdARB(SCM_F64VECTOR_ELEMENTS(m));
+  } else {
+     Scm_Error(\"3dmatrix, f32vector or f64vector of length 16 is required, but got %S\", m);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+)) ;; GL_ARB_transpose_matrix
+
+;;=============================================================
+;; GL_ARB_vertex_buffer_object
+;;
+
+(if "defined(GL_ARB_vertex_buffer_object)" (begin
+
+(define-constant GL_ARB_vertex_buffer_object #t)
+
+(define-enum GL_ARRAY_BUFFER_ARB)
+(define-enum GL_ELEMENT_ARRAY_BUFFER_ARB)
+(define-enum GL_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_VERTEX_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_NORMAL_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_COLOR_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_INDEX_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_TEXTURE_COORD_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_EDGE_FLAG_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_SECONDARY_COLOR_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_FOG_COORDINATE_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_WEIGHT_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING_ARB)
+(define-enum GL_STREAM_DRAW_ARB)
+(define-enum GL_STREAM_READ_ARB)
+(define-enum GL_STREAM_COPY_ARB)
+(define-enum GL_STATIC_DRAW_ARB)
+(define-enum GL_STATIC_READ_ARB)
+(define-enum GL_STATIC_COPY_ARB)
+(define-enum GL_DYNAMIC_DRAW_ARB)
+(define-enum GL_DYNAMIC_READ_ARB)
+(define-enum GL_DYNAMIC_COPY_ARB)
+(define-enum GL_READ_ONLY_ARB)
+(define-enum GL_WRITE_ONLY_ARB)
+(define-enum GL_READ_WRITE_ARB)
+(define-enum GL_BUFFER_SIZE_ARB)
+(define-enum GL_BUFFER_USAGE_ARB)
+(define-enum GL_BUFFER_ACCESS_ARB)
+(define-enum GL_BUFFER_MAPPED_ARB)
+(define-enum GL_BUFFER_MAP_POINTER_ARB)
+
+(define-cproc gl-bind-buffer-arb (target::<int> buffer::<uint>)
+  (return <void> "glBindBufferARB"))
+
+(define-cproc gl-delete-buffers-arb (buffers::<u32vector>)
+  "glDeleteBuffersARB(SCM_U32VECTOR_SIZE(buffers),
+                      SCM_U32VECTOR_ELEMENTS(buffers));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-gen-buffers-arb (n::<uint>)
+  "ScmObj v = Scm_MakeU32Vector(n, 0);
+   glGenBuffersARB(n, SCM_U32VECTOR_ELEMENTS(v));
+   SCM_RETURN(v);")
+
+(define-cproc gl-is-buffer-arb (buffer)
+  (return <boolean> "glIsBufferARB"))
+
+; gl-buffer-data-arb
+; gl-buffer-sub-data-arb
+; gl-get-buffer-sub-data-arb
+; gl-map-buffer-arb
+
+(define-cproc gl-unmap-buffer-arb (target::<int>)
+  (return <boolean> "glUnmapBufferARB"))
+
+; glGetBufferParameterivARB
+; glGetBufferPointervARB
+
+
+)) ;; GL_ARB_vertex_buffer_object
+
+;;=============================================================
+;; GL_ARB_vertex_program
+;;
+
+(if "defined(GL_ARB_vertex_program)" (begin
+
+(define-constant GL_ARB_vertex_program #t)
+
+(define-enum GL_VERTEX_PROGRAM_ARB)
+(define-enum GL_VERTEX_PROGRAM_POINT_SIZE_ARB)
+(define-enum GL_VERTEX_PROGRAM_TWO_SIDE_ARB)
+(define-enum GL_COLOR_SUM_ARB)
+(define-enum GL_PROGRAM_FORMAT_ASCII_ARB)
+(define-enum GL_VERTEX_ATTRIB_ARRAY_ENABLED_ARB)
+(define-enum GL_VERTEX_ATTRIB_ARRAY_SIZE_ARB)
+(define-enum GL_VERTEX_ATTRIB_ARRAY_STRIDE_ARB)
+(define-enum GL_VERTEX_ATTRIB_ARRAY_TYPE_ARB)
+(define-enum GL_VERTEX_ATTRIB_ARRAY_NORMALIZED_ARB)
+(define-enum GL_CURRENT_VERTEX_ATTRIB_ARB)
+(define-enum GL_VERTEX_ATTRIB_ARRAY_POINTER_ARB)
+(define-enum GL_PROGRAM_LENGTH_ARB)
+(define-enum GL_PROGRAM_FORMAT_ARB)
+(define-enum GL_PROGRAM_BINDING_ARB)
+(define-enum GL_PROGRAM_INSTRUCTIONS_ARB)
+(define-enum GL_MAX_PROGRAM_INSTRUCTIONS_ARB)
+(define-enum GL_PROGRAM_NATIVE_INSTRUCTIONS_ARB)
+(define-enum GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB)
+(define-enum GL_PROGRAM_TEMPORARIES_ARB)
+(define-enum GL_MAX_PROGRAM_TEMPORARIES_ARB)
+(define-enum GL_PROGRAM_NATIVE_TEMPORARIES_ARB)
+(define-enum GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB)
+(define-enum GL_PROGRAM_PARAMETERS_ARB)
+(define-enum GL_MAX_PROGRAM_PARAMETERS_ARB)
+(define-enum GL_PROGRAM_NATIVE_PARAMETERS_ARB)
+(define-enum GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB)
+(define-enum GL_PROGRAM_ATTRIBS_ARB)
+(define-enum GL_MAX_PROGRAM_ATTRIBS_ARB)
+(define-enum GL_PROGRAM_NATIVE_ATTRIBS_ARB)
+(define-enum GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB)
+(define-enum GL_PROGRAM_ADDRESS_REGISTERS_ARB)
+(define-enum GL_MAX_PROGRAM_ADDRESS_REGISTERS_ARB)
+(define-enum GL_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB)
+(define-enum GL_MAX_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB)
+(define-enum GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB)
+(define-enum GL_MAX_PROGRAM_ENV_PARAMETERS_ARB)
+(define-enum GL_PROGRAM_UNDER_NATIVE_LIMITS_ARB)
+(define-enum GL_PROGRAM_STRING_ARB)
+(define-enum GL_PROGRAM_ERROR_POSITION_ARB)
+(define-enum GL_CURRENT_MATRIX_ARB)
+(define-enum GL_TRANSPOSE_CURRENT_MATRIX_ARB)
+(define-enum GL_CURRENT_MATRIX_STACK_DEPTH_ARB)
+(define-enum GL_MAX_VERTEX_ATTRIBS_ARB)
+(define-enum GL_MAX_PROGRAM_MATRICES_ARB)
+(define-enum GL_MAX_PROGRAM_MATRIX_STACK_DEPTH_ARB)
+(define-enum GL_PROGRAM_ERROR_STRING_ARB)
+(define-enum GL_MATRIX0_ARB)
+(define-enum GL_MATRIX1_ARB)
+(define-enum GL_MATRIX2_ARB)
+(define-enum GL_MATRIX3_ARB)
+(define-enum GL_MATRIX4_ARB)
+(define-enum GL_MATRIX5_ARB)
+(define-enum GL_MATRIX6_ARB)
+(define-enum GL_MATRIX7_ARB)
+(define-enum GL_MATRIX8_ARB)
+(define-enum GL_MATRIX9_ARB)
+(define-enum GL_MATRIX10_ARB)
+(define-enum GL_MATRIX11_ARB)
+(define-enum GL_MATRIX12_ARB)
+(define-enum GL_MATRIX13_ARB)
+(define-enum GL_MATRIX14_ARB)
+(define-enum GL_MATRIX15_ARB)
+(define-enum GL_MATRIX16_ARB)
+(define-enum GL_MATRIX17_ARB)
+(define-enum GL_MATRIX18_ARB)
+(define-enum GL_MATRIX19_ARB)
+(define-enum GL_MATRIX20_ARB)
+(define-enum GL_MATRIX21_ARB)
+(define-enum GL_MATRIX22_ARB)
+(define-enum GL_MATRIX23_ARB)
+(define-enum GL_MATRIX24_ARB)
+(define-enum GL_MATRIX25_ARB)
+(define-enum GL_MATRIX26_ARB)
+(define-enum GL_MATRIX27_ARB)
+(define-enum GL_MATRIX28_ARB)
+(define-enum GL_MATRIX29_ARB)
+(define-enum GL_MATRIX30_ARB)
+(define-enum GL_MATRIX31_ARB)
+
+(define-cproc gl-vertex-attrib-arb (index::<uint> arg0 &rest args)
+  "if (SCM_POINT4FP(arg0) || SCM_VECTOR4FP(arg0)) {
+    glVertexAttrib4fvARB(index, SCM_VECTOR4F_D(arg0));
+  } else if (SCM_F32VECTORP(arg0)) {
+    switch (SCM_F32VECTOR_SIZE(arg0)) {
+      case 1: glVertexAttrib1fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
+              break;
+      case 2: glVertexAttrib2fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
+              break;
+      case 3: glVertexAttrib3fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
+              break;
+      case 4: glVertexAttrib4fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_S16VECTORP(arg0)) {
+    switch (SCM_S16VECTOR_SIZE(arg0)) {
+      case 1: glVertexAttrib1svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+              break;
+      case 2: glVertexAttrib2svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+              break;
+      case 3: glVertexAttrib3svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+              break;
+      case 4: glVertexAttrib4svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_F64VECTORP(arg0)) {
+    switch (SCM_F64VECTOR_SIZE(arg0)) {
+      case 1: glVertexAttrib1dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
+              break;
+      case 2: glVertexAttrib2dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
+              break;
+      case 3: glVertexAttrib3dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
+              break;
+      case 4: glVertexAttrib4dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_S8VECTORP(arg0)) {
+    switch (SCM_S8VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4bvARB(index, SCM_S8VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_U8VECTORP(arg0)) {
+    switch (SCM_U8VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4ubvARB(index, SCM_U8VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_U16VECTORP(arg0)) {
+    switch (SCM_U16VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4usvARB(index, SCM_U16VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_S32VECTORP(arg0)) {
+    switch (SCM_S32VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4ivARB(index, SCM_S32VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_U32VECTORP(arg0)) {
+    switch (SCM_U32VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4uivARB(index, SCM_U32VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else {
+    int count = Scm_Length(args) + 1;
+    switch (count) {
+      case 1: glVertexAttrib1dARB(index, Scm_GetDouble(arg0));
+              break;
+      case 2: glVertexAttrib2dARB(index, Scm_GetDouble(arg0),
+                                  Scm_GetDouble(SCM_CAR(args)));
+              break;
+      case 3: glVertexAttrib3dARB(index, Scm_GetDouble(arg0),
+                                  Scm_GetDouble(SCM_CAR(args)),
+                                  Scm_GetDouble(SCM_CADR(args)));
+              break;
+      case 4: glVertexAttrib4dARB(index, Scm_GetDouble(arg0),
+                                  Scm_GetDouble(SCM_CAR(args)),
+                                  Scm_GetDouble(SCM_CADR(args)),
+                                  Scm_GetDouble(SCM_CAR(SCM_CDDR(args))));
+              break;
+      default: arg0 = Scm_Cons(arg0, args); goto err;
+    }
+  }
+  SCM_RETURN(SCM_UNDEFINED);
+ err:
+  Scm_Error(\"bad argument(s) for gl-vertex-attrib-arb: %S\", arg0);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-vertex-attrib-4n-arb (index::<uint> arg0 &rest args)
+  "if (SCM_POINT4FP(arg0) || SCM_VECTOR4FP(arg0)) {
+    glVertexAttrib4fvARB(index, SCM_VECTOR4F_D(arg0));
+  } else if (SCM_S16VECTORP(arg0)) {
+    switch (SCM_S16VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4NsvARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_S8VECTORP(arg0)) {
+    switch (SCM_S8VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4NbvARB(index, SCM_S8VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_U8VECTORP(arg0)) {
+    switch (SCM_U8VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4NubvARB(index, SCM_U8VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_U16VECTORP(arg0)) {
+    switch (SCM_U16VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4NusvARB(index, SCM_U16VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_S32VECTORP(arg0)) {
+    switch (SCM_S32VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4NivARB(index, SCM_S32VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else if (SCM_U32VECTORP(arg0)) {
+    switch (SCM_U32VECTOR_SIZE(arg0)) {
+      case 4: glVertexAttrib4NuivARB(index, SCM_U32VECTOR_ELEMENTS(arg0));
+              break;
+      default: goto err;
+    }
+  } else {
+    int count = Scm_Length(args) + 1;
+    switch (count) {
+      case 4: glVertexAttrib4NubARB(index, 
+                                    (GLubyte)Scm_GetIntegerU(arg0),
+                                    (GLubyte)Scm_GetIntegerU(SCM_CAR(args)),
+                                    (GLubyte)Scm_GetIntegerU(SCM_CADR(args)),
+                                    (GLubyte)Scm_GetIntegerU(SCM_CAR(SCM_CDDR(args))));
+              break;
+      default: arg0 = Scm_Cons(arg0, args); goto err;
+    }
+  }
+  SCM_RETURN(SCM_UNDEFINED);
+ err:
+  Scm_Error(\"bad argument(s) for gl-vertex-attrib-4n-arb: %S\", arg0);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+; gl-vertex-attrib-pointer-arb
+
+(define-cproc gl-enable-vertex-attrib-array-arb (index::<uint>)
+  (return <void> "glEnableVertexAttribArrayARB"))
+(define-cproc gl-disable-vertex-attrib-array-arb (index::<uint>)
+  (return <void> "glDisableVertexAttribArrayARB"))
+
+; gl-program-string-arb
+; gl-bind-program-arb
+; gl-delete-programs-arb
+; gl-gen-programs-arb
+; gl-program-env-parameter-arb
+; gl-program-local-parameter-arb
+; gl-get-program-env-parameter-arb
+; gl-get-program-local-parameter-arb
+; gl-get-program-arb
+; gl-get-program-string-arb
+; gl-get-vertex-attrib-arb
+; gl-get-vertex-attrib-pointer-arb
+
+)) ;; GL_ARB_vertex_program
+
+;;=============================================================
+;; GL_ARB_vertex_shader
+;;
+
+(if "defined(GL_ARB_vertex_shader)" (begin
+
+(define-constant GL_ARB_vertex_shader #t)
+
+(define-enum GL_VERTEX_SHADER_ARB)
+(define-enum GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB)
+(define-enum GL_MAX_VARYING_FLOATS_ARB)
+(define-enum GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB)
+(define-enum GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB)
+(define-enum GL_OBJECT_ACTIVE_ATTRIBUTES_ARB)
+(define-enum GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB)
+
+)) ;; GL_ARB_vertex_shader
+
+
+;; Local variables:
+;; mode: scheme
+;; end:

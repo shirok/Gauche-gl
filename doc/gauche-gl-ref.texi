@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.12 2004-07-05 20:33:17 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.13 2004-08-21 10:32:45 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -352,7 +352,7 @@ fast, and the latter handles complicated logic).
 In this chapter we list a OpenGL procedures accessible from
 Gauche-gl, with brief descriptions to help programmers
 to remind what the functions are.  We don't intend to make
-this an OpenGL reference; you should look at the OpenGL book
+this an OpenGL reference, though; you should look at the OpenGL book
 for the details of what each API do.
 
 The following sections follow the structure of
@@ -511,7 +511,7 @@ of @code{glGetTYPE} API.
 @subsubheading Attributes
 
 @defun gl-push-attrib mask
-@defunx gl-pop-attribu
+@defunx gl-pop-attrib
 @end defun
 
 @defun gl-push-client-attrib mask

@@ -1,5 +1,6 @@
 2002-07-31  Shiro Kawai  <shiro@acm.org>
 
+	* release 0.1.4
 	* src/*.stub : updated accodring to the new syntax of genstub.
 
 2002-07-23  Shiro Kawai  <shiro@acm.org>

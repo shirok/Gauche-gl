@@ -1,5 +1,6 @@
 2003-02-10  Shiro Kawai  <shiro@acm.org>
 
+	* release 0.2.2
 	* doc/extract : use the newest extract so that the monolingual docs
 	  can be genarated by gosh with any internal encodings.
 

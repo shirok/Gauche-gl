@@ -21,12 +21,12 @@
 !>
 
 <? (if-lang japanese? !>
-                       Gauche-gl - Gauche OpenGL バインディング
+                     Gauche-gl - Gauche OpenGL バインディング
 <? else !>
-                         Gauche-gl - Gauche OpenGL binding
+                       Gauche-gl - Gauche OpenGL binding
 <? ) !>
 
-$Id: INSTALL.esc,v 1.4 2002-11-13 08:14:23 shirok Exp $
+$Id: INSTALL.esc,v 1.5 2003-02-11 01:48:42 shirok Exp $
 <? (if-lang japanese? !>
 Gauche-glの最新情報は以下のURLで得られます。<? else !>
 Up-to-date information about Gauche-gl is posted to the following URL:
@@ -36,11 +36,11 @@ Up-to-date information about Gauche-gl is posted to the following URL:
 <? (header "必要な準備" "Prerequisites") !>
 
 <? (if-lang japanese? !>
-* Gauche 0.6 以降がインストールされている必要があります。
+* Gauche 0.6.7.1 以降がインストールされている必要があります。
 * OpenGL 1.1以降もしくはMesa 3.0以降が必要です。
 * GLUT 3.7以降が必要です。
 <? else !>
-* Gauche 0.6 or later must be installed.
+* Gauche 0.6.7.1 or later must be installed.
 * OpenGL 1.1 or later, or Mesa 3.0 or later, required.
 * GLUT 3.7 or later is required.
 <? ) !>

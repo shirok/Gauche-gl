@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.3 2001-09-29 20:54:16 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.4 2001-09-30 04:47:52 shirok Exp $
 ;;;
 
 "
@@ -96,9 +96,20 @@
   "int win = glutCreateSubWindow(win, x, y, width, height);
    SCM_RETURN(Scm_MakeInteger(win));")
 
-(define-cproc glut-destory-window (win)
+(define-cproc glut-destroy-window (win)
   (assert (exact? win))
   "glutDestroyWindow(win);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-post-redisplay ()
+  "glutPostRedisplay();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-post-window-redisplay (win)
+  (assert (exact? win))
+  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
+   glutPostWindowRedisplay(win);
+#endif
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc glut-swap-buffers ()
@@ -444,7 +455,7 @@
  }"
 
 (define-cproc glut-idle-func (fn)
-  "  idle_fn = fn;
+  " idle_fn = fn;
   glutIdleFunc(idle_callback);
   SCM_RETURN(SCM_UNDEFINED);")
 

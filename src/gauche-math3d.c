@@ -12,14 +12,14 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.1 2002-09-27 05:09:26 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.2 2002-09-27 10:29:10 shirok Exp $
  */
 
 #include <gauche.h>
 #include <gauche/extend.h>
+#include <gauche/uvector.h>
 #include "gauche/math3d.h"
 
-#if 0 /*not yet working*/
 /*
  * Sequence CPL
  */
@@ -30,7 +30,7 @@ static ScmClass *sequenceCPL[] = {
     NULL
 };
 
-#define MAKE_F32V(len)  SCM_F32VECTOR(Scm_MakeF32Vector(len, 0.0))
+#define ALLOC_FV(len)  SCM_NEW_ATOMIC2(float*, (len)*sizeof(float))
 
 #define CHECK_F32V(v, len)                                      \
     do {                                                        \
@@ -69,14 +69,14 @@ static int vec4_compare(ScmObj x, ScmObj y, int equalp)
     }
 }
 
-SCM_DEFINE_BUILTIN_CLASS(ScmVec4Class, vec4_print, vec4_compare,
+SCM_DEFINE_BUILTIN_CLASS(Scm_Vec4Class, vec4_print, vec4_compare,
                          NULL, NULL, sequenceCPL);
 
 ScmObj Scm_MakeVec4(float x, float y, float z, float w)
 {
     ScmVec4 *v = SCM_NEW(ScmVec4);
     SCM_SET_CLASS(v, SCM_CLASS_VEC4);
-    v->v = MAKE_F32V(4);
+    v->v = ALLOC_FV(4);
     SCM_VEC4_D(v)[0] = x; SCM_VEC4_D(v)[1] = y;
     SCM_VEC4_D(v)[2] = z; SCM_VEC4_D(v)[3] = w;
     return SCM_OBJ(v);
@@ -88,7 +88,7 @@ ScmObj Scm_MakeVec4V(ScmF32Vector *fv)
     CHECK_F32V(fv, 4);
     v = SCM_NEW(ScmVec4);
     SCM_SET_CLASS(v, SCM_CLASS_VEC4);
-    v->v = fv;
+    v->v = SCM_F32VECTOR_ELEMENTS(fv); /* share the vector */
     return SCM_OBJ(v);
 }
 
@@ -128,7 +128,7 @@ ScmObj Scm_ListToVector(ScmObj l)
     return Scm_MakeVec4v(d);
 }
 
-ScmObj ScmVec4ToList(const ScmVec4 *v)
+ScmObj Scm_Vec4ToList(const ScmVec4 *v)
 {
     return SCM_LIST4(Scm_MakeFlonum(SCM_VEC4_D(v)[0]),
                      Scm_MakeFlonum(SCM_VEC4_D(v)[1]),
@@ -136,29 +136,29 @@ ScmObj ScmVec4ToList(const ScmVec4 *v)
                      Scm_MakeFlonum(SCM_VEC4_D(v)[3]));
 }
 
-float ScmVec4Dot(const ScmVec4 *p, const ScmVec4 *q)
+float Scm_Vec4Dot(const ScmVec4 *p, const ScmVec4 *q)
 {
     return (SCM_VEC4_DOTV(SCM_VEC4_D(p), SCM_VEC4_D(q)));
 }
 
-float ScmVec4Dotv(const float *p, const float *q)
+float Scm_Vec4Dotv(const float *p, const float *q)
 {
     return SCM_VEC4_DOTV(p, q);
 }
 
-ScmObj ScmVec4Cross(const ScmVec4 *p, const ScmVec4 *q)
+ScmObj Scm_Vec4Cross(const ScmVec4 *p, const ScmVec4 *q)
 {
     float r[4];
     SCM_VEC4_CROSSV(r, SCM_VEC4_D(p), SCM_VEC4_D(q));
     return Scm_MakeVec4v(r);
 }
 
-void ScmVec4Crossv(float *r, const float *p, const float *q)
+void Scm_Vec4Crossv(float *r, const float *p, const float *q)
 {
     SCM_VEC4_CROSSV(r, p, q);
 }
 
-ScmObj ScmVec4Normalize(const ScmVec4 *p)
+ScmObj Scm_Vec4Normalize(const ScmVec4 *p)
 {
     float r[4];
     r[0] = SCM_VEC4_D(p)[0];
@@ -169,37 +169,37 @@ ScmObj ScmVec4Normalize(const ScmVec4 *p)
     return Scm_MakeVec4v(r);
 }
 
-void ScmVec4Normalizev(float *p)
+void Scm_Vec4Normalizev(float *p)
 {
     SCM_VEC4_NORMALIZEV(p);
 }
 
-ScmObj ScmVec4NormalizeX(ScmVec4 *p)
+ScmObj Scm_Vec4NormalizeX(ScmVec4 *p)
 {
     SCM_VEC4_NORMALIZEV(SCM_VEC4_D(p));
     return SCM_OBJ(p);
 }
 
-ScmObj ScmVec4Add(const ScmVec4 *p, const ScmVec4 *q)
+ScmObj Scm_Vec4Add(const ScmVec4 *p, const ScmVec4 *q)
 {
     float r[4];
     SCM_VEC4_ADDV(r, SCM_VEC4_D(p), SCM_VEC4_D(q));
     return Scm_MakeVec4v(r);
 }
 
-void ScmVec4Addv(float *r, const float *p, const float *q)
+void Scm_Vec4Addv(float *r, const float *p, const float *q)
 {
     SCM_VEC4_ADDV(r, p, q);
 }
 
-ScmObj ScmVec4Sub(const ScmVec4 *p, const ScmVec4 *q)
+ScmObj Scm_Vec4Sub(const ScmVec4 *p, const ScmVec4 *q)
 {
     float r[4];
     SCM_VEC4_SUBV(r, SCM_VEC4_D(p), SCM_VEC4_D(q));
     return Scm_MakeVec4v(r);
 }
 
-void ScmVec4Subv(float *r, const float *p, const float *q)
+void Scm_Vec4Subv(float *r, const float *p, const float *q)
 {
     SCM_VEC4_SUBV(r, p, q);
 }
@@ -211,7 +211,7 @@ void ScmVec4Subv(float *r, const float *p, const float *q)
 static void vec4_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
     ScmVec4Array *va = SCM_VEC4_ARRAY(obj);
-    int len = SCM_VEC4_ARRAY_LENGTH(va), i;
+    int len = SCM_VEC4_ARRAY_SIZE(va), i;
     Scm_Printf(out, "#,(vec4-array %d ", len);
     for (i = 0; i < len; i++) {
         float *z = Scm_Vec4ArrayRefv(va, i);
@@ -223,9 +223,9 @@ static void vec4_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 static int vec4_array_compare(ScmObj x, ScmObj y, int equalp)
 {
     if (equalp) {
-        int i, len = SCM_VEC4_ARRAY_LENGTH(x);
+        int i, len = SCM_VEC4_ARRAY_SIZE(x);
         float *p = SCM_VEC4_ARRAY_D(x), *q = SCM_VEC4_ARRAY_D(y);
-        if (len != SCM_VEC4_ARRAY_LENGTH(y)) return 0;
+        if (len != SCM_VEC4_ARRAY_SIZE(y)) return 0;
         for (i=0; i<len*4; i++) {
             if (*p++ != *q++) return 0;
         }
@@ -236,7 +236,8 @@ static int vec4_array_compare(ScmObj x, ScmObj y, int equalp)
     }
 }
 
-SCM_DEFINE_BUILTIN_CLASS(ScmVec4ArrayClass, vec4_array_print, vec4_array_compare,
+SCM_DEFINE_BUILTIN_CLASS(Scm_Vec4ArrayClass,
+                         vec4_array_print, vec4_array_compare,
                          NULL, NULL, sequenceCPL);
 
 ScmObj Scm_MakeVec4Arrayv(int nvecs, const float *init)
@@ -246,19 +247,19 @@ ScmObj Scm_MakeVec4Arrayv(int nvecs, const float *init)
     SCM_ASSERT(nvecs >= 0);
     a = SCM_NEW(ScmVec4Array);
     SCM_SET_CLASS(a, SCM_CLASS_VEC4_ARRAY);
-    a->length = nvecs;
-    a->v = MAKE_F32V(nvecs*4);
+    a->size = nvecs;
+    a->v = ALLOC_FV(nvecs*4);
     if (init) {
         for (i=0;i<nvecs;i++) {
             SCM_VEC4_ARRAY_SET(a, i, init[0], init[1], init[2], init[3]);
         }
     } else {
-        for (i=0;i<nvecs*4;i++) SCM_VEC4_ARRAY_SET(a)[i] = 0.0;
+        for (i=0;i<nvecs*4;i++) SCM_VEC4_ARRAY_D(a)[i] = 0.0;
     }
     return SCM_OBJ(a);
 }
 
-ScmObj Scm_MakeVec4ArrayV(Scm_F32Vector *fv)
+ScmObj Scm_MakeVec4ArrayV(ScmF32Vector *fv)
 {
     int size;
     ScmVec4Array *a;
@@ -268,28 +269,33 @@ ScmObj Scm_MakeVec4ArrayV(Scm_F32Vector *fv)
     }
     a = SCM_NEW(ScmVec4Array);
     SCM_SET_CLASS(a, SCM_CLASS_VEC4_ARRAY);
-    a->length = size/4;
-    a->v = fv;
+    a->size = size/4;
+    a->v = SCM_F32VECTOR_ELEMENTS(fv); /* share the storage */
     return SCM_OBJ(a);
 }
 
-ScmObj ScmVec4ArrayRef(const ScmVec4Array *a, int n, ScmObj fallback)
+ScmObj Scm_Vec4ArrayRef(const ScmVec4Array *a, int n, ScmObj fallback)
 {
-    if (n < 0 || n >= SCM_VEC4_ARRAY_LENGTH(a)) {
+    if (n < 0 || n >= SCM_VEC4_ARRAY_SIZE(a)) {
         if (SCM_UNBOUNDP(fallback)) Scm_Error("index out of range");
         return fallback;
     }
     return Scm_MakeVec4v(SCM_VEC4_ARRAY_REFV(a, n));
 }
 
-void ScmVec4ArraySet(ScmVec4Array *a, int n, ScmVec4 *v)
+float *Scm_Vec4ArrayRefv(ScmVec4Array *a, int n)
 {
-    ScmVec4ArraySetv(a, n, SCM_VEC4_D(v));
+    return SCM_VEC4_ARRAY_REFV(a, n);
 }
 
-void ScmVec4ArraySetv(ScmVec4Array *a, int n, float d[]
+void Scm_Vec4ArraySet(ScmVec4Array *a, int n, ScmVec4 *v)
 {
-    if (n < 0 || n >= SCM_VEC4_ARRAY_LENGTH(a)) {
+    Scm_Vec4ArraySetv(a, n, SCM_VEC4_D(v));
+}
+
+void Scm_Vec4ArraySetv(ScmVec4Array *a, int n, float d[])
+{
+    if (n < 0 || n >= SCM_VEC4_ARRAY_SIZE(a)) {
         Scm_Error("index out of range");
     }
     SCM_VEC4_ARRAY_SET(a, n, d[0], d[1], d[2], d[3]);
@@ -314,9 +320,9 @@ SCM_DEFINE_BUILTIN_CLASS(Scm_Point4Class, point4_print, point4_compare,
 
 ScmObj Scm_MakePoint4(float x, float y, float z, float w)
 {
-    BnPoint *v = SCM_NEW(BnPoint);
+    ScmPoint4 *v = SCM_NEW(ScmPoint4);
     SCM_SET_CLASS(v, SCM_CLASS_POINT4);
-    v->v = MAKE_F32V(4);
+    v->v = ALLOC_FV(4);
     SCM_POINT4_D(v)[0] = x; SCM_POINT4_D(v)[1] = y;
     SCM_POINT4_D(v)[2] = z; SCM_POINT4_D(v)[3] = w;
     return SCM_OBJ(v);
@@ -334,7 +340,7 @@ ScmObj Scm_MakePoint4V(ScmF32Vector *fv)
     CHECK_F32V(fv, 4);
     v = SCM_NEW(ScmPoint4);
     SCM_SET_CLASS(v, SCM_CLASS_POINT4);
-    v->v = fv;
+    v->v = SCM_F32VECTOR_ELEMENTS(fv);
     return SCM_OBJ(v);
 }
 
@@ -363,13 +369,13 @@ ScmObj Scm_Point4Add(const ScmPoint4 *p, const ScmVec4 *q)
 ScmObj Scm_Point4Sub(const ScmVec4 *p, const ScmObj q)
 {
     float r[4];
-    if (SCM_POINTP(q)) {
+    if (SCM_POINT4P(q)) {
         SCM_VEC4_SUBV(r, SCM_POINT4_D(p), SCM_POINT4_D(q));
         return Scm_MakeVec4v(r);
     }
     if (SCM_VEC4P(q)) {
         SCM_VEC4_SUBV(r, SCM_POINT4_D(p), SCM_VEC4_D(q));
-        return Scm_MakePoint4(r);
+        return Scm_MakePoint4v(r);
     }
     Scm_Error("<point4> or <vec4> required, but got %S", q);
     return SCM_UNDEFINED;
@@ -382,7 +388,7 @@ ScmObj Scm_Point4Sub(const ScmVec4 *p, const ScmObj q)
 static void point4_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
     ScmPoint4Array *va = SCM_POINT4_ARRAY(obj);
-    int len = SCM_POINT4_ARRAY_LENGTH(va);
+    int len = SCM_POINT4_ARRAY_SIZE(va), i;
     Scm_Printf(out, "#,(point4-array %d ", len);
     for (i = 0; i < len; i++) {
         float *z = Scm_Point4ArrayRefv(va, i);
@@ -402,15 +408,15 @@ ScmObj Scm_MakePoint4Arrayv(int len, const float *init)
     ScmPoint4Array *a;
     SCM_ASSERT(len >= 0);
     a = SCM_NEW(ScmPoint4Array);
-    SCM_SET_CLASS(a, SCM_CLASS_POINT_ARRAY);
-    a->length = len;
-    a->v = MAKE_F32V(len*4);
+    SCM_SET_CLASS(a, SCM_CLASS_POINT4_ARRAY);
+    a->size = len;
+    a->v = ALLOC_FV(len*4);
     if (init) {
         for (i=0;i<len;i++) {
             SCM_POINT4_ARRAY_SET(a, i, init[0], init[1], init[2], init[3]);
         }
     } else {
-        for (i=0;i<len*4;i++) a->d[i] = 0.0;
+        for (i=0;i<len*4;i++) SCM_POINT4_ARRAY_D(a)[i] = 0.0;
     }
     return SCM_OBJ(a);
 }
@@ -425,18 +431,18 @@ ScmObj Scm_MakePoint4ArrayV(ScmF32Vector *fv)
     }
     a = SCM_NEW(ScmPoint4Array);
     SCM_SET_CLASS(a, SCM_CLASS_POINT4_ARRAY);
-    a->length = size/4;
-    a->v = fv;
+    a->size = size/4;
+    a->v = SCM_F32VECTOR_ELEMENTS(fv);
     return SCM_OBJ(a);
 }
 
 ScmObj Scm_Point4ArrayRef(const ScmPoint4Array *a, int n, ScmObj fallback)
 {
-    if (n < 0 || n >= SCM_POINT4_ARRAY_LENGTH(a)) {
+    if (n < 0 || n >= SCM_POINT4_ARRAY_SIZE(a)) {
         if (SCM_UNBOUNDP(fallback)) Scm_Error("index out of range");
         return fallback;
     }
-    return Scm_MakePoint4(SCM_POINT4_ARRAY_REFV(a, n));
+    return Scm_MakePoint4v(SCM_POINT4_ARRAY_REFV(a, n));
 }
 
 float *Scm_Point4ArrayRefv(ScmPoint4Array *a, int n)
@@ -446,7 +452,7 @@ float *Scm_Point4ArrayRefv(ScmPoint4Array *a, int n)
 
 void Scm_Point4ArraySet(ScmPoint4Array *a, int n, ScmPoint4 *v)
 {
-    if (n < 0 || n >= SCM_POINT_ARRAY_LENGTH(a)) {
+    if (n < 0 || n >= SCM_POINT4_ARRAY_SIZE(a)) {
         Scm_Error("index out of range");
     }
     SCM_POINT4_ARRAY_SET(a, n,
@@ -456,7 +462,7 @@ void Scm_Point4ArraySet(ScmPoint4Array *a, int n, ScmPoint4 *v)
                          SCM_POINT4_D(v)[3]);
 }
 
-void Scm_Point4ArraySetv(ScmPointArray *a, int n, float d[])
+void Scm_Point4ArraySetv(ScmPoint4Array *a, int n, float d[])
 {
     SCM_POINT4_ARRAY_SET(a, n, d[0], d[1], d[2], d[3]);
 }
@@ -471,6 +477,18 @@ void Scm_Init_gauche_math3d(void)
     ScmModule *mod;
     SCM_INIT_EXTENSION(gauche_math3d);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl.math3d", TRUE));
-    Scm_Init_math3d_lib(mod);
+    Scm_InitBuiltinClass(&Scm_Vec4Class, "<vec4>",
+                         NULL, sizeof(ScmVec4)/sizeof(ScmObj),
+                         mod);
+    Scm_InitBuiltinClass(&Scm_Vec4ArrayClass, "<vec4-array>",
+                         NULL, sizeof(ScmVec4Array)/sizeof(ScmObj),
+                         mod);
+    Scm_InitBuiltinClass(&Scm_Point4Class, "<point4>",
+                         NULL, sizeof(ScmPoint4)/sizeof(ScmObj),
+                         mod);
+    Scm_InitBuiltinClass(&Scm_Point4ArrayClass, "<point4-array>",
+                         NULL, sizeof(ScmPoint4Array)/sizeof(ScmObj),
+                         mod);
+/*    Scm_Init_math3d_lib(mod);*/
 }
-#endif /* not yet working */
+

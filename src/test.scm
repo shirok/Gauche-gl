@@ -7,6 +7,10 @@
 
 (test-start "GL")
 
+(test-section "math3d")
+(use gl.math3d)
+
+
 (test-section "gl")
 (use gl)
 

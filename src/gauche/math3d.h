@@ -12,12 +12,10 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.1 2002-09-27 05:09:26 shirok Exp $
+ *  $Id: math3d.h,v 1.2 2002-09-27 10:29:10 shirok Exp $
  */
 
-/* Vector and matrix arithmetics, specialized for 3D graphics calculation.
-   It is built on top of f32vector.
- */
+/* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
 
 #ifndef GAUCHE_MATH3D_H
 #define GAUCHE_MATH3D_H
@@ -45,14 +43,14 @@
 
 typedef struct ScmVec4Rec {
     SCM_HEADER;
-    ScmF32Vector *v;
+    float *v;
 } ScmVec4;
 
 SCM_CLASS_DECL(Scm_Vec4Class);
 #define SCM_CLASS_VEC4        (&Scm_Vec4Class)
 #define SCM_VEC4P(obj)       SCM_XTYPEP(obj, SCM_CLASS_VEC4)
 #define SCM_VEC4(obj)        ((ScmVec4*)(obj))
-#define SCM_VEC4_D(obj)      SCM_F32VECTOR_ELEMENTS(SCM_VEC4(obj)->v)
+#define SCM_VEC4_D(obj)      (SCM_VEC4(obj)->v)
 #define SCM_VEC4_REF(obj, i) (SCM_VEC4_D(obj)[i])
 
 extern ScmObj Scm_MakeVec4v(const float d[]);
@@ -71,15 +69,15 @@ extern ScmObj Scm_Vec4ToList(const ScmVec4 *v);
      r[2] = p[0]*q[1]-p[1]*q[0],                \
      r[3] = 0.0)
 
-/* SCM_VEC4_NORM(float p[4]) */
-#define SCM_VEC4_NORMV(p)   sqrt(SCM_VEC4_DOT(p, p))
+/* SCM_VEC4_NORMV(float p[4]) */
+#define SCM_VEC4_NORMV(p)   sqrt(SCM_VEC4_DOTV(p, p))
 
-/* SCM_VEC4_NORMALIZE(float p[4]) */           \
-#define SCM_VEC4_NORMALIZEV(p)                \
+/* SCM_VEC4_NORMALIZE(float p[4]) */
+#define SCM_VEC4_NORMALIZEV(p)                  \
     do {                                        \
-        float siz__ = SCM_VEC4_NORM(p);        \
+        float siz__ = SCM_VEC4_NORMV(p);        \
         if (siz__ != 0.0) {                     \
-            SCM_VEC4_OP(i__, p[i__] /= siz__); \
+            SCM_VEC4_OP(i__, p[i__] /= siz__);  \
         }                                       \
     } while (0)
 
@@ -109,16 +107,16 @@ extern void   Scm_Vec4Subv(float *r, const float *p, const float *q);
 
 typedef struct ScmVec4ArrayRec {
     SCM_HEADER;
-    int length;                 /* # of vectors */
-    ScmF32Vector *v;
+    int size;                 /* # of vectors */
+    float *v;
 } ScmVec4Array;
 
 SCM_CLASS_DECL(Scm_Vec4ArrayClass);
 #define SCM_CLASS_VEC4_ARRAY       (&Scm_Vec4ArrayClass)
 #define SCM_VEC4_ARRAY_P(obj)      SCM_XTYPEP(obj, SCM_CLASS_VEC4_ARRAY)
 #define SCM_VEC4_ARRAY(obj)        ((ScmVec4Array*)(obj))
-#define SCM_VEC4_ARRAY_LENGTH(obj) (SCM_VEC4_ARRAY(obj)->length)
-#define SCM_VEC4_ARRAY_D(obj)      SCM_F32VECTOR_ELEMENTS(SCM_VEC4_ARRAY(obj)->v)
+#define SCM_VEC4_ARRAY_SIZE(obj)   (SCM_VEC4_ARRAY(obj)->size)
+#define SCM_VEC4_ARRAY_D(obj)      (SCM_VEC4_ARRAY(obj)->v)
 
 extern ScmObj Scm_MakeVec4Arrayv(int nvecs, const float *init);
 extern ScmObj Scm_MakeVec4ArrayV(ScmF32Vector *src);
@@ -145,7 +143,7 @@ SCM_CLASS_DECL(Scm_Point4Class);
 #define SCM_CLASS_POINT4       (&Scm_Point4Class)
 #define SCM_POINT4P(obj)       SCM_XTYPEP(obj, SCM_CLASS_POINT4)
 #define SCM_POINT4(obj)        ((ScmPoint4*)(obj))
-#define SCM_POINT4_D(obj)      SCM_F32VECTOR_ELEMENTS(SCM_POINT4(obj)->v)
+#define SCM_POINT4_D(obj)      (SCM_POINT4(obj)->v)
 #define SCM_POINT4_REF(obj, i) (SCM_POINT4_D(obj)[i])
 
 extern ScmObj Scm_MakePoint4(float x, float y, float z, float w);
@@ -166,8 +164,8 @@ SCM_CLASS_DECL(Scm_Point4ArrayClass);
 #define SCM_CLASS_POINT4_ARRAY     (&Scm_Point4ArrayClass)
 #define SCM_POINT4_ARRAY_P(obj)    SCM_XTYPEP(obj, SCM_CLASS_POINT4_ARRAY)
 #define SCM_POINT4_ARRAY(obj)      ((ScmPoint4Array*)(obj))
-#define SCM_POINT4_ARRAY_LENGTH(obj) (SCM_POINT4_ARRAY(obj)->length)
-#define SCM_POINT4_ARRAY_D(obj)    SCM_F32VECTOR_ELEMENTS(SCM_POINT4_ARRAY(obj)->v)
+#define SCM_POINT4_ARRAY_SIZE(obj) (SCM_POINT4_ARRAY(obj)->size)
+#define SCM_POINT4_ARRAY_D(obj)    (SCM_POINT4_ARRAY(obj)->v)
 
 extern ScmObj Scm_MakePoint4Arrayv(int nvecs, const float *init);
 extern ScmObj Scm_MakePoint4ArrayV(ScmF32Vector *src);
@@ -190,14 +188,14 @@ extern void   Scm_Point4ArraySetv(ScmPoint4Array *obj, int n, float d[]);
 
 typedef struct ScmQuatRec {
     SCM_HEADER;
-    ScmF32Vector *v;
+    float *v;
 } ScmQuat;
 
 SCM_CLASS_DECL(Scm_QuatClass);
 #define SCM_CLASS_QUAT        (&Scm_QuatClass)
 #define SCM_QUATP(obj)        SCM_XTYPEP(obj, SCM_CLASS_QUAT)
 #define SCM_QUAT(obj)         ((ScmQuat*)(obj))
-#define SCM_QUAT_D(obj)       SCM_F32VECTOR_ELEMENTS(SCM_QUAT(obj)->v)
+#define SCM_QUAT_D(obj)       (SCM_QUAT(obj)->v)
 
 #define SCM_QUAT_NORMV(p)     SCM_VEC4_NORMV(p)
 
@@ -247,14 +245,14 @@ extern ScmObj Scm_QuatToMatrix(const ScmQuat *q);
 
 typedef struct ScmMat4Rec {
     SCM_HEADER;
-    ScmF32Vector *v;
+    float *v;
 } ScmMat4;
 
 SCM_CLASS_DECL(Scm_Mat4Class);
 #define SCM_CLASS_MAT4     (&Scm_Mat4Class)
 #define SCM_MAT4P(obj)     SCM_XTYPEP(obj, SCM_CLASS_MAT4)
 #define SCM_MAT4(obj)      ((ScmMat4*)(obj))
-#define SCM_MAT4_D(obj)    SCM_F32VECTOR_ELEMENTS(SCM_MAT4(obj)->v)
+#define SCM_MAT4_D(obj)    (SCM_MAT4(obj)->v)
 
 #define SCM_MAT4_REF(obj, i, j)    (SCM_MAT4_D(obj)[(i)+(j)*4])
 #define SCM_MAT4_SET(obj, i, j, v) (SCM_MAT4_D(obj)[(i)+(j)*4] = (v))

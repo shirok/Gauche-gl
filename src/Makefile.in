@@ -2,22 +2,25 @@ CC = @CC@
 OPTFLAGS = @OPTFLAGS@
 CFLAGS = @DEFS@ @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@ $(OPTFLAGS)
 LDFLAGS = @LDFLAGS@
+OLIBS = @LIBS@
 LIBS = @GL_LIBS@ @LIBS@ @X_LIBS@ @X_PRE_LIBS@ @X_EXTRA_LIBS@ @X_LIBS@ 
 GOSH = @GOSH@
 GAUCHE_CONFIG = @GAUCHE_CONFIG@
 GAUCHE_TOP = @GAUCHE_TOP@
 INSTALL = @INSTALL@
 
-ARCHFILES = gauche-gl.so gauche-glut.so
+ARCHFILES = gauche-math3d.so gauche-gl.so gauche-glut.so
 SCMFILES = 
-HEADERS = 
+HEADERS = gauche/math3d.h
 
-TARGET = gauche-gl.so gauche-glut.so
+TARGET = gauche-math3d.so gauche-gl.so gauche-glut.so
 GLOBJS = gl_head.o gauche-gl.o gl-lib.o gl-syms.o glu-lib.o gl_tail.o
 GLUTOBJS = glut_head.o gauche-glut.o glut-lib.o glut_tail.o
-OBJS = $(GLOBJS) $(GLUTOBJS)
+MATHOBJS = math3d_head.o gauche-math3d.o math3d_tail.o
+OBJS = $(GLOBJS) $(GLUTOBJS) $(MATHOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status \
-                   gl_head.c gl_tail.c glut_head.c glut_tail.c
+                   gl_head.c gl_tail.c glut_head.c glut_tail.c \
+		   math3d_head.c math3d_tail.c
 GENERATED = gl-lib.c gl-syms.c glu-lib.c glut-lib.c gettype-sizes.c 
 
 INSTALL_TYPE = @INSTALL_TYPE@
@@ -26,6 +29,11 @@ SCM_INSTALL_DIR     = `$(GAUCHE_CONFIG) --$(INSTALL_TYPE)libdir`
 ARCH_INSTALL_DIR    = `$(GAUCHE_CONFIG) --$(INSTALL_TYPE)archdir`
 
 all : $(TARGET)
+
+gauche-math3d.so : $(MATHOBJS)
+	$(CC) $(LDFLAGS) gauche-math3d.so $(MATHOBJS) $(OLIBS)
+
+gauche-math3d.o : gauche/math3d.h
 
 gauche-gl.so : $(GLOBJS)
 	$(CC) $(LDFLAGS) gauche-gl.so $(GLOBJS) $(LIBS)
@@ -44,7 +52,7 @@ gauche-gl.c : gettype-sizes.c
 gettype-sizes.c : glstate.scm
 	$(GOSH) ./glstate.scm -o gettype-sizes.c gettype
 
-$(GLOBJS) : gauche-gl.h
+$(GLOBJS) : gauche-gl.h gauche/math3d.h
 
 gauche-glut.so : $(GLUTOBJS)
 	$(CC) $(LDFLAGS) gauche-glut.so $(GLUTOBJS) @GLUT_LIBDIR@ @GLUT_LIB@  $(LIBS)

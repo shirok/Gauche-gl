@@ -13,7 +13,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glstate.scm,v 1.1 2001-10-02 11:07:42 shirok Exp $
+;;;  $Id: glstate.scm,v 1.2 2001-10-03 10:18:15 shirok Exp $
 ;;;
 
 ;;
@@ -144,7 +144,7 @@
     (gl_texture_3d                        1   getb)
     (gl_texture_binding_1d                1   geti)
     (gl_texture_binding_2d                1   geti)
-    (gl_texture_binding_3d                1   geti)
+    ;(gl_texture_binding_3d                1   geti)
     (gl_texture_width                     1   texl)
     (gl_texture_height                    1   texl)
     (gl_texture_depth                     1   texl)

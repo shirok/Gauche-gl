@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl.scm,v 1.1 2001-09-30 03:56:25 shirok Exp $
+;;;  $Id: gl.scm,v 1.2 2002-09-23 03:39:26 shirok Exp $
 ;;;
 
 (define-module gl
@@ -22,5 +22,14 @@
 (select-module gl)
 
 (dynamic-load "gauche-gl")
+
+;; utilities
+
+(define-syntax gl-begin*
+  (syntax-rules ()
+    ((_ mode commands ...)
+     (begin
+       (gl-begin mode) commands ... (gl-end)))
+    ))
 
 (provide "gl")

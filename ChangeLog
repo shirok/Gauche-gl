@@ -1,3 +1,8 @@
+2001-11-20  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-gl.h, src/gauche-gl.c, src/glu-lib.stub : added
+	  GLU quadrics, nurbs and tesselators (partially).
+	
 2001-10-19  Shiro Kawai  <shiro@acm.org>
 
 	* examples/mandelbrot.scm : added texturing sample.

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.9 2001-10-07 08:46:38 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.10 2001-10-07 09:11:35 shirok Exp $
 ;;;
 
 "
@@ -168,11 +168,16 @@
   "glDisableClientState((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
 
+;; Gauche-gl specific
+(define-cproc gl-state-vector-size (state)
+  (assert (small-integer? state))
+  "SCM_RETURN(Scm_MakeInteger(Scm_GLStateInfoSize(state)));")
+
 (define-cproc gl-get-boolean (state)
   (assert (small-integer? state))
   "int vsize = Scm_GLStateInfoSize(state);
   if (vsize <= 0)
-    Scm_Error(\"you can't query state ~a by glGetBooleanv\", state);
+    Scm_Error(\"you can't query state %x by glGetBooleanv\", state);
   if (vsize == 1) {
     GLboolean b;
     glGetBooleanv((GLenum)state, &b);
@@ -183,11 +188,22 @@
     SCM_RETURN(SCM_OBJ(v));
   }")
 
+(define-cproc gl-get-boolean! (vec state)
+  (assert (small-integer? state))
+  "int vsize;
+  if (!SCM_U8VECTORP(vec)) Scm_Error(\"u8vector required, but got %S\", vec);
+  vsize = Scm_GLStateInfoSize(state);
+  if (vsize != SCM_U8VECTOR_SIZE(vec))
+    Scm_Error(\"state %x needs a vector of size %d, but got %S\",
+               state, vsize, vec);
+  glGetBooleanv((GLenum)state, SCM_U8VECTOR_ELEMENTS(vec));
+  SCM_RETURN(SCM_OBJ(vec));")
+
 (define-cproc gl-get-integer (state)
   (assert (small-integer? state))
   "int vsize = Scm_GLStateInfoSize(state);
   if (vsize <= 0)
-    Scm_Error(\"you can't query state ~a by glGetIntegerv\", state);
+    Scm_Error(\"you can't query state %x by glGetIntegerv\", state);
   if (vsize == 1) {
     GLint i;
     glGetIntegerv((GLenum)state, &i);
@@ -198,11 +214,22 @@
     SCM_RETURN(SCM_OBJ(v));
   }")
 
+(define-cproc gl-get-integer! (vec state)
+  (assert (small-integer? state))
+  "int vsize;
+  if (!SCM_S32VECTORP(vec)) Scm_Error(\"s32vector required, but got %S\", vec);
+  vsize = Scm_GLStateInfoSize(state);
+  if (vsize != SCM_S32VECTOR_SIZE(vec))
+    Scm_Error(\"state %x needs a vector of size %d, but got %S\",
+               state, vsize, vec);
+  glGetIntegerv((GLenum)state, SCM_S32VECTOR_ELEMENTS(vec));
+  SCM_RETURN(SCM_OBJ(vec));")
+
 (define-cproc gl-get-float (state)
   (assert (small-integer? state))
   "int vsize = Scm_GLStateInfoSize(state);
   if (vsize <= 0)
-    Scm_Error(\"you can't query state ~a by glGetFloatv\", state);
+    Scm_Error(\"you can't query state %x by glGetFloatv\", state);
   if (vsize == 1) {
     GLfloat v;
     glGetFloatv((GLenum)state, &v);
@@ -213,11 +240,22 @@
     SCM_RETURN(SCM_OBJ(v));
   }")
 
+(define-cproc gl-get-float! (vec state)
+  (assert (small-integer? state))
+  "int vsize;
+  if (!SCM_F32VECTORP(vec)) Scm_Error(\"s32vector required, but got %S\", vec);
+  vsize = Scm_GLStateInfoSize(state);
+  if (vsize != SCM_F32VECTOR_SIZE(vec))
+    Scm_Error(\"state %x needs a vector of size %d, but got %S\",
+               state, vsize, vec);
+  glGetFloatv((GLenum)state, SCM_F32VECTOR_ELEMENTS(vec));
+  SCM_RETURN(SCM_OBJ(vec));")
+
 (define-cproc gl-get-double (state)
   (assert (small-integer? state))
   "int vsize = Scm_GLStateInfoSize(state);
   if (vsize <= 0)
-    Scm_Error(\"you can't query state ~a by glGetDoublev\", state);
+    Scm_Error(\"you can't query state %x by glGetDoublev\", state);
   if (vsize == 1) {
     GLdouble v;
     glGetDoublev((GLenum)state, &v);
@@ -227,6 +265,17 @@
     glGetDoublev((GLenum)state, SCM_F64VECTOR_ELEMENTS(v));
     SCM_RETURN(SCM_OBJ(v));
   }")
+
+(define-cproc gl-get-double! (vec state)
+  (assert (small-integer? state))
+  "int vsize;
+  if (!SCM_F64VECTORP(vec)) Scm_Error(\"s32vector required, but got %S\", vec);
+  vsize = Scm_GLStateInfoSize(state);
+  if (vsize != SCM_F64VECTOR_SIZE(vec))
+    Scm_Error(\"state %x needs a vector of size %d, but got %S\",
+               state, vsize, vec);
+  glGetDoublev((GLenum)state, SCM_F64VECTOR_ELEMENTS(vec));
+  SCM_RETURN(SCM_OBJ(vec));")
 
 ;; glGetPointerv
 

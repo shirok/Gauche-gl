@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.7 2002-09-29 08:20:14 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.8 2002-09-29 10:13:39 shirok Exp $
 ;;;
 
 "
@@ -58,10 +58,7 @@
   SCM_RETURN(Scm_MakeVector4fv(SCM_F32VECTOR_ELEMENTS(v)+start));")
   
 (define-cproc vector4f->f32vector (v::<vector4f>)
-  "ScmObj fv = Scm_MakeF32Vector(4, 0.0);
-  int i;
-  for (i=0; i<4; i++) SCM_F32VECTOR_ELEMENTS(fv)[i] = SCM_VECTOR4F_D(v)[i];
-  SCM_RETURN(fv);")
+  "SCM_RETURN(Scm_MakeF32VectorFromArray(4, SCM_VECTOR4F_D(v)));")
 
 (define-cproc vector4f-copy (v::<vector4f>)
   "SCM_RETURN(Scm_MakeVector4fv(SCM_VECTOR4F_D(v)));")
@@ -136,10 +133,8 @@
   (return "Scm_MakeVector4fArrayV"))
 
 (define-cproc vector4f-array->f32vector (a::<vector4f-array>)
-  "ScmObj v = Scm_MakeF32Vector(SCM_VECTOR4F_ARRAY_SIZE(a)*4, 0.0);
-  int i; float *dp = SCM_F32VECTOR_ELEMENTS(v), *sp = SCM_VECTOR4F_ARRAY_D(a);
-  for (i=0; i<SCM_F32VECTOR_SIZE(v); i++) *dp++ = *sp++;
-  SCM_RETURN(v);")
+  "SCM_RETURN(Scm_MakeF32VectorFromArray(SCM_VECTOR4F_ARRAY_SIZE(a)*4,
+                                         SCM_VECTOR4F_ARRAY_D(a)));")
 
 (define-cproc vector4f-array-set! (a::<vector4f-array>
                                    i::<fixnum> x::<vector4f>)
@@ -175,10 +170,7 @@
   SCM_RETURN(Scm_MakePoint4fv(SCM_F32VECTOR_ELEMENTS(v)+start));")
   
 (define-cproc point4f->f32vector (v::<point4f>)
-  "ScmObj fv = Scm_MakeF32Vector(4, 0.0);
-  int i;
-  for (i=0; i<4; i++) SCM_F32VECTOR_ELEMENTS(fv)[i] = SCM_POINT4F_D(v)[i];
-  SCM_RETURN(fv);")
+  "SCM_RETURN(Scm_MakeF32VectorFromArray(4, SCM_POINT4F_D(v)));")
 
 (define-cproc point4f-copy (v::<point4f>)
   "SCM_RETURN(Scm_MakePoint4fv(SCM_POINT4F_D(v)));")
@@ -234,10 +226,8 @@
   (return "Scm_MakePoint4fArrayV"))
 
 (define-cproc point4f-array->f32vector (a::<point4f-array>)
-  "ScmObj v = Scm_MakeF32Vector(SCM_POINT4F_ARRAY_SIZE(a)*4, 0.0);
-  int i; float *dp = SCM_F32VECTOR_ELEMENTS(v), *sp = SCM_POINT4F_ARRAY_D(a);
-  for (i=0; i<SCM_F32VECTOR_SIZE(v); i++) *dp++ = *sp++;
-  SCM_RETURN(v);")
+  "SCM_RETURN(Scm_MakeF32VectorFromArray(SCM_POINT4F_ARRAY_SIZE(a)*4,
+                                         SCM_POINT4F_ARRAY_D(a)));")
 
 (define-cproc point4f-array-set! (a::<point4f-array>
                                   i::<fixnum>
@@ -259,10 +249,10 @@
   "if (SCM_UNBOUNDP(init)) {
     static float unit[] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
     SCM_RETURN(Scm_MakeMatrix4fv(unit));
-  } else if (!SCM_F32VECTORP(init)) {
-    Scm_Error(\"f32vector required, but got %S\", init);
+  } else if (!SCM_F32VECTORP(init) || SCM_F32VECTOR_SIZE(init) != 16) {
+    Scm_Error(\"f32vector of size 16 required, but got %S\", init);
   }
-  SCM_RETURN(Scm_MakeMatrix4fV(SCM_F32VECTOR(init)));")
+  SCM_RETURN(Scm_MakeMatrix4fv(SCM_F32VECTOR_ELEMENTS(init)));")
 
 (define-cproc matrix4f (&rest args)
   (return "Scm_ListToMatrix4f"))
@@ -272,6 +262,17 @@
 
 (define-cproc list->matrix4f (l::<list>)
   (return "Scm_ListToMatrix4f"))
+(define-cproc matrix4f->list (m::<matrix4f>)
+  (return "Scm_Matrix4fToList"))
+
+(define-cproc f32vector->matrix4f (v::<f32vector>
+                                   &optional (start::<fixnum> 0))
+  "int size = SCM_F32VECTOR_SIZE(v);
+  if (start < 0 || size-start < 16)
+    Scm_Error(\"f32vector too small: %S (start=%d)\", v, start);
+  SCM_RETURN(Scm_MakeMatrix4fv(SCM_F32VECTOR_ELEMENTS(v)+start));")
+(define-cproc matrix4f->f32vector (m::<matrix4f>)
+  "SCM_RETURN(Scm_MakeF32VectorFromArray(16, SCM_MATRIX4F_D(m)));")
 
 (define-cproc matrix4f-mul (p::<matrix4f> q)
   "if (SCM_MATRIX4FP(q)) SCM_RETURN(Scm_Matrix4fMulMatrix4f(p, SCM_MATRIX4F(q)));
@@ -292,17 +293,34 @@
   for (i=0;i<16;i++) p[i] = r[i];
   SCM_RETURN(SCM_OBJ(m));")
 
-(define-cproc matrix4f-ref (m::<matrix4f> i::<fixnum> j::<fixnum>)
-  "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
-  if (j < 0 || j > 3) Scm_Error(\"index j out of range: %d\", j);
-  SCM_RETURN(Scm_MakeFlonum(SCM_MATRIX4F_REF(m, i, j)));"
+(define-cproc matrix4f-set! (m::<matrix4f> i::<fixnum> v::<real>)
+  "if (i<0 || i>=16) {
+    Scm_Error(\"index out of bounds: %d\", i);
+  } else {
+    SCM_MATRIX4F_D(m)[i] = v;
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc matrix4f-ref (m::<matrix4f> i::<fixnum> &optional fallback)
+  "if (i<0 || i>=16) {
+    if (SCM_UNBOUNDP(fallback)) Scm_Error(\"index out of bounds: %d\", i);
+    SCM_RETURN(fallback);
+  } else {
+    SCM_RETURN(Scm_MakeFlonum(SCM_MATRIX4F_D(m)[i]));
+  }"
   (setter matrix4f-set!))
 
-(define-cproc matrix4f-set! (m::<matrix4f> i::<fixnum> j::<fixnum> v::<real>)
+(define-cproc matrix4f-set2! (m::<matrix4f> i::<fixnum> j::<fixnum> v::<real>)
   "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
   if (j < 0 || j > 3) Scm_Error(\"index j out of range: %d\", j);
   SCM_MATRIX4F_SET(m, i, j, v);
   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc matrix4f-ref2 (m::<matrix4f> i::<fixnum> j::<fixnum>)
+  "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+  if (j < 0 || j > 3) Scm_Error(\"index j out of range: %d\", j);
+  SCM_RETURN(Scm_MakeFlonum(SCM_MATRIX4F_REF(m, i, j)));"
+  (setter matrix4f-set2!))
 
 (define-cproc matrix4f-row (m::<matrix4f> i::<fixnum>)
   "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
@@ -373,15 +391,16 @@
     SCM_RETURN(Scm_MakeQuatf(0.0, 0.0, 0.0, 1.0));
   } else {
     float *q = NULL;
-    double sint;
+    double sint, cost;
     if (SCM_VECTOR4FP(vec)) q = SCM_VECTOR4F_D(vec);
     else if (SCM_F32VECTORP(vec) && SCM_F32VECTOR_SIZE(vec) > 3) {
       q = SCM_F32VECTOR_ELEMENTS(vec);
     } else {
       Scm_Error(\"vector4f or f32vector is required, but got %S\", vec);
     }
-    sint = sin(angle);
-    SCM_RETURN(Scm_MakeQuatf(sint*q[0], sint*q[1], sint*q[2], cos(angle)));
+    sint = sin(angle/2.0);
+    cost = cos(angle/2.0);
+    SCM_RETURN(Scm_MakeQuatf(sint*q[0], sint*q[1], sint*q[2], cost));
   }")
 
 (define-cproc list->quatf (x)
@@ -395,10 +414,7 @@
     Scm_Error(\"f32vector too small: %S (start=%d)\", x, start);
   SCM_RETURN(Scm_MakeQuatfv(SCM_F32VECTOR_ELEMENTS(x)+start));")
 (define-cproc quatf->f32vector (q::<quatf>)
-  "ScmObj fv = Scm_MakeF32Vector(4, 0.0);
-  int i;
-  for (i=0; i<4; i++) SCM_F32VECTOR_ELEMENTS(fv)[i] = SCM_QUATF_D(q)[i];
-  SCM_RETURN(fv);")
+  "SCM_RETURN(Scm_MakeF32VectorFromArray(4, SCM_QUATF_D(q)));")
 
 (define-cproc quatf-add (p::<quatf> q::<quatf>)
   (return "Scm_QuatfAdd"))
@@ -419,16 +435,15 @@
 
 ;; calculate qpq*
 (define-cproc quatf-transform (quat::<quatf> v)
-  "float *d = NULL, *q, qconj[4], s[4], r[4];
-  if (SCM_VECTOR4FP(v)) d = SCM_VECTOR4F_D(v);
-  else if (SCM_POINT4FP(v)) d = SCM_POINT4F_D(v);
-  else if (SCM_F32VECTORP(v) && SCM_F32VECTOR_SIZE(v) >= 4) d = SCM_F32VECTOR_ELEMENTS(v);
-  else Scm_Error(\"vector4f, point4f or f32vector of size 4 is required, but got %S\", v);
+  "float *d, *q, qconj[4], s[4], r[4];
+  SCM_MATH3D_X4FP(d, v);
   q = SCM_QUATF_D(quat);
   qconj[0] = -q[0]; qconj[1] = -q[1]; qconj[2] = -q[2]; qconj[3] = q[3];
   Scm_QuatfMulv(s, q, d);
   Scm_QuatfMulv(r, s, qconj);
-  SCM_RETURN(Scm_MakeQuatfv(r));")
+  if (SCM_VECTOR4FP(v)) SCM_RETURN(Scm_MakeVector4fv(r));
+  else if (SCM_POINT4FP(v)) SCM_RETURN(Scm_MakePoint4fv(r));
+  else SCM_RETURN(Scm_MakeF32VectorFromArray(4, r));")
 
 (define-cproc quatf-conjugate (q::<quatf>)
   "float *d = SCM_QUATF_D(q);

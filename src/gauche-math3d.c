@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.9 2002-09-29 08:20:14 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.10 2002-09-29 10:13:39 shirok Exp $
  */
 
 #include <gauche.h>
@@ -45,7 +45,7 @@ static ScmClass *sequenceCPL[] = {
  */
 static void vec_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
-    Scm_Printf(out, "#,(<vector4f> %g %g %g %g)",
+    Scm_Printf(out, "#,(vector4f %g %g %g %g)",
                SCM_VECTOR4F_D(obj)[0],
                SCM_VECTOR4F_D(obj)[1],
                SCM_VECTOR4F_D(obj)[2],
@@ -211,7 +211,7 @@ static void vec_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
     ScmVector4fArray *va = SCM_VECTOR4F_ARRAY(obj);
     int len = SCM_VECTOR4F_ARRAY_SIZE(va), i;
-    Scm_Printf(out, "#,(<3dvecor-array> %d ", len);
+    Scm_Printf(out, "#,(vector4f-array %d ", len);
     for (i = 0; i < len; i++) {
         float *z = Scm_Vector4fArrayRefv(va, i);
         Scm_Printf(out, "(%g %g %g %g) ", z[0], z[1], z[2], z[3]);
@@ -314,7 +314,7 @@ void Scm_Vector4fArraySetv(ScmVector4fArray *a, int n, float d[])
  */
 static void point_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
-    Scm_Printf(out, "#,(<point4f> %g %g %g %g)",
+    Scm_Printf(out, "#,(point4f %g %g %g %g)",
                SCM_VECTOR4F_D(obj)[0],
                SCM_VECTOR4F_D(obj)[1],
                SCM_VECTOR4F_D(obj)[2],
@@ -396,7 +396,7 @@ static void point_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
     ScmPoint4fArray *va = SCM_POINT4F_ARRAY(obj);
     int len = SCM_POINT4F_ARRAY_SIZE(va), i;
-    Scm_Printf(out, "#,(<point4f-array> %d ", len);
+    Scm_Printf(out, "#,(point4f-array %d ", len);
     for (i = 0; i < len; i++) {
         float *z = Scm_Point4fArrayRefv(va, i);
         Scm_Printf(out, "(%g %g %g %g) ", z[0], z[1], z[2], z[3]);
@@ -491,7 +491,7 @@ static void mat_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
     int i;
     ScmMatrix4f *m = SCM_MATRIX4F(obj);
-    Scm_Printf(out, "#,(<matrix4f>");
+    Scm_Printf(out, "#,(matrix4f");
     for (i=0; i<16; i++) {
         Scm_Printf(out, " %g", SCM_MATRIX4F_D(m)[i]);
     }
@@ -504,7 +504,7 @@ static int mat_compare(ScmObj x, ScmObj y, int equalp)
         int i;
         float *p = SCM_MATRIX4F_D(x), *q = SCM_MATRIX4F_D(y);
         for (i=0; i<16; i++) {
-            if (*p != *q) return -1;
+            if (*p++ != *q++) return -1;
         }
         return 0;
     } else {
@@ -516,7 +516,7 @@ static int mat_compare(ScmObj x, ScmObj y, int equalp)
 SCM_DEFINE_BUILTIN_CLASS(Scm_Matrix4fClass, mat_print, mat_compare,
                          NULL, NULL, sequenceCPL);
 
-ScmObj Scm_MakeMatrix4fv(const float d[])
+ScmObj Scm_MakeMatrix4fv(const float *d)
 {
     ScmMatrix4f *m = SCM_NEW(ScmMatrix4f);
     int i;
@@ -530,14 +530,10 @@ ScmObj Scm_MakeMatrix4fv(const float d[])
     return SCM_OBJ(m);
 }
 
-ScmObj Scm_MakeMatrix4fV(ScmF32Vector *fv)
+ScmObj Scm_MakeMatrix4fvShared(float *d)
 {
-    ScmMatrix4f *m;
-    if (SCM_F32VECTOR_SIZE(fv) != 16) {
-        Scm_Error("f32vector of size 16 required, but got %S");
-    }
-    m = SCM_NEW(ScmMatrix4f);
-    m->v = SCM_F32VECTOR_ELEMENTS(fv);
+    ScmMatrix4f *m = SCM_NEW(ScmMatrix4f);
+    SCM_MATRIX4F_D(m) = d;
     return SCM_OBJ(m);
 }
 
@@ -556,6 +552,17 @@ ScmObj Scm_ListToMatrix4f(ScmObj l)
   badlist:
     Scm_Error("list of 16 real numbers required, but got %S", l);
     return SCM_UNDEFINED;       /* dummy */
+}
+
+ScmObj Scm_Matrix4fToList(const ScmMatrix4f *m)
+{
+    ScmObj h = SCM_NIL, t = SCM_NIL;
+    int i;
+    float *p = SCM_MATRIX4F_D(m);
+    for (i=0; i<16; i++) {
+        SCM_APPEND1(h, t, Scm_MakeFlonum((double)p[i]));
+    }
+    return h;
 }
 
 /* Matrix X Matrix */
@@ -617,7 +624,7 @@ void   Scm_Matrix4fScalev(float *r, double f)
 
 ScmObj Scm_Matrix4fScale(const ScmMatrix4f *m, double f)
 {
-    ScmMatrix4f *r = SCM_MATRIX4F(Scm_MakeMatrix4fv(NULL));
+    ScmMatrix4f *r = SCM_MATRIX4F(Scm_MakeMatrix4fv(SCM_MATRIX4F_D(m)));
     Scm_Matrix4fScalev(SCM_MATRIX4F_D(r), f);
     return SCM_OBJ(r);
 }
@@ -691,7 +698,7 @@ void Scm_ScaleToMatrix4fv(float *m, const float *s)
  */
 static void quat_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
-    Scm_Printf(out, "#,(<quat> %g %g %g %g)",
+    Scm_Printf(out, "#,(quatf %g %g %g %g)",
                SCM_QUATF_D(obj)[0],
                SCM_QUATF_D(obj)[1],
                SCM_QUATF_D(obj)[2],
@@ -800,7 +807,7 @@ void Scm_QuatfMulv(float *r, const float *p, const float *q)
     r[0] = p[0]*q[3]+p[1]*q[2]-p[2]*q[1]+p[3]*q[0];
     r[1] = p[1]*q[3]+p[2]*q[0]-p[0]*q[2]+p[3]*q[1];
     r[2] = p[2]*q[3]+p[0]*q[1]-p[1]*q[0]+p[3]*q[2];
-    r[3] = p[0]*q[0]+p[1]*q[1]+p[2]*q[2]+p[3]*q[3];
+    r[3] = -p[0]*q[0]-p[1]*q[1]-p[2]*q[2]+p[3]*q[3];
 }
 
 ScmObj Scm_QuatfMul(const ScmQuatf *p, const ScmQuatf *q)

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.9 2002-09-29 08:20:29 shirok Exp $
+ *  $Id: math3d.h,v 1.10 2002-09-29 10:13:39 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -299,9 +299,10 @@ SCM_CLASS_DECL(Scm_Matrix4fClass);
 #define SCM_MATRIX4F_SET(obj, i, j, v) (SCM_MATRIX4F_D(obj)[(i)+(j)*4] = (v))
 #define SCM_MATRIX4F_COLVEC(obj, i)    (SCM_MATRIX4F_D(obj) + (i)*4)
 
-extern ScmObj Scm_MakeMatrix4fv(const float d[]);
-extern ScmObj Scm_MakeMatrix4fV(ScmF32Vector *fv);
+extern ScmObj Scm_MakeMatrix4fv(const float *d);
+extern ScmObj Scm_MakeMatrix4fvShared(float *d);
 extern ScmObj Scm_ListToMatrix4f(ScmObj l);
+extern ScmObj Scm_Matrix4fToList(const ScmMatrix4f *m);
 
 extern void   Scm_Matrix4fMulMatrix4fv(float *, const float *, const float*);
 extern ScmObj Scm_Matrix4fMulMatrix4f(const ScmMatrix4f *, const ScmMatrix4f *);

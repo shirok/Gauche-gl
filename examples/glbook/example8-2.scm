@@ -54,18 +54,10 @@
   (make-raster-font))
 
 (define (print-string s)
-  (let* ((size (string-size s))
-         (array (make-u8vector size)))
-    (with-input-from-string s
-      (lambda ()
-        (let loop ((b (read-byte)) (i 0))
-          (unless (eof-object? b)
-            (set! (ref array i) b)
-            (loop (read-byte) (+ i 1))))))
-    (gl-push-attrib GL_LIST_BIT)
-    (gl-list-base *font-offset*)
-    (gl-call-lists size GL_UNSIGNED_BYTE array)
-    (gl-pop-attrib)))
+  (gl-push-attrib GL_LIST_BIT)
+  (gl-list-base *font-offset*)
+  (gl-call-lists (string-size s) GL_UNSIGNED_BYTE s)
+  (gl-pop-attrib))
 
 (define (display)
   (gl-clear GL_COLOR_BUFFER_BIT)

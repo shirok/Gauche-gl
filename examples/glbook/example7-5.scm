@@ -45,16 +45,7 @@
     (gl-end-list)))
 
 (define (print-stroked-string s)
-  (let* ((size (string-size s))
-         (array (make-s8vector size)))
-    (with-input-from-string s
-      (lambda ()
-        (let loop ((byte (read-byte)) (i 0))
-          (unless (eof-object? byte)
-            (set! (ref array i) byte)
-            (loop (read-byte) (+ i 1))))))
-    (gl-call-lists size GL_BYTE array))
-  )
+  (gl-call-lists (string-size s) GL_BYTE s))
 
 (define (display)
   (gl-clear GL_COLOR_BUFFER_BIT)

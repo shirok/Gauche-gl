@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.11 2002-09-29 10:57:32 shirok Exp $
+ *  $Id: math3d.h,v 1.12 2002-09-29 11:37:52 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -91,6 +91,7 @@ SCM_CLASS_DECL(Scm_Vector4fClass);
 extern ScmObj Scm_MakeVector4fv(const float d[]);
 extern ScmObj Scm_MakeVector4fvShared(float d[]);
 extern ScmObj Scm_MakeVector4f(float x, float y, float z, float w);
+extern ScmObj Scm_Vector4fSetv(ScmVector4f *v, float *d);
 extern ScmObj Scm_ListToVector4f(ScmObj l);
 extern ScmObj Scm_Vector4fToList(const ScmVector4f *v);
 
@@ -185,6 +186,7 @@ SCM_CLASS_DECL(Scm_Point4fClass);
 extern ScmObj Scm_MakePoint4f(float x, float y, float z, float w);
 extern ScmObj Scm_MakePoint4fv(const float d[]);
 extern ScmObj Scm_MakePoint4fvShared(float d[]);
+extern ScmObj Scm_Point4fSetv(ScmPoint4f *v, float *d);
 extern ScmObj Scm_ListToPoint4f(ScmObj l);
 extern ScmObj Scm_Point4fToList(const ScmPoint4f *p);
 extern ScmObj Scm_Point4fAdd(const ScmPoint4f *p, const ScmVector4f *q);
@@ -303,6 +305,8 @@ SCM_CLASS_DECL(Scm_Matrix4fClass);
 
 extern ScmObj Scm_MakeMatrix4fv(const float *d);
 extern ScmObj Scm_MakeMatrix4fvShared(float *d);
+extern ScmObj Scm_Matrix4fSetv(ScmMatrix4f *m, float *d);
+
 extern ScmObj Scm_ListToMatrix4f(ScmObj l);
 extern ScmObj Scm_Matrix4fToList(const ScmMatrix4f *m);
 

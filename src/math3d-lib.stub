@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.11 2002-09-29 11:24:04 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.12 2002-09-29 11:37:49 shirok Exp $
 ;;;
 
 "
@@ -64,9 +64,7 @@
   "SCM_RETURN(Scm_MakeVector4fv(SCM_VECTOR4F_D(v)));")
 
 (define-cproc vector4f-copy! (dst::<vector4f> src::<vector4f>)
-  "float *dp = SCM_VECTOR4F_D(dst), *sp = SCM_VECTOR4F_D(src);
-  SCM_VECTOR4F_OP(i, dp[i] = sp[i]);
-  SCM_RETURN(SCM_OBJ(dst));")
+  "SCM_RETURN(Scm_Vector4fSetv(dst, SCM_VECTOR4F_D(src)));")
 
 (define-cproc vector4f-set! (x::<vector4f> i::<fixnum> v::<real>)
   "if (i < 0 || i > 3) Scm_Error(\"vector index out of range: %d\", i);
@@ -176,9 +174,7 @@
   "SCM_RETURN(Scm_MakePoint4fv(SCM_POINT4F_D(v)));")
 
 (define-cproc point4f-copy! (dst::<point4f> src::<point4f>)
-  "float *dp = SCM_POINT4F_D(dst), *sp = SCM_POINT4F_D(src);
-  SCM_VECTOR4F_OP(i, dp[i] = sp[i]);
-  SCM_RETURN(SCM_OBJ(dst));")
+  "SCM_RETURN(Scm_Point4fSetv(dst, SCM_POINT4F_D(src)));")
 
 (define-cproc point4f-set! (x::<point4f> i::<fixnum> v::<real>)
   "if (i < 0 || i > 3) Scm_Error(\"point index out of range: %d\", i);
@@ -277,9 +273,7 @@
 (define-cproc matrix4f-copy (m::<matrix4f>)
   "SCM_RETURN(Scm_MakeMatrix4fv(SCM_MATRIX4F_D(m)));")
 (define-cproc matrix4f-copy! (dst::<matrix4f> src::<matrix4f>)
-  "int i; float *dp = SCM_MATRIX4F_D(dst), *sp = SCM_MATRIX4F_D(src);
-  for (i=0; i<16; i++) *dp++ = *sp++;
-  SCM_RETURN(SCM_OBJ(dst));")
+  "SCM_RETURN(Scm_Matrix4fSetv(dst, SCM_MATRIX4F_D(src)));")
 
 (define-cproc matrix4f-mul (p::<matrix4f> q)
   "if (SCM_MATRIX4FP(q)) SCM_RETURN(Scm_Matrix4fMulMatrix4f(p, SCM_MATRIX4F(q)));
@@ -289,6 +283,12 @@
   Scm_Error(\"bad object, matrix4f, vector4f, point4f or real number required, but got %S\", q);
   SCM_RETURN(SCM_UNDEFINED);")
 
+(define-cproc matrix4f-mul! (p::<matrix4f> q::<matrix4f>)
+  "float r[16];
+  Scm_Matrix4fMulMatrix4fv(r, SCM_MATRIX4F_D(p), SCM_MATRIX4F_D(q));
+  Scm_Matrix4fSetv(p, r);
+  SCM_RETURN(SCM_OBJ(p));")
+
 (define-cproc matrix4f-transpose (m::<matrix4f>)
   "float r[16];
   Scm_Matrix4fTransposev(r, SCM_MATRIX4F_D(m));
@@ -297,7 +297,7 @@
 (define-cproc matrix4f-transpose! (m::<matrix4f>)
   "float r[16], *p = SCM_MATRIX4F_D(m); int i;
   Scm_Matrix4fTransposev(r, p);
-  for (i=0;i<16;i++) p[i] = r[i];
+  Scm_Matrix4fSetv(m, r);
   SCM_RETURN(SCM_OBJ(m));")
 
 (define-cproc matrix4f-set! (m::<matrix4f> i::<fixnum> v::<real>)

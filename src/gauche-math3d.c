@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.11 2002-09-29 10:57:27 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.12 2002-09-29 11:37:49 shirok Exp $
  */
 
 #include <gauche.h>
@@ -95,6 +95,13 @@ ScmObj Scm_MakeVector4fv(const float *d)
 {
     if (d) return Scm_MakeVector4f(d[0], d[1], d[2], d[3]);
     else   return Scm_MakeVector4f(0.0, 0.0, 0.0, 0.0);
+}
+
+ScmObj Scm_Vector4fSetv(ScmVector4f *v, float *d)
+{
+    float *fp = SCM_VECTOR4F_D(v);
+    fp[0] = d[0]; fp[1] = d[1]; fp[2] = d[2]; fp[3] = d[3];
+    return SCM_OBJ(v);
 }
 
 /* common routine for list->vector4f and list->point4f */
@@ -351,6 +358,13 @@ ScmObj Scm_MakePoint4fvShared(float d[])
     return SCM_OBJ(v);
 }
 
+ScmObj Scm_Point4fSetv(ScmPoint4f *v, float *d)
+{
+    float *fp = SCM_POINT4F_D(v);
+    fp[0] = d[0]; fp[1] = d[1]; fp[2] = d[2]; fp[3] = d[3];
+    return SCM_OBJ(v);
+}
+
 ScmObj Scm_ListToPoint4f(ScmObj l)
 {
     float d[4];
@@ -534,6 +548,14 @@ ScmObj Scm_MakeMatrix4fvShared(float *d)
 {
     ScmMatrix4f *m = SCM_NEW(ScmMatrix4f);
     SCM_MATRIX4F_D(m) = d;
+    return SCM_OBJ(m);
+}
+
+ScmObj Scm_Matrix4fSetv(ScmMatrix4f *m, float *d)
+{
+    int i;
+    float *fp = SCM_MATRIX4F_D(m);
+    for (i=0; i<16; i++) fp[i] = d[i];
     return SCM_OBJ(m);
 }
 

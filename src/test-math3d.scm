@@ -309,22 +309,22 @@
 
 ;; matrix decompose
 (define (matrix-decompose-tester name T R H S)
-  (test name #t
+  (test name '(#t #t #t #t #t)
         (lambda ()
           (let* ((tmat (translation->matrix4f T))
                  (smat (scale->matrix4f S))
                  (mat  (matrix4f-mul tmat (matrix4f-mul R smat))))
             (receive (f t r h s)
                 (matrix4f-decompose mat)
-              (print r)
-              (print R)
-              (print h)
-              (print s)
-              (and f
-                   (nearly=? t T)
-                   (nearly=? r R)
-                   (nearly=? h H)
-                   (nearly=? s S)))))))
+              ;(print r)
+              ;(print R)
+              ;(print h)
+              ;(print s)
+              (list f
+                    (nearly=? t T)
+                    (nearly=? r R)
+                    (nearly=? h H)
+                    (nearly=? s S)))))))
 
 (matrix-decompose-tester
  "matrix-decompose"

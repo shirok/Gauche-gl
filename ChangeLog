@@ -1,3 +1,8 @@
+2003-11-11  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-math3d.c (Scm_Matrix4fDecomposev): fixed a bug that
+	  referenced wrong shear vector value during calculation.
+
 2003-10-14  Kimura Fuyuki  <fuyuki@nigredo.org>
 
 	* configure.in : fixed a bug that has prevented the configure

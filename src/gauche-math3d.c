@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.23 2003-10-05 05:05:25 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.24 2003-11-11 12:49:23 shirok Exp $
  */
 
 #include <math.h>
@@ -946,9 +946,9 @@ int Scm_Matrix4fDecomposev(const float m[], float T[], float R[],
 
     /* Shear XY */
     H[0] = SCM_VECTOR4F_DOTV(r[0], r[1]);
-    r[1][0] -= H[2]*r[0][0];
-    r[1][1] -= H[2]*r[0][1];
-    r[1][2] -= H[2]*r[0][2];
+    r[1][0] -= H[0]*r[0][0];
+    r[1][1] -= H[0]*r[0][1];
+    r[1][2] -= H[0]*r[0][2];
     
     /* Scale Y */
     S[1] = SCM_VECTOR4F_NORMV(r[1]);

@@ -21,48 +21,48 @@
 !>
 
 <? (if-lang japanese? !>
-                       Gauche-gl - Gauche OpenGL $B%P%$%s%G%#%s%0(B
+                       Gauche-gl - Gauche OpenGL ¥Ð¥¤¥ó¥Ç¥£¥ó¥°
 <? else !>
                          Gauche-gl - Gauche OpenGL binding
 <? ) !>
 
-$Id: INSTALL.esc,v 1.1 2001-10-15 08:09:02 shirok Exp $
+$Id: INSTALL.esc,v 1.2 2002-07-19 02:42:47 shirok Exp $
 <? (if-lang japanese? !>
-Gauche-gl$B$N:G?7>pJs$O0J2<$N(BURL$B$GF@$i$l$^$9!#(B<? else !>
+Gauche-gl¤ÎºÇ¿·¾ðÊó¤Ï°Ê²¼¤ÎURL¤ÇÆÀ¤é¤ì¤Þ¤¹¡£<? else !>
 Up-to-date information about Gauche-gl is posted to the following URL:
 <? ) !>
   http://www.shiro.dreamhost.com/scheme/gauche/
 
-<? (header "$BI,MW$J=`Hw(B" "Prerequisites") !>
+<? (header "É¬Í×¤Ê½àÈ÷" "Prerequisites") !>
 
 <? (if-lang japanese? !>
-* Gauche 0.4.7 $B0J9_$,%$%s%9%H!<%k$5$l$F$$$kI,MW$,$"$j$^$9!#(B
-* OpenGL 1.1$B0J9_$b$7$/$O(BMesa 3.0$B0J9_$,I,MW$G$9!#(B
-* GLUT 3.7$B0J9_$,I,MW$G$9!#(B
+* Gauche 0.6 °Ê¹ß¤¬¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤Æ¤¤¤ëÉ¬Í×¤¬¤¢¤ê¤Þ¤¹¡£
+* OpenGL 1.1°Ê¹ß¤â¤·¤¯¤ÏMesa 3.0°Ê¹ß¤¬É¬Í×¤Ç¤¹¡£
+* GLUT 3.7°Ê¹ß¤¬É¬Í×¤Ç¤¹¡£
 <? else !>
-* Gauche 0.4.7 or later must be installed.
+* Gauche 0.6 or later must be installed.
 * OpenGL 1.1 or later, or Mesa 3.0 or later, required.
 * GLUT 3.7 or later is required.
 <? ) !>
 
-<? (header "$B4JC1$JJ}K!(B" "Quick Start") !>
+<? (header "´ÊÃ±¤ÊÊýË¡" "Quick Start") !>
 
    % ./configure
    % make
    % make install
 <? (if-lang japanese? !>
-Configure$B%9%/%j%W%H$O!"4{$K%$%s%9%H!<%k$5$l$F$$$k(BGauche$B$N>pJs$r85$K!"(B
-$BI,MW$J%3%s%Q%$%i%*%W%7%g%s$d%$%s%9%H!<%k@h$r@_Dj$7$^$9!#(B
+Configure¥¹¥¯¥ê¥×¥È¤Ï¡¢´û¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤Æ¤¤¤ëGauche¤Î¾ðÊó¤ò¸µ¤Ë¡¢
+É¬Í×¤Ê¥³¥ó¥Ñ¥¤¥é¥ª¥×¥·¥ç¥ó¤ä¥¤¥ó¥¹¥È¡¼¥ëÀè¤òÀßÄê¤·¤Þ¤¹¡£
 <? else !>
 Configure script figures out the necessary compiler options and the
 install location from the installed Gauche.
 <? ) !>
 
-<? (header "GLUT$B%i%$%V%i%j$N>l=j(B" "Location of GLUT Library") !>
+<? (header "GLUT¥é¥¤¥Ö¥é¥ê¤Î¾ì½ê" "Location of GLUT Library") !>
 
 <? (if-lang japanese? !>
-$B$b$7(BGLUT$B%i%$%V%i%j$,I8=`$G$J$$>l=j$K%$%s%9%H!<%k$5$l$F$$$k>l9g!"0J2<$N%*%W%7%g%s$G(B
-$B$=$N>l=j$r(Bconfigure$B%9%/%j%W%H$KEO$7$F2<$5$$!#(B
+¤â¤·GLUT¥é¥¤¥Ö¥é¥ê¤¬É¸½à¤Ç¤Ê¤¤¾ì½ê¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤Æ¤¤¤ë¾ì¹ç¡¢°Ê²¼¤Î¥ª¥×¥·¥ç¥ó¤Ç
+¤½¤Î¾ì½ê¤òconfigure¥¹¥¯¥ê¥×¥È¤ËÅÏ¤·¤Æ²¼¤µ¤¤¡£
 <? else !>
 If you have GLUT installed in non-standard place, you have to
 tell the configure script where it is.

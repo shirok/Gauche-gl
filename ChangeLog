@@ -1,3 +1,11 @@
+2002-07-18  Shiro Kawai  <shiro@acm.org>
+
+	* configure.in : added check of GL/glext.h
+	* src/gauche-gl.h : include GL/glext.h if available.
+	* example/* : removed escapes of uppercase symbols; they're ugly,
+	  and it's been some time since Gauche became case-sensitive.
+	* src/gl-syms.stub : splitted symbol definitions from gl-lib.stub.
+
 2002-02-14  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.1.2

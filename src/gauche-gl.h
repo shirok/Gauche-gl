@@ -1,7 +1,7 @@
 /*
  * gauche-gl.h - Gauche GL extension
  *
- *  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+ *  Copyright(C) 2001-2002 by Shiro Kawai (shiro@acm.org)
  *
  *  Permission to use, copy, modify, distribute this software and
  *  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.6 2001-11-21 10:40:09 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.7 2002-07-19 02:42:51 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -21,6 +21,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glx.h>
+#ifdef HAVE_GL_GLEXT_H
+#include <GL/glext.h>
+#endif
 
 #include <gauche/uvector.h>
 

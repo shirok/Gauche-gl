@@ -2,9 +2,10 @@ dnl
 dnl Configuring gauche-gl 
 dnl  process this file with "autoconf -l `gauche-config --ac`" to
 dnl  generate 'configure'.
-dnl $Id: configure.in,v 1.6 2002-02-15 10:16:04 shirok Exp $
+dnl $Id: configure.in,v 1.7 2002-07-19 02:42:47 shirok Exp $
 AC_INIT(src/gl-lib.stub)
 AC_GAUCHE_INIT_EXT
+AC_CANONICAL_SYSTEM
 
 # options for configure scripts
 GLUT_LIB="-lglut"
@@ -31,6 +32,9 @@ AC_GAUCHE_INSTALL_TYPE(sys)
 # Get compiler parameters which Gauche has been compiled with.
 AC_GAUCHE_CC
 AC_GAUCHE_FLAGS
+
+# Check for headers
+AC_CHECK_HEADERS(GL/glext.h, , , GL/gl.h)
 
 # Check for other programs.
 AC_PROG_INSTALL

@@ -1,5 +1,6 @@
 CC = @CC@
-CFLAGS = @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@
+OPTFLAGS = @OPTFLAGS@
+CFLAGS = @DEFS@ @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@ $(OPTFLAGS)
 LDFLAGS = @LDFLAGS@
 LIBS = -lGLU -lGL @LIBS@ @X_LIBS@ @X_PRE_LIBS@ -lXext -lX11
 GOSH = @GOSH@
@@ -12,7 +13,7 @@ SCMFILES =
 HEADERS = 
 
 TARGET = gauche-gl.so gauche-glut.so
-GLOBJS = gl_head.o gauche-gl.o gl-lib.o glu-lib.o gl_tail.o
+GLOBJS = gl_head.o gauche-gl.o gl-lib.o gl-syms.o glu-lib.o gl_tail.o
 GLUTOBJS = glut_head.o gauche-glut.o glut-lib.o glut_tail.o
 OBJS = $(GLOBJS) $(GLUTOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status \
@@ -31,6 +32,9 @@ gauche-gl.so : $(GLOBJS)
 
 gl-lib.c : gl-lib.stub
 	$(GOSH) genstub gl-lib.stub
+
+gl-syms.c : gl-syms.stub
+	$(GOSH) genstub gl-syms.stub
 
 glu-lib.c : glu-lib.stub
 	$(GOSH) genstub glu-lib.stub

@@ -1,13 +1,13 @@
-CONFIG_GENERATED = Makefile config.cache config.log config.status autom4te*.cache
-.PHONY: test clean install
+CONFIG_GENERATED = Makefile config.cache config.log config.status autom4te*.cache VERSION
+.PHONY: all check clean distclean install maintainer-clean
 
 
 all :
 	cd src; $(MAKE) all
 	cd doc; $(MAKE) all
 
-test : all
-	cd src; $(MAKE) test
+check : all
+	cd src; $(MAKE) check
 
 clean :
 	rm -rf core *~
@@ -26,9 +26,9 @@ install :
 	cd lib; $(MAKE) install
 	cd doc; $(MAKE) install
 
-realclean : clean
-	cd src; $(MAKE) realclean
-	cd lib; $(MAKE) realclean
-	cd doc; $(MAKE) realclean
+maintainer-clean : clean
+	cd src; $(MAKE) maintainer-clean
+	cd lib; $(MAKE) maintainer-clean
+	cd doc; $(MAKE) maintainer-clean
 	rm -rf configure $(CONFIG_GENERATED)
 

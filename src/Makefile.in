@@ -65,7 +65,7 @@ glut-lib.c : glut-lib.stub
 
 $(GLUTOBJS) : gauche-glut.h
 
-test : all
+check : all
 	@rm -f test.log
 	$(GOSH) -I. -I../lib test-math3d.scm > test.log
 	$(GOSH) -I. -I../lib test.scm >> test.log
@@ -102,5 +102,5 @@ clean :
 distclean : clean
 	rm -rf $(CONFIG_GENERATED)
 
-realclean : clean
+maintainer-clean : clean
 	rm -rf $(CONFIG_GENERATED) configure

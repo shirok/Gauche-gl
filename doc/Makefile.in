@@ -93,5 +93,5 @@ clean:
 distclean : clean
 	rm -rf $(GENERATED)
 
-realclean : clean
+maintainer-clean : clean
 	rm -f gauche-gl-ref*.html gauche-gl-ref.dvi Makefile $(GENERATED) $(EXTRACTED)

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.7 2002-09-29 02:04:53 shirok Exp $
+ *  $Id: math3d.h,v 1.8 2002-09-29 05:56:27 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -202,20 +202,20 @@ SCM_CLASS_DECL(Scm_QuatfClass);
 #define SCM_QUATF_NORMV(p)     SCM_VECTOR4F_NORMV(p)
 
 /* SCM_QUATF_NORMALIZE(float p[4]) */
-#define SCM_QUATF_NORMALIZEV(p)                  \
-    do {                                        \
-        float siz__ = SCM_QUATF_NORMV(p);        \
-        if (siz__ != 0.0) {                     \
-            SCM_VECTOR4F_OP(i__, p[i__] /= siz__);  \
-        } else {                                \
-            p[0]=p[1]=p[2]=0.0;                 \
-            p[3]=1.0;                           \
-        }                                       \
+#define SCM_QUATF_NORMALIZEV(p)                         \
+    do {                                                \
+        float siz__ = SCM_QUATF_NORMV(p);               \
+        if (siz__ != 0.0) {                             \
+            SCM_VECTOR4F_OP(i__, p[i__] /= siz__);      \
+        } else {                                        \
+            p[0]=p[1]=p[2]=0.0;                         \
+            p[3]=1.0;                                   \
+        }                                               \
     } while (0)
 
 extern ScmObj Scm_MakeQuatf(float x, float y, float z, float w);
 extern ScmObj Scm_MakeQuatfv(const float d[4]);
-extern ScmObj Scm_MakeQuatfV(ScmF32Vector *v);
+extern ScmObj Scm_MakeQuatfvShared(float d[4]);
 extern ScmObj Scm_ListToQuatf(ScmObj l);
 extern ScmObj Scm_QuatfToList(const ScmQuatf *q);
 
@@ -229,8 +229,14 @@ extern ScmObj Scm_QuatfNormalize(const ScmQuatf *q);
 extern ScmObj Scm_QuatfNormalizev(float *q);
 extern ScmObj Scm_QuatfNormalizeX(ScmQuatf *q);
 
-extern void   Scm_QuatfToMatrixv(float *r, const float *q);
-extern ScmObj Scm_QuatfToMatrix(const ScmQuatf *q);
+/* q[] must be a unit quaternion */
+extern void   Scm_QuatfToMatrixv(float *m, const float *q);
+
+/* m[] must be an orthogonal matrix */
+extern void   Scm_MatrixToQuatfv(float *q, const float *m);
+
+/* p[] and q[] must be unit quaternions */
+extern void   Scm_QuatfSlerp(float *r, const float *p, const float *q, float t);
 
 /*=============================================================
  * Matrix

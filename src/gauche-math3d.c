@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.7 2002-09-29 02:04:53 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.8 2002-09-29 05:56:25 shirok Exp $
  */
 
 #include <gauche.h>
@@ -675,14 +675,11 @@ ScmObj Scm_MakeQuatfv(const float d[])
     else   return Scm_MakeQuatf(0.0, 0.0, 0.0, 1.0);
 }
 
-ScmObj Scm_MakeQuatfV(ScmF32Vector *fv)
+ScmObj Scm_MakeQuatfvShared(float d[])
 {
     ScmQuatf *v = SCM_NEW(ScmQuatf);
     SCM_SET_CLASS(v, SCM_CLASS_QUATF);
-    if (SCM_F32VECTOR_SIZE(fv) != 4) {
-        Scm_Error("f32vector of size 4 required, but got %S", fv);
-    }
-    SCM_QUATF_D(v) = SCM_F32VECTOR_ELEMENTS(fv); /* share storage */
+    SCM_QUATF_D(v) = d;
     return SCM_OBJ(v);
 }
 
@@ -764,6 +761,32 @@ ScmObj Scm_QuatfNormalizeX(ScmQuatf *p)
 {
     SCM_QUATF_NORMALIZEV(SCM_QUATF_D(p));
     return SCM_OBJ(p);
+}
+
+void Scm_QuatfToMatrixv(float m[], const float q[])
+{
+    float x2 = q[0]*q[0], y2 = q[1]*q[1], z2 = q[2]*q[2];
+    float xy = q[0]*q[1], yz = q[1]*q[2], zx = q[2]*q[0];
+    float xw = q[0]*q[3], yw = q[1]*q[3], zw = q[2]*q[3];
+    m[0] = 1-2*(x2+y2); m[4] = 2*(xy-zw); m[8] = 2*(zx+yw); m[12] = 0;
+    m[1] = 2*(xy+zw); m[5] = 1-2*(z2+x2); m[9] = 2*(yz-xw); m[13] = 0;
+    m[2] = 2*(zx-yw); m[6] = 2*(yz+xw); m[10] = 1-2*(x2+y2); m[14] = 0;
+    m[3] = 0; m[7] = 0; m[11] = 0; m[15] = 1;
+}
+
+void Scm_QuatfSlerp(float r[], const float p[], const float q[], float t)
+{
+    double cosphi = p[0]*q[0]+p[1]*q[1]+p[2]*q[2]+p[3]*q[3], phi, sinphi;
+    float cp, cq;
+        
+    phi = acos(cosphi);
+    sinphi = sin(phi);
+    if (sinphi < 1.0e-5 && sinphi > -1.0e-5) {
+        cp = 1.0 - t; cq = t;
+    } else {
+        cp = sin(phi*(1.0-t))/sinphi; cq = sin(phi*t)/sinphi;
+    }
+    SCM_VECTOR4F_OP(i, r[i] = cp*p[i] + cq*q[i]);
 }
 
 /*=============================================================

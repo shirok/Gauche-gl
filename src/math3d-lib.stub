@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.5 2002-09-29 02:04:53 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.6 2002-09-29 05:56:25 shirok Exp $
 ;;;
 
 "
@@ -50,7 +50,8 @@
 (define-cproc vector4f->list (v::<vector4f>)
   (return "Scm_Vector4fToList"))
 
-(define-cproc f32vector->vector4f (v::<f32vector> &optional (start::<fixnum> 0))
+(define-cproc f32vector->vector4f (v::<f32vector>
+                                   &optional (start::<fixnum> 0))
   "int size = SCM_F32VECTOR_SIZE(v);
   if (start < 0 || size-start < 4)
     Scm_Error(\"f32vector too small: %S (start=%d)\", v, start);
@@ -327,34 +328,93 @@
 (define-cproc quatf? (obj)
   (return <boolean> "SCM_QUATFP"))
 
-(define-cproc make-quatf (&optional init)
-  "if (SCM_UNBOUNDP(init)) {
+(define-cproc make-quatf (&optional vec (angle::<real> 0))
+  "if (SCM_UNBOUNDP(vec)) {
     SCM_RETURN(Scm_MakeQuatf(0.0, 0.0, 0.0, 1.0));
-  } else if (!SCM_F32VECTORP(init)) {
-    Scm_Error(\"f32vector required, but got %S\", init);
-  }
-  SCM_RETURN(Scm_MakeQuatfV(SCM_F32VECTOR(init)));")
+  } else {
+    float *q = NULL;
+    double sint;
+    if (SCM_VECTOR4FP(vec)) q = SCM_VECTOR4F_D(vec);
+    else if (SCM_F32VECTORP(vec) && SCM_F32VECTOR_SIZE(vec) > 3) {
+      q = SCM_F32VECTOR_ELEMENTS(vec);
+    } else {
+      Scm_Error(\"vector4f or f32vector is required, but got %S\", vec);
+    }
+    sint = sin(angle);
+    SCM_RETURN(Scm_MakeQuatf(sint*q[0], sint*q[1], sint*q[2], cos(angle)));
+  }")
 
 (define-cproc list->quatf (x)
   (return "Scm_ListToQuatf"))
 (define-cproc quatf->list (q::<quatf>)
   (return "Scm_QuatfToList"))
-;(define-cproc f32vector->quatf (x::<f32vector>)
-;  (return "Scm_F32VectorToQuatf"))
-;(define-cproc quatf->f32vector (q::<quatf>)
-;  (return "Scm_QuatfToF32Vector"))
+(define-cproc f32vector->quatf (x::<f32vector>
+                                &optional (start::<fixnum> 0))
+  "int size = SCM_F32VECTOR_SIZE(x);
+  if (start < 0 || size-start < 4)
+    Scm_Error(\"f32vector too small: %S (start=%d)\", x, start);
+  SCM_RETURN(Scm_MakeQuatfv(SCM_F32VECTOR_ELEMENTS(x)+start));")
+(define-cproc quatf->f32vector (q::<quatf>)
+  "ScmObj fv = Scm_MakeF32Vector(4, 0.0);
+  int i;
+  for (i=0; i<4; i++) SCM_F32VECTOR_ELEMENTS(fv)[i] = SCM_QUATF_D(q)[i];
+  SCM_RETURN(fv);")
 
 (define-cproc quatf-add (p::<quatf> q::<quatf>)
   (return "Scm_QuatfAdd"))
 (define-cproc quatf-sub (p::<quatf> q::<quatf>)
   (return "Scm_QuatfSub"))
+(define-cproc quatf-scale (q::<quatf> s::<real>)
+  "float *d = SCM_QUATF_D(q);
+  if (s == 0.0) Scm_Error(\"divide by zero\");
+  SCM_RETURN(Scm_MakeQuatf(d[0]/s, d[1]/s, d[2]/s, d[3]/s));")
+(define-cproc quatf-scale! (q::<quatf> s::<real>)
+  "float *d = SCM_QUATF_D(q);
+  if (s == 0.0) Scm_Error(\"divide by zero\");
+  d[0] /= s; d[1] /= s; d[2] /= s; d[3] /= s;
+  SCM_RETURN(SCM_OBJ(q));")
+
 (define-cproc quatf-mul (p::<quatf> q::<quatf>)
   (return "Scm_QuatfMul"))
+
+;; calculate qpq*
+(define-cproc quatf-transform (quat::<quatf> v)
+  "float *d = NULL, *q, qconj[4], s[4], r[4];
+  if (SCM_VECTOR4FP(v)) d = SCM_VECTOR4F_D(v);
+  else if (SCM_POINT4FP(v)) d = SCM_POINT4F_D(v);
+  else if (SCM_F32VECTORP(v) && SCM_F32VECTOR_SIZE(v) >= 4) d = SCM_F32VECTOR_ELEMENTS(v);
+  else Scm_Error(\"vector4f, point4f or f32vector of size 4 is required, but got %S\", v);
+  q = SCM_QUATF_D(quat);
+  qconj[0] = -q[0]; qconj[1] = -q[1]; qconj[2] = -q[2]; qconj[3] = q[3];
+  Scm_QuatfMulv(s, q, d);
+  Scm_QuatfMulv(r, s, qconj);
+  SCM_RETURN(Scm_MakeQuatfv(r));")
+
+(define-cproc quatf-conjugate (q::<quatf>)
+  "float *d = SCM_QUATF_D(q);
+  SCM_RETURN(Scm_MakeQuatf(-d[0], -d[1], -d[2], d[3]));")
+(define-cproc quatf-norm (q::<quatf>)
+  "SCM_RETURN(Scm_MakeFlonum(SCM_QUATF_NORMV(SCM_QUATF_D(q))));")
 (define-cproc quatf-normalize (q::<quatf>)
   (return "Scm_QuatfNormalize"))
 (define-cproc quatf-normalize! (q::<quatf>)
   (return "Scm_QuatfNormalizeX"))
 
+(define-cproc quatf->matrix4f (q::<quatf>)
+  "float m[16];
+  Scm_QuatfToMatrixv(m, SCM_QUATF_D(q));
+  SCM_RETURN(Scm_MakeMatrix4fv(m));")
+(define-cproc quatf->matrix4f! (m::<matrix4f> q::<quatf>)
+  "Scm_QuatfToMatrixv(SCM_MATRIX4F_D(m), SCM_QUATF_D(q));
+  SCM_RETURN(SCM_OBJ(m));")
+
+(define-cproc quatf-slerp (p::<quatf> q::<quatf> t::<real>)
+  "float r[4];
+  Scm_QuatfSlerp(r, SCM_QUATF_D(q), SCM_QUATF_D(p), t);
+  SCM_RETURN(Scm_MakeQuatfv(r));")
+(define-cproc quatf-slerp! (r::<quatf> p::<quatf> q::<quatf> t::<real>)
+  "Scm_QuatfSlerp(SCM_QUATF_D(r), SCM_QUATF_D(p), SCM_QUATF_D(p), t);
+  SCM_RETURN(SCM_OBJ(r));")
 
 ;; Local variables:
 ;; mode: scheme

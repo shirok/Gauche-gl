@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.24 2002-09-13 05:56:15 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.25 2002-09-13 07:05:49 shirok Exp $
 ;;;
 
 "
@@ -1405,9 +1405,27 @@
   "glBindTexture(target, name);
   SCM_RETURN(SCM_UNDEFINED);")
 
-; gl-prioritize-textures
+(define-cproc gl-prioritize-textures (n::<fixnum>
+                                      names
+                                      priorities)
+  "if (n < 0) Scm_Error(\"argument out of range: %d\", n);
+  if (!SCM_U32VECTORP(names)) Scm_Error(\"u32vector required, but got %S\", names);
+  if (n > SCM_U32VECTOR_SIZE(names)) Scm_Error(\"texture name vector length doesn't match the given size %d: %S\", n, names);
+  if (!SCM_F32VECTORP(priorities)) Scm_Error(\"f32vector required, but got %S\", priorities);
+  if (n > SCM_F32VECTOR_SIZE(priorities)) Scm_Error(\"priority vector length doesn't match the given size %d: %S\", n, priorities);
+  glPrioritizeTextures(n, SCM_U32VECTOR_ELEMENTS(names), SCM_F32VECTOR_ELEMENTS(priorities));
+  SCM_RETURN(SCM_UNDEFINED);")
 
-; gl-are-textures-resident 
+(define-cproc gl-are-textures-resident (n::<fixnum> names)
+  "GLboolean res_static[32], *res = res_static; ScmObj r; int i;
+  if (n < 0) Scm_Error(\"argument out of range: %d\", n);
+  if (!SCM_U32VECTORP(names)) Scm_Error(\"u32vector required, but got %S\", names);
+  if (n > SCM_U32VECTOR_SIZE(names)) Scm_Error(\"texture name vector length doesn't match the given size %d: %S\", n, names);
+  if (n > 32) res = SCM_NEW_ATOMIC2(GLboolean*, n*sizeof(GLboolean));
+  glAreTexturesResident(n, SCM_U32VECTOR_ELEMENTS(names), res);
+  r = Scm_MakeVector(n, SCM_FALSE);
+  for (i=0; i<n; i++) if (res[i]) SCM_VECTOR_ELEMENTS(r)[i] = SCM_TRUE;
+  SCM_RETURN(r);")
 
 (define-cproc gl-is-texture (name::<int>)
   "SCM_RETURN(SCM_MAKE_INT(glIsTexture(name)));")

@@ -1,0 +1,85 @@
+;; Example 6-5 Five Fogged Spheres in RGBA Mode
+
+(use gl)
+(use gl.glut)
+
+(define *fog-mode* GL_EXP)
+
+(define (init)
+  (gl-enable GL_DEPTH_TEST)
+  (gl-light GL_LIGHT0 GL_POSITION '#f32(0.5 0.5 3.0 0.0))
+  (gl-enable GL_LIGHTING)
+  (gl-enable GL_LIGHT0)
+  
+  (gl-material GL_FRONT GL_AMBIENT '#f32(0.1745 0.01175 0.01175 0.0))
+  (gl-material GL_FRONT GL_DIFFUSE '#f32(0.61424 0.04136 0.04136 0.0))
+  (gl-material GL_FRONT GL_SPECULAR '#f32(0.727811 0.626959 0.626959 0.0))
+  (gl-material GL_FRONT GL_SHININESS (* 0.6 128))
+
+  (gl-enable GL_FOG)
+  (gl-fog GL_FOG_MODE GL_EXP)
+  (gl-fog GL_FOG_COLOR '#f32(0.5 0.5 0.5 1.0))
+  (gl-fog GL_FOG_DENSITY 0.35)
+  (gl-hint GL_FOG_HINT GL_DONT_CARE)
+  (gl-fog GL_FOG_START 1.0)
+  (gl-fog GL_FOG_END 5.0)
+
+  (gl-clear-color 0.5 0.5 0.5 1.0)
+  )
+
+(define (render-sphere x y z)
+  (gl-push-matrix)
+  (gl-translate x y z)
+  (glut-solid-sphere 0.4 16 16)
+  (gl-pop-matrix))
+
+(define (display)
+  (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+  (render-sphere -2.0 -0.5 -1.0)
+  (render-sphere -1.0 -0.5 -2.0)
+  (render-sphere 0.0 -0.5 -3.0)
+  (render-sphere 1.0 -0.5 -4.0)
+  (render-sphere 2.0 -0.5 -5.0)
+  (gl-flush)
+  )
+
+(define (reshape w h)
+  (gl-viewport 0 0 w h)
+  (gl-matrix-mode GL_PROJECTION)
+  (gl-load-identity)
+  (if (<= w h)
+      (gl-ortho -2.5 2.5 (* -2.5 (/ h w)) (* 2.5 (/ h w)) -10.0 10.0)
+      (gl-ortho (* -2.5 (/ w h)) (* 2.5 (/ w h)) -2.5 2.5 -10.0 10.0))
+  (gl-matrix-mode GL_MODELVIEW)
+  (gl-load-identity)
+  )
+
+(define (keyboard key x y)
+  (cond
+   ((or (= key (char->integer #\f))
+        (= key (char->integer #\F)))
+    (receive (next-mode next-mode-name)
+        (apply values
+               (cdr (assv *fog-mode*
+                          `((,GL_EXP    ,GL_EXP2 GL_EXP2)
+                            (,GL_EXP2   ,GL_LINEAR GL_LINEAR)
+                            (,GL_LINEAR ,GL_EXP GL_EXP)))))
+      (print #`"Fog mode is ,|next-mode-name|")
+      (set! *fog-mode* next-mode)
+      (gl-fog GL_FOG_MODE *fog-mode*))
+    (glut-post-redisplay))
+   ((= key 27)                          ;ESC
+    (exit 0)))
+  )
+
+(define (main args)
+  (glut-init args)
+  (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB GLUT_DEPTH))
+  (glut-init-window-size 500 500)
+  (glut-create-window (car args))
+  (init)
+  (glut-reshape-func reshape)
+  (glut-keyboard-func keyboard)
+  (glut-display-func display)
+  (glut-main-loop)
+  0)

@@ -1,6 +1,6 @@
 #
 # Makefile.in for Gauche-gl/src
-#  $Id: Makefile.in,v 1.28 2003-10-10 02:19:46 shirok Exp $
+#  $Id: Makefile.in,v 1.29 2004-04-23 12:12:05 shirok Exp $
 #
 
 # prelude ---------------------------------------------
@@ -30,10 +30,9 @@ OBJEXT   = @OBJEXT@
 SOEXT    = @SOEXT@
 OLIBS    = @LIBS@
 LIBS     = @GL_LIBS@ @LIBS@ @X_LIBS@ @X_PRE_LIBS@ @X_EXTRA_LIBS@ @X_LIBS@ 
-INSTALL  = @INSTALL@
+INSTALL  = @GAUCHE_INSTALL@
 GOSH     = @GOSH@
 GAUCHE_CONFIG = @GAUCHE_CONFIG@
-MKINSTDIR = $(top_srcdir)/mkinstalldirs
 
 INSTALL_TYPE = @INSTALL_TYPE@
 HEADER_INSTALL_DIR  = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)incdir`
@@ -56,11 +55,11 @@ GLUTOBJS = glut_head.$(OBJEXT) gauche-glut.$(OBJEXT) \
 MATHOBJS = math3d_head.$(OBJEXT) gauche-math3d.$(OBJEXT) \
            math3d-lib.$(OBJEXT) math3d_tail.$(OBJEXT)
 OBJS = $(GLOBJS) $(GLUTOBJS) $(MATHOBJS)
-CONFIG_GENERATED = Makefile config.cache config.log config.status \
-                   gl_head.c gl_tail.c glut_head.c glut_tail.c \
-		   math3d_head.c math3d_tail.c
+CONFIG_GENERATED = Makefile config.cache config.log config.status
 GENERATED = gl-lib.c gl-syms.c glu-lib.c glut-lib.c \
-            math3d-lib.c gettype-sizes.c 
+            math3d-lib.c gettype-sizes.c \
+            gl_head.c gl_tail.c glut_head.c glut_tail.c \
+            math3d_head.c math3d_tail.c
 
 all : $(TARGET)
 
@@ -90,6 +89,15 @@ glut-lib.c : glut-lib.stub
 
 $(GLUTOBJS) : gauche-glut.h
 
+gl_head.c gl_tail.c : 
+	$(GAUCHE_CONFIG) --fixup-extension gl gauche_gl
+
+glut_head.c glut_tail.c : 
+	$(GAUCHE_CONFIG) --fixup-extension glut gauche_glut
+
+math3d_head.c math3d_tail.c : 
+	$(GAUCHE_CONFIG) --fixup-extension math3d gauche_math3d
+
 # tests -----------------------------------------------
 
 check : all
@@ -99,27 +107,10 @@ check : all
 
 # install ----------------------------------------------
 
-INSTALL_DIRS = $(HEADER_INSTALL_DIR)/gauche \
-               $(SCM_INSTALL_DIR) \
-               $(ARCH_INSTALL_DIR)
-
 install : all
-	$(MKINSTDIR) $(INSTALL_DIRS)
-	@for f in $(HEADERS) _end; do \
-	  if test $$f != _end; then \
-	    $(INSTALL) -m 444 $$f $(HEADER_INSTALL_DIR)/$$f; \
-	  fi; \
-	done
-	@for f in $(SCMFILES) _end; do \
-	  if test $$f != _end; then \
-	    $(INSTALL) -m 444 $$f $(SCM_INSTALL_DIR); \
-	  fi; \
-	done
-	@for f in $(ARCHFILES) _end; do \
-	  if test $$f != _end; then \
-	    $(INSTALL) -m 555 $$f $(ARCH_INSTALL_DIR); \
-	  fi; \
-	done
+	$(INSTALL) -m 444 -T $(HEADER_INSTALL_DIR) $(HEADERS)
+	$(INSTALL) -m 444 -T $(SCM_INSTALL_DIR) $(SCMFILES)
+	$(INSTALL) -m 555 -T $(ARCH_INSTALL_DIR) $(ARCHFILES)
 
 # clean ------------------------------------------------
 

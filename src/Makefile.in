@@ -12,10 +12,11 @@ SCMFILES =
 HEADERS = 
 
 TARGET = gauche-gl.so gauche-glut.so
-GLOBJS = gauche-gl.o gl-lib.o glu-lib.o
-GLUTOBJS = gauche-glut.o glut-lib.o
+GLOBJS = gl_head.o gauche-gl.o gl-lib.o glu-lib.o gl_tail.o
+GLUTOBJS = glut_head.o gauche-glut.o glut-lib.o glut_tail.o
 OBJS = $(GLOBJS) $(GLUTOBJS)
-CONFIG_GENERATED = Makefile config.cache config.log config.status
+CONFIG_GENERATED = Makefile config.cache config.log config.status \
+                   gl_head.c gl_tail.c glut_head.c glut_tail.c
 GENERATED = gl-lib.c glu-lib.c glut-lib.c gettype-sizes.c 
 
 INSTALL_TYPE = @INSTALL_TYPE@

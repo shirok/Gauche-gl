@@ -1,7 +1,7 @@
 ;;;
 ;;; math3d-lib.stub - 3d vector arithmetics
 ;;;
-;;;  Copyright(C) 2002 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2002-2003 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.19 2003-01-06 09:23:51 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.20 2003-01-06 12:23:36 shirok Exp $
 ;;;
 
 "
@@ -493,6 +493,26 @@
                                      &optional order)
   "Scm_EulerToMatrix4fv(SCM_MATRIX4F_D(m), (float)x, (float)y, (float)z,
                        rotation_order(order));")
+
+
+(define-cproc matrix4f-decompose (m::<matrix4f>)
+  "float T[4], S[4], H[4], R[16]; int r;
+  r = Scm_Matrix4fDecomposev(SCM_MATRIX4F_D(m), T, R, H, S);
+  SCM_RETURN(Scm_Values5(SCM_MAKE_BOOL(r),
+                         Scm_MakeVector4fv(T),
+                         Scm_MakeMatrix4fv(R),
+                         Scm_MakeVector4fv(H),
+                         Scm_MakeVector4fv(S)));")
+
+(define-cproc matrix4f-decompose! (m::<matrix4f> T::<vector4f> R::<matrix4f>
+                                   H::<vector4f> S::<vector4f>)
+  "int r;
+  r = Scm_Matrix4fDecomposev(SCM_MATRIX4F_D(m), 
+                             SCM_VECTOR4F_D(T),
+                             SCM_MATRIX4F_D(R),
+                             SCM_VECTOR4F_D(H),
+                             SCM_VECTOR4F_D(S));
+  SCM_RETURN(SCM_MAKE_BOOL(r));")
 
 ;; Quatf ----------------------------------------------------
 

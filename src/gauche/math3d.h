@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.17 2003-01-06 09:23:51 shirok Exp $
+ *  $Id: math3d.h,v 1.18 2003-01-06 12:23:36 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -299,6 +299,11 @@ extern void   Scm_Matrix4fToQuatfv(float *q, const float *m);
 
 /* p[] and q[] must be unit quaternions */
 extern void   Scm_QuatfSlerp(float *r, const float *p, const float *q, float t);
+
+/* Decompose matrix m to translation vector T, rotation matrix R,
+   shear vector H, and scale vector S. */
+int Scm_Matrix4fDecomposev(const float m[], float T[], float R[],
+                           float H[], float S[]);
 
 /*=============================================================
  * Matrix

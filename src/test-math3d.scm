@@ -343,6 +343,40 @@
   (euler-tester 'zyx Rz Ry Rx)
   )
 
+;; matrix decompose
+(define (matrix-decompose-tester name T R H S)
+  (test name #t
+        (lambda ()
+          (let* ((tmat (translation->matrix4f T))
+                 (smat (scale->matrix4f S))
+                 (mat  (matrix4f-mul tmat (matrix4f-mul R smat))))
+            (receive (f t r h s)
+                (matrix4f-decompose mat)
+              (print r)
+              (print R)
+              (print h)
+              (print s)
+              (and f
+                   (nearly=? t T)
+                   (nearly=? r R)
+                   (nearly=? h H)
+                   (nearly=? s S)))))))
+
+(matrix-decompose-tester
+ "matrix-decompose"
+ (vector4f 1 3 2)
+ (rotation->matrix4f (vector4f-normalize (vector4f 3 8 -1)) (* 264 pi/180))
+ (vector4f 0 0 0 0)
+ (vector4f 1.1 0.5 0.2))
+
+(matrix-decompose-tester
+ "matrix-decompose (flip)"
+ (vector4f 9 2 4)
+ (rotation->matrix4f (vector4f-normalize (vector4f 6 0 2)) (* 82 pi/180))
+ (vector4f 0 0 0 0)
+ (vector4f -1 -2 -3))
+
+
 ;; sequence access
 (test "sequence"
       '(1.0 2.0 3.0 4.0 -1.0 -2.0 -3.0 -4.0 4.0 3.0 2.0 1.0 -4.0 -3.0 -2.0 -1.0)

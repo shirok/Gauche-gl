@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.18 2003-01-06 09:23:51 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.19 2003-01-06 12:23:36 shirok Exp $
  */
 
 #include <gauche.h>
@@ -901,6 +901,108 @@ void Scm_EulerToMatrix4fv(float m[], float x, float y, float z, int order)
     m[13] = 0.0;
     m[14] = 0.0;
     m[15] = 1.0;
+}
+
+/*
+ * Matrix decomposition
+ *
+ *  The algorithm is taken from Thomas, Spencer W., Decomposing a Matrix
+ *  Into Simple Transformations, Graphics Gems II, p. 320-323
+ *
+ * Decompose matrix m to translation vector T, rotation matrix R,
+ * shear vector H, and scale vector S.
+ * Further decomposition of rotation matrix R can be done in separate
+ * function.
+ *
+ *  T = [tx, ty, tz, 0]
+ *  S = [sx, sy, sz, 0] 
+ *  H = [shear_yz, shear_zx, shear_xy, 0]
+ *
+ * Returns TRUE if m is non-singular, or FALSE if m is singular.
+ */
+int Scm_Matrix4fDecomposev(const float m[], float T[], float R[],
+                           float H[], float S[])
+{
+    float r[3][4], temp[4], det;
+    int i;
+
+    /* Translation part is easy */
+    T[0] = m[12]; T[1] = m[13]; T[2] = m[14]; T[3] = 0.0;
+
+    /* prepare three row vectors */
+    for (i=0; i<3; i++) {
+        r[i][0] = m[i*4];
+        r[i][1] = m[i*4+1];
+        r[i][2] = m[i*4+2];
+        r[i][3] = 0.0;
+    }
+
+    /* Scale X */
+    S[0] = SCM_VECTOR4F_NORMV(r[0]);
+    if (S[0] != 0.0) {
+        SCM_VECTOR4F_OP(_, r[0][_] /= S[0]); /* normalize */
+    }
+
+    /* Shear XY */
+    H[0] = SCM_VECTOR4F_DOTV(r[0], r[1]);
+    r[1][0] -= H[2]*r[0][0];
+    r[1][1] -= H[2]*r[0][1];
+    r[1][2] -= H[2]*r[0][2];
+    
+    /* Scale Y */
+    S[1] = SCM_VECTOR4F_NORMV(r[1]);
+    if (S[1] != 0.0) {
+        SCM_VECTOR4F_OP(_, r[1][_] /= S[1]); /* normalize */
+        H[2] /= S[1];
+    }
+
+    /* Shear XZ */
+    H[1] = SCM_VECTOR4F_DOTV(r[0], r[2]);
+    r[2][0] -= H[1]*r[0][0];
+    r[2][1] -= H[1]*r[0][1];
+    r[2][2] -= H[1]*r[0][2];
+
+    /* Shear YZ */
+    H[2] = SCM_VECTOR4F_DOTV(r[1], r[2]);
+    r[2][0] -= H[2]*r[1][0];
+    r[2][1] -= H[2]*r[1][1];
+    r[2][2] -= H[2]*r[1][2];
+    
+    /* Scale Z */
+    S[2] = SCM_VECTOR4F_NORMV(r[2]);
+    if (S[2] != 0.0) {
+        SCM_VECTOR4F_OP(_, r[2][_] /= S[2]); /* normalize */
+        H[1] /= S[2];
+        H[2] /= S[2];
+    }
+    
+    S[3] = H[3] = 0.0;
+
+    /* Adjust if flipped */
+    SCM_VECTOR4F_CROSSV(temp, r[1], r[2]);
+    det = SCM_VECTOR4F_DOTV(r[0], temp);
+    if (det < 0.0) {
+        for (i=0; i<3; i++) {
+            S[i] = -S[i];
+            r[i][0] = -r[i][0];
+            r[i][1] = -r[i][1];
+            r[i][2] = -r[i][2];
+        }
+    }
+    if (r[0][2] < -1.0) r[0][2] = -1.0;
+    if (r[0][2] >  1.0) r[0][2] =  1.0;
+
+    /* Store rotation matrix */
+    for (i=0; i<3; i++) {
+        R[i*4]   = r[i][0];
+        R[i*4+1] = r[i][1];
+        R[i*4+2] = r[i][2];
+        R[i*4+3] = 0.0;
+    }
+    R[12] = R[13] = R[14] = 0.0; R[15] = 1.0;
+
+    if (S[0] == 0.0 || S[1] == 0.0 || S[2] == 0.0) return FALSE;
+    else return TRUE;
 }
 
 /*=============================================================

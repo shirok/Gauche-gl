@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.5 2003-01-06 06:15:03 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.6 2003-01-06 12:23:36 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -1132,10 +1132,10 @@ scale, specified by @var{translation}, @var{rotation-axis},
 @var{rotation-angle} and @var{scale}.
 The destructive version updates @var{m}.
 
-If @code{@var{T}}, @code{@var{R}} and @code{@var{S}}, are
+If @code{@i{T}}, @code{@i{R}} and @code{@i{S}}, are
 the matrices that represent translation, rotation and scale, respectively,
 then these procedures effectively calculates
-a matrix @code{@var{TRS}}. 
+a matrix @code{@i{TRS}}. 
 @end defun
 
 @defun tqs->matrix4f translation rotation-quat scale
@@ -1144,6 +1144,65 @@ A variation of @code{trs->matrix4f}.  Instead of axis and angle,
 rotation is represented by a quaternion @var{rotation-quat}.
 @xref{Quaternions}, for more details about quaternions.
 @end defun
+
+@defun euler-angle->matrxi4f xangle yangle zangle &optional order
+@defunx euler-angle->matrxi4f! m xangle yangle zangle &optional order
+Returns a matrix that represents rotation along x, y and z axis
+by @var{xangle}, @var{yangle}, and @var{zangle}, respectively.
+
+The order of rotation can be specified by the optional argument
+@var{order}, which may be one of the symbols @code{xyz}, @code{xzy},
+@code{yzx}, @code{yxz}, @code{zxy}, or @code{zyx}.  For example,
+symbol @code{xyz} means rotation around x-axis, then y-axis, then
+z-axis.  Thus, if we write each rotation as @i{Rx}, @i{Ry}, and
+@i{Rz}, the returned matrix is @i{RzRyRx}.
+The default value of @var{order} is @code{xyz}.
+
+The desrtuctive version modifies @var{m}.
+@end defun
+
+@defun matrix4f-decompose m
+Matrix @var{m} is a composition of translation, rotation, shear and
+scale.  Suppose transformation is applied in the reverse order.
+This procedure decompose @var{m} into each individual transformation.
+
+Returns five values.
+@itemize @bullet
+@item
+A flag to indicate if @var{m} is non-singular.
+@item
+A translation vector @var{t}, in vector4f.  The first three elements
+of @var{t} are for x, y, and z translations.
+@item
+A rotation matrix @var{r}, in matrix4f.
+This is an orthogonal matrix represents rotation component.
+@item
+A shear vector @var{h}, in vector4f.  The first three elements
+of @var{h} are for xy, xz and yz shear factors.
+@item
+A scale vector @var{s}, in vector4f.  The first three elements
+of @var{s} are fof x, y, and z scale factors.
+@end itemize
+
+If @var{m} is singular, certain part of rotation matrix can't 
+be recovered.   In such a case, @var{r} becomes also singular matrix.
+
+If the original matrix has negative scale factor in any of 
+x, y, or z scale, the decomposed scale factor will have all negative
+components.  The signs of elements of @var{r} are adjusted accordingly.
+
+Due to the precision errors,
+you will see small values appear in shear component even @var{m} is
+pure TRS matrix.
+@end defun
+
+@defun matrix4f-decompose! m t r h s
+Linear update version of @code{matrix4f-decompose}.
+The result vectors and matrices are stored in @var{t}, @var{r}, @var{h}
+and @var{s}.  The return value is a boolean value indicates
+@var{m} is non-singular or not.
+@end defun
+
 
 @c ----------------------------------------------------------------------
 @node Quaternions,  , Matrices, 3D vectors and matrices
@@ -1165,7 +1224,7 @@ Returns true iff @var{obj} is a quaternion.
 
 @deftp {Reader syntax} @code{#,(quatf @var{x} @var{y} @var{z} @var{w})}
 External representation of quaternion
-@var{x}@b{i}+@var{y}@b{j}+@var{z}@b{k}+@var{w}.
+@i{x}@b{i}+@i{y}@b{j}+@i{z}@b{k}+@i{w}.
 @end deftp
 
 @defun make-quatf &optional axis (angle 0)

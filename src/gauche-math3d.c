@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.4 2002-09-27 21:11:30 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.5 2002-09-27 21:51:58 shirok Exp $
  */
 
 #include <gauche.h>
@@ -45,7 +45,7 @@ static ScmClass *sequenceCPL[] = {
  */
 static void vec_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
-    Scm_Printf(out, "#,(vec4 %gf %g %g %g)",
+    Scm_Printf(out, "#,(<3dvector> %gf %g %g %g)",
                SCM_3DVECTOR_D(obj)[0],
                SCM_3DVECTOR_D(obj)[1],
                SCM_3DVECTOR_D(obj)[2],
@@ -114,7 +114,7 @@ static void list2vec(ScmObj l, float *d, float init3)
         d[3] = (float)Scm_GetDouble(SCM_CAR(lp));
         lp = SCM_CDR(lp);
     } else {
-        d[3] = 0.0;
+        d[3] = init3;
     }
     if (SCM_NULLP(lp)) return;
   badlist:
@@ -212,7 +212,7 @@ static void vec_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
     Scm3DVectorArray *va = SCM_3DVECTOR_ARRAY(obj);
     int len = SCM_3DVECTOR_ARRAY_SIZE(va), i;
-    Scm_Printf(out, "#,(vec4-array %d ", len);
+    Scm_Printf(out, "#,(<3dvecor-array> %d ", len);
     for (i = 0; i < len; i++) {
         float *z = Scm_3DVectorArrayRefv(va, i);
         Scm_Printf(out, "(%g %g %g %g) ", z[0], z[1], z[2], z[3]);
@@ -306,7 +306,7 @@ void Scm_3DVectorArraySetv(Scm3DVectorArray *a, int n, float d[])
  */
 static void point_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
-    Scm_Printf(out, "#,(point4 %g %g %g %g)",
+    Scm_Printf(out, "#,(<3dpoint> %g %g %g %g)",
                SCM_3DVECTOR_D(obj)[0],
                SCM_3DVECTOR_D(obj)[1],
                SCM_3DVECTOR_D(obj)[2],
@@ -377,7 +377,7 @@ ScmObj Scm_3DPointSub(const Scm3DVector *p, const ScmObj q)
         SCM_3DVECTOR_SUBV(r, SCM_3DPOINT_D(p), SCM_3DVECTOR_D(q));
         return Scm_Make3DPointv(r);
     }
-    Scm_Error("<point4> or <vec4> required, but got %S", q);
+    Scm_Error("<3dpoint> or <3dvector> required, but got %S", q);
     return SCM_UNDEFINED;
 }
 
@@ -389,7 +389,7 @@ static void point_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
     Scm3DPointArray *va = SCM_3DPOINT_ARRAY(obj);
     int len = SCM_3DPOINT_ARRAY_SIZE(va), i;
-    Scm_Printf(out, "#,(point4-array %d ", len);
+    Scm_Printf(out, "#,(<3dpoint-array> %d ", len);
     for (i = 0; i < len; i++) {
         float *z = Scm_3DPointArrayRefv(va, i);
         Scm_Printf(out, "(%g %g %g %g) ", z[0], z[1], z[2], z[3]);
@@ -475,7 +475,7 @@ static void mat_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
     int i;
     Scm3DMatrix *m = SCM_3DMATRIX(obj);
-    Scm_Printf(out, "#,(mat4");
+    Scm_Printf(out, "#,(<3dmatrix>");
     for (i=0; i<16; i++) {
         Scm_Printf(out, " %g", SCM_3DMATRIX_D(m)[i]);
     }
@@ -611,7 +611,7 @@ ScmObj Scm_3DMatrixScale(const Scm3DMatrix *m, double f)
  */
 static void quat_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
 {
-    Scm_Printf(out, "#,(quat %g %g %g %g)",
+    Scm_Printf(out, "#,(<quat> %g %g %g %g)",
                SCM_QUAT_D(obj)[0],
                SCM_QUAT_D(obj)[1],
                SCM_QUAT_D(obj)[2],
@@ -778,6 +778,6 @@ void Scm_Init_gauche_math3d(void)
     Scm_InitBuiltinClass(&Scm_QuatClass, "<quat>",
                          NULL, sizeof(ScmQuat)/sizeof(ScmObj),
                          mod);
-/*    Scm_Init_math3d_lib(mod);*/
+    Scm_Init_math3d_lib(mod);
 }
 

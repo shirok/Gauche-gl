@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.1 2002-09-27 21:11:30 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.2 2002-09-27 21:51:58 shirok Exp $
 ;;;
 
 "
@@ -50,11 +50,17 @@
 (define-cproc 3dvector->list (v::<3dvector>)
   (return "Scm_3DVectorToList"))
 
-;(define-cproc f32vector->vector (v::<f32vector>)
-;  (return "Scm_F32VectorToVector"))
-
-;(define-cproc 3dvector->f32vector (v::<3dvector>)
-;  (return "Scm_3DVectorToF32Vector"))
+(define-cproc f32vector->3dvector (v::<f32vector> &optional (start::<fixnum> 0))
+  "int size = SCM_F32VECTOR_SIZE(v);
+  if (start < 0 || size-start < 4)
+    Scm_Error(\"f32vector too small: %S (start=%d)\", v, start);
+  SCM_RETURN(Scm_Make3DVectorv(SCM_F32VECTOR_ELEMENTS(v)+start));")
+  
+(define-cproc 3dvector->f32vector (v::<3dvector>)
+  "ScmObj fv = Scm_MakeF32Vector(4, 0.0);
+  int i;
+  for (i=0; i<4; i++) SCM_F32VECTOR_ELEMENTS(fv)[i] = SCM_3DVECTOR_D(v)[i];
+  SCM_RETURN(fv);")
 
 (define-cproc 3dvector-ref (x::<3dvector> i::<fixnum> &optional fallback)
   "if (i < 0 || i > 3) {

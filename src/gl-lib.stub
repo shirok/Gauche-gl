@@ -1,7 +1,7 @@
 ;;;
 ;;; gl-lib.stub - glue functions for GL
 ;;;
-;;;  Copyright(C) 2000-2001 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,13 +12,11 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.2 2001-09-28 20:26:40 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.3 2001-09-30 03:38:37 shirok Exp $
 ;;;
 
 "
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glx.h>
+#include \"gauche-gl.h\"
 "
 
 ;; The functions are ordered in the same way as Mesa's header file.
@@ -28,18 +26,16 @@
 ;;
 
 (define-cproc gl-clear-index (c)
-  (assert (number? c))
-  "glClearIndex((GLfloat)Scm_GetDouble(c)); SCM_RETURN(SCM_UNDEFINED);")
+  (assert (real? c))
+  "glClearIndex((GLfloat)c);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-clear-color (r g b a)
-  (assert (number? r))
-  (assert (number? g))
-  (assert (number? b))
-  (assert (number? a))
-  "glClearColor((GLclampf)Scm_GetDouble(r),
-                (GLclampf)Scm_GetDouble(g),
-                (GLclampf)Scm_GetDouble(b),
-                (GLclampf)Scm_GetDouble(a));
+  (assert (real? r))
+  (assert (real? g))
+  (assert (real? b))
+  (assert (real? a))
+  "glClearColor((GLclampf)r, (GLclampf)g, (GLclampf)b, (GLclampf)a);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-clear (mask)
@@ -56,54 +52,59 @@
 
 (define-cproc gl-alpha-func (func ref)
   (assert (small-integer? func))
-  (assert (number? ref))
-  "glAlphaFunc((GLenum)SCM_INT_VALUE(func), (GLclampf)Scm_GetDouble(ref));
+  (assert (real? ref))
+  "glAlphaFunc((GLenum)func, (GLclampf)ref);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-blend-func (func factor)
   (assert (small-integer? func))
-  (assert (number? factor))
-  "glBlendFunc((GLenum)SCM_INT_VALUE(func), (GLclampf)Scm_GetDouble(factor));
+  (assert (real? factor))
+  "glBlendFunc((GLenum)func, (GLclampf)factor);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-logic-op (opcode)
   (assert (small-integer? opcode))
-  "glLogicOp((GLenum)SCM_INT_VALUE(opcode));
+  "glLogicOp((GLenum)opcode);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-cull-face (mode)
   (assert (small-integer? mode))
-  "glCullFace((GLenum)SCM_INT_VALUE(mode));
+  "glCullFace((GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-front-face (mode)
   (assert (small-integer? mode))
-  "glFrontFace((GLenum)SCM_INT_VALUE(mode));
+  "glFrontFace((GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-point-size (size)
-  (assert (number? size))
-  "glPointSize((GLfloat)Scm_GetDouble(size));
+  (assert (real? size))
+  "glPointSize((GLfloat)size);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-line-width (width)
-  (assert (number? width))
-  "glLineWidth((GLfloat)Scm_GetDouble(width));
+  (assert (real? width))
+  "glLineWidth((GLfloat)width);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-line-stipple (factor pat)
   (assert (small-integer? factor))
   (assert (small-integer? pat))
-  "glLineStipple((GLint)SCM_INT_VALUE(factor), (GLushort)SCM_INT_VALUE(pat));
+  "glLineStipple((GLint)factor, (GLushort)pat);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-polygon-mode (face mode)
   (assert (small-integer? face))
   (assert (small-integer? mode))
-  "glPolygonMode((GLenum)SCM_INT_VALUE(face), (GLenum)SCM_INT_VALUE(mode));
+  "glPolygonMode((GLenum)face, (GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
-;; glPolygonStipple
+(define-cproc gl-polygon-stipple (mask)
+  "  if (!SCM_U8VECTORP(mask) || SCM_U8VECTOR_SIZE(mask) != 128) {
+    Scm_Error(\"u8vector of size 128 required, but got %S\", mask);
+  }
+  glPolygonStipple(SCM_U8VECTOR_ELEMENTS(mask));
+  SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-edge-flag (flag)
   "glEdgeFlag(!SCM_FALSEP(flag));
@@ -111,44 +112,60 @@
 
 ;; glEdgeFlagv
 
-;; glScissor
+(define-cproc gl-scissor (x y width height)
+  (assert (exact? x))
+  (assert (exact? y))
+  (assert (exact? width))
+  (assert (exact? height))
+  "glScissor((GLint)x, (GLint)y, (GLsizei)width, (GLsizei)height);
+   SCM_RETURN(SCM_UNDEFINED);")
 
-;; glClipPlane
+(define-cproc gl-clip-plane (plane equation)
+  (assert (small-integer? plane))
+  "if (!SCM_F64VECTORP(equation) || SCM_F64VECTOR_SIZE(equation) != 4) {
+   Scm_Error(\"f64vector of size 4 required for EQUATION, but got %S\", equation);
+  }
+  glClipPlane(plane, SCM_F64VECTOR_ELEMENTS(equation));
+  SCM_RETURN(SCM_UNDEFINED);")
 
-;; glGetClipPlane
+(define-cproc gl-get-clip-plane (plane)
+  (assert (small-integer? plane))
+  "  ScmF64Vector *v = SCM_F64VECTOR(Scm_MakeF64Vector(4, 0.0));
+  glGetClipPlane(plane, SCM_F64VECTOR_ELEMENTS(v));
+  SCM_RETURN(SCM_OBJ(v));")
 
 (define-cproc gl-draw-buffer (mode)
   (assert (small-integer? mode))
-  "glDrawBuffer((GLenum)SCM_INT_VALUE(mode));
+  "glDrawBuffer((GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-read-buffer (mode)
   (assert (small-integer? mode))
-  "glReadBuffer((GLenum)SCM_INT_VALUE(mode));
+  "glReadBuffer((GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-enable (cap)
   (assert (small-integer? cap))
-  "glEnable((GLenum)SCM_INT_VALUE(cap));
+  "glEnable((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
   
 (define-cproc gl-disable (cap)
   (assert (small-integer? cap))
-  "glDisable((GLenum)SCM_INT_VALUE(cap));
+  "glDisable((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-is-enabled (cap)
   (assert (small-integer? cap))
-  "SCM_RETURN(SCM_MAKE_BOOL(glIsEnabled((GLenum)SCM_INT_VALUE(cap))));")
+  "SCM_RETURN(SCM_MAKE_BOOL(glIsEnabled((GLenum)cap)));")
 
 (define-cproc gl-enable-client-state (cap)
   (assert (small-integer? cap))
-  "glEnableClientState((GLenum)SCM_INT_VALUE(cap));
+  "glEnableClientState((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-disable-client-state (cap)
   (assert (small-integer? cap))
-  "glDisableClientState((GLenum)SCM_INT_VALUE(cap));
+  "glDisableClientState((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
 
 ;; glGetBooleanv
@@ -175,14 +192,14 @@
 
 (define-cproc gl-render-mode (mode)
   (assert (small-integer? mode))
-  "SCM_RETURN(Scm_MakeInteger(glRenderMode((GLenum)SCM_INT_VALUE(mode))));")
+  "SCM_RETURN(Scm_MakeInteger(glRenderMode((GLenum)mode)));")
 
 (define-cproc gl-get-error ()
   "SCM_RETURN(Scm_MakeInteger(glGetError()));")
 
 (define-cproc gl-get-string (name)
   (assert (small-integer? name))
-  "SCM_RETURN(Scm_MakeString(glGetString(SCM_INT_VALUE(name)), -1, -1, 0));")
+  "SCM_RETURN(Scm_MakeString(glGetString(name), -1, -1, 0));")
 
 (define-cproc gl-flush ()
   "glFlush();
@@ -192,15 +209,53 @@
   "glFinish();
    SCM_RETURN(SCM_UNDEFINED);")
 
-;; glHint
+(define-cproc gl-hint (target mode)
+  (assert (exact? target))
+  (assert (exact? mode))
+  "glHint(target, mode);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; Depth Buffer
 ;;
 
+(define-cproc gl-clear-depth (depth)
+  (assert (real? depth))
+  "glClearDepth((GLclampd)depth);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-depth-func (func)
+  (assert (small-integer? func))
+  "glDepthFunc((GLenum)func);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-depth-mask (flag)
+  "glDepthMask(!SCM_FALSEP(flag));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-depth-range (nearv farv)
+  (assert (real? nearv))
+  (assert (real? farv))
+  "glDepthRange((GLclampd)nearv, (GLclampd)farv);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 ;;=============================================================
 ;; Accumulation Buffer
 ;;
+
+(define-cproc gl-clear-accum (r g b a)
+  (assert (real? r))
+  (assert (real? g))
+  (assert (real? b))
+  (assert (real? a))
+  "glClearAccum((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-accum (op value)
+  (assert (small-integer? op))
+  (assert (real? value))
+  "glAccum((GLenum)op, (GLfloat)value);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; Transformation
@@ -211,8 +266,793 @@
   "glMatrixMode(SCM_INT_VALUE(mode));
    SCM_RETURN(SCM_UNDEFINED);")
 
+(define-cproc gl-ortho (left right bottom top nearv farv)
+  (assert (real? left))
+  (assert (real? right))
+  (assert (real? bottom))
+  (assert (real? top))
+  (assert (real? nearv))
+  (assert (real? farv))
+  "glOrtho((GLdouble)left, (GLdouble)right,
+           (GLdouble)bottom, (GLdouble)top,
+           (GLdouble)nearv, (GLdouble)farv);
+   SCM_RETURN(SCM_UNDEFINED);")
 
+(define-cproc gl-frustum (left right bottom top nearv farv)
+  (assert (real? left))
+  (assert (real? right))
+  (assert (real? bottom))
+  (assert (real? top))
+  (assert (real? nearv))
+  (assert (real? farv))
+  "glFrustum((GLdouble)left, (GLdouble)right,
+             (GLdouble)bottom, (GLdouble)top,
+             (GLdouble)nearv, (GLdouble)farv);
+   SCM_RETURN(SCM_UNDEFINED);")
 
+(define-cproc gl-viewport (x y width height)
+  (assert (small-integer? x))
+  (assert (small-integer? y))
+  (assert (small-integer? width))
+  (assert (small-integer? height))
+  "glViewport((GLint)x, (GLint)y, (GLsizei)width, (GLsizei)height);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-push-matrix ()
+  "glPushMatrix();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-pop-matrix ()
+  "glPopMatrix();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-load-identity ()
+  "glLoadIdentity();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-load-matrix (m)
+  "if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
+     glLoadMatrixf(SCM_F32VECTOR_ELEMENTS(m));
+  } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
+     glLoadMatrixd(SCM_F64VECTOR_ELEMENTS(m));
+  } else {
+     Scm_Error(\"f32vector or f64vector of length 16 is required, but got %S\",
+               m);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-rotate (angle x y z)
+  (assert (real? angle))
+  (assert (real? x))
+  (assert (real? y))
+  (assert (real? z))
+  "glRotated((GLdouble)angle, (GLdouble)x, (GLdouble)y, (GLdouble)z);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-scale (x y z)
+  (assert (real? x))
+  (assert (real? y))
+  (assert (real? z))
+  "glScaled((GLdouble)x, (GLdouble)y, (GLdouble)z);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-translate (x y z)
+  (assert (real? x))
+  (assert (real? y))
+  (assert (real? z))
+  "glTranslated((GLdouble)x, (GLdouble)y, (GLdouble)z);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;;=============================================================
+;; Display lists
+;;
+
+(define-cproc gl-is-list (list)
+  (assert (exact? list))
+  "SCM_RETURN(SCM_MAKE_BOOL(glIsList(list)));")
+
+(define-cproc gl-delete-lists (list range)
+  (assert (exact? list))
+  (assert (exact? range))
+  "glDeleteLists((GLuint)list, (GLsizei)range);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-gen-lists (range)
+  (assert (exact? range))
+  "GLuint r = glGenLists(range);
+   SCM_RETURN(Scm_MakeIntegerFromUI(r));")
+
+(define-cproc gl-new-list (list mode)
+  (assert (exact? list))
+  (assert (exact? mode))
+  "glNewList(list, mode);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-end-list ()
+  "glEndList();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-call-list (list)
+  (assert (exact? list))
+  "glCallList(list);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; glCallLists  
+
+(define-cproc gl-list-base (base)
+  (assert (exact? base))
+  "glListBase(base);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;;=============================================================
+;; Drawing functions
+;;
+
+(define-cproc gl-begin (mode)
+  (assert (small-integer? mode))
+  "glBegin(mode);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-end ()
+  "glEnd();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-vertex (v &rest args)
+  "if (SCM_F32VECTORP(v)) {
+     switch (SCM_F32VECTOR_SIZE(v)) {
+       case 3: glVertex3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 2: glVertex2fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 4: glVertex4fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_F64VECTORP(v)) {
+     switch (SCM_F64VECTOR_SIZE(v)) {
+       case 3: glVertex3dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 2: glVertex2dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 4: glVertex4dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_S32VECTORP(v)) {
+     switch (SCM_S32VECTOR_SIZE(v)) {
+       case 3: glVertex3iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 2: glVertex2iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 4: glVertex4iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_S16VECTORP(v)) {
+     switch (SCM_S16VECTOR_SIZE(v)) {
+       case 3: glVertex3sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 2: glVertex2sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 4: glVertex4sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else {
+     double val[4];
+     int nvals = Scm_GLGetDoubles(v, args, val, 4, 2);
+     switch (nvals) {
+       case 3: glVertex3dv(val);
+       case 2: glVertex2dv(val);
+       case 4: glVertex4dv(val);
+     }
+  }
+  SCM_RETURN(SCM_UNDEFINED);
+ badarg:
+  Scm_Error(\"bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 2, 3, or 4.\", v);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-normal (v &rest args)
+  "if (SCM_F32VECTORP(v) && SCM_F32VECTOR_SIZE(v) == 3) {
+     glNormal3fv(SCM_F32VECTOR_ELEMENTS(v));
+  } else if (SCM_F64VECTORP(v) && SCM_F64VECTOR_SIZE(v) == 3) {
+     glNormal3dv(SCM_F64VECTOR_ELEMENTS(v));
+  } else if (SCM_S32VECTORP(v) && SCM_S32VECTOR_SIZE(v) == 3) {
+     glNormal3iv(SCM_S32VECTOR_ELEMENTS(v));
+  } else if (SCM_S16VECTORP(v) && SCM_S16VECTOR_SIZE(v) == 3) {
+     glNormal3sv(SCM_S16VECTOR_ELEMENTS(v));
+  } else {
+     double val[3];
+     Scm_GLGetDoubles(v, args, val, 3, 3);
+     glNormal3dv(val);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; glIndex*
+
+(define-cproc gl-color (v &rest args)
+  "if (SCM_F32VECTORP(v)) {
+     switch (SCM_F32VECTOR_SIZE(v)) {
+       case 3: glColor3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_F64VECTORP(v)) {
+     switch (SCM_F64VECTOR_SIZE(v)) {
+       case 3: glColor3dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_U8VECTORP(v)) {
+     switch (SCM_U8VECTOR_SIZE(v)) {
+       case 3: glColor3ubv(SCM_U8VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4ubv(SCM_U8VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_U16VECTORP(v)) {
+     switch (SCM_U16VECTOR_SIZE(v)) {
+       case 3: glColor3usv(SCM_U16VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4usv(SCM_U16VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_U32VECTORP(v)) {
+     switch (SCM_U32VECTOR_SIZE(v)) {
+       case 3: glColor3uiv(SCM_U32VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4uiv(SCM_U32VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_S8VECTORP(v)) {
+     switch (SCM_S8VECTOR_SIZE(v)) {
+       case 3: glColor3bv(SCM_S8VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4bv(SCM_S8VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_S16VECTORP(v)) {
+     switch (SCM_S16VECTOR_SIZE(v)) {
+       case 3: glColor3sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_S32VECTORP(v)) {
+     switch (SCM_S32VECTOR_SIZE(v)) {
+       case 3: glColor3iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else {
+     double val[4];
+     int nvals = Scm_GLGetDoubles(v, args, val, 4, 3);
+     switch (nvals) {
+       case 3: glColor3dv(val);
+       case 4: glColor4dv(val);
+     }
+  }
+  SCM_RETURN(SCM_UNDEFINED);
+ badarg:
+  Scm_Error(\"bad argument for color: %S, must be an uniform vector of length 3 or 4\", v);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-tex-coord (v &rest args)
+  "if (SCM_F32VECTORP(v)) {
+     switch (SCM_F32VECTOR_SIZE(v)) {
+       case 2: glTexCoord2fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 1: glTexCoord1fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 3: glTexCoord3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 4: glTexCoord4fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_F64VECTORP(v)) {
+     switch (SCM_F64VECTOR_SIZE(v)) {
+       case 2: glTexCoord2dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 1: glTexCoord1dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 3: glTexCoord3dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 4: glTexCoord4dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_S32VECTORP(v)) {
+     switch (SCM_S32VECTOR_SIZE(v)) {
+       case 2: glTexCoord2iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 1: glTexCoord2iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 3: glTexCoord3iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 4: glTexCoord4iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_S16VECTORP(v)) {
+     switch (SCM_S16VECTOR_SIZE(v)) {
+       case 2: glTexCoord2sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 1: glTexCoord1sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 3: glTexCoord3sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 4: glTexCoord4sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else {
+     double val[4];
+     int nvals = Scm_GLGetDoubles(v, args, val, 4, 1);
+     switch (nvals) {
+       case 2: glTexCoord2dv(val);
+       case 1: glTexCoord1dv(val);
+       case 3: glTexCoord3dv(val);
+       case 4: glTexCoord4dv(val);
+     }
+  }
+  SCM_RETURN(SCM_UNDEFINED);
+ badarg:
+  Scm_Error(\"bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 1, 2, 3, or 4.\", v);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-raster-pos (v &rest args)
+  "if (SCM_F32VECTORP(v)) {
+     switch (SCM_F32VECTOR_SIZE(v)) {
+       case 3: glRasterPos3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 2: glRasterPos2fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 4: glRasterPos4fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_F64VECTORP(v)) {
+     switch (SCM_F64VECTOR_SIZE(v)) {
+       case 3: glRasterPos3dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 2: glRasterPos2dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 4: glRasterPos4dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_S32VECTORP(v)) {
+     switch (SCM_S32VECTOR_SIZE(v)) {
+       case 3: glRasterPos3iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 2: glRasterPos2iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 4: glRasterPos4iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else if (SCM_S16VECTORP(v)) {
+     switch (SCM_S16VECTOR_SIZE(v)) {
+       case 3: glRasterPos3sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 2: glRasterPos2sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 4: glRasterPos4sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       default: goto badarg;
+     }
+  } else {
+     double val[4];
+     int nvals = Scm_GLGetDoubles(v, args, val, 4, 2);
+     switch (nvals) {
+       case 3: glRasterPos3dv(val);
+       case 2: glRasterPos2dv(val);
+       case 4: glRasterPos4dv(val);
+     }
+  }
+  SCM_RETURN(SCM_UNDEFINED);
+ badarg:
+  Scm_Error(\"bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 2, 3, or 4.\", v);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-rect (v1 v2 &rest args)
+  "if (SCM_F32VECTORP(v1)) {
+     if (SCM_F32VECTOR_SIZE(v1) != 2) goto badarg1;
+     if (!SCM_F32VECTORP(v2) || SCM_F32VECTOR_SIZE(v2) != 2) goto badarg2;
+     glRectfv(SCM_F32VECTOR_ELEMENTS(v1), SCM_F32VECTOR_ELEMENTS(v2));
+  } else if (SCM_F64VECTORP(v1)) {
+     if (SCM_F64VECTOR_SIZE(v1) != 2) goto badarg1;
+     if (!SCM_F64VECTORP(v2) || SCM_F64VECTOR_SIZE(v2) != 2) goto badarg2;
+     glRectdv(SCM_F64VECTOR_ELEMENTS(v1), SCM_F64VECTOR_ELEMENTS(v2));
+  } else if (SCM_S32VECTORP(v1)) {
+     if (SCM_S32VECTOR_SIZE(v1) != 2) goto badarg1;
+     if (!SCM_S32VECTORP(v2) || SCM_S32VECTOR_SIZE(v2) != 2) goto badarg2;
+     glRectiv(SCM_S32VECTOR_ELEMENTS(v1), SCM_S32VECTOR_ELEMENTS(v2));
+  } else if (SCM_S16VECTORP(v1)) {
+     if (SCM_S16VECTOR_SIZE(v1) != 2) goto badarg1;
+     if (!SCM_S16VECTORP(v2) || SCM_S16VECTOR_SIZE(v2) != 2) goto badarg2;
+     glRectsv(SCM_S16VECTOR_ELEMENTS(v1), SCM_S16VECTOR_ELEMENTS(v2));
+  } else {
+     double val[4];
+     Scm_GLGetDoubles(v1, Scm_Cons(v2, args), val, 4, 4);
+     glRectd(val[0], val[1], val[2], val[3]);
+  }
+ badarg1:
+  Scm_Error(\"bad argument for v1: %S, must be one of f32, f64, s32 or s16 vector of length 2\", v1);
+  SCM_RETURN(SCM_UNDEFINED);
+ badarg2:
+  Scm_Error(\"bad argument for v2: %S, must be one of f32, f64, s32 or s16 vector of length 2\", v2);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;;=============================================================
+;; Vertex Arrays
+;;
+
+;; NOTE: it is caller's responsibility to guarantee VEC has enough length.
+;; GL doesn't have interface to specify the boundary, so I can't detect
+;; invalid length vector.
+
+;; Scheme version doesn't have TYPE - it's derived from vector type.
+;; STRIDE argument refers to the # of elements, rather than bytes.
+
+(define-cproc gl-vertex-pointer (size vec &optional (stride 0) (offset 0))
+  (assert (small-integer? size))
+  (assert (small-integer? stride))
+  (assert (small-integer? offset))
+  "  if (size < 2 || size > 4) {
+    Scm_Error(\"bad argument for size: %d, must be 2, 3 or 4\", size);
+  }
+  if (stride < 0) {
+    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
+  }
+  if (offset < 0) {
+    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
+  }
+  if (SCM_F32VECTORP(vec)) {
+    glVertexPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
+                    (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_F64VECTORP(vec)) {
+    glVertexPointer(size, GL_DOUBLE, stride*sizeof(GLdouble),
+                    (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S32VECTORP(vec)) {
+    glVertexPointer(size, GL_INT, stride*sizeof(GLint),
+                    (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S16VECTORP(vec)) {
+    glVertexPointer(size, GL_SHORT, stride*sizeof(GLshort),
+                    (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
+  } else {
+    Scm_Error(\"bad argument for vec: %S, must be f32, f64, s32 or s16vector\", vec);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-normal-pointer (vec &optional (stride 0) (offset 0))
+  (assert (small-integer? stride))
+  (assert (small-integer? offset))
+  "if (stride < 0) {
+    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
+  }
+  if (offset < 0) {
+    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
+  }
+  if (SCM_F32VECTORP(vec)) {
+    glNormalPointer(GL_FLOAT, stride*sizeof(GLfloat),
+                    (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_F64VECTORP(vec)) {
+    glNormalPointer(GL_DOUBLE, stride*sizeof(GLdouble),
+                    (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S32VECTORP(vec)) {
+    glNormalPointer(GL_INT, stride*sizeof(GLint),
+                    (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S16VECTORP(vec)) {
+    glNormalPointer(GL_SHORT, stride*sizeof(GLshort),
+                    (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S8VECTORP(vec)) {
+    glNormalPointer(GL_BYTE, stride*sizeof(GLbyte),
+                    (void*)(SCM_S8VECTOR_ELEMENTS(vec)+offset));
+  } else {
+    Scm_Error(\"bad argument for vec: %S, must be f32, f64, s8, s16 or s32vector\", vec);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-color-pointer (size vec &optional (stride 0) (offset 0))
+  (assert (small-integer? size))
+  (assert (small-integer? stride))
+  (assert (small-integer? offset))
+  "  if (size < 3 || size > 4) {
+    Scm_Error(\"bad argument for size: %d, must be 2, 3 or 4\", size);
+  }
+  if (stride < 0) {
+    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
+  }
+  if (offset < 0) {
+    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
+  }
+  if (SCM_F32VECTORP(vec)) {
+    glColorPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
+                  (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_F64VECTORP(vec)) {
+    glColorPointer(size, GL_DOUBLE, stride*sizeof(GLdouble),
+                   (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_U32VECTORP(vec)) {
+    glColorPointer(size, GL_UNSIGNED_INT, stride*sizeof(GLuint),
+                   (void*)(SCM_U32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_U16VECTORP(vec)) {
+    glColorPointer(size, GL_UNSIGNED_SHORT, stride*sizeof(GLushort),
+                   (void*)(SCM_U16VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_U8VECTORP(vec)) {
+    glColorPointer(size, GL_UNSIGNED_BYTE, stride*sizeof(GLubyte),
+                   (void*)(SCM_U8VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S32VECTORP(vec)) {
+    glColorPointer(size, GL_INT, stride*sizeof(GLint),
+                   (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S16VECTORP(vec)) {
+    glColorPointer(size, GL_SHORT, stride*sizeof(GLshort),
+                   (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S8VECTORP(vec)) {
+    glColorPointer(size, GL_BYTE, stride*sizeof(GLbyte),
+                   (void*)(SCM_S8VECTOR_ELEMENTS(vec)+offset));
+  } else {
+    Scm_Error(\"bad argument for vec: %S, must be f32, f64, s8, u8, s16, u16, s32 or u32vector\", vec);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-index-pointer (vec &optional (stride 0) (offset 0))
+  (assert (small-integer? stride))
+  (assert (small-integer? offset))
+  "if (stride < 0) {
+    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
+  }
+  if (offset < 0) {
+    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
+  }
+  if (SCM_S32VECTORP(vec)) {
+    glNormalPointer(GL_INT, stride*sizeof(GLint),
+                    (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S16VECTORP(vec)) {
+    glNormalPointer(GL_SHORT, stride*sizeof(GLshort),
+                    (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_U8VECTORP(vec)) {
+    glNormalPointer(GL_UNSIGNED_BYTE, stride*sizeof(GLubyte),
+                    (void*)(SCM_U8VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_F32VECTORP(vec)) {
+    glNormalPointer(GL_FLOAT, stride*sizeof(GLfloat),
+                    (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_F64VECTORP(vec)) {
+    glNormalPointer(GL_DOUBLE, stride*sizeof(GLdouble),
+                    (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
+  } else {
+    Scm_Error(\"bad argument for vec: %S, must be f32, f64, u8, s16 or s32 vector\", vec);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-tex-coord-pointer (size vec &optional (stride 0) (offset 0))
+  (assert (small-integer? size))
+  (assert (small-integer? stride))
+  (assert (small-integer? offset))
+  "  if (size < 1 || size > 4) {
+    Scm_Error(\"bad argument for size: %d, must be 1, 2, 3 or 4\", size);
+  }
+  if (stride < 0) {
+    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
+  }
+  if (offset < 0) {
+    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
+  }
+  if (SCM_F32VECTORP(vec)) {
+    glColorPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
+                  (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_F64VECTORP(vec)) {
+    glColorPointer(size, GL_DOUBLE, stride*sizeof(GLdouble),
+                   (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S32VECTORP(vec)) {
+    glColorPointer(size, GL_INT, stride*sizeof(GLint),
+                   (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
+  } else if (SCM_S16VECTORP(vec)) {
+    glColorPointer(size, GL_SHORT, stride*sizeof(GLshort),
+                   (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
+  } else {
+    Scm_Error(\"bad argument for vec: %S, must be f32, f64, s16 or s32vector\", vec);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; glEdgeFlagPointer
+
+(define-cproc gl-array-element (ith)
+  (assert (small-integer? ith))
+  "glArrayElement(ith);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; count and type is derived from indices vector
+(define-cproc gl-draw-elements (mode indices)
+  (assert (small-integer? mode))
+  "if (SCM_U8VECTORP(indices)) {
+    glDrawElements(mode, SCM_U8VECTOR_SIZE(indices), GL_UNSIGNED_BYTE,
+                   SCM_U8VECTOR_ELEMENTS(indices));
+  } else if (SCM_U16VECTORP(indices)) {
+    glDrawElements(mode, SCM_U16VECTOR_SIZE(indices), GL_UNSIGNED_SHORT,
+                   SCM_U16VECTOR_ELEMENTS(indices));
+  } else if (SCM_U32VECTORP(indices)) {
+    glDrawElements(mode, SCM_U32VECTOR_SIZE(indices), GL_UNSIGNED_INT,
+                   SCM_U32VECTOR_ELEMENTS(indices));
+  } else {
+    Scm_Error(\"bad argument for indices: %S, must be u8, u16 or u32vector\", indices);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-draw-arrays (mode first count)
+  (assert (small-integer? mode))
+  (assert (small-integer? first))
+  (assert (small-integer? count))
+  "glDrawArrays(mode, first, count);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; Note: we don't allow non-uniform vector for the interleaved arrays, so
+;; the color component must be float.
+(define-cproc gl-interleaved-arrays (format vec &optional (stride 0) (offset 0))
+  (assert (small-integer? format))
+  (assert (small-integer? stride))
+  (assert (small-integer? offset))
+  "  switch (format) {
+     GL_C4UB_V2F:; GL_C4UB_V3F:; GL_T2F_C4UB_V3F:
+       Scm_Error(\"interleaved arrays with integer color component is not supported.\");
+  }
+  if (!SCM_F32VECTORP(vec)) {
+    Scm_Error(\"bad argument for vec: %S, must be f32vector.\", vec);
+  }
+  glInterleavedArrays(format, stride * sizeof(GLfloat),
+                      SCM_F32VECTOR_ELEMENTS(vec));
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;;=============================================================
+;; Lighting
+;;
+
+(define-cproc gl-shade-model (mode)
+  (assert (small-integer? mode))
+  "glShadeModel(mode);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-light (light pname param)
+  (assert (small-integer? light))
+  (assert (small-integer? pname))
+  "switch (pname) {
+   case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_POSITION:;
+     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
+       glLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(param));
+     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
+       glLightiv(light, pname, SCM_S32VECTOR_ELEMENTS(param));
+     } else {
+       Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 4\", param);
+     }
+     break;
+   case GL_SPOT_DIRECTION:
+     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 3) {
+       glLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(param));
+     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 3) {
+       glLightiv(light, pname, SCM_S32VECTOR_ELEMENTS(param));
+     } else {
+       Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 3\", param);
+     }
+     break;
+   default:
+     if (SCM_EXACTP(param)) {
+       glLighti(light, pname, (GLint)Scm_GetInteger(param));
+     } else if (SCM_REALP(param)) {
+       glLightf(light, pname, (GLfloat)Scm_GetDouble(param));
+     } else {
+       Scm_Error(\"bad parameter: %S, must be a real number.\", param);
+     }
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-get-light (light pname)
+  (assert (small-integer? light))
+  (assert (small-integer? pname))
+  "switch (pname) {
+   case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_POSITION:
+     {
+       ScmF32Vector *v = SCM_F32VECTOR(Scm_MakeF32Vector(4, 0.0));
+       glGetLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(v));
+       SCM_RETURN(SCM_OBJ(v));
+     }
+   case GL_SPOT_DIRECTION:
+     {
+       ScmF32Vector *v = SCM_F32VECTOR(Scm_MakeF32Vector(3, 0.0));
+       glGetLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(v));
+       SCM_RETURN(SCM_OBJ(v));
+     }
+   default:
+     {
+       float v;
+       glGetLightfv(light, pname, &v);
+       SCM_RETURN(Scm_MakeFlonum((double)v));
+     }
+   }")
+
+(define-cproc gl-light-model (pname param)
+  (assert (small-integer? pname))
+  "switch (pname) {
+    case GL_LIGHT_MODEL_AMBIENT:
+     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
+       glLightModelfv(pname, SCM_F32VECTOR_ELEMENTS(param));
+     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
+       glLightModeliv(pname, SCM_S32VECTOR_ELEMENTS(param));
+     } else {
+       Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 4\", param);
+     }
+     break;
+    default:
+     glLightModeli(pname, !SCM_FALSEP(param));
+     break;
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-material (face pname param)
+  (assert (small-integer? face))
+  (assert (small-integer? pname))
+  "switch (pname) {
+   case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_EMISSION:;
+   case GL_AMBIENT_AND_DIFFUSE:;
+     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
+       glMaterialfv(face, pname, SCM_F32VECTOR_ELEMENTS(param));
+     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
+       glMaterialiv(face, pname, SCM_S32VECTOR_ELEMENTS(param));
+     } else {
+       Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 4\", param);
+     }
+     break;
+   case GL_COLOR_INDEXES:
+     if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 3) {
+       glMaterialiv(face, pname, SCM_S32VECTOR_ELEMENTS(param));
+     } else {
+       Scm_Error(\"bad parameter: %S, must be s32vector of length 3\", param);
+     }
+     break;
+   default:
+     if (SCM_REALP(param)) {
+       glMaterialf(face, pname, (GLfloat)Scm_GetDouble(param));
+     } else {
+       Scm_Error(\"bad parameter: %S, must be a real number.\", param);
+     }
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-get-material (face pname)
+  (assert (small-integer? face))
+  (assert (small-integer? pname))
+  "switch (pname) {
+   case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_EMISSION:;
+     {
+       ScmF32Vector *v = SCM_F32VECTOR(Scm_MakeF32Vector(4, 0.0));
+       glGetMaterialfv(face, pname, SCM_F32VECTOR_ELEMENTS(v));
+       SCM_RETURN(SCM_OBJ(v));
+     }
+   case GL_COLOR_INDEXES:
+     {
+       ScmS32Vector *v = SCM_S32VECTOR(Scm_MakeS32Vector(3, 0.0));
+       glGetMaterialiv(face, pname, SCM_S32VECTOR_ELEMENTS(v));
+       SCM_RETURN(SCM_OBJ(v));
+     }
+   case GL_SHININESS:
+     {
+       float v;
+       glGetMaterialfv(face, pname, &v);
+       SCM_RETURN(Scm_MakeFlonum((double)v));
+     }
+   default:
+     Scm_Error(\"bad pname: %d\", pname);
+     SCM_RETURN(SCM_UNDEFINED);
+   }")
+
+(define-cproc gl-color-material (face mode)
+  (assert (small-integer? face))
+  (assert (small-integer? mode))
+  "glColorMaterial(face, mode);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;;=============================================================
+;; Raster functions
+;;
+
+;;=============================================================
+;; Stenciling
+;;
+
+(define-cproc gl-stencil-func (func ref mask)
+  (assert (small-integer? func))
+  (assert (exact? ref))
+  (assert (exact? mask))
+  "glStencilFunc((GLenum)func, (GLint)ref, (GLuint)mask);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-stencil-mask (mask)
+  (assert (exact? mask))
+  "glStencilMask((GLuint)mask);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-stencil-op (func zfail zpass)
+  (assert (small-integer? func))
+  (assert (small-integer? zfail))
+  (assert (small-integer? zpass))
+  "glStencilFunc((GLenum)func, (GLenum)zfail, (GLenum)zpass); 
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-clear-stencil (s)
+  (assert (exact? s))
+  "glClearStencil((GLint)s);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;;=============================================================
+;; Texture mapping
+;;
+
+;;=============================================================
+;; Fog
+;;
+
+;;=============================================================
+;; Selection and feedback
+;;
+
+;;=============================================================
+;; Extensions
+;;
 
 
 

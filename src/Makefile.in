@@ -30,6 +30,8 @@ gauche-gl.so : $(GLOBJS)
 gl-lib.c : gl-lib.stub
 	$(GOSH) genstub gl-lib.stub
 
+$(GLOBJS) : gauche-gl.h
+
 gauche-glut.so : $(GLUTOBJS)
 	$(CC) $(LDFLAGS) gauche-glut.so $(GLUTOBJS) -lglut -lXmu -lXi $(LIBS)
 

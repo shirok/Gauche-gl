@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.1 2001-09-29 20:54:16 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.2 2001-09-30 03:38:37 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -22,5 +22,8 @@
 #include <GL/glu.h>
 #include <GL/glx.h>
 
+#include <gauche/uvector.h>
+
+extern int Scm_GLGetDoubles(ScmObj val1, ScmObj list, double *result, int maxresult, int minresult);
 
 #endif /* GAUCHE_GL_H */

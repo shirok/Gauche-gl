@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.8 2002-08-31 07:49:43 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.9 2002-10-01 07:45:51 shirok Exp $
 ;;;
 
 "
@@ -51,64 +51,110 @@
                  SCM_S32VECTOR_ELEMENTS(vp));
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-project (objx::<real> objy::<real> objz::<real>
-                           model-mat proj-mat vp)
-  " int r; GLdouble winx, winy, winz;
- if (!SCM_F64VECTORP(model_mat) || SCM_F64VECTOR_SIZE(model_mat) != 16) {
-   Scm_Error(\"f64 vector of size 16 required for model-mat, but got %S\",
-             model_mat);
- }
- if (!SCM_F64VECTORP(proj_mat) || SCM_F64VECTOR_SIZE(proj_mat) != 16) {
-   Scm_Error(\"f64 vector of size 16 required for proj-mat, but got %S\",
-             proj_mat);
- }
- if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
-   Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
- }
- r = gluProject((GLdouble)objx, (GLdouble)objy, (GLdouble)objz,
-                SCM_F64VECTOR_ELEMENTS(model_mat),
-                SCM_F64VECTOR_ELEMENTS(proj_mat),
-                SCM_S32VECTOR_ELEMENTS(vp),
-                &winx, &winy, &winz);
- if (r == GL_TRUE) {
-   SCM_RETURN(Scm_Values3(Scm_MakeFlonum(winx),
-                          Scm_MakeFlonum(winy),
-                          Scm_MakeFlonum(winz)));
- } else {
-   SCM_RETURN(Scm_Values3(SCM_FALSE, SCM_FALSE, SCM_FALSE));
- }")
-
-(define-cproc glu-un-project (winx::<real> winy::<real> winz::<real>
-                              model-mat proj-mat vp)
-  " int r; GLdouble objx, objy, objz;
- if (!SCM_F64VECTORP(model_mat) || SCM_F64VECTOR_SIZE(model_mat) != 16) {
-   Scm_Error(\"f64 vector of size 16 required for model-mat, but got %S\",
-             model_mat);
- }
- if (!SCM_F64VECTORP(proj_mat) || SCM_F64VECTOR_SIZE(proj_mat) != 16) {
-   Scm_Error(\"f64 vector of size 16 required for proj-mat, but got %S\",
-             proj_mat);
- }
- if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
-   Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
- }
- r = gluUnProject((GLdouble)winx, (GLdouble)winy, (GLdouble)winz,
-                  SCM_F64VECTOR_ELEMENTS(model_mat),
-                  SCM_F64VECTOR_ELEMENTS(proj_mat),
-                  SCM_S32VECTOR_ELEMENTS(vp),
-                  &objx, &objy, &objz);
- if (r == GL_TRUE) {
-   SCM_RETURN(Scm_Values3(Scm_MakeFlonum(objx),
-                          Scm_MakeFlonum(objy),
-                          Scm_MakeFlonum(objz)));
- } else {
-   SCM_RETURN(Scm_Values3(SCM_FALSE, SCM_FALSE, SCM_FALSE));
- }")
-
 (define-cproc glu-error-string (code::<int>)
   "  const GLubyte *s = gluErrorString(code);
   if (s) SCM_RETURN(Scm_MakeString((const char *)s, -1, -1, 0));
   else   SCM_RETURN(SCM_FALSE);")
+
+;; common routine for glu-project and glu-un-project
+"static ScmObj glu_xproject(double srcx, double srcy, double srcz,
+                            ScmObj model_mat, ScmObj proj_mat, ScmObj vp,
+                            GLint (*fn)(GLdouble, GLdouble, GLdouble, const GLdouble*, const GLdouble*, const GLint*, GLdouble*, GLdouble*, GLdouble*))
+ {
+   int r; GLdouble dstx, dsty, dstz;
+   if (!SCM_F64VECTORP(model_mat) || SCM_F64VECTOR_SIZE(model_mat) != 16) {
+     Scm_Error(\"f64 vector of size 16 required for model-mat, but got %S\",
+               model_mat);
+   }
+   if (!SCM_F64VECTORP(proj_mat) || SCM_F64VECTOR_SIZE(proj_mat) != 16) {
+     Scm_Error(\"f64 vector of size 16 required for proj-mat, but got %S\",
+               proj_mat);
+   }
+   if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
+     Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
+   }
+   r = fn(srcx, srcy, srcz,
+          SCM_F64VECTOR_ELEMENTS(model_mat),
+          SCM_F64VECTOR_ELEMENTS(proj_mat),
+          SCM_S32VECTOR_ELEMENTS(vp),
+          &dstx, &dsty, &dstz);
+   if (r == GL_TRUE) {
+     SCM_RETURN(Scm_Values3(Scm_MakeFlonum(dstx),
+                            Scm_MakeFlonum(dsty),
+                            Scm_MakeFlonum(dstz)));
+   } else {
+     SCM_RETURN(Scm_Values3(SCM_FALSE, SCM_FALSE, SCM_FALSE));
+   }
+ }"
+
+(define-cproc glu-project (objx::<real> objy::<real> objz::<real>
+                           model-mat proj-mat vp)
+  "SCM_RETURN(glu_xproject(objx, objy, objz, model_mat, proj_mat, vp, gluProject));")
+
+(define-cproc glu-un-project (winx::<real> winy::<real> winz::<real>
+                              model-mat proj-mat vp)
+  "SCM_RETURN(glu_xproject(winx, winy, winz, model_mat, proj_mat, vp, gluUnProject));")
+
+;; common routine for glu-project! and glu-un-project!
+"static ScmObj glu_xprojectX(ScmObj dst, ScmObj src,
+                             ScmObj model_mat, ScmObj proj_mat, ScmObj vp,
+                             GLint (*fn)(GLdouble, GLdouble, GLdouble, const GLdouble*, const GLdouble*, const GLint*, GLdouble*, GLdouble*, GLdouble*))
+ {
+   int r;
+   float *dstfp = NULL, *srcfp = NULL;
+   double *dstdp = NULL, *srcdp = NULL;
+   GLdouble dstx, dsty, dstz;
+   if (SCM_F64VECTORP(dst) && SCM_F64VECTOR_SIZE(dst) == 4) {
+     dstdp = SCM_F64VECTOR_ELEMENTS(dst);
+   } else {
+     SCM_MATH3D_X4FP(dstfp, dst);
+   }
+   if (SCM_F64VECTORP(src) && SCM_F64VECTOR_SIZE(src) == 4) {
+     srcdp = SCM_F64VECTOR_ELEMENTS(src);
+   } else {
+     SCM_MATH3D_X4FP(srcfp, src);
+   }
+   if (!SCM_F64VECTORP(model_mat) || SCM_F64VECTOR_SIZE(model_mat) != 16) {
+     Scm_Error(\"f64 vector of size 16 required for model-mat, but got %S\",
+               model_mat);
+   }
+   if (!SCM_F64VECTORP(proj_mat) || SCM_F64VECTOR_SIZE(proj_mat) != 16) {
+     Scm_Error(\"f64 vector of size 16 required for proj-mat, but got %S\",
+               proj_mat);
+   }
+   if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
+     Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
+   }
+   if (srcfp) {
+     r = fn((GLdouble)srcfp[0], (GLdouble)srcfp[1], (GLdouble)srcfp[2],
+            SCM_F64VECTOR_ELEMENTS(model_mat),
+            SCM_F64VECTOR_ELEMENTS(proj_mat),
+            SCM_S32VECTOR_ELEMENTS(vp),
+            &dstx, &dsty, &dstz);
+   } else {
+     r = fn((GLdouble)srcdp[0], (GLdouble)srcdp[1], (GLdouble)srcdp[2],
+            SCM_F64VECTOR_ELEMENTS(model_mat),
+            SCM_F64VECTOR_ELEMENTS(proj_mat),
+            SCM_S32VECTOR_ELEMENTS(vp),
+            &dstx, &dsty, &dstz);
+   }
+   if (r == GL_TRUE) {
+     if (dstfp) {
+       dstfp[0] = (float)dstx, dstfp[1] = (float)dsty, dstfp[2] = (float)dstz;
+     } else {
+       dstdp[0] = dstx, dstdp[1] = dsty, dstdp[2] = dstz;
+     }
+     SCM_RETURN(SCM_OBJ(dst));
+   } else {
+     SCM_RETURN(SCM_FALSE);
+   }
+ }"
+
+(define-cproc glu-project! (win obj model-mat proj-mat vp)
+  "SCM_RETURN(glu_xprojectX(win, obj, model_mat, proj_mat, vp, gluProject));")
+
+(define-cproc glu-un-project! (obj win model-mat proj-mat vp)
+  "SCM_RETURN(glu_xprojectX(obj, win, model_mat, proj_mat, vp, gluUnProject));")
 
 ;;=============================================================
 ;; Mipmapping and image scaling

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.12 2002-09-29 11:37:49 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.13 2002-09-29 11:51:29 shirok Exp $
 ;;;
 
 "
@@ -358,24 +358,38 @@
 
 ;; basic transformation
 
-;; t can be a vector4f, point4f, f32vector
 (define-cproc translation->matrix4f (t)
   "float r[16], *p;
   SCM_MATH3D_X3FP(p, t);
   Scm_TranslationToMatrix4fv(r, p);
   SCM_RETURN(Scm_MakeMatrix4fv(r));")
+(define-cproc translation->matrix4f! (m::<matrix4f> t)
+  "float *p;
+  SCM_MATH3D_X3FP(p, t);
+  Scm_TranslationToMatrix4fv(SCM_MATRIX4F_D(m), p);
+  SCM_RETURN(SCM_OBJ(m));")
 
 (define-cproc rotation->matrix4f (v angle::<real>)
-  "float r[16], *p = NULL;
+  "float r[16], *p;
   SCM_MATH3D_X3FP(p, v);
   Scm_RotationToMatrix4fv(r, p, angle);
   SCM_RETURN(Scm_MakeMatrix4fv(r));")
+(define-cproc rotation->matrix4f! (m::<matrix4f> v angle::<real>)
+  "float *p;
+  SCM_MATH3D_X3FP(p, v);
+  Scm_RotationToMatrix4fv(SCM_MATRIX4F_D(m), p, angle);
+  SCM_RETURN(SCM_OBJ(m));")
 
 (define-cproc scale->matrix4f (s)
   "float r[16], *p = NULL;
   SCM_MATH3D_X3FP(p, s);
   Scm_ScaleToMatrix4fv(r, p);
   SCM_RETURN(Scm_MakeMatrix4fv(r));")
+(define-cproc scale->matrix4f! (m::<matrix4f> s)
+  "float *p;
+  SCM_MATH3D_X3FP(p, s);
+  Scm_ScaleToMatrix4fv(SCM_MATRIX4F_D(m), p);
+  SCM_RETURN(SCM_OBJ(m));")
 
 (define-cproc trs->matrix4f (t v angle::<real> s)
   "float r[16], *pt, *pv, *ps;
@@ -384,7 +398,6 @@
   SCM_MATH3D_X3FP(ps, s);
   Scm_TRSToMatrix4fv(r, pt, pv, angle, ps);
   SCM_RETURN(Scm_MakeMatrix4fv(r));")
-
 (define-cproc trs->matrix4f! (m::<matrix4f> t v angle::<real> s)
   "float *pt, *pv, *ps;
   SCM_MATH3D_X3FP(pt, t);
@@ -400,7 +413,6 @@
   SCM_MATH3D_X3FP(ps, s);
   Scm_TQSToMatrix4fv(r, pt, pq, ps);
   SCM_RETURN(Scm_MakeMatrix4fv(r));")
-
 (define-cproc tqs->matrix4f! (m::<matrix4f> t q s)
   "float *pt, *pq, *ps;
   SCM_MATH3D_X3FP(pt, t);

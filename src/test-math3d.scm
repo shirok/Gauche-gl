@@ -266,4 +266,20 @@
                          (point4f 3.1 2.1 1.1)))
       nearly=?)
 
+(test "tqs->matrix"
+      (trs->matrix4f #,(vector4f 0 0 0)
+                     (vector4f (/ 2 (sqrt 29))
+                               (/ 3 (sqrt 29))
+                               (/ 4 (sqrt 29)))
+                     (* -41 pi/180)
+                     #,(vector4f 1 2 3))
+      (lambda ()
+        (tqs->matrix4f #,(vector4f 0 0 0)
+                       (make-quatf (vector4f (/ 2 (sqrt 29))
+                                             (/ 3 (sqrt 29))
+                                             (/ 4 (sqrt 29)))
+                                   (* -41 pi/180))
+                       #,(vector4f 1 2 3)))
+      nearly=?)
+
 (test-end)

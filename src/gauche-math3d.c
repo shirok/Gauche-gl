@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.10 2002-09-29 10:13:39 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.11 2002-09-29 10:57:27 shirok Exp $
  */
 
 #include <gauche.h>
@@ -669,6 +669,35 @@ void Scm_TRSToMatrix4fv(float *m, const float *t,
     m[15] = 1.0;
 }
 
+void Scm_TQSToMatrix4fv(float *m, const float *t,
+                        const float *q,
+                        const float *s)
+{
+    float x2 = q[0]*q[0], y2 = q[1]*q[1], z2 = q[2]*q[2];
+    float xy = q[0]*q[1], yz = q[1]*q[2], zx = q[2]*q[0];
+    float xw = q[0]*q[3], yw = q[1]*q[3], zw = q[2]*q[3];
+
+    m[0]  = s[0] * (1-2*(y2+z2));
+    m[1]  = 2*(xy+zw);
+    m[2]  = 2*(zx-yw);
+    m[3]  = 0.0;
+    
+    m[4]  = 2*(xy-zw);
+    m[5]  = s[1] * (1-2*(z2+x2));
+    m[6]  = 2*(yz+xw);
+    m[7]  = 0.0;
+    
+    m[8]  = 2*(zx+yw);
+    m[9]  = 2*(yz-xw);
+    m[10] = s[2] * (1-2*(x2+y2));
+    m[11] = 0.0;
+    
+    m[12] = t[0];
+    m[13] = t[1];
+    m[14] = t[2];
+    m[15] = 1.0;
+}
+
 
 void Scm_TranslationToMatrix4fv(float *m, const float *t)
 {
@@ -839,7 +868,7 @@ void Scm_QuatfToMatrixv(float m[], const float q[])
     float x2 = q[0]*q[0], y2 = q[1]*q[1], z2 = q[2]*q[2];
     float xy = q[0]*q[1], yz = q[1]*q[2], zx = q[2]*q[0];
     float xw = q[0]*q[3], yw = q[1]*q[3], zw = q[2]*q[3];
-    m[0] = 1-2*(x2+y2); m[4] = 2*(xy-zw); m[8] = 2*(zx+yw); m[12] = 0;
+    m[0] = 1-2*(y2+z2); m[4] = 2*(xy-zw); m[8] = 2*(zx+yw); m[12] = 0;
     m[1] = 2*(xy+zw); m[5] = 1-2*(z2+x2); m[9] = 2*(yz-xw); m[13] = 0;
     m[2] = 2*(zx-yw); m[6] = 2*(yz+xw); m[10] = 1-2*(x2+y2); m[14] = 0;
     m[3] = 0; m[7] = 0; m[11] = 0; m[15] = 1;

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.10 2002-09-29 10:13:39 shirok Exp $
+ *  $Id: math3d.h,v 1.11 2002-09-29 10:57:32 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -61,10 +61,12 @@
         (ptr) = SCM_VECTOR4F_D(val);                                    \
       else if (SCM_POINT4FP(val))                                       \
         (ptr) = SCM_POINT4F_D(val);                                     \
+      else if (SCM_QUATFP(val))                                         \
+        (ptr) = SCM_QUATF_D(val);                                       \
       else if (SCM_F32VECTORP(val) && SCM_F32VECTOR_SIZE(val) >= 4)     \
         (ptr) = SCM_F32VECTOR_ELEMENTS(val);                            \
       else {                                                            \
-        Scm_Error("vector4f, point4f or f32vector required,"            \
+        Scm_Error("vector4f, point4f, quatf or f32vector required,"     \
                   " but got %S", val);                                  \
         (ptr) = NULL;                                                   \
       }                                                                 \
@@ -321,6 +323,9 @@ extern void   Scm_ScaleToMatrix4fv(float *m, const float *s);
 
 extern void   Scm_TRSToMatrix4fv(float *m, const float *t,
                                  const float *v, float phi,
+                                 const float *s);
+extern void   Scm_TQSToMatrix4fv(float *m, const float *t,
+                                 const float *q,
                                  const float *s);
 
 #endif /* GAUCHE_MATH3D_H */

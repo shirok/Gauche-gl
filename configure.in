@@ -2,7 +2,7 @@ dnl
 dnl Configuring gauche-gl 
 dnl  process this file with "autoconf -l `gauche-config --ac`" to
 dnl  generate 'configure'.
-dnl $Id: configure.in,v 1.10 2002-10-08 22:16:12 shirok Exp $
+dnl $Id: configure.in,v 1.11 2002-12-15 12:53:12 shirok Exp $
 AC_INIT(src/gl-lib.stub)
 AC_GAUCHE_INIT_EXT
 AC_CANONICAL_SYSTEM
@@ -27,7 +27,9 @@ AC_ARG_WITH(glut, [  --with-glut[=PATH]:      Use GLUT library installed under P
 # Check for headers
 AC_CHECK_HEADERS(GL/glext.h, , , GL/gl.h)
 AC_CHECK_HEADERS(GL/glx.h, [   # OpenGL/X11
-     GL_LIBS='-lGLU -lGL'
+     # NB: FreeBSD seems to need -lX11 -lXext.  We are on X11 system anyway,
+     # so I assume this won't do any harm.
+     GL_LIBS='-lGLU -lGL -lX11 -lXext'
      GLUT_LIB="$GLUT_LIB -lXmu -lXi"
 ], ,)
 AC_CHECK_HEADERS(GLUT/glut.h, [

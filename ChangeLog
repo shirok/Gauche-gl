@@ -1,3 +1,8 @@
+2003-10-04  Shiro Kawai  <shiro@acm.org>
+
+	* configure.in, lib/gl.scm, lib/gl/glut.scm, lib/gl/math3d.scm,
+	  src/* : adapted to Cygwin - works with Cygwin 1.5.5/opengl 1.1.0-6.
+
 2003-07-14  Shiro Kawai  <shiro@acm.org>
 
 	* */Makefile.in : added $(DESTDIR) to install target directories

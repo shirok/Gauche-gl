@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut.scm,v 1.1 2001-09-30 03:56:25 shirok Exp $
+;;;  $Id: glut.scm,v 1.2 2003-10-05 05:05:25 shirok Exp $
 ;;;
 
 (define-module gl.glut
@@ -21,6 +21,6 @@
 
 (select-module gl.glut)
 
-(dynamic-load "gauche-glut")
+(dynamic-load "libgauche-glut")
 
 (provide "gl/glut")

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.10 2003-01-30 05:50:12 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.11 2003-10-05 05:05:25 shirok Exp $
 ;;;
 
 "
@@ -23,7 +23,9 @@
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#ifdef HAVE_GL_GLX_H
 #include <GL/glx.h>
+#endif
 #include <GL/glut.h>
 #endif
 #include \"gauche-glut.h\"

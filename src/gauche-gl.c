@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.17 2003-01-30 05:50:12 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.18 2003-10-05 05:05:25 shirok Exp $
  */
 
 #include <gauche.h>
@@ -72,14 +72,17 @@ int Scm_GLPixelDataType(GLenum type, int *packed)
     case GL_BYTE:;
         return SCM_GL_BYTE;
     case GL_BITMAP: 
+#if !defined(__CYGWIN__)
     case GL_UNSIGNED_BYTE_3_3_2:;
     case GL_UNSIGNED_BYTE_2_3_3_REV:;
+#endif /*!defined(__CYGWIN__)*/
         if (packed) *packed = TRUE;
         /* FALLTHROUGH */
     case GL_UNSIGNED_BYTE:;
         return SCM_GL_UBYTE;
     case GL_SHORT:;
         return SCM_GL_SHORT;
+#if !defined(__CYGWIN__)
     case GL_UNSIGNED_SHORT_5_6_5:;
     case GL_UNSIGNED_SHORT_5_6_5_REV:;
     case GL_UNSIGNED_SHORT_4_4_4_4:;
@@ -87,16 +90,19 @@ int Scm_GLPixelDataType(GLenum type, int *packed)
     case GL_UNSIGNED_SHORT_5_5_5_1:;
     case GL_UNSIGNED_SHORT_1_5_5_5_REV:;
         if (packed) *packed = TRUE;
+#endif /*!defined(__CYGWIN__)*/
         /* FALLTHROUGH */
     case GL_UNSIGNED_SHORT:;
         return SCM_GL_USHORT;
     case GL_INT:;
         return SCM_GL_INT;
+#if !defined(__CYGWIN__)
     case GL_UNSIGNED_INT_8_8_8_8:;
     case GL_UNSIGNED_INT_8_8_8_8_REV:;
     case GL_UNSIGNED_INT_10_10_10_2:;
     case GL_UNSIGNED_INT_2_10_10_10_REV:;
         if (packed) *packed = TRUE;
+#endif /*!defined(__CYGWIN__)*/
         /* FALLTHROUGH */
     case GL_UNSIGNED_INT:;
         return SCM_GL_UINT;
@@ -228,7 +234,7 @@ static ScmObj quadric_allocate(ScmClass *klass, ScmObj initargs)
 SCM_DEFINE_BUILTIN_CLASS(Scm_GluQuadricClass,
                          NULL, NULL, NULL,
                          quadric_allocate,
-                         SCM_CLASS_DEFAULT_CPL);
+                         NULL);
 
 /* Nurbs */
 static void nurbs_finalize(GC_PTR obj, GC_PTR data)
@@ -251,7 +257,7 @@ static ScmObj nurbs_allocate(ScmClass *klass, ScmObj initargs)
 SCM_DEFINE_BUILTIN_CLASS(Scm_GluNurbsClass,
                          NULL, NULL, NULL,
                          nurbs_allocate,
-                         SCM_CLASS_DEFAULT_CPL);
+                         NULL);
 
 
 /* Tesselator */
@@ -275,7 +281,7 @@ static ScmObj tesselator_allocate(ScmClass *klass, ScmObj initargs)
 SCM_DEFINE_BUILTIN_CLASS(Scm_GluTesselatorClass,
                          NULL, NULL, NULL,
                          tesselator_allocate,
-                         SCM_CLASS_DEFAULT_CPL);
+                         NULL);
 
 
 /* Initialization */
@@ -283,7 +289,7 @@ extern void Scm_Init_gl_lib(ScmModule *mod);
 extern void Scm_Init_gl_syms(ScmModule *mod);
 extern void Scm_Init_glu_lib(ScmModule *mod);
 
-void Scm_Init_gauche_gl(void)
+void Scm_Init_libgauche_gl(void)
 {
     ScmModule *mod;
     SCM_INIT_EXTENSION(gauche_gl);

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.22 2003-02-08 09:51:19 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.23 2003-10-05 05:05:25 shirok Exp $
  */
 
 #include <math.h>
@@ -1252,7 +1252,7 @@ void Scm_QuatfSlerp(float r[], const float p[], const float q[], float t)
  */
 extern void Scm_Init_math3d_lib(ScmModule *mod);
 
-void Scm_Init_gauche_math3d(void)
+void Scm_Init_libgauche_math3d(void)
 {
     ScmModule *mod;
     SCM_INIT_EXTENSION(gauche_math3d);

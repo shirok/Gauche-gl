@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-syms.stub,v 1.6 2002-09-01 19:51:32 shirok Exp $
+;;;  $Id: gl-syms.stub,v 1.7 2003-10-05 05:05:25 shirok Exp $
 ;;;
 
 "
@@ -214,10 +214,12 @@
 (define-enum GL_DST_ALPHA)
 (define-enum GL_ONE_MINUS_DST_ALPHA)
 (define-enum GL_SRC_ALPHA_SATURATE)
-(define-enum GL_CONSTANT_COLOR)
-(define-enum GL_ONE_MINUS_CONSTANT_COLOR)
-(define-enum GL_CONSTANT_ALPHA)
-(define-enum GL_ONE_MINUS_CONSTANT_ALPHA)
+(if "!defined(__CYGWIN__)"
+    (begin
+      (define-enum GL_CONSTANT_COLOR)
+      (define-enum GL_ONE_MINUS_CONSTANT_COLOR)
+      (define-enum GL_CONSTANT_ALPHA)
+      (define-enum GL_ONE_MINUS_CONSTANT_ALPHA)))
 (define-enum GL_FEEDBACK)
 (define-enum GL_RENDER)
 (define-enum GL_SELECT)
@@ -701,7 +703,8 @@
             (define-enum GL_COLOR_TABLE_ALPHA_SIZE_EXT)
             (define-enum GL_COLOR_TABLE_LUMINANCE_SIZE_EXT)
             (define-enum GL_COLOR_TABLE_INTENSITY_SIZE_EXT)))
-      (define-enum GL_TEXTURE_INDEX_SIZE_EXT)
+      (if "!defined(__CYGWIN__)"
+	  (define-enum GL_TEXTURE_INDEX_SIZE_EXT))
       (define-enum GL_COLOR_INDEX1_EXT)
       (define-enum GL_COLOR_INDEX2_EXT)
       (define-enum GL_COLOR_INDEX4_EXT)

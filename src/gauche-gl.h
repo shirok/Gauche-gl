@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.11 2002-09-28 02:51:46 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.12 2003-10-05 05:05:25 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -26,6 +26,9 @@
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
+
+#ifdef HAVE_GL_GLX_H
 #include <GL/glx.h>
 #endif
 

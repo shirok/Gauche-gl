@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.10 2003-01-20 10:26:21 shirok Exp $
+;;;  $Id: math3d.scm,v 1.11 2003-10-05 05:05:25 shirok Exp $
 ;;;
 
 (define-module gl.math3d
@@ -23,7 +23,7 @@
 
 (select-module gl.math3d)
 
-(dynamic-load "gauche-math3d" :export-symbols #t)
+(dynamic-load "libgauche-math3d" :export-symbols #t)
 
 (define-reader-ctor 'vector4f vector4f)
 (define-reader-ctor 'point4f  point4f)

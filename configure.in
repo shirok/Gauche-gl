@@ -2,7 +2,7 @@ dnl
 dnl Configuring gauche-gl 
 dnl  process this file with "autoconf -l `gauche-config --ac`" to
 dnl  generate 'configure'.
-dnl $Id: configure.in,v 1.12 2003-10-04 10:54:21 shirok Exp $
+dnl $Id: configure.in,v 1.13 2003-10-05 05:05:25 shirok Exp $
 AC_PREREQ(2.54)
 AC_INIT(Gauche-gl, 0.2.3, shiro@acm.org)
 AC_GAUCHE_INIT_EXT
@@ -10,17 +10,24 @@ AC_CANONICAL_SYSTEM
 
 AC_PATH_XTRA
 
+case "$target" in
+  *-*-cygwin*)
+    LIBGLUT=glut32;;
+  *)
+    LIBGLUT=glut;;
+esac
+
 # options for configure scripts
-GLUT_LIB="-lglut"
+GLUT_LIB="-l$LIBGLUT"
 AC_ARG_WITH(glut, [  --with-glut[=PATH]:      Use GLUT library installed under PATH.
                           By default, Gauche-gl assumes GLUT is installed in
                           the system standard location.  If you do not want to
                           use GLUT support, specify --with-glut=no.], [
   case $with_glut in
     no)  GLUT_LIB= ;;
-    yes) ;;
-    *)   GLUT_LIB="-lglut";
-         GLUT_INCDIR="-I$with_glut/include";
+    yes) GLUT_LIB="-l$LIBGLUT";;
+    *)   GLUT_LIB="-l$LIBGLUT"
+         GLUT_INCDIR="-I$with_glut/include"
          GLUT_LIBDIR="-L$with_glut/lib";;
   esac
 ])
@@ -34,7 +41,7 @@ AC_CHECK_HEADERS(GL/glx.h, [   # OpenGL/X11
      GLUT_LIB="$GLUT_LIB -lXmu -lXi"
 ], ,)
 AC_CHECK_HEADERS(GLUT/glut.h, [
-      case $host in
+      case $target in
       powerpc-apple-darwin*)  
           AC_DEFINE(MacOSX, 1) # darwin which has GLUT/glut.h is MacOSX
           GL_LIBS='-framework OpenGL'
@@ -43,6 +50,15 @@ AC_CHECK_HEADERS(GLUT/glut.h, [
       ;;
       esac  
 ], ,)
+
+if test "$GL_LIBS" = ""; then
+  case $target in
+    *-*-cygwin*)
+      GL_LIBS='-lglu32 -lopengl32' ;;
+    *)
+      GL_LIBS='-lGLU -lGL' ;;
+  esac
+fi
 
 AC_SUBST(GL_LIBS)
 AC_SUBST(GLUT_LIB)
@@ -56,14 +72,19 @@ AC_GAUCHE_INSTALL_TYPE(sys)
 AC_GAUCHE_CC
 AC_GAUCHE_FLAGS
 
-
-
 # Check for other programs.
 AC_PROG_INSTALL
 AC_CHECK_PROGS(MAKEINFO, makeinfo)
 AC_CHECK_PROGS(GZIP_PROGRAM, gzip)
 
 # Check for libraries
+
+# on cygwin, we need -lgauche-uvector.
+case "$target" in
+  *-*-cygwin*)
+    LIBS="-lgauche-uvector $LIBS"
+     ;;
+esac
 
 # Set LDFLAGS to generate shared library.
 AC_GAUCHE_FIX_LIBS

@@ -13,7 +13,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glstate.scm,v 1.5 2002-08-17 09:41:24 shirok Exp $
+;;;  $Id: glstate.scm,v 1.6 2003-10-05 05:05:25 shirok Exp $
 ;;;
 
 ;;
@@ -25,7 +25,7 @@
 (use gauche.parseopt)
 
 ;; Data
-;;   (name dimension type [version])
+;;   (name dimension type [version ...])
 ;;   type: 'getf - available via glGetFloatv
 ;;         'geti - available via glGetIntegerv
 ;;         'getb - available via glGetBooleanv
@@ -40,6 +40,7 @@
 ;;   version:  (none) - OpenGL v1.1 and v1.2
 ;;             'v1.1  - OpenGL v1.1 only
 ;;             'v1.2  - OpenGL v1.2 only
+;;             'no-cygwin - Cygwin OpenGL (1.1.0-6) doesn't have this symbol
 
 ;; Source of this list is the table is the Appendix B: State Variables
 ;; of OpenGL Programming Guide.
@@ -98,7 +99,7 @@
     (gl_texture_stack_depth               1   geti)
     (gl_matrix_mode                       1   geti)
     (gl_normalize                         1   getb)
-    (gl_rescale_normal                    1   getb)
+    (gl_rescale_normal                    1   getb no-cygwin)
     (gl_clip_plane0                       1   getb)
     (gl_clip_plane1                       1   getb)
     (gl_clip_plane2                       1   getb)
@@ -122,7 +123,7 @@
     (gl_light_model_ambient               4   getf)
     (gl_light_model_local_viewer          1   getb)
     (gl_light_model_two_side              1   getb)
-    (gl_light_model_color_control         1   geti)
+    (gl_light_model_color_control         1   geti no-cygwin)
     (gl_light0                            1   getb)
     (gl_light1                            1   getb)
     (gl_light2                            1   getb)
@@ -153,7 +154,7 @@
     ;; Texturing
     (gl_texture_1d                        1   getb)
     (gl_texture_2d                        1   getb)
-    (gl_texture_3d                        1   getb)
+    (gl_texture_3d                        1   getb no-cygwin)
     (gl_texture_binding_1d                1   geti)
     (gl_texture_binding_2d                1   geti)
     (gl_texture_binding_3d                1   geti v1.2)
@@ -208,9 +209,9 @@
     (gl_blend_src                         1   geti)
     (gl_blend_dst                         1   geti)
     (gl_blend_equation                    1   geti v1.2)
-    (gl_blend_equation_ext                1   geti v1.1)
+    (gl_blend_equation_ext                1   geti v1.1 no-cygwin)
     (gl_blend_color                       4   getf v1.2)
-    (gl_blend_color_ext                   4   getf v1.1)
+    (gl_blend_color_ext                   4   getf v1.1 no-cygwin)
     (gl_dither                            1   getb)
     (gl_index_logic_op                    1   getb)
     (gl_color_logic_op                    1   getb)
@@ -229,16 +230,16 @@
     ;; Pixels
     (gl_unpack_swap_bytes                 1   getb)
     (gl_unpack_lsb_first                  1   getb)
-    (gl_unpack_image_height               1   geti)
-    (gl_unpack_skip_images                1   geti)
+    (gl_unpack_image_height               1   geti no-cygwin)
+    (gl_unpack_skip_images                1   geti no-cygwin)
     (gl_unpack_row_length                 1   geti)
     (gl_unpack_skip_rows                  1   geti)
     (gl_unpack_skip_pixels                1   geti)
     (gl_unpack_alignment                  1   geti)
     (gl_pack_swap_bytes                   1   getb)
     (gl_pack_lsb_first                    1   getb)
-    (gl_pack_image_height                 1   geti)
-    (gl_pack_skip_images                  1   geti)
+    (gl_pack_image_height                 1   geti no-cygwin)
+    (gl_pack_skip_images                  1   geti no-cygwin)
     (gl_pack_row_length                   1   geti)
     (gl_pack_skip_rows                    1   geti)
     (gl_pack_skip_pixels                  1   geti)
@@ -356,7 +357,7 @@
     (gl_max_projection_stack_depth        1   geti)
     (gl_max_texture_stack_depth           1   geti)
     (gl_subpixel_bits                     1   geti)
-    (gl_max_3d_texture_size               1   geti)
+    (gl_max_3d_texture_size               1   geti no-cygwin)
     (gl_max_texture_size                  1   geti)
     (gl_max_pixel_map_table               1   geti)
     (gl_max_name_stack_depth              1   geti)
@@ -375,15 +376,13 @@
     (gl_aliased_point_size_range          2   getf v1.2)
     (gl_smooth_point_size_range           2   getf v1.2)
     (gl_smooth_point_size_granularity     1   getf v1.2)
-    (gl_point_size_range                  2   getf v1.1)
-    (gl_point_size_granularity            1   getf v1.1)
     (gl_aliased_line_width_range          2   getf v1.2)
     (gl_smooth_line_width_range           2   getf v1.2)
     (gl_smooth_line_width_granularity     1   getf v1.2)
     (gl_max_convolution_width             1   conp)
     (gl_max_convolution_height            1   conp)
-    (gl_max_elements_indices              1   geti)
-    (gl_max_elements_vertices             1   geti)
+    (gl_max_elements_indices              1   geti no-cygwin)
+    (gl_max_elements_vertices             1   geti no-cygwin)
     (gl_max_texture_units_arb             1   geti v1.2)
     ;; Implementation-Dependent Pixel Depths
     (gl_red_bits                          1   geti)
@@ -426,20 +425,25 @@
     (for-each (lambda (n)
                 (for-each
                  (lambda (e)
-                   (let ((name (string-upcase (symbol->string (car e))))
-                         (version (and (pair? (cdddr e)) (cadddr e))))
-                     (case version
-                       ((v1.1)
-                        (print "#if defined(GL_VERSION_1_1) && !defined(GL_VERSION_1_2)"))
-                       ((v1.2)
-                        (print "#if defined(GL_VERSION_1_2)")))
-                     (print #`"  case ,|name|:;")
-                     (when version
-                       (print "#endif"))))
+		   (gen-case-label (string-upcase (symbol->string (car e)))
+				   (cdddr e)))
                  (reverse (cdr n)))
                 (print #`"    return ,(car n);"))
               (reverse tab))))
 
+;; output case label, optionally wrapping by #if-#endif
+(define (gen-case-label name versions)
+  (if (null? versions)
+      (print #`"  case ,|name|:;")
+      (let ((condition
+	     (case (car versions)
+	       ((v1.1) "defined(GL_VERSION_1_1) && !defined(GL_VERSION_1_2)")
+	       ((v1.2) "defined(GL_VERSION_1_2)")
+	       ((no-cygwin) "!defined(__CYGWIN__)")
+	       (else (error "unknown version identifier:" (car versions))))))
+	(print #`"#if ,condition")
+	(gen-case-label name (cdr versions))
+	(print "#endif"))))
 
 ;;-----------------------------
 

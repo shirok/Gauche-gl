@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.9 2002-10-01 07:45:51 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.10 2003-10-05 05:05:25 shirok Exp $
 ;;;
 
 "
@@ -324,19 +324,23 @@
 (define-enum GLU_OUTSIDE)
 (define-enum GLU_INSIDE)
 
-;; Tesselator 
-(define-enum GLU_BEGIN)
-(define-enum GLU_VERTEX)
-(define-enum GLU_END)
-(define-enum GLU_ERROR)
-(define-enum GLU_EDGE_FLAG)
+;; Tesselator
+(if "!defined(__CYGWIN__)"
+    (begin
+      (define-enum GLU_BEGIN)
+      (define-enum GLU_VERTEX)
+      (define-enum GLU_END)
+      (define-enum GLU_ERROR)
+      (define-enum GLU_EDGE_FLAG)))
 
 ;; Contour types 
-(define-enum GLU_CW)
-(define-enum GLU_CCW)
-(define-enum GLU_INTERIOR)
-(define-enum GLU_EXTERIOR)
-(define-enum GLU_UNKNOWN)
+(if "!defined(__CYGWIN__)"
+    (begin
+      (define-enum GLU_CW)
+      (define-enum GLU_CCW)
+      (define-enum GLU_INTERIOR)
+      (define-enum GLU_EXTERIOR)
+      (define-enum GLU_UNKNOWN)))
 
 ;; Tesselation errors 
 (define-enum GLU_TESS_ERROR1)

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.31 2003-01-30 05:50:12 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.32 2003-10-05 05:05:25 shirok Exp $
 ;;;
 
 "
@@ -1280,11 +1280,13 @@
   "switch (pname) {
      case GL_TEXTURE_WRAP_S:;
      case GL_TEXTURE_WRAP_T:;
+#if !defined(__CYGWIN__)
      case GL_TEXTURE_WRAP_R:;
-     case GL_TEXTURE_MAG_FILTER:;
-     case GL_TEXTURE_MIN_FILTER:;
      case GL_TEXTURE_BASE_LEVEL:;
      case GL_TEXTURE_MAX_LEVEL:;
+#endif /*!defined(__CYGWIN__)*/
+     case GL_TEXTURE_MAG_FILTER:;
+     case GL_TEXTURE_MIN_FILTER:;
        if (SCM_INTP(param)) {
          glTexParameteri(target, pname, Scm_GetInteger(param));
        } else {
@@ -1292,8 +1294,10 @@
        }
        break;
      case GL_TEXTURE_PRIORITY:;
+#if !defined(__CYGWIN__)
      case GL_TEXTURE_MIN_LOD:;
      case GL_TEXTURE_MAX_LOD:;
+#endif /*!defined(__CYGWIN__)*/
        if (SCM_REALP(param)) {
          glTexParameterf(target, pname, (GLfloat)Scm_GetDouble(param));
        } else {
@@ -1319,16 +1323,20 @@
   switch (pname) {
      case GL_TEXTURE_WRAP_S:;
      case GL_TEXTURE_WRAP_T:;
+#if !defined(__CYGWIN__)
      case GL_TEXTURE_WRAP_R:;
-     case GL_TEXTURE_MAG_FILTER:;
-     case GL_TEXTURE_MIN_FILTER:;
      case GL_TEXTURE_BASE_LEVEL:;
      case GL_TEXTURE_MAX_LEVEL:;
+#endif /*!defined(__CYGWIN__)*/
+     case GL_TEXTURE_MAG_FILTER:;
+     case GL_TEXTURE_MIN_FILTER:;
        glGetTexParameteriv(target, pname, &i);
        SCM_RETURN(Scm_MakeInteger(i));
      case GL_TEXTURE_PRIORITY:;
+#if !defined(__CYGWIN__)
      case GL_TEXTURE_MIN_LOD:;
      case GL_TEXTURE_MAX_LOD:;
+#endif /*!defined(__CYGWIN__)*/
        glGetTexParameterfv(target, pname, &f);
        SCM_RETURN(Scm_MakeFlonum((double)f));
      case GL_TEXTURE_BORDER_COLOR:

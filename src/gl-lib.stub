@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.19 2002-08-18 08:04:50 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.20 2002-08-18 09:12:49 shirok Exp $
 ;;;
 
 "
@@ -1152,8 +1152,8 @@
   SCM_RETURN(vec);")
 
 (define-cproc gl-bitmap (width::<int> height::<int>
-                         xbo::<int> ybo::<int>
-                         xbi::<int> ybi::<int> bitmap)
+                         xbo::<float> ybo::<float>
+                         xbi::<float> ybi::<float> bitmap)
   "if (!SCM_U8VECTORP(bitmap)) {
     Scm_Error(\"bitmap must be an u8vector, but got %S\", bitmap);
   }

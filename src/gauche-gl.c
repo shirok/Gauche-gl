@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.18 2003-10-05 05:05:25 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.19 2003-12-05 03:26:38 shirok Exp $
  */
 
 #include <gauche.h>
@@ -295,14 +295,11 @@ void Scm_Init_libgauche_gl(void)
     SCM_INIT_EXTENSION(gauche_gl);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl", TRUE));
     Scm_InitBuiltinClass(&Scm_GluQuadricClass, "<glu-quadric>",
-                         NULL, sizeof(Scm_GluQuadricClass)/sizeof(ScmObj),
-                         mod);
+                         NULL, 0, mod);
     Scm_InitBuiltinClass(&Scm_GluNurbsClass, "<glu-nurbs>",
-                         NULL, sizeof(Scm_GluNurbsClass)/sizeof(ScmObj),
-                         mod);
+                         NULL, 0, mod);
     Scm_InitBuiltinClass(&Scm_GluTesselatorClass, "<glu-tesselator>",
-                         NULL, sizeof(Scm_GluTesselatorClass)/sizeof(ScmObj),
-                         mod);
+                         NULL, 0, mod);
     Scm_Init_gl_lib(mod);
     Scm_Init_gl_syms(mod);
     Scm_Init_glu_lib(mod);

@@ -1,3 +1,8 @@
+2003-12-04  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-gl.c (Scm_Init_libgauche_gl) : adapted to Gauche-0.7.3
+	  change
+
 2003-11-11  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-math3d.c (Scm_Matrix4fDecomposev): fixed a bug that

@@ -71,16 +71,25 @@ test : all
 	$(GOSH) -I. -I../lib test.scm >> test.log
 
 install : all
+	@if test ! -d $(HEADER_INSTALL_DIR)/gauche; then \
+	  $(INSTALL) -d $(HEADER_INSTALL_DIR)/gauche; \
+	fi
 	@for f in $(HEADERS) _end; do \
 	  if test $$f != _end; then \
 	    $(INSTALL) -m 444 $$f $(HEADER_INSTALL_DIR)/$$f; \
 	  fi; \
 	done
+	@if test ! -d $(SCM_INSTALL_DIR); then \
+	  $(INSTALL) -d $(SCM_INSTALL_DIR); \
+	fi
 	@for f in $(SCMFILES) _end; do \
 	  if test $$f != _end; then \
 	    $(INSTALL) -m 444 $$f $(SCM_INSTALL_DIR); \
 	  fi; \
 	done
+	@if test ! -d $(ARCH_INSTALL_DIR); then \
+	  $(INSTALL) -d $(ARCH_INSTALL_DIR); \
+	fi
 	@for f in $(ARCHFILES) _end; do \
 	  if test $$f != _end; then \
 	    $(INSTALL) -m 555 $$f $(ARCH_INSTALL_DIR); \
@@ -88,10 +97,10 @@ install : all
 	done
 
 clean :
-	rm -rf core $(TARGET) $(OBJS) *~ test.log so_locations
+	rm -rf core $(TARGET) $(OBJS) $(GENERATED) *~ test.log so_locations
 
 distclean : clean
 	rm -rf $(CONFIG_GENERATED)
 
 realclean : clean
-	rm -rf $(CONFIG_GENERATED) $(GENERATED) configure
+	rm -rf $(CONFIG_GENERATED) configure

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.20 2003-01-06 13:12:15 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.21 2003-01-30 05:50:12 shirok Exp $
  */
 
 #include <math.h>
@@ -249,7 +249,7 @@ SCM_DEFINE_BUILTIN_CLASS(Scm_Vector4fArrayClass,
 
 ScmObj Scm_MakeVector4fArrayv(int nvecs, const float *init)
 {
-    int i, j;
+    int i;
     ScmVector4fArray *a;
     SCM_ASSERT(nvecs >= 0);
     a = SCM_NEW(ScmVector4fArray);
@@ -426,7 +426,7 @@ SCM_DEFINE_BUILTIN_CLASS(Scm_Point4fArrayClass, point_array_print,
 
 ScmObj Scm_MakePoint4fArrayv(int len, const float *init)
 {
-    int i, j;
+    int i;
     ScmPoint4fArray *a;
     SCM_ASSERT(len >= 0);
     a = SCM_NEW(ScmPoint4fArray);

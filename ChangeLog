@@ -1,3 +1,8 @@
+2003-01-29  Shiro Kawai  <shiro@acm.org>
+
+	* various files: applied patch from Yokota Hiroshi
+	* examples/gears.scm : added (ported by Yokota Hiroshi)
+
 2003-01-19  Shiro Kawai  <shiro@acm.org>
 
 	* lib/gl/math3d.scm (call-with-iterator): fixed typos.

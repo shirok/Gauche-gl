@@ -12,10 +12,11 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.22 2003-01-08 10:08:33 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.23 2003-01-30 05:50:12 shirok Exp $
 ;;;
 
 "
+#include <math.h>
 #include <gauche/uvector.h>
 #include \"gauche/math3d.h\"
 "
@@ -301,7 +302,7 @@
   SCM_RETURN(Scm_MakeMatrix4fv(r));")
 
 (define-cproc matrix4f-transpose! (m::<matrix4f>)
-  "float r[16], *p = SCM_MATRIX4F_D(m); int i;
+  "float r[16], *p = SCM_MATRIX4F_D(m);
   Scm_Matrix4fTransposev(r, p);
   Scm_Matrix4fSetv(m, r);
   SCM_RETURN(SCM_OBJ(m));")

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.16 2002-12-15 12:50:23 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.17 2003-01-30 05:50:12 shirok Exp $
  */
 
 #include <gauche.h>
@@ -115,7 +115,7 @@ int Scm_GLPixelDataType(GLenum type, int *packed)
 int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
                         int *elttype, int *packedp)
 {
-    int components = 0, packedsize = 0, packed = FALSE;
+    int components = 0, packed = FALSE;
     *elttype = Scm_GLPixelDataType(type, &packed);
     if (packedp) *packedp = packed;
 

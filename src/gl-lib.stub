@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.30 2002-09-30 09:57:16 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.31 2003-01-30 05:50:12 shirok Exp $
 ;;;
 
 "
@@ -1189,6 +1189,9 @@
       vec = Scm_MakeF32Vector(size, 0);
       data = (void*)SCM_F32VECTOR_ELEMENTS(vec);
       break;
+    default:
+      data = NULL;
+      break;
   }
   glReadPixels(x, y, width, height, format, type, data);
   SCM_RETURN(vec);")
@@ -1379,7 +1382,8 @@
 
 (define-cproc gl-delete-textures (names)
   "if (!SCM_U32VECTORP(names)) Scm_Error(\"texture names must be an u32vector, but got %S\", names);
-  glDeleteTextures(SCM_U32VECTOR_SIZE(names), SCM_U32VECTOR_ELEMENTS(names));")
+  glDeleteTextures(SCM_U32VECTOR_SIZE(names), SCM_U32VECTOR_ELEMENTS(names));
+  SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-bind-texture (target::<fixnum> name::<int>)
   "glBindTexture(target, name);

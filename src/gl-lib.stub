@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.8 2001-10-02 11:10:12 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.9 2001-10-07 08:46:38 shirok Exp $
 ;;;
 
 "
@@ -168,10 +168,66 @@
   "glDisableClientState((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
 
-;; glGetBooleanv
-;; glGetIntegerv
-;; glGetFloatv
-;; glGetDoublev
+(define-cproc gl-get-boolean (state)
+  (assert (small-integer? state))
+  "int vsize = Scm_GLStateInfoSize(state);
+  if (vsize <= 0)
+    Scm_Error(\"you can't query state ~a by glGetBooleanv\", state);
+  if (vsize == 1) {
+    GLboolean b;
+    glGetBooleanv((GLenum)state, &b);
+    SCM_RETURN(SCM_MAKE_INT(b));
+  } else {
+    ScmU8Vector *v = SCM_U8VECTOR(Scm_MakeU8Vector(vsize, 0));
+    glGetBooleanv((GLenum)state, SCM_U8VECTOR_ELEMENTS(v));
+    SCM_RETURN(SCM_OBJ(v));
+  }")
+
+(define-cproc gl-get-integer (state)
+  (assert (small-integer? state))
+  "int vsize = Scm_GLStateInfoSize(state);
+  if (vsize <= 0)
+    Scm_Error(\"you can't query state ~a by glGetIntegerv\", state);
+  if (vsize == 1) {
+    GLint i;
+    glGetIntegerv((GLenum)state, &i);
+    SCM_RETURN(Scm_MakeInteger(i));
+  } else {
+    ScmS32Vector *v = SCM_S32VECTOR(Scm_MakeS32Vector(vsize, 0));
+    glGetIntegerv((GLenum)state, SCM_S32VECTOR_ELEMENTS(v));
+    SCM_RETURN(SCM_OBJ(v));
+  }")
+
+(define-cproc gl-get-float (state)
+  (assert (small-integer? state))
+  "int vsize = Scm_GLStateInfoSize(state);
+  if (vsize <= 0)
+    Scm_Error(\"you can't query state ~a by glGetFloatv\", state);
+  if (vsize == 1) {
+    GLfloat v;
+    glGetFloatv((GLenum)state, &v);
+    SCM_RETURN(Scm_MakeFlonum((double)v));
+  } else {
+    ScmF32Vector *v = SCM_F32VECTOR(Scm_MakeF32Vector(vsize, 0));
+    glGetFloatv((GLenum)state, SCM_F32VECTOR_ELEMENTS(v));
+    SCM_RETURN(SCM_OBJ(v));
+  }")
+
+(define-cproc gl-get-double (state)
+  (assert (small-integer? state))
+  "int vsize = Scm_GLStateInfoSize(state);
+  if (vsize <= 0)
+    Scm_Error(\"you can't query state ~a by glGetDoublev\", state);
+  if (vsize == 1) {
+    GLdouble v;
+    glGetDoublev((GLenum)state, &v);
+    SCM_RETURN(Scm_MakeFlonum(v));
+  } else {
+    ScmF64Vector *v = SCM_F64VECTOR(Scm_MakeF64Vector(vsize, 0));
+    glGetDoublev((GLenum)state, SCM_F64VECTOR_ELEMENTS(v));
+    SCM_RETURN(SCM_OBJ(v));
+  }")
+
 ;; glGetPointerv
 
 (define-cproc gl-push-attrib (mask)

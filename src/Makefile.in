@@ -11,8 +11,10 @@ ARCHFILES = gauche-gl.so
 SCMFILES = gl.scm
 HEADERS = 
 
-TARGET = gauche-gl.so
-OBJS = gauche-gl.o gl-lib.o
+TARGET = gauche-gl.so gauche-glut.so
+GLOBJS = gauche-gl.o gl-lib.o
+GLUTOBJS = glut-lib.o
+OBJS = $(GLOBJS) $(GLUTOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status
 
 INSTALL_TYPE = @INSTALL_TYPE@
@@ -22,11 +24,17 @@ ARCH_INSTALL_DIR    = `$(GAUCHE_CONFIG) --$(INSTALL_TYPE)archdir`
 
 all : $(TARGET)
 
-gauche-gl.so : $(OBJS)
-	$(CC) $(LDFLAGS) gauche-gl.so $(OBJS) $(LIBS)
+gauche-gl.so : $(GLOBJS)
+	$(CC) $(LDFLAGS) gauche-gl.so $(GLOBJS) $(LIBS)
 
 gl-lib.c : gl-lib.stub
 	$(GOSH) genstub gl-lib.stub
+
+gauche-glut.so : $(GLUTOBJS)
+	$(CC) $(LDFLAGS) gauche-glut.so $(GLUTOBJS) $(LIBS)
+
+glut-lib.c : glut-lib.stub
+	$(GOSH) genstub glut-lib.stub
 
 test : all
 	@rm -f test.log

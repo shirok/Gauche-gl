@@ -1,0 +1,72 @@
+#? /usr/local/bin/gosh
+<? ;; Process this file with escm
+(define japanese? (equal? (sys-getenv "LANG") "ja_JP"))
+(define (header ja en)
+  (format #t "[~a]\n------------------------------------------"
+          (if japanese? ja en)))
+(define-syntax if-lang
+  (syntax-rules (else)
+    ((_ "collect-then" then-expr () test)
+     (if test (begin . then-expr)))
+    ((_ "collect-then" then-expr () test else body ...)
+     (if-lang "collect-else" then-expr () test body ...))
+    ((_ "collect-then" (then-expr ...) () test body1 body ...)
+     (if-lang "collect-then" (then-expr ... body1) () test body ...))
+    ((_ "collect-else" then-expr else-expr test)
+     (if test (begin . then-expr) (begin . else-expr)))
+    ((_ "collect-else" then-expr (else-expr ...) test body1 body ...)
+     (if-lang "collect-else" then-expr (else-expr ... body1) test body ...))
+    ((_ test body ...)
+     (if-lang "collect-then" () () test body ...))))
+!>
+
+<? (if-lang japanese? !>
+                       Gauche-gl - Gauche OpenGL バインディング
+<? else !>
+                         Gauche-gl - Gauche OpenGL binding
+<? ) !>
+
+$Id: INSTALL.esc,v 1.1 2001-10-15 08:09:02 shirok Exp $
+<? (if-lang japanese? !>
+Gauche-glの最新情報は以下のURLで得られます。<? else !>
+Up-to-date information about Gauche-gl is posted to the following URL:
+<? ) !>
+  http://www.shiro.dreamhost.com/scheme/gauche/
+
+<? (header "必要な準備" "Prerequisites") !>
+
+<? (if-lang japanese? !>
+* Gauche 0.4.7 以降がインストールされている必要があります。
+* OpenGL 1.1以降もしくはMesa 3.0以降が必要です。
+* GLUT 3.7以降が必要です。
+<? else !>
+* Gauche 0.4.7 or later must be installed.
+* OpenGL 1.1 or later, or Mesa 3.0 or later, required.
+* GLUT 3.7 or later is required.
+<? ) !>
+
+<? (header "簡単な方法" "Quick Start") !>
+
+   % ./configure
+   % make
+   % make install
+<? (if-lang japanese? !>
+Configureスクリプトは、既にインストールされているGaucheの情報を元に、
+必要なコンパイラオプションやインストール先を設定します。
+<? else !>
+Configure script figures out the necessary compiler options and the
+install location from the installed Gauche.
+<? ) !>
+
+<? (header "GLUTライブラリの場所" "Location of GLUT Library") !>
+
+<? (if-lang japanese? !>
+もしGLUTライブラリが標準でない場所にインストールされている場合、以下のオプションで
+その場所をconfigureスクリプトに渡して下さい。
+<? else !>
+If you have GLUT installed in non-standard place, you have to
+tell the configure script where it is.
+<? ) !>
+
+  ./configure --with-glut=DIR
+

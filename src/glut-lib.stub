@@ -1,7 +1,7 @@
 ;;;
 ;;; glut-lib.stub - glue functions for GLUT
 ;;;
-;;;  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2001-2002 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.4 2001-09-30 04:47:52 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.5 2002-07-24 15:39:20 shirok Exp $
 ;;;
 
 "
@@ -54,8 +54,7 @@
   SCM_RETURN(Scm_MakeInteger(argc));
   ")
 
-(define-cproc glut-init-display-mode (mode)
-  (assert (small-integer? mode))
+(define-cproc glut-init-display-mode (mode::<fixnum>)
   "glutInitDisplayMode(mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -67,15 +66,11 @@
 #endif
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-init-window-size (width height)
-  (assert (exact? width))
-  (assert (exact? height))
+(define-cproc glut-init-window-size (width::<int> height::<int>)
   "glutInitWindowSize(width, height);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-init-window-position (x y)
-  (assert (exact? x))
-  (assert (exact? y))
+(define-cproc glut-init-window-position (x::<int> y::<int>)
   "glutInitWindowPosition(x, y);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -87,17 +82,12 @@
   (assert (string? name))
   "SCM_RETURN(Scm_MakeInteger(glutCreateWindow(Scm_GetStringConst(name))));")
 
-(define-cproc glut-create-sub-window (win x y width height)
-  (assert (exact? win))
-  (assert (exact? x))
-  (assert (exact? y))
-  (assert (exact? width))
-  (assert (exact? height))
+(define-cproc glut-create-sub-window (win::<int> x::<int> y::<int>
+                                      width::<int> height::<int>)
   "int win = glutCreateSubWindow(win, x, y, width, height);
    SCM_RETURN(Scm_MakeInteger(win));")
 
-(define-cproc glut-destroy-window (win)
-  (assert (exact? win))
+(define-cproc glut-destroy-window (win::<int>)
   "glutDestroyWindow(win);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -105,8 +95,7 @@
   "glutPostRedisplay();
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-post-window-redisplay (win)
-  (assert (exact? win))
+(define-cproc glut-post-window-redisplay (win::<int>)
   "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
    glutPostWindowRedisplay(win);
 #endif
@@ -119,8 +108,7 @@
 (define-cproc glut-get-window ()
   "SCM_RETURN(Scm_MakeInteger(glutGetWindow()));")
 
-(define-cproc glut-set-window (win)
-  (assert (exact? win))
+(define-cproc glut-set-window (win::<int>)
   "glutSetWindow(win);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -134,15 +122,11 @@
   "glutSetIconTitle(Scm_GetStringConst(title));
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-position-window (x y)
-  (assert (exact? x))
-  (assert (exact? y))
+(define-cproc glut-position-window (x::<int> y::<int>)
   "glutPositionWindow(x, y);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-reshape-window (width height)
-  (assert (exact? width))
-  (assert (exact? height))
+(define-cproc glut-reshape-window (width::<int> height::<int>)
   "glutReshapeWindow(width, height);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -172,16 +156,13 @@
 #endif
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-set-cursor (cursor)
-  (assert (exact? cursor))
+(define-cproc glut-set-cursor (cursor::<int>)
   "#if (GLUT_API_VERSION >= 3)
    glutSetCursor(cursor);
 #endif
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-warp-pointer (x y)
-  (assert (exact? x))
-  (assert (exact? y))
+(define-cproc glut-warp-pointer (x::<int> y::<int>)
   "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
    glutWarpPointer(x, y);
 #endif
@@ -203,8 +184,7 @@
 #endif
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-use-layer (layer)
-  (assert (small-integer? layer))
+(define-cproc glut-use-layer (layer::<fixnum>)
   "#if (GLUT_API_VERSION >= 3)
    glutUseLayer(layer);
 #endif
@@ -216,8 +196,7 @@
 #endif
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-post-window-overlay-redisplay (win)
-  (assert (exact? win))
+(define-cproc glut-post-window-overlay-redisplay (win::<int>)
   "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
    glutPostWindowOverlayRedisplay(win);
 #endif
@@ -263,8 +242,7 @@
     SCM_RETURN(SCM_FALSE);
   }")
 
-(define-cproc glut-destroy-menu (menu)
-  (assert (small-integer? menu))
+(define-cproc glut-destroy-menu (menu::<fixnum>)
   "  menu_fn_assoc =
        Scm_AssocDelete(SCM_MAKE_INT(menu), menu_fn_assoc, SCM_CMP_EQV);
   glutDestroyMenu(menu);
@@ -273,49 +251,37 @@
 (define-cproc glut-get-menu ()
   "SCM_RETURN(Scm_MakeInteger(glutGetMenu()));")
 
-(define-cproc glut-set-menu (menu)
-  (assert (small-integer? menu))
+(define-cproc glut-set-menu (menu::<fixnum>)
   "glutSetMenu(menu);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-add-menu-entry (label value)
-  (assert (string? label))
-  (assert (exact? value))
+(define-cproc glut-add-menu-entry (label::<string> value::<int>)
   "glutAddMenuEntry(Scm_GetStringConst(label), value);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-add-sub-menu (label submenu)
-  (assert (string? label))
-  (assert (exact? submenu))
+(define-cproc glut-add-sub-menu (label::<string> submenu::<int>)
   "glutAddSubMenu(Scm_GetStringConst(label), submenu);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-change-to-menu-entry (item label value)
-  (assert (exact? item))
-  (assert (string? label))
-  (assert (exact? value))
+(define-cproc glut-change-to-menu-entry (item::<int> label::<string>
+                                         value::<int>)
   "glutChangeToMenuEntry(item, Scm_GetStringConst(label), value);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-change-to-sub-menu (item label submenu)
-  (assert (exact? item))
-  (assert (string? label))
-  (assert (exact? submenu))
+(define-cproc glut-change-to-sub-menu (item::<int> label::<string>
+                                       submenu::<int>)
   "glutChangeToSubMenu(item, Scm_GetStringConst(label), submenu);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-remove-menu-item (item)
-  (assert (exact? item))
+(define-cproc glut-remove-menu-item (item::<int>)
   "glutRemoveMenuItem(item);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-attach-menu (button)
-  (assert (exact? button))
+(define-cproc glut-attach-menu (button::<int>)
   "glutAttachMenu(button);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-detach-menu (button)
-  (assert (exact? button))
+(define-cproc glut-detach-menu (button::<int>)
   "glutDetachMenu(button);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -468,9 +434,7 @@
    }
  }"
 
-(define-cproc glut-timer-func (millis fn value)
-  (assert (exact? millis))
-  (assert (exact? value))
+(define-cproc glut-timer-func (millis::<int> fn value::<int>)
   "  timer_fn = fn;
   glutTimerFunc(millis, timer_callback, value);
   SCM_RETURN(SCM_UNDEFINED);")
@@ -717,8 +681,7 @@
  }
 #endif"
 
-(define-cproc glut-joystick-func (fn interval)
-  (assert (exact? interval))
+(define-cproc glut-joystick-func (fn interval::<int>)
   "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
   joystick_fn = fn;
   glutJoystickFunc(joystick_callback, interval);
@@ -729,24 +692,13 @@
 ;; Colormap
 ;;
 
-(define-cproc glut-set-color (index r g b)
-  (assert (exact? index))
-  (assert (number? r))
-  (assert (number? g))
-  (assert (number? b))
-  "glutSetColor((GLint)index,
-                (GLfloat)Scm_GetDouble(r),
-                (GLfloat)Scm_GetDouble(g),
-                (GLfloat)Scm_GetDouble(b));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-set-color (index::<int> r::<float> g::<float> b::<float>)
+  (return <void> "glutSetColor"))
 
-(define-cproc glut-get-color (index component)
-  (assert (exact? index))
-  (assert (small-integer? component))
+(define-cproc glut-get-color (index::<int> component::<fixnum>)
   "SCM_RETURN(Scm_MakeFlonum((double)glutGetColor(index, component)));")
 
-(define-cproc glut-copy-colormap (win)
-  (assert (exact? win))
+(define-cproc glut-copy-colormap (win::<int>)
   "glutCopyColormap(win);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -754,12 +706,10 @@
 ;; state retrieval
 ;;
 
-(define-cproc glut-get (type)
-  (assert (exact? type))
+(define-cproc glut-get (type::<int>)
   "SCM_RETURN(Scm_MakeInteger(glutGet(type)));")
 
-(define-cproc glut-device-get (type)
-  (assert (exact? type))
+(define-cproc glut-device-get (type::<int>)
   "SCM_RETURN(Scm_MakeInteger(glutDeviceGet(type)));")
 
 (define-cproc glut-extension-supported (name)
@@ -777,8 +727,7 @@
    SCM_RETURN(SCM_MAKE_INT(0));
 #endif")
 
-(define-cproc glut-layer-get (type)
-  (assert (exact? type))
+(define-cproc glut-layer-get (type::<int>)
   "#if (GLUT_API_VERSION >= 3)
    SCM_RETURN(Scm_MakeInteger(glutLayerGet(type)));
 #else
@@ -792,26 +741,22 @@
 (define-type "glut-font" glut-font?
   "ScmGlutFont*" "SCM_GLUT_FONT_P" "SCM_GLUT_FONT")
 
-(define-cproc glut-bitmap-character (font character)
+(define-cproc glut-bitmap-character (font character::<int>)
   (assert (glut-font? font))
-  (assert (exact? character))
   "glutBitmapCharacter(font->font, character);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-bitmap-width (font character)
+(define-cproc glut-bitmap-width (font character::<int>)
   (assert (glut-font? font))
-  (assert (exact? character))
   "SCM_RETURN(Scm_MakeInteger(glutBitmapWidth(font->font, character)));")
 
-(define-cproc glut-stroke-character (font character)
+(define-cproc glut-stroke-character (font character::<int>)
   (assert (glut-font? font))
-  (assert (exact? character))
   "glutStrokeCharacter(font->font, character);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-stroke-width (font character)
+(define-cproc glut-stroke-width (font character::<int>)
   (assert (glut-font? font))
-  (assert (exact? character))
   "SCM_RETURN(Scm_MakeInteger(glutStrokeWidth(font->font, character)));")
 
 (define-cproc glut-bitmap-length (font string)
@@ -838,111 +783,67 @@
 ;; pre-built models
 ;;
 
-(define-cproc glut-wire-sphere (radius slices stacks)
+(define-cproc glut-wire-sphere (radius slices::<int> stacks::<int>)
   (assert (number? radius))
-  (assert (exact? slices))
-  (assert (exact? stacks))
   "glutWireSphere((GLdouble)Scm_GetDouble(radius), (GLint)slices, (GLint)stacks);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-solid-sphere (radius slices stacks)
+(define-cproc glut-solid-sphere (radius slices::<int> stacks::<int>)
   (assert (number? radius))
-  (assert (exact? slices))
-  (assert (exact? stacks))
   "glutSolidSphere((GLdouble)Scm_GetDouble(radius), (GLint)slices, (GLint)stacks);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glut-wire-cone (radius height slices stacks)
-  (assert (number? radius))
-  (assert (number? height))
-  (assert (exact? slices))
-  (assert (exact? stacks))
-  "glutWireCone((GLdouble)Scm_GetDouble(radius),
-                (GLdouble)Scm_GetDouble(height),
-                (GLint)slices, (GLint)stacks);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-wire-cone (radius::<real> height::<real>
+                              slices::<int> stacks::<int>)
+  (return <void> "glutWireCone"))
 
-(define-cproc glut-solid-cone (radius height slices stacks)
-  (assert (number? radius))
-  (assert (number? height))
-  (assert (exact? slices))
-  (assert (exact? stacks))
-  "glutSolidCone((GLdouble)Scm_GetDouble(radius),
-                 (GLdouble)Scm_GetDouble(height),
-                 (GLint)slices, (GLint)stacks);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-solid-cone (radius::<real> height::<real>
+                               slices::<int> stacks::<int>)
+  (return <void> "glutSolidCone"))
 
-(define-cproc glut-wire-cube (size)
-  (assert (number? size))
-  "glutWireCube((GLdouble)Scm_GetDouble(size));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-wire-cube (size::<real>)
+  (return <void> "glutWireCube"))
 
-(define-cproc glut-solid-cube (size)
-  (assert (number? size))
-  "glutSolidCube((GLdouble)Scm_GetDouble(size));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-solid-cube (size::<real>)
+  (return <void> "glutSolidCube"))
 
-(define-cproc glut-wire-torus (inner outer sides rings)
-  (assert (number? inner))
-  (assert (number? outer))
-  (assert (exact? sides))
-  (assert (exact? rings))
-  "glutWireTorus((GLdouble)Scm_GetDouble(inner),
-                 (GLdouble)Scm_GetDouble(outer),
-                 (GLint)sides, (GLint)rings);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-wire-torus (inner::<real> outer::<real>
+                               sides::<int> rings::<int>)
+  (return <void> "glutWireTorus"))
 
-(define-cproc glut-solid-torus (inner outer sides rings)
-  (assert (number? inner))
-  (assert (number? outer))
-  (assert (exact? sides))
-  (assert (exact? rings))
-  "glutSolidTorus((GLdouble)Scm_GetDouble(inner),
-                  (GLdouble)Scm_GetDouble(outer),
-                  (GLint)sides, (GLint)rings);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-solid-torus (inner::<real> outer::<real>
+                                sides::<int> rings::<int>)
+  (return <void> "glutSolidTorus"))
 
 (define-cproc glut-wire-dodecahedron ()
-  "glutWireDodecahedron();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glutWireDodecahedron"))
 
 (define-cproc glut-solid-dodecahedron ()
-  "glutSolidDodecahedron();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glutSolidDodecahedron"))
 
-(define-cproc glut-wire-teapot (size)
-  (assert (number? size))
-  "glutWireTeapot((GLdouble)Scm_GetDouble(size));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-wire-teapot (size::<real>)
+  (return <void> "glutWireTeapot"))
 
-(define-cproc glut-solid-teapot (size)
-  (assert (number? size))
-  "glutSolidTeapot((GLdouble)Scm_GetDouble(size));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-solid-teapot (size::<real>)
+  (return <void> "glutSolidTeapot"))
 
 (define-cproc glut-wire-octahedron ()
-  "glutWireOctahedron();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glutWireOctahedron"))
 
 (define-cproc glut-solid-octahedron ()
-  "glutSolidOctahedron();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glutSolidOctahedron"))
 
 (define-cproc glut-wire-tetrahedron ()
-  "glutWireTetrahedron();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glutWireTetrahedron"))
 
 (define-cproc glut-solid-tetrahedron ()
-  "glutSolidTetrahedron();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glutSolidTetrahedron"))
 
 (define-cproc glut-wire-icosahedron ()
-  "glutWireIcosahedron();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glutWireIcosahedron"))
 
 (define-cproc glut-solid-icosahedron ()
-  "glutSolidIcosahedron();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glutSolidIcosahedron"))
 
 ;;========================================================
 ;; Video resize

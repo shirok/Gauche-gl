@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.5 2002-07-19 03:12:48 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.6 2002-07-24 15:39:20 shirok Exp $
 ;;;
 
 "
@@ -128,8 +128,7 @@
    SCM_RETURN(Scm_Values3(SCM_FALSE, SCM_FALSE, SCM_FALSE));
  }")
 
-(define-cproc glu-error-string (code)
-  (assert (exact? code))
+(define-cproc glu-error-string (code::<int>)
   "  const GLubyte *s = gluErrorString(code);
   if (s) SCM_RETURN(Scm_MakeString((const char *)s, -1, -1, 0));
   else   SCM_RETURN(SCM_FALSE);")
@@ -148,27 +147,23 @@
 ;; gluNewQuadric : (make <glu-quadric>)
 ;; gluDeleteQuadric : GC takes care of this
 
-(define-cproc glu-quadric-draw-style (quad style)
+(define-cproc glu-quadric-draw-style (quad style::<fixnum>)
   (assert (glu-quadric? quad))
-  (assert (small-integer? style))
   "gluQuadricDrawStyle(quad->quadric, style);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-quadric-orientation (quad orientation)
+(define-cproc glu-quadric-orientation (quad orientation::<fixnum>)
   (assert (glu-quadric? quad))
-  (assert (small-integer? orientation))
   "gluQuadricOrientation(quad->quadric, orientation);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-quadric-normals (quad normals)
+(define-cproc glu-quadric-normals (quad normals::<fixnum>)
   (assert (glu-quadric? quad))
-  (assert (small-integer? normals))
   "gluQuadricNormals(quad->quadric, normals);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-quadric-texture (quad texcoords)
+(define-cproc glu-quadric-texture (quad texcoords::<fixnum>)
   (assert (glu-quadric? quad))
-  (assert (small-integer? texcoords))
   "gluQuadricTexture(quad->quadric, texcoords);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -176,42 +171,29 @@
 ;;   information, so it is practially impossible to implement this in
 ;;   reasonable way.
 
-(define-cproc glu-cylinder (quad base-radius top-radius height slices stacks)
+(define-cproc glu-cylinder (quad base-radius::<real>
+                            top-radius::<real> height::<real>
+                            slices::<fixnum> stacks::<fixnum>)
   (assert (glu-quadric? quad))
-  (assert (real? base-radius))
-  (assert (real? top-radius))
-  (assert (real? height))
-  (assert (small-integer? slices))
-  (assert (small-integer? stacks))
   "gluCylinder(quad->quadric, base_radius, top_radius, height, slices, stacks);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-sphere (quad radius slices stacks)
+(define-cproc glu-sphere (quad radius::<real>
+                          slices::<fixnum> stacks::<fixnum>)
   (assert (glu-quadric? quad))
-  (assert (real? radius))
-  (assert (small-integer? slices))
-  (assert (small-integer? stacks))
   "gluSphere(quad->quadric, radius, slices, stacks);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-disk (quad inner-radius outer-radius slices loops)
+(define-cproc glu-disk (quad inner-radius::<real> outer-radius::<real>
+                        slices::<fixnum> loops::<fixnum>)
   (assert (glu-quadric? quad))
-  (assert (real? inner-radius))
-  (assert (real? outer-radius))
-  (assert (small-integer? slices))
-  (assert (small-integer? loops))
   "gluDisk(quad->quadric, inner_radius, outer_radius, slices, loops);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-partial-disk (quad inner-radius outer-radius slices
-                                loops start-angle sweep-angle)
+(define-cproc glu-partial-disk (quad inner-radius::<real> outer-radius::<real>
+                                slices::<fixnum> loops::<fixnum>
+                                start-angle::<real> sweep-angle::<real>)
   (assert (glu-quadric? quad))
-  (assert (real? inner-radius))
-  (assert (real? outer-radius))
-  (assert (small-integer? slices))
-  (assert (small-integer? loops))
-  (assert (real? start-angle))
-  (assert (real? sweep-angle))
   "gluPartialDisk(quad->quadric, inner_radius, outer_radius, slices, loops,
                   start_angle, sweep_angle);
    SCM_RETURN(SCM_UNDEFINED);")
@@ -247,16 +229,13 @@
                            SCM_S32VECTOR_ELEMENTS(viewport));
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-nurbs-property (nurbs property value)
+(define-cproc glu-nurbs-property (nurbs property::<fixnum> value::<real>)
   (assert (glu-nurbs? nurbs))
-  (assert (small-integer? property))
-  (assert (real? value))
   "gluNurbsProperty(nurbs->nurbs, (GLenum)property, (GLfloat)value);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-get-nurbs-property (nurbs property)
+(define-cproc glu-get-nurbs-property (nurbs property::<fixnum>)
   (assert (glu-nurbs? nurbs))
-  (assert (small-integer? property))
   "GLfloat value;
    gluGetNurbsProperty(nurbs->nurbs, (GLenum)property, &value);
    SCM_RETURN(Scm_MakeFlonum((double)value));")
@@ -271,11 +250,9 @@
   "gluEndCurve(nurbs->nurbs);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc glu-nurbs-curve (nurbs knot stride ctlarray order type)
+(define-cproc glu-nurbs-curve (nurbs knot stride::<fixnum> ctlarray
+                               order::<fixnum> type::<fixnum>)
   (assert (glu-nurbs? nurbs))
-  (assert (small-integer? stride))
-  (assert (small-integer? order))
-  (assert (small-integer? type))
   "int nknots, nctlarray;
   if (!SCM_F32VECTORP(knot)) {
     Scm_Error(\"f32vector required for knot, but got %S\", knot);
@@ -311,8 +288,7 @@
 ;; New function in GLU 1.1
 ;;
 
-(define-cproc glu-get-string (name)
-  (assert (small-integer? name))
+(define-cproc glu-get-string (name::<fixnum>)
   "  const GLubyte *p = gluGetString(name);
   if (p) SCM_RETURN(Scm_MakeString((const char*)p, -1, -1, 0));
   else SCM_RETURN(SCM_FALSE);")

@@ -1,3 +1,7 @@
+2002-07-23  Shiro Kawai  <shiro@acm.org>
+
+	* src/*.stub : updated accodring to the new syntax of genstub.
+
 2002-07-21  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-gl.h : use SCM_CLASS_DECL macro instead of direct

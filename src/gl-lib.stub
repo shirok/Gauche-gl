@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.15 2002-07-19 02:33:27 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.16 2002-07-24 15:39:20 shirok Exp $
 ;;;
 
 "
@@ -33,77 +33,56 @@
 ;; Miscellaneous
 ;;
 
-(define-cproc gl-clear-index (c)
-  (assert (real? c))
-  "glClearIndex((GLfloat)c);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-clear-index (c::<float>)
+  (return <void> "glClearIndex"))
 
-(define-cproc gl-clear-color (r g b a)
-  (assert (real? r))
-  (assert (real? g))
-  (assert (real? b))
-  (assert (real? a))
-  "glClearColor((GLclampf)r, (GLclampf)g, (GLclampf)b, (GLclampf)a);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-clear-color (r::<float> g::<float> b::<float> a::<float>)
+  (return <void> "glClearColor"))
 
-(define-cproc gl-clear (mask)
-  "glClear((GLbitfield)Scm_GetUInteger(mask));
+(define-cproc gl-clear (mask::<uint>)
+  "glClear((GLbitfield)mask);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-index-mask (mask)
   "glIndexMask((GLuint)Scm_GetUInteger(mask));
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-color-mask (r g b a)
-  "glColorMask(!SCM_FALSEP(r), !SCM_FALSEP(g), !SCM_FALSEP(b), !SCM_FALSEP(a));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-color-mask (r::<boolean> g::<boolean> b::<boolean> a::<boolean>)
+  (return <void> "glColorMask"))
 
-(define-cproc gl-alpha-func (func ref)
-  (assert (small-integer? func))
-  (assert (real? ref))
+(define-cproc gl-alpha-func (func::<fixnum> ref::<real>)
   "glAlphaFunc((GLenum)func, (GLclampf)ref);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-blend-func (func factor)
-  (assert (small-integer? func))
-  (assert (real? factor))
+(define-cproc gl-blend-func (func::<fixnum> factor::<real>)
   "glBlendFunc((GLenum)func, (GLclampf)factor);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-logic-op (opcode)
-  (assert (small-integer? opcode))
+(define-cproc gl-logic-op (opcode::<fixnum>)
   "glLogicOp((GLenum)opcode);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-cull-face (mode)
-  (assert (small-integer? mode))
+(define-cproc gl-cull-face (mode::<fixnum>)
   "glCullFace((GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-front-face (mode)
-  (assert (small-integer? mode))
+(define-cproc gl-front-face (mode::<fixnum>)
   "glFrontFace((GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-point-size (size)
-  (assert (real? size))
+(define-cproc gl-point-size (size::<real>)
   "glPointSize((GLfloat)size);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-line-width (width)
-  (assert (real? width))
+(define-cproc gl-line-width (width::<real>)
   "glLineWidth((GLfloat)width);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-line-stipple (factor pat)
-  (assert (small-integer? factor))
-  (assert (small-integer? pat))
+(define-cproc gl-line-stipple (factor::<fixnum> pat::<fixnum>)
   "glLineStipple((GLint)factor, (GLushort)pat);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-polygon-mode (face mode)
-  (assert (small-integer? face))
-  (assert (small-integer? mode))
+(define-cproc gl-polygon-mode (face::<fixnum> mode::<fixnum>)
   "glPolygonMode((GLenum)face, (GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -114,75 +93,60 @@
   glPolygonStipple(SCM_U8VECTOR_ELEMENTS(mask));
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-edge-flag (flag)
-  "glEdgeFlag(!SCM_FALSEP(flag));
+(define-cproc gl-edge-flag (flag::<boolean>)
+  "glEdgeFlag(flag);
    SCM_RETURN(SCM_UNDEFINED);")
 
 ;; glEdgeFlagv
 
-(define-cproc gl-scissor (x y width height)
-  (assert (exact? x))
-  (assert (exact? y))
-  (assert (exact? width))
-  (assert (exact? height))
+(define-cproc gl-scissor (x::<int> y::<int> width::<int> height::<int>)
   "glScissor((GLint)x, (GLint)y, (GLsizei)width, (GLsizei)height);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-clip-plane (plane equation)
-  (assert (small-integer? plane))
+(define-cproc gl-clip-plane (plane::<fixnum> equation)
   "if (!SCM_F64VECTORP(equation) || SCM_F64VECTOR_SIZE(equation) != 4) {
    Scm_Error(\"f64vector of size 4 required for EQUATION, but got %S\", equation);
   }
   glClipPlane(plane, SCM_F64VECTOR_ELEMENTS(equation));
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-get-clip-plane (plane)
-  (assert (small-integer? plane))
+(define-cproc gl-get-clip-plane (plane::<fixnum>)
   "  ScmF64Vector *v = SCM_F64VECTOR(Scm_MakeF64Vector(4, 0.0));
   glGetClipPlane(plane, SCM_F64VECTOR_ELEMENTS(v));
   SCM_RETURN(SCM_OBJ(v));")
 
-(define-cproc gl-draw-buffer (mode)
-  (assert (small-integer? mode))
+(define-cproc gl-draw-buffer (mode::<fixnum>)
   "glDrawBuffer((GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-read-buffer (mode)
-  (assert (small-integer? mode))
+(define-cproc gl-read-buffer (mode::<fixnum>)
   "glReadBuffer((GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-enable (cap)
-  (assert (small-integer? cap))
+(define-cproc gl-enable (cap::<fixnum>)
   "glEnable((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
   
-(define-cproc gl-disable (cap)
-  (assert (small-integer? cap))
+(define-cproc gl-disable (cap::<fixnum>)
   "glDisable((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-is-enabled (cap)
-  (assert (small-integer? cap))
+(define-cproc gl-is-enabled (cap::<fixnum>)
   "SCM_RETURN(SCM_MAKE_BOOL(glIsEnabled((GLenum)cap)));")
 
-(define-cproc gl-enable-client-state (cap)
-  (assert (small-integer? cap))
+(define-cproc gl-enable-client-state (cap::<fixnum>)
   "glEnableClientState((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-disable-client-state (cap)
-  (assert (small-integer? cap))
+(define-cproc gl-disable-client-state (cap::<fixnum>)
   "glDisableClientState((GLenum)cap);
    SCM_RETURN(SCM_UNDEFINED);")
 
 ;; Gauche-gl specific
-(define-cproc gl-state-vector-size (state)
-  (assert (small-integer? state))
+(define-cproc gl-state-vector-size (state::<fixnum>)
   "SCM_RETURN(Scm_MakeInteger(Scm_GLStateInfoSize(state)));")
 
-(define-cproc gl-get-boolean (state)
-  (assert (small-integer? state))
+(define-cproc gl-get-boolean (state::<fixnum>)
   "int vsize = Scm_GLStateInfoSize(state);
   if (vsize <= 0)
     Scm_Error(\"you can't query state %x by glGetBooleanv\", state);
@@ -196,8 +160,7 @@
     SCM_RETURN(SCM_OBJ(v));
   }")
 
-(define-cproc gl-get-boolean! (vec state)
-  (assert (small-integer? state))
+(define-cproc gl-get-boolean! (vec state::<fixnum>)
   "int vsize;
   if (!SCM_U8VECTORP(vec)) Scm_Error(\"u8vector required, but got %S\", vec);
   vsize = Scm_GLStateInfoSize(state);
@@ -207,8 +170,7 @@
   glGetBooleanv((GLenum)state, SCM_U8VECTOR_ELEMENTS(vec));
   SCM_RETURN(SCM_OBJ(vec));")
 
-(define-cproc gl-get-integer (state)
-  (assert (small-integer? state))
+(define-cproc gl-get-integer (state::<fixnum>)
   "int vsize = Scm_GLStateInfoSize(state);
   if (vsize <= 0)
     Scm_Error(\"you can't query state %x by glGetIntegerv\", state);
@@ -222,8 +184,7 @@
     SCM_RETURN(SCM_OBJ(v));
   }")
 
-(define-cproc gl-get-integer! (vec state)
-  (assert (small-integer? state))
+(define-cproc gl-get-integer! (vec state::<fixnum>)
   "int vsize;
   if (!SCM_S32VECTORP(vec)) Scm_Error(\"s32vector required, but got %S\", vec);
   vsize = Scm_GLStateInfoSize(state);
@@ -233,8 +194,7 @@
   glGetIntegerv((GLenum)state, SCM_S32VECTOR_ELEMENTS(vec));
   SCM_RETURN(SCM_OBJ(vec));")
 
-(define-cproc gl-get-float (state)
-  (assert (small-integer? state))
+(define-cproc gl-get-float (state::<fixnum>)
   "int vsize = Scm_GLStateInfoSize(state);
   if (vsize <= 0)
     Scm_Error(\"you can't query state %x by glGetFloatv\", state);
@@ -248,8 +208,7 @@
     SCM_RETURN(SCM_OBJ(v));
   }")
 
-(define-cproc gl-get-float! (vec state)
-  (assert (small-integer? state))
+(define-cproc gl-get-float! (vec state::<fixnum>)
   "int vsize;
   if (!SCM_F32VECTORP(vec)) Scm_Error(\"s32vector required, but got %S\", vec);
   vsize = Scm_GLStateInfoSize(state);
@@ -259,8 +218,7 @@
   glGetFloatv((GLenum)state, SCM_F32VECTOR_ELEMENTS(vec));
   SCM_RETURN(SCM_OBJ(vec));")
 
-(define-cproc gl-get-double (state)
-  (assert (small-integer? state))
+(define-cproc gl-get-double (state::<fixnum>)
   "int vsize = Scm_GLStateInfoSize(state);
   if (vsize <= 0)
     Scm_Error(\"you can't query state %x by glGetDoublev\", state);
@@ -274,8 +232,7 @@
     SCM_RETURN(SCM_OBJ(v));
   }")
 
-(define-cproc gl-get-double! (vec state)
-  (assert (small-integer? state))
+(define-cproc gl-get-double! (vec state::<fixnum>)
   "int vsize;
   if (!SCM_F64VECTORP(vec)) Scm_Error(\"s32vector required, but got %S\", vec);
   vsize = Scm_GLStateInfoSize(state);
@@ -303,15 +260,13 @@
   "glPopClientAttrib();
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-render-mode (mode)
-  (assert (small-integer? mode))
+(define-cproc gl-render-mode (mode::<fixnum>)
   "SCM_RETURN(Scm_MakeInteger(glRenderMode((GLenum)mode)));")
 
 (define-cproc gl-get-error ()
   "SCM_RETURN(Scm_MakeInteger(glGetError()));")
 
-(define-cproc gl-get-string (name)
-  (assert (small-integer? name))
+(define-cproc gl-get-string (name::<fixnum>)
   "SCM_RETURN(Scm_MakeString(glGetString(name), -1, -1, 0));")
 
 (define-cproc gl-flush ()
@@ -322,9 +277,7 @@
   "glFinish();
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-hint (target mode)
-  (assert (exact? target))
-  (assert (exact? mode))
+(define-cproc gl-hint (target::<int> mode::<int>)
   "glHint(target, mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -332,23 +285,19 @@
 ;; Depth Buffer
 ;;
 
-(define-cproc gl-clear-depth (depth)
-  (assert (real? depth))
+(define-cproc gl-clear-depth (depth::<real>)
   "glClearDepth((GLclampd)depth);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-depth-func (func)
-  (assert (small-integer? func))
+(define-cproc gl-depth-func (func::<fixnum>)
   "glDepthFunc((GLenum)func);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-depth-mask (flag)
-  "glDepthMask(!SCM_FALSEP(flag));
+(define-cproc gl-depth-mask (flag::<boolean>)
+  "glDepthMask(flag);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-depth-range (nearv farv)
-  (assert (real? nearv))
-  (assert (real? farv))
+(define-cproc gl-depth-range (nearv::<real> farv::<real>)
   "glDepthRange((GLclampd)nearv, (GLclampd)farv);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -356,17 +305,11 @@
 ;; Accumulation Buffer
 ;;
 
-(define-cproc gl-clear-accum (r g b a)
-  (assert (real? r))
-  (assert (real? g))
-  (assert (real? b))
-  (assert (real? a))
+(define-cproc gl-clear-accum (r::<real> g::<real> b::<real> a::<real>)
   "glClearAccum((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-accum (op value)
-  (assert (small-integer? op))
-  (assert (real? value))
+(define-cproc gl-accum (op::<fixnum> value::<real>)
   "glAccum((GLenum)op, (GLfloat)value);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -374,40 +317,28 @@
 ;; Transformation
 ;;
 
-(define-cproc gl-matrix-mode (mode)
-  (assert (small-integer? mode))
+(define-cproc gl-matrix-mode (mode::<fixnum>)
   "glMatrixMode(mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-ortho (left right bottom top nearv farv)
-  (assert (real? left))
-  (assert (real? right))
-  (assert (real? bottom))
-  (assert (real? top))
-  (assert (real? nearv))
-  (assert (real? farv))
+(define-cproc gl-ortho (left::<real> right::<real>
+                        bottom::<real> top::<real>
+                        nearv::<real> farv::<real>)
   "glOrtho((GLdouble)left, (GLdouble)right,
            (GLdouble)bottom, (GLdouble)top,
            (GLdouble)nearv, (GLdouble)farv);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-frustum (left right bottom top nearv farv)
-  (assert (real? left))
-  (assert (real? right))
-  (assert (real? bottom))
-  (assert (real? top))
-  (assert (real? nearv))
-  (assert (real? farv))
+(define-cproc gl-frustum (left::<real> right::<real>
+                          bottom::<real> top::<real>
+                          nearv::<real> farv::<real>)
   "glFrustum((GLdouble)left, (GLdouble)right,
              (GLdouble)bottom, (GLdouble)top,
              (GLdouble)nearv, (GLdouble)farv);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-viewport (x y width height)
-  (assert (small-integer? x))
-  (assert (small-integer? y))
-  (assert (small-integer? width))
-  (assert (small-integer? height))
+(define-cproc gl-viewport (x::<fixnum> y::<fixnum>
+                           width::<fixnum> height::<fixnum>)
   "glViewport((GLint)x, (GLint)y, (GLsizei)width, (GLsizei)height);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -434,25 +365,15 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-rotate (angle x y z)
-  (assert (real? angle))
-  (assert (real? x))
-  (assert (real? y))
-  (assert (real? z))
+(define-cproc gl-rotate (angle::<real> x::<real> y::<real> z::<real>)
   "glRotated((GLdouble)angle, (GLdouble)x, (GLdouble)y, (GLdouble)z);
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-scale (x y z)
-  (assert (real? x))
-  (assert (real? y))
-  (assert (real? z))
+(define-cproc gl-scale (x::<real> y::<real> z::<real>)
   "glScaled((GLdouble)x, (GLdouble)y, (GLdouble)z);
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-translate (x y z)
-  (assert (real? x))
-  (assert (real? y))
-  (assert (real? z))
+(define-cproc gl-translate (x::<real> y::<real> z::<real>)
   "glTranslated((GLdouble)x, (GLdouble)y, (GLdouble)z);
   SCM_RETURN(SCM_UNDEFINED);")
 
@@ -460,24 +381,18 @@
 ;; Display lists
 ;;
 
-(define-cproc gl-is-list (list)
-  (assert (exact? list))
+(define-cproc gl-is-list (list::<int>)
   "SCM_RETURN(SCM_MAKE_BOOL(glIsList(list)));")
 
-(define-cproc gl-delete-lists (list range)
-  (assert (exact? list))
-  (assert (exact? range))
+(define-cproc gl-delete-lists (list::<int> range::<int>)
   "glDeleteLists((GLuint)list, (GLsizei)range);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-gen-lists (range)
-  (assert (exact? range))
+(define-cproc gl-gen-lists (range::<int>)
   "GLuint r = glGenLists(range);
    SCM_RETURN(Scm_MakeIntegerFromUI(r));")
 
-(define-cproc gl-new-list (list mode)
-  (assert (exact? list))
-  (assert (exact? mode))
+(define-cproc gl-new-list (list::<int> mode::<int>)
   "glNewList(list, mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -485,15 +400,13 @@
   "glEndList();
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-call-list (list)
-  (assert (exact? list))
+(define-cproc gl-call-list (list::<int>)
   "glCallList(list);
    SCM_RETURN(SCM_UNDEFINED);")
 
 ;; glCallLists  
 
-(define-cproc gl-list-base (base)
-  (assert (exact? base))
+(define-cproc gl-list-base (base::<int>)
   "glListBase(base);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -501,8 +414,7 @@
 ;; Drawing functions
 ;;
 
-(define-cproc gl-begin (mode)
-  (assert (small-integer? mode))
+(define-cproc gl-begin (mode::<int>)
   "glBegin(mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -765,10 +677,9 @@
 ;; Scheme version doesn't have TYPE - it's derived from vector type.
 ;; STRIDE argument refers to the # of elements, rather than bytes.
 
-(define-cproc gl-vertex-pointer (size vec &optional (stride 0) (offset 0))
-  (assert (small-integer? size))
-  (assert (small-integer? stride))
-  (assert (small-integer? offset))
+(define-cproc gl-vertex-pointer (size::<fixnum> vec
+                                 &optional (stride::<fixnum> 0)
+                                           (offset::<fixnum> 0))
   "  if (size < 2 || size > 4) {
     Scm_Error(\"bad argument for size: %d, must be 2, 3 or 4\", size);
   }
@@ -795,9 +706,9 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-normal-pointer (vec &optional (stride 0) (offset 0))
-  (assert (small-integer? stride))
-  (assert (small-integer? offset))
+(define-cproc gl-normal-pointer (vec
+                                 &optional (stride::<fixnum> 0)
+                                           (offset::<fixnum> 0))
   "if (stride < 0) {
     Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
   }
@@ -824,10 +735,9 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-color-pointer (size vec &optional (stride 0) (offset 0))
-  (assert (small-integer? size))
-  (assert (small-integer? stride))
-  (assert (small-integer? offset))
+(define-cproc gl-color-pointer (size::<fixnum> vec
+                                &optional (stride::<fixnum> 0)
+                                          (offset::<fixnum> 0))
   "  if (size < 3 || size > 4) {
     Scm_Error(\"bad argument for size: %d, must be 2, 3 or 4\", size);
   }
@@ -866,9 +776,9 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-index-pointer (vec &optional (stride 0) (offset 0))
-  (assert (small-integer? stride))
-  (assert (small-integer? offset))
+(define-cproc gl-index-pointer (vec
+                                &optional (stride::<fixnum> 0)
+                                          (offset::<fixnum> 0))
   "if (stride < 0) {
     Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
   }
@@ -895,10 +805,9 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-tex-coord-pointer (size vec &optional (stride 0) (offset 0))
-  (assert (small-integer? size))
-  (assert (small-integer? stride))
-  (assert (small-integer? offset))
+(define-cproc gl-tex-coord-pointer (size::<fixnum> vec
+                                    &optional (stride::<fixnum> 0)
+                                              (offset::<fixnum> 0))
   "  if (size < 1 || size > 4) {
     Scm_Error(\"bad argument for size: %d, must be 1, 2, 3 or 4\", size);
   }
@@ -926,23 +835,21 @@
   SCM_RETURN(SCM_UNDEFINED);")
 
 ;; glEdgeFlagPointer - GLboolean vector maps u8vector
-(define-cproc gl-edge-flag-pointer (vec &optional (stride 0) (offset 0))
-  (assert (small-integer? stride))
-  (assert (small-integer? offset))
+(define-cproc gl-edge-flag-pointer (vec
+                                    &optional (stride::<fixnum> 0)
+                                              (offset::<fixnum> 0))
   "if (!SCM_U8VECTORP(vec)) {
      Scm_Error(\"u8vector required for vec, but got %S\", vec);
    }
    glEdgeFlagPointer(stride, SCM_U8VECTOR_ELEMENTS(vec) + offset);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-array-element (ith)
-  (assert (small-integer? ith))
+(define-cproc gl-array-element (ith::<fixnum>)
   "glArrayElement(ith);
    SCM_RETURN(SCM_UNDEFINED);")
 
 ;; count and type is derived from indices vector
-(define-cproc gl-draw-elements (mode indices)
-  (assert (small-integer? mode))
+(define-cproc gl-draw-elements (mode::<fixnum> indices)
   "if (SCM_U8VECTORP(indices)) {
     glDrawElements(mode, SCM_U8VECTOR_SIZE(indices), GL_UNSIGNED_BYTE,
                    SCM_U8VECTOR_ELEMENTS(indices));
@@ -957,19 +864,16 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-draw-arrays (mode first count)
-  (assert (small-integer? mode))
-  (assert (small-integer? first))
-  (assert (small-integer? count))
+
+(define-cproc gl-draw-arrays (mode::<fixnum> first::<fixnum> count::<fixnum>)
   "glDrawArrays(mode, first, count);
    SCM_RETURN(SCM_UNDEFINED);")
 
 ;; Note: we don't allow non-uniform vector for the interleaved arrays, so
 ;; the color component must be float.
-(define-cproc gl-interleaved-arrays (format vec &optional (stride 0) (offset 0))
-  (assert (small-integer? format))
-  (assert (small-integer? stride))
-  (assert (small-integer? offset))
+(define-cproc gl-interleaved-arrays (format::<fixnum> vec
+                                     &optional (stride::<fixnum> 0)
+                                               (offset::<fixnum> 0))
   "  switch (format) {
      case GL_C4UB_V2F:; case GL_C4UB_V3F:; case GL_T2F_C4UB_V3F:
        Scm_Error(\"interleaved arrays with integer color component is not supported.\");
@@ -985,14 +889,11 @@
 ;; Lighting
 ;;
 
-(define-cproc gl-shade-model (mode)
-  (assert (small-integer? mode))
+(define-cproc gl-shade-model (mode::<fixnum>)
   "glShadeModel(mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-light (light pname param)
-  (assert (small-integer? light))
-  (assert (small-integer? pname))
+(define-cproc gl-light (light::<fixnum> pname::<fixnum> param)
   "switch (pname) {
    case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_POSITION:;
      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
@@ -1023,9 +924,7 @@
    }
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-get-light (light pname)
-  (assert (small-integer? light))
-  (assert (small-integer? pname))
+(define-cproc gl-get-light (light::<fixnum> pname::<fixnum>)
   "switch (pname) {
    case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_POSITION:
      {
@@ -1047,8 +946,7 @@
      }
    }")
 
-(define-cproc gl-light-model (pname param)
-  (assert (small-integer? pname))
+(define-cproc gl-light-model (pname::<fixnum> param)
   "switch (pname) {
     case GL_LIGHT_MODEL_AMBIENT:
      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
@@ -1065,9 +963,7 @@
    }
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-material (face pname param)
-  (assert (small-integer? face))
-  (assert (small-integer? pname))
+(define-cproc gl-material (face::<fixnum> pname::<fixnum> param)
   "switch (pname) {
    case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_EMISSION:;
    case GL_AMBIENT_AND_DIFFUSE:;
@@ -1097,9 +993,7 @@
    }
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-get-material (face pname)
-  (assert (small-integer? face))
-  (assert (small-integer? pname))
+(define-cproc gl-get-material (face::<fixnum> pname::<fixnum>)
   "switch (pname) {
    case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_EMISSION:;
      {
@@ -1124,9 +1018,7 @@
      SCM_RETURN(SCM_UNDEFINED);
    }")
 
-(define-cproc gl-color-material (face mode)
-  (assert (small-integer? face))
-  (assert (small-integer? mode))
+(define-cproc gl-color-material (face::<fixnum> mode::<fixnum>)
   "glColorMaterial(face, mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -1134,14 +1026,11 @@
 ;; Raster functions
 ;;
 
-(define-cproc gl-pixel-zoom (xfactor yfactor)
-  (assert (real? xfactor))
-  (assert (real? yfactor))
+(define-cproc gl-pixel-zoom (xfactor::<real> yfactor::<real>)
   "glPixelZoom(xfactor, yfactor);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-pixel-store (pname param)
-  (assert (small-integer? pname))
+(define-cproc gl-pixel-store (pname::<fixnum> param)
   "if (SCM_EXACTP(param)) {
      glPixelStorei(pname, Scm_GetInteger(param));
    } else if (SCM_FLONUMP(param)) {
@@ -1151,8 +1040,7 @@
    }
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-pixel-map (map values)
-  (assert (small-integer? map))
+(define-cproc gl-pixel-map (map::<fixnum> values)
   "if (SCM_U32VECTORP(values)) {
     glPixelMapuiv(map, SCM_U32VECTOR_SIZE(values),
                   SCM_U32VECTOR_ELEMENTS(values));
@@ -1169,8 +1057,7 @@
    SCM_RETURN(SCM_UNDEFINED);")
 
 ;; values must have enough size
-(define-cproc gl-get-pixel-map! (map values)
-  (assert (small-integer? map))
+(define-cproc gl-get-pixel-map! (map::<fixnum> values)
   "if (SCM_U32VECTORP(values)) {
     glGetPixelMapuiv(map, SCM_U32VECTOR_ELEMENTS(values));
   } else if (SCM_U16VECTORP(values)) {
@@ -1185,8 +1072,7 @@
 
 ;; allocate the vector in it.  type can be a class 
 ;; <u32vector> (default), <u16vector> or <f32vector>
-(define-cproc gl-get-pixel-map (map &optional type)
-  (assert (small-integer? map))
+(define-cproc gl-get-pixel-map (map::<fixnum> &optional type)
   " int size; ScmObj vec = SCM_UNDEFINED;
   glGetIntegerv(map, &size);
   CHECK_ERROR(\"couldn't get pixel map size\");
@@ -1205,13 +1091,9 @@
   }
   SCM_RETURN(vec);")
 
-(define-cproc gl-bitmap (width height xbo ybo xbi ybi bitmap)
-  (assert (exact? width))
-  (assert (exact? height))
-  (assert (exact? xbo))
-  (assert (exact? ybo))
-  (assert (exact? xbi))
-  (assert (exact? ybi))
+(define-cproc gl-bitmap (width::<int> height::<int>
+                         xbo::<int> ybo::<int>
+                         xbi::<int> ybi::<int> bitmap)
   "if (!SCM_U8VECTORP(bitmap)) {
     Scm_Error(\"bitmap must be an u8vector, but got %S\", bitmap);
   }
@@ -1222,13 +1104,9 @@
   glBitmap(width, height, xbo, ybo, xbi, ybi, SCM_U8VECTOR_ELEMENTS(bitmap));
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-read-pixels (x y width height format type)
-  (assert (small-integer? x))
-  (assert (small-integer? y))
-  (assert (small-integer? width))
-  (assert (small-integer? height))
-  (assert (small-integer? format))
-  (assert (small-integer? type))
+(define-cproc gl-read-pixels (x::<fixnum> y::<fixnum>
+                              width::<fixnum> height::<fixnum>
+                              format::<fixnum> type::<fixnum>)
   "  int elttype, size, packed; ScmObj vec = SCM_UNDEFINED;
   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, &packed);
   switch (elttype) {
@@ -1272,11 +1150,8 @@
 
 ; gl-read-pixels!
 
-(define-cproc gl-draw-pixels (width height format type pixels)
-  (assert (small-integer? width))
-  (assert (small-integer? height))
-  (assert (small-integer? format))
-  (assert (small-integer? type))
+(define-cproc gl-draw-pixels (width::<fixnum> height::<fixnum>
+                              format::<fixnum> type::<fixnum> pixels)
   "  int elttype, size, packed; ScmObj vec = SCM_UNDEFINED;
   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, &packed);
   switch (elttype) {
@@ -1335,12 +1210,8 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-copy-pixels (x y width height type)
-  (assert (small-integer? x))
-  (assert (small-integer? y))
-  (assert (small-integer? width))
-  (assert (small-integer? height))
-  (assert (small-integer? type))
+(define-cproc gl-copy-pixels (x::<fixnum> y::<fixnum>
+                              width::<fixnum> height::<fixnum> type::<fixnum>)
   "glCopyPixels(x, y, width, height, type);
   SCM_RETURN(SCM_UNDEFINED);")
 
@@ -1348,27 +1219,19 @@
 ;; Stenciling
 ;;
 
-(define-cproc gl-stencil-func (func ref mask)
-  (assert (small-integer? func))
-  (assert (exact? ref))
-  (assert (exact? mask))
+(define-cproc gl-stencil-func (func::<fixnum> ref::<int> mask::<uint>)
   "glStencilFunc((GLenum)func, (GLint)ref, (GLuint)mask);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-stencil-mask (mask)
-  (assert (exact? mask))
+(define-cproc gl-stencil-mask (mask::<uint>)
   "glStencilMask((GLuint)mask);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-stencil-op (func zfail zpass)
-  (assert (small-integer? func))
-  (assert (small-integer? zfail))
-  (assert (small-integer? zpass))
+(define-cproc gl-stencil-op (func::<fixnum> zfail::<fixnum> zpass::<fixnum>)
   "glStencilFunc((GLenum)func, (GLenum)zfail, (GLenum)zpass); 
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-clear-stencil (s)
-  (assert (exact? s))
+(define-cproc gl-clear-stencil (s::<int>)
   "glClearStencil((GLint)s);
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -1376,9 +1239,7 @@
 ;; Texture mapping
 ;;
 
-(define-cproc gl-tex-gen (coord pname param)
-  (assert (small-integer? coord))
-  (assert (small-integer? pname))
+(define-cproc gl-tex-gen (coord::<fixnum> pname::<fixnum> param)
   "switch (pname) {
     case GL_TEXTURE_GEN_MODE:
       if (!SCM_INTP(param)) {
@@ -1403,9 +1264,7 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-tex-env (target pname param)
-  (assert (small-integer? target))
-  (assert (small-integer? pname))
+(define-cproc gl-tex-env (target::<fixnum> pname::<fixnum> param)
   "switch (pname) {
     case GL_TEXTURE_ENV_MODE:
       if (SCM_INTP(param)) {
@@ -1426,9 +1285,7 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-tex-parameter (target pname param)
-  (assert (small-integer? target))
-  (assert (small-integer? pname))
+(define-cproc gl-tex-parameter (target::<fixnum> pname::<fixnum> param)
   "switch (pname) {
      case GL_TEXTURE_WRAP_S:;
      case GL_TEXTURE_WRAP_T:;
@@ -1466,9 +1323,7 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-get-tex-parameter (target pname)
-  (assert (small-integer? target))
-  (assert (small-integer? pname))
+(define-cproc gl-get-tex-parameter (target::<fixnum> pname::<fixnum>)
   " ScmObj vec; GLint i; GLfloat f;
   switch (pname) {
      case GL_TEXTURE_WRAP_S:;
@@ -1497,15 +1352,10 @@
 ; gl-get-tex-level-parameter
 
 ;; caller must ensure vector has enough length
-(define-cproc gl-tex-image-1d (target level internalformat
-                               width border format type texels)
-  (assert (small-integer? target))
-  (assert (small-integer? level))
-  (assert (small-integer? internalformat))
-  (assert (small-integer? width))
-  (assert (small-integer? border))
-  (assert (small-integer? format))
-  (assert (small-integer? type))
+(define-cproc gl-tex-image-1d (target::<fixnum> level::<fixnum>
+                               internalformat::<fixnum>
+                               width::<fixnum> border::<fixnum>
+                               format::<fixnum> type::<fixnum> texels)
   "int datatype = Scm_GLPixelDataType(type, NULL);
   switch (datatype) {
     case SCM_GL_BYTE:
@@ -1564,16 +1414,11 @@
 
 
 ;; caller must ensure vector has enough length
-(define-cproc gl-tex-image-2d (target level internalformat
-                               width height border format type texels)
-  (assert (small-integer? target))
-  (assert (small-integer? level))
-  (assert (small-integer? internalformat))
-  (assert (small-integer? width))
-  (assert (small-integer? height))
-  (assert (small-integer? border))
-  (assert (small-integer? format))
-  (assert (small-integer? type))
+(define-cproc gl-tex-image-2d (target::<fixnum> level::<fixnum>
+                               internalformat::<fixnum>
+                               width::<fixnum> height::<fixnum>
+                               border::<fixnum> format::<fixnum>
+                               type::<fixnum> texels)
   "int datatype = Scm_GLPixelDataType(type, NULL);
   switch (datatype) {
     case SCM_GL_BYTE:
@@ -1632,8 +1477,7 @@
 
 ; gl-get-tex-image
 
-(define-cproc gl-gen-textures (size)
-  (assert (small-integer? size))
+(define-cproc gl-gen-textures (size::<fixnum>)
   "ScmObj vec;
   if (size <= 0) Scm_Error(\"size must be a positive integer, but got %d\", size);
   vec = Scm_MakeU32Vector(size, 0);
@@ -1644,9 +1488,7 @@
   "if (!SCM_U32VECTORP(names)) Scm_Error(\"texture names must be an u32vector, but got %S\", names);
   glDeleteTextures(SCM_U32VECTOR_SIZE(names), SCM_U32VECTOR_ELEMENTS(names));")
 
-(define-cproc gl-bind-texture (target name)
-  (assert (small-integer? target))
-  (assert (exact? name))
+(define-cproc gl-bind-texture (target::<fixnum> name::<int>)
   "glBindTexture(target, name);
   SCM_RETURN(SCM_UNDEFINED);")
 
@@ -1654,8 +1496,7 @@
 
 ; gl-are-textures-resident 
 
-(define-cproc gl-is-texture (name)
-  (assert (exact? name))
+(define-cproc gl-is-texture (name::<int>)
   "SCM_RETURN(SCM_MAKE_INT(glIsTexture(name)));")
 
 ; gl-tex-sub-image-1d
@@ -1675,8 +1516,7 @@
 ;; Fog
 ;;
 
-(define-cproc gl-fog (pname param)
-  (assert (small-integer? pname))
+(define-cproc gl-fog (pname::<fixnum> param)
   "switch (pname) {
     case GL_FOG_MODE:;
     case GL_FOG_INDEX:;
@@ -1714,28 +1554,20 @@
 ; gl-feedback-buffer
 ; gl-select-buffer
 
-(define-cproc gl-pass-through (token)
-  (assert (real? token))
-  "glPassThrough((GLfloat)token);
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-pass-through (token::<float>)
+  (return <void> "glPassThrough"))
 
 (define-cproc gl-init-names ()
-  "glInitNames();
-  SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glInitNames"))
 
-(define-cproc gl-load-name (name)
-  (assert (exact? name))
-  "glLoadName(name);
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-load-name (name::<int>)
+  (return <void> "glLoadName"))
 
-(define-cproc gl-push-name (name)
-  (assert (exact? name))
-  "glPushName(name);
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-push-name (name::<int>)
+  (return <void> "glPushName"))
 
 (define-cproc gl-pop-name ()
-  "glPopName();
-  SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glPopName"))
 
 ;;=============================================================
 ;; Extensions

@@ -1,0 +1,63 @@
+;; Example 7-2 Using a Display list
+
+(use gl)
+(use gl.glut)
+
+(define *list-name* 0)
+
+(define (init)
+  (set! *list-name* (gl-gen-lists 1))
+  (gl-new-list *list-name* GL_COMPILE)
+  (gl-color 1.0 0.0 0.0)
+  (gl-begin GL_TRIANGLES)
+  (gl-vertex 0.0 0.0)
+  (gl-vertex 1.0 0.0)
+  (gl-vertex 0.0 1.0)
+  (gl-end)
+  (gl-translate 1.5 0.0 0.0)
+  (gl-end-list)
+  (gl-shade-model GL_FLAT)
+  )
+
+(define (draw-line)
+  (gl-begin GL_LINES)
+  (gl-vertex 0.0 0.5)
+  (gl-vertex 15.0 0.5)
+  (gl-end))
+
+(define (display)
+  (gl-clear GL_COLOR_BUFFER_BIT)
+  (gl-color 0.0 1.0 0.0)
+  (dotimes (i 10) (gl-call-list *list-name*))
+  (draw-line)
+  (gl-flush)
+  )
+
+(define (reshape w h)
+  (gl-viewport 0 0 w h)
+  (gl-matrix-mode GL_PROJECTION)
+  (gl-load-identity)
+  (if (<= w h)
+      (glu-ortho-2d 0.0 1.0 (* -0.5 (/ h w)) (* 1.5 (/ h w)))
+      (glu-ortho-2d 0.0 (* 2.0 (/ w h)) -0.5 1.5))
+  (gl-matrix-mode GL_MODELVIEW)
+  (gl-load-identity)
+  )
+
+(define (keyboard key x y)
+  (cond
+   ((= key 27)                          ;ESC
+    (exit 0)))
+  )
+
+(define (main args)
+  (glut-init args)
+  (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB))
+  (glut-init-window-size 650 50)
+  (glut-create-window (car args))
+  (init)
+  (glut-reshape-func reshape)
+  (glut-keyboard-func keyboard)
+  (glut-display-func display)
+  (glut-main-loop)
+  0)

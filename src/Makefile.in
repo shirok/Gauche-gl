@@ -12,7 +12,7 @@ SCMFILES = gl.scm
 HEADERS = 
 
 TARGET = gauche-gl.so gauche-glut.so
-GLOBJS = gauche-gl.o gl-lib.o
+GLOBJS = gauche-gl.o gl-lib.o glu-lib.o
 GLUTOBJS = gauche-glut.o glut-lib.o
 OBJS = $(GLOBJS) $(GLUTOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status
@@ -29,6 +29,9 @@ gauche-gl.so : $(GLOBJS)
 
 gl-lib.c : gl-lib.stub
 	$(GOSH) genstub gl-lib.stub
+
+glu-lib.c : glu-lib.stub
+	$(GOSH) genstub glu-lib.stub
 
 $(GLOBJS) : gauche-gl.h
 

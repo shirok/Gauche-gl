@@ -1,0 +1,276 @@
+;;;
+;;; glu-lib.stub - glue functions for GLU
+;;;
+;;;  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+;;;
+;;;  Permission to use, copy, modify, distribute this software and
+;;;  accompanying documentation for any purpose is hereby granted,
+;;;  provided that existing copyright notices are retained in all
+;;;  copies and that this notice is included verbatim in all
+;;;  distributions.
+;;;  This software is provided as is, without express or implied
+;;;  warranty.  In no circumstances the author(s) shall be liable
+;;;  for any damages arising out of the use of this software.
+;;;
+;;;  $Id: glu-lib.stub,v 1.1 2001-09-30 11:03:22 shirok Exp $
+;;;
+
+"
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <gauche/uvector.h>
+"
+;;================================================================
+;; Miscellaneous
+;;
+
+(define-cproc glu-look-at (eyex eyey eyez ctrx ctry ctrz upx upy upz)
+  (assert (real? eyex))
+  (assert (real? eyey))
+  (assert (real? eyez))
+  (assert (real? ctrx))
+  (assert (real? ctry))
+  (assert (real? ctrz))
+  (assert (real? upx))
+  (assert (real? upy))
+  (assert (real? upz))
+  "gluLookAt((GLdouble)eyex, (GLdouble)eyey, (GLdouble)eyez,
+             (GLdouble)ctrx, (GLdouble)ctry, (GLdouble)ctrz,
+             (GLdouble)upx, (GLdouble)upy, (GLdouble)upz);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-ortho-2d (left right bottom top)
+  (assert (real? left))
+  (assert (real? right))
+  (assert (real? bottom))
+  (assert (real? top))
+  "gluOrtho2D((GLdouble)left, (GLdouble)right,
+              (GLdouble)bottom, (GLdouble)top);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-perspective (fovy aspect znear zfar)
+  (assert (real? fovy))
+  (assert (real? aspect))
+  (assert (real? znear))
+  (assert (real? zfar))
+  "gluPerspective((GLdouble)fovy, (GLdouble)aspect,
+                  (GLdouble)znear, (GLdouble)zfar);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-pick-matrix (x y w h vp)
+  (assert (real? x))
+  (assert (real? y))
+  (assert (real? w))
+  (assert (real? h))
+  "if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
+     Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
+   }
+  gluPickMatrix((GLdouble)x, (GLdouble)y, (GLdouble)w, (GLdouble)h,
+                 SCM_S32VECTOR_ELEMENTS(vp));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glu-project (objx objy objz model-mat proj-mat vp)
+  (assert (real? objx))
+  (assert (real? objy))
+  (assert (real? objz))
+  " int r; GLdouble winx, winy, winz;
+ if (!SCM_F64VECTORP(model_mat) || SCM_F64VECTOR_SIZE(model_mat) != 16) {
+   Scm_Error(\"f64 vector of size 16 required for model-mat, but got %S\",
+             model_mat);
+ }
+ if (!SCM_F64VECTORP(proj_mat) || SCM_F64VECTOR_SIZE(proj_mat) != 16) {
+   Scm_Error(\"f64 vector of size 16 required for proj-mat, but got %S\",
+             proj_mat);
+ }
+ if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
+   Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
+ }
+ r = gluProject((GLdouble)objx, (GLdouble)objy, (GLdouble)objz,
+                SCM_F64VECTOR_ELEMENTS(model_mat),
+                SCM_F64VECTOR_ELEMENTS(proj_mat),
+                SCM_S32VECTOR_ELEMENTS(vp),
+                &winx, &winy, &winz);
+ if (r == GL_TRUE) {
+   SCM_RETURN(Scm_Values3(Scm_MakeFlonum(winx),
+                          Scm_MakeFlonum(winy),
+                          Scm_MakeFlonum(winz)));
+ } else {
+   SCM_RETURN(Scm_Values3(SCM_FALSE, SCM_FALSE, SCM_FALSE));
+ }")
+
+(define-cproc glu-un-project (winx winy winz model-mat proj-mat vp)
+  (assert (real? winx))
+  (assert (real? winy))
+  (assert (real? winz))
+  " int r; GLdouble objx, objy, objz;
+ if (!SCM_F64VECTORP(model_mat) || SCM_F64VECTOR_SIZE(model_mat) != 16) {
+   Scm_Error(\"f64 vector of size 16 required for model-mat, but got %S\",
+             model_mat);
+ }
+ if (!SCM_F64VECTORP(proj_mat) || SCM_F64VECTOR_SIZE(proj_mat) != 16) {
+   Scm_Error(\"f64 vector of size 16 required for proj-mat, but got %S\",
+             proj_mat);
+ }
+ if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
+   Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
+ }
+ r = gluUnProject((GLdouble)winx, (GLdouble)winy, (GLdouble)winz,
+                  SCM_F64VECTOR_ELEMENTS(model_mat),
+                  SCM_F64VECTOR_ELEMENTS(proj_mat),
+                  SCM_S32VECTOR_ELEMENTS(vp),
+                  &objx, &objy, &objz);
+ if (r == GL_TRUE) {
+   SCM_RETURN(Scm_Values3(Scm_MakeFlonum(objx),
+                          Scm_MakeFlonum(objy),
+                          Scm_MakeFlonum(objz)));
+ } else {
+   SCM_RETURN(Scm_Values3(SCM_FALSE, SCM_FALSE, SCM_FALSE));
+ }")
+
+(define-cproc glu-error-string (code)
+  (assert (exact? code))
+  "  const GLubyte *s = gluErrorString(code);
+  if (s) SCM_RETURN(Scm_MakeString((const char *)s, -1, -1, 0));
+  else   SCM_RETURN(SCM_FALSE);")
+
+;;=============================================================
+;; Mipmapping and image scaling
+;;
+
+;;=============================================================
+;; Quadrics
+;;
+
+;;=============================================================
+;; Nurbs
+;;
+
+;;================================================================
+;; Polygon tesselation
+;;
+
+;;================================================================
+;; New function in GLU 1.1
+;;
+
+(define-cproc glu-get-string (name)
+  (assert (small-integer? name))
+  "  const GLubyte *p = gluGetString(name);
+  if (p) SCM_RETURN(Scm_MakeString((const char*)p, -1, -1, 0));
+  else SCM_RETURN(SCM_FALSE);")
+
+;;================================================================
+;; Constants
+;;
+
+;; Normal vectors 
+(define-symbol |GLU_SMOOTH| "sym_GLU_SMOOTH" "Scm_MakeInteger(GLU_SMOOTH)")
+(define-symbol |GLU_FLAT| "sym_GLU_FLAT" "Scm_MakeInteger(GLU_FLAT)")
+(define-symbol |GLU_NONE| "sym_GLU_NONE" "Scm_MakeInteger(GLU_NONE)")
+
+;; Quadric draw styles 
+(define-symbol |GLU_POINT| "sym_GLU_POINT" "Scm_MakeInteger(GLU_POINT)")
+(define-symbol |GLU_LINE| "sym_GLU_LINE" "Scm_MakeInteger(GLU_LINE)")
+(define-symbol |GLU_FILL| "sym_GLU_FILL" "Scm_MakeInteger(GLU_FILL)")
+(define-symbol |GLU_SILHOUETTE| "sym_GLU_SILHOUETTE" "Scm_MakeInteger(GLU_SILHOUETTE)")
+
+;; Quadric orientation 
+(define-symbol |GLU_OUTSIDE| "sym_GLU_OUTSIDE" "Scm_MakeInteger(GLU_OUTSIDE)")
+(define-symbol |GLU_INSIDE| "sym_GLU_INSIDE" "Scm_MakeInteger(GLU_INSIDE)")
+
+;; Tesselator 
+(define-symbol |GLU_BEGIN| "sym_GLU_BEGIN" "Scm_MakeInteger(GLU_BEGIN)")
+(define-symbol |GLU_VERTEX| "sym_GLU_VERTEX" "Scm_MakeInteger(GLU_VERTEX)")
+(define-symbol |GLU_END| "sym_GLU_END" "Scm_MakeInteger(GLU_END)")
+(define-symbol |GLU_ERROR| "sym_GLU_ERROR" "Scm_MakeInteger(GLU_ERROR)")
+(define-symbol |GLU_EDGE_FLAG| "sym_GLU_EDGE_FLAG" "Scm_MakeInteger(GLU_EDGE_FLAG)")
+
+;; Contour types 
+(define-symbol |GLU_CW| "sym_GLU_CW" "Scm_MakeInteger(GLU_CW)")
+(define-symbol |GLU_CCW| "sym_GLU_CCW" "Scm_MakeInteger(GLU_CCW)")
+(define-symbol |GLU_INTERIOR| "sym_GLU_INTERIOR" "Scm_MakeInteger(GLU_INTERIOR)")
+(define-symbol |GLU_EXTERIOR| "sym_GLU_EXTERIOR" "Scm_MakeInteger(GLU_EXTERIOR)")
+(define-symbol |GLU_UNKNOWN| "sym_GLU_UNKNOWN" "Scm_MakeInteger(GLU_UNKNOWN)")
+
+;; Tesselation errors 
+(define-symbol |GLU_TESS_ERROR1| "sym_GLU_TESS_ERROR1" "Scm_MakeInteger(GLU_TESS_ERROR1)")
+(define-symbol |GLU_TESS_ERROR2| "sym_GLU_TESS_ERROR2" "Scm_MakeInteger(GLU_TESS_ERROR2)")
+(define-symbol |GLU_TESS_ERROR3| "sym_GLU_TESS_ERROR3" "Scm_MakeInteger(GLU_TESS_ERROR3)")
+(define-symbol |GLU_TESS_ERROR4| "sym_GLU_TESS_ERROR4" "Scm_MakeInteger(GLU_TESS_ERROR4)")
+(define-symbol |GLU_TESS_ERROR5| "sym_GLU_TESS_ERROR5" "Scm_MakeInteger(GLU_TESS_ERROR5)")
+(define-symbol |GLU_TESS_ERROR6| "sym_GLU_TESS_ERROR6" "Scm_MakeInteger(GLU_TESS_ERROR6)")
+(define-symbol |GLU_TESS_ERROR7| "sym_GLU_TESS_ERROR7" "Scm_MakeInteger(GLU_TESS_ERROR7)")
+(define-symbol |GLU_TESS_ERROR8| "sym_GLU_TESS_ERROR8" "Scm_MakeInteger(GLU_TESS_ERROR8)")
+(define-symbol |GLU_TESS_ERROR9| "sym_GLU_TESS_ERROR9" "Scm_MakeInteger(GLU_TESS_ERROR9)")
+
+;; NURBS 
+(define-symbol |GLU_AUTO_LOAD_MATRIX| "sym_GLU_AUTO_LOAD_MATRIX" "Scm_MakeInteger(GLU_AUTO_LOAD_MATRIX)")
+(define-symbol |GLU_CULLING| "sym_GLU_CULLING" "Scm_MakeInteger(GLU_CULLING)")
+(define-symbol |GLU_PARAMETRIC_TOLERANCE| "sym_GLU_PARAMETRIC_TOLERANCE" "Scm_MakeInteger(GLU_PARAMETRIC_TOLERANCE)")
+(define-symbol |GLU_SAMPLING_TOLERANCE| "sym_GLU_SAMPLING_TOLERANCE" "Scm_MakeInteger(GLU_SAMPLING_TOLERANCE)")
+(define-symbol |GLU_DISPLAY_MODE| "sym_GLU_DISPLAY_MODE" "Scm_MakeInteger(GLU_DISPLAY_MODE)")
+(define-symbol |GLU_SAMPLING_METHOD| "sym_GLU_SAMPLING_METHOD" "Scm_MakeInteger(GLU_SAMPLING_METHOD)")
+(define-symbol |GLU_U_STEP| "sym_GLU_U_STEP" "Scm_MakeInteger(GLU_U_STEP)")
+(define-symbol |GLU_V_STEP| "sym_GLU_V_STEP" "Scm_MakeInteger(GLU_V_STEP)")
+
+(define-symbol |GLU_PATH_LENGTH| "sym_GLU_PATH_LENGTH" "Scm_MakeInteger(GLU_PATH_LENGTH)")
+(define-symbol |GLU_PARAMETRIC_ERROR| "sym_GLU_PARAMETRIC_ERROR" "Scm_MakeInteger(GLU_PARAMETRIC_ERROR)")
+(define-symbol |GLU_DOMAIN_DISTANCE| "sym_GLU_DOMAIN_DISTANCE" "Scm_MakeInteger(GLU_DOMAIN_DISTANCE)")
+
+(define-symbol |GLU_MAP1_TRIM_2| "sym_GLU_MAP1_TRIM_2" "Scm_MakeInteger(GLU_MAP1_TRIM_2)")
+(define-symbol |GLU_MAP1_TRIM_3| "sym_GLU_MAP1_TRIM_3" "Scm_MakeInteger(GLU_MAP1_TRIM_3)")
+
+(define-symbol |GLU_OUTLINE_POLYGON| "sym_GLU_OUTLINE_POLYGON" "Scm_MakeInteger(GLU_OUTLINE_POLYGON)")
+(define-symbol |GLU_OUTLINE_PATCH| "sym_GLU_OUTLINE_PATCH" "Scm_MakeInteger(GLU_OUTLINE_PATCH)")
+
+(define-symbol |GLU_NURBS_ERROR1| "sym_GLU_NURBS_ERROR1" "Scm_MakeInteger(GLU_NURBS_ERROR1)")
+(define-symbol |GLU_NURBS_ERROR2| "sym_GLU_NURBS_ERROR2" "Scm_MakeInteger(GLU_NURBS_ERROR2)")
+(define-symbol |GLU_NURBS_ERROR3| "sym_GLU_NURBS_ERROR3" "Scm_MakeInteger(GLU_NURBS_ERROR3)")
+(define-symbol |GLU_NURBS_ERROR4| "sym_GLU_NURBS_ERROR4" "Scm_MakeInteger(GLU_NURBS_ERROR4)")
+(define-symbol |GLU_NURBS_ERROR5| "sym_GLU_NURBS_ERROR5" "Scm_MakeInteger(GLU_NURBS_ERROR5)")
+(define-symbol |GLU_NURBS_ERROR6| "sym_GLU_NURBS_ERROR6" "Scm_MakeInteger(GLU_NURBS_ERROR6)")
+(define-symbol |GLU_NURBS_ERROR7| "sym_GLU_NURBS_ERROR7" "Scm_MakeInteger(GLU_NURBS_ERROR7)")
+(define-symbol |GLU_NURBS_ERROR8| "sym_GLU_NURBS_ERROR8" "Scm_MakeInteger(GLU_NURBS_ERROR8)")
+(define-symbol |GLU_NURBS_ERROR9| "sym_GLU_NURBS_ERROR9" "Scm_MakeInteger(GLU_NURBS_ERROR9)")
+(define-symbol |GLU_NURBS_ERROR10| "sym_GLU_NURBS_ERROR10" "Scm_MakeInteger(GLU_NURBS_ERROR10)")
+(define-symbol |GLU_NURBS_ERROR11| "sym_GLU_NURBS_ERROR11" "Scm_MakeInteger(GLU_NURBS_ERROR11)")
+(define-symbol |GLU_NURBS_ERROR12| "sym_GLU_NURBS_ERROR12" "Scm_MakeInteger(GLU_NURBS_ERROR12)")
+(define-symbol |GLU_NURBS_ERROR13| "sym_GLU_NURBS_ERROR13" "Scm_MakeInteger(GLU_NURBS_ERROR13)")
+(define-symbol |GLU_NURBS_ERROR14| "sym_GLU_NURBS_ERROR14" "Scm_MakeInteger(GLU_NURBS_ERROR14)")
+(define-symbol |GLU_NURBS_ERROR15| "sym_GLU_NURBS_ERROR15" "Scm_MakeInteger(GLU_NURBS_ERROR15)")
+(define-symbol |GLU_NURBS_ERROR16| "sym_GLU_NURBS_ERROR16" "Scm_MakeInteger(GLU_NURBS_ERROR16)")
+(define-symbol |GLU_NURBS_ERROR17| "sym_GLU_NURBS_ERROR17" "Scm_MakeInteger(GLU_NURBS_ERROR17)")
+(define-symbol |GLU_NURBS_ERROR18| "sym_GLU_NURBS_ERROR18" "Scm_MakeInteger(GLU_NURBS_ERROR18)")
+(define-symbol |GLU_NURBS_ERROR19| "sym_GLU_NURBS_ERROR19" "Scm_MakeInteger(GLU_NURBS_ERROR19)")
+(define-symbol |GLU_NURBS_ERROR20| "sym_GLU_NURBS_ERROR20" "Scm_MakeInteger(GLU_NURBS_ERROR20)")
+(define-symbol |GLU_NURBS_ERROR21| "sym_GLU_NURBS_ERROR21" "Scm_MakeInteger(GLU_NURBS_ERROR21)")
+(define-symbol |GLU_NURBS_ERROR22| "sym_GLU_NURBS_ERROR22" "Scm_MakeInteger(GLU_NURBS_ERROR22)")
+(define-symbol |GLU_NURBS_ERROR23| "sym_GLU_NURBS_ERROR23" "Scm_MakeInteger(GLU_NURBS_ERROR23)")
+(define-symbol |GLU_NURBS_ERROR24| "sym_GLU_NURBS_ERROR24" "Scm_MakeInteger(GLU_NURBS_ERROR24)")
+(define-symbol |GLU_NURBS_ERROR25| "sym_GLU_NURBS_ERROR25" "Scm_MakeInteger(GLU_NURBS_ERROR25)")
+(define-symbol |GLU_NURBS_ERROR26| "sym_GLU_NURBS_ERROR26" "Scm_MakeInteger(GLU_NURBS_ERROR26)")
+(define-symbol |GLU_NURBS_ERROR27| "sym_GLU_NURBS_ERROR27" "Scm_MakeInteger(GLU_NURBS_ERROR27)")
+(define-symbol |GLU_NURBS_ERROR28| "sym_GLU_NURBS_ERROR28" "Scm_MakeInteger(GLU_NURBS_ERROR28)")
+(define-symbol |GLU_NURBS_ERROR29| "sym_GLU_NURBS_ERROR29" "Scm_MakeInteger(GLU_NURBS_ERROR29)")
+(define-symbol |GLU_NURBS_ERROR30| "sym_GLU_NURBS_ERROR30" "Scm_MakeInteger(GLU_NURBS_ERROR30)")
+(define-symbol |GLU_NURBS_ERROR31| "sym_GLU_NURBS_ERROR31" "Scm_MakeInteger(GLU_NURBS_ERROR31)")
+(define-symbol |GLU_NURBS_ERROR32| "sym_GLU_NURBS_ERROR32" "Scm_MakeInteger(GLU_NURBS_ERROR32)")
+(define-symbol |GLU_NURBS_ERROR33| "sym_GLU_NURBS_ERROR33" "Scm_MakeInteger(GLU_NURBS_ERROR33)")
+(define-symbol |GLU_NURBS_ERROR34| "sym_GLU_NURBS_ERROR34" "Scm_MakeInteger(GLU_NURBS_ERROR34)")
+(define-symbol |GLU_NURBS_ERROR35| "sym_GLU_NURBS_ERROR35" "Scm_MakeInteger(GLU_NURBS_ERROR35)")
+(define-symbol |GLU_NURBS_ERROR36| "sym_GLU_NURBS_ERROR36" "Scm_MakeInteger(GLU_NURBS_ERROR36)")
+(define-symbol |GLU_NURBS_ERROR37| "sym_GLU_NURBS_ERROR37" "Scm_MakeInteger(GLU_NURBS_ERROR37)")
+
+;; Errors 
+(define-symbol |GLU_INVALID_ENUM| "sym_GLU_INVALID_ENUM" "Scm_MakeInteger(GLU_INVALID_ENUM)")
+(define-symbol |GLU_INVALID_VALUE| "sym_GLU_INVALID_VALUE" "Scm_MakeInteger(GLU_INVALID_VALUE)")
+(define-symbol |GLU_OUT_OF_MEMORY| "sym_GLU_OUT_OF_MEMORY" "Scm_MakeInteger(GLU_OUT_OF_MEMORY)")
+(define-symbol |GLU_INCOMPATIBLE_GL_VERSION| "sym_GLU_INCOMPATIBLE_GL_VERSION" "Scm_MakeInteger(GLU_INCOMPATIBLE_GL_VERSION)")
+
+;; New in GLU 1.1 
+(define-symbol |GLU_VERSION| "sym_GLU_VERSION" "Scm_MakeInteger(GLU_VERSION)")
+(define-symbol |GLU_EXTENSIONS| "sym_GLU_EXTENSIONS" "Scm_MakeInteger(GLU_EXTENSIONS)")
+
+;; Local variables:
+;; mode: scheme
+;; end:

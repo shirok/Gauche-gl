@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.3 2001-09-30 04:52:01 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.4 2001-09-30 11:03:22 shirok Exp $
  */
 
 #include <gauche.h>
@@ -55,9 +55,11 @@ int Scm_GLGetDoubles(ScmObj val1, ScmObj list, double *result,
 
 /* Initialization */
 extern void Scm_Init_gl_lib(ScmModule *mod);
+extern void Scm_Init_glu_lib(ScmModule *mod);
 
 void Scm_Init_gauche_gl(void)
 {
     ScmModule *mod = SCM_MODULE(SCM_FIND_MODULE("gl", TRUE));
     Scm_Init_gl_lib(mod);
+    Scm_Init_glu_lib(mod);
 }

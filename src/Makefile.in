@@ -7,8 +7,8 @@ GAUCHE_CONFIG = @GAUCHE_CONFIG@
 GAUCHE_TOP = @GAUCHE_TOP@
 INSTALL = @INSTALL@
 
-ARCHFILES = gauche-gl.so
-SCMFILES = gl.scm
+ARCHFILES = gauche-gl.so gauche-glut.so
+SCMFILES = 
 HEADERS = 
 
 TARGET = gauche-gl.so gauche-glut.so

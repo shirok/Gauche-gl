@@ -1,4 +1,4 @@
-;; Example 5-6  Moving a light with modeling transformations
+;; Example 5-8  Different material properties
 
 (use gl)
 (use gl.glut)

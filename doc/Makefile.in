@@ -1,3 +1,9 @@
+SHELL       = @SHELL@
+srcdir      = @srcdir@
+VPATH       = $(srcdir)
+top_builddir = @top_builddir@
+top_srcdir   = @top_srcdir@
+
 MANPAGES = 
 EXTRACTED = gauche-gl-refe.texi gauche-gl-refj.texi
 GENERATED = Makefile $(MANPAGES)
@@ -6,6 +12,7 @@ GAUCHE_CONFIG = @GAUCHE_CONFIG@
 INSTALL = @INSTALL@
 MAKEINFO = @MAKEINFO@
 GZIP_PROGRAM = @GZIP_PROGRAM@
+MKINSTDIR = $(top_srcdir)/mkinstalldirs
 
 # Manual page destination.
 mandir  = $(DESTDIR)`$(GAUCHE_CONFIG) --mandir`
@@ -14,7 +21,7 @@ infodir = $(DESTDIR)`$(GAUCHE_CONFIG) --infodir`
 all: info
 
 install: all
-	if test ! -d $(infodir); then $(INSTALL) -d $(infodir); fi
+	$(MKINSTDIR) $(infodir)
 	if test -f gauche-gl-refe.info.gz -o -f gauche-gl-refj.info.gz; then \
 	  for info in *.info*; do \
 	    $(INSTALL) -m 444 $$info $(infodir)/; \

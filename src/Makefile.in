@@ -1,10 +1,29 @@
-GOSH     = @GOSH@
-GAUCHE_CONFIG = @GAUCHE_CONFIG@
-GAUCHE_TOP = @GAUCHE_TOP@
+#
+# Makefile.in for Gauche-gl/src
+#  $Id: Makefile.in,v 1.28 2003-10-10 02:19:46 shirok Exp $
+#
 
-SHELL    = @SHELL@
-CC       = @CC@
+# prelude ---------------------------------------------
+
+.SUFFIXES: .stub
+
+.stub.c :
+	$(GOSH) genstub $<
+
+SHELL       = @SHELL@
+srcdir      = @srcdir@
+VPATH       = $(srcdir)
+top_builddir = @top_builddir@
+top_srcdir   = @top_srcdir@
+
+# These may be overridden by make invocators
+DESTDIR  = 
 OPTFLAGS = @OPTFLAGS@
+
+# These are set by configure
+# NB: cc and various flags must match the ones used to compile Gauche,
+# so the make invocator shouldn't casually override them.
+CC       = @CC@
 CFLAGS   = @DEFS@ @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@ $(OPTFLAGS)
 LDFLAGS  = @LDFLAGS@
 OBJEXT   = @OBJEXT@
@@ -12,6 +31,16 @@ SOEXT    = @SOEXT@
 OLIBS    = @LIBS@
 LIBS     = @GL_LIBS@ @LIBS@ @X_LIBS@ @X_PRE_LIBS@ @X_EXTRA_LIBS@ @X_LIBS@ 
 INSTALL  = @INSTALL@
+GOSH     = @GOSH@
+GAUCHE_CONFIG = @GAUCHE_CONFIG@
+MKINSTDIR = $(top_srcdir)/mkinstalldirs
+
+INSTALL_TYPE = @INSTALL_TYPE@
+HEADER_INSTALL_DIR  = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)incdir`
+SCM_INSTALL_DIR     = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)libdir`
+ARCH_INSTALL_DIR    = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)archdir`
+
+# build -----------------------------------------------
 
 ARCHFILES = libgauche-math3d.$(SOEXT) \
             libgauche-gl.$(SOEXT) \
@@ -33,11 +62,6 @@ CONFIG_GENERATED = Makefile config.cache config.log config.status \
 GENERATED = gl-lib.c gl-syms.c glu-lib.c glut-lib.c \
             math3d-lib.c gettype-sizes.c 
 
-INSTALL_TYPE = @INSTALL_TYPE@
-HEADER_INSTALL_DIR  = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)incdir`
-SCM_INSTALL_DIR     = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)libdir`
-ARCH_INSTALL_DIR    = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)archdir`
-
 all : $(TARGET)
 
 libgauche-math3d.$(SOEXT) : $(MATHOBJS)
@@ -45,21 +69,13 @@ libgauche-math3d.$(SOEXT) : $(MATHOBJS)
 
 libgauche-math3d.$(OBJEXT) : gauche/math3d.h
 
-math3d-lib.c : math3d-lib.stub
-	$(GOSH) genstub math3d-lib.stub
-
 libgauche-gl.$(SOEXT) : $(GLOBJS)
 	$(CC) $(LDFLAGS) libgauche-gl.$(SOEXT) $(GLOBJS) @GL_EXTRALIBS@ $(LIBS)
 
+math3d-lib.c : math3d-lib.stub
 gl-lib.c : gl-lib.stub
-	$(GOSH) genstub gl-lib.stub
-
 gl-syms.c : gl-syms.stub
-	$(GOSH) genstub gl-syms.stub
-
 glu-lib.c : glu-lib.stub
-	$(GOSH) genstub glu-lib.stub
-
 gauche-gl.c : gettype-sizes.c
 
 gettype-sizes.c : glstate.scm
@@ -71,40 +87,41 @@ libgauche-glut.$(SOEXT) : $(GLUTOBJS)
 	$(CC) $(LDFLAGS) libgauche-glut.$(SOEXT) $(GLUTOBJS) @GLUT_LIBDIR@ @GLUT_LIB@ @GLUT_EXTRALIBS@ $(LIBS)
 
 glut-lib.c : glut-lib.stub
-	$(GOSH) genstub glut-lib.stub
 
 $(GLUTOBJS) : gauche-glut.h
+
+# tests -----------------------------------------------
 
 check : all
 	@rm -f test.log
 	$(GOSH) -I. -I../lib test-math3d.scm > test.log
 	$(GOSH) -I. -I../lib test.scm >> test.log
 
+# install ----------------------------------------------
+
+INSTALL_DIRS = $(HEADER_INSTALL_DIR)/gauche \
+               $(SCM_INSTALL_DIR) \
+               $(ARCH_INSTALL_DIR)
+
 install : all
-	@if test ! -d $(HEADER_INSTALL_DIR)/gauche; then \
-	  $(INSTALL) -d $(HEADER_INSTALL_DIR)/gauche; \
-	fi
+	$(MKINSTDIR) $(INSTALL_DIRS)
 	@for f in $(HEADERS) _end; do \
 	  if test $$f != _end; then \
 	    $(INSTALL) -m 444 $$f $(HEADER_INSTALL_DIR)/$$f; \
 	  fi; \
 	done
-	@if test ! -d $(SCM_INSTALL_DIR); then \
-	  $(INSTALL) -d $(SCM_INSTALL_DIR); \
-	fi
 	@for f in $(SCMFILES) _end; do \
 	  if test $$f != _end; then \
 	    $(INSTALL) -m 444 $$f $(SCM_INSTALL_DIR); \
 	  fi; \
 	done
-	@if test ! -d $(ARCH_INSTALL_DIR); then \
-	  $(INSTALL) -d $(ARCH_INSTALL_DIR); \
-	fi
 	@for f in $(ARCHFILES) _end; do \
 	  if test $$f != _end; then \
 	    $(INSTALL) -m 555 $$f $(ARCH_INSTALL_DIR); \
 	  fi; \
 	done
+
+# clean ------------------------------------------------
 
 clean :
 	rm -rf core $(TARGET) $(OBJS) $(GENERATED) *~ test.log so_locations

@@ -1,3 +1,7 @@
+2003-10-09  Shiro Kawai  <shiro@acm.org>
+
+	* */Makefile.in : cleaned up install rules by using mkinstalldirs.
+
 2003-10-04  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.3

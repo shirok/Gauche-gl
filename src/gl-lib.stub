@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.25 2002-09-13 07:05:49 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.26 2002-09-23 03:41:07 shirok Exp $
 ;;;
 
 "
@@ -29,6 +29,13 @@
     }                                                  \\
   } while (0)
 "
+
+;; NB: this should be taken care of by genstub.
+(define-type <u32vector> "ScmU32Vector*" "u32vector"
+  "SCM_U32VECTORP" "SCM_U32VECTOR")
+(define-type <f32vector> "ScmF32Vector*" "f32vector"
+  "SCM_F32VECTORP" "SCM_F32VECTOR")
+
 ;;=============================================================
 ;; Miscellaneous
 ;;
@@ -1575,8 +1582,15 @@
 ;; Selection and feedback
 ;;
 
-; gl-feedback-buffer
-; gl-select-buffer
+(define-cproc gl-feedback-buffer (type::<fixnum>
+                                  buffer::<f32vector>)
+  "glFeedbackBuffer(SCM_F32VECTOR_SIZE(buffer), type,
+                    SCM_F32VECTOR_ELEMENTS(buffer));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-select-buffer (buffer::<u32vector>)
+  "glSelectBuffer(SCM_U32VECTOR_SIZE(buffer), SCM_U32VECTOR_ELEMENTS(buffer));
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-pass-through (token::<float>)
   (return <void> "glPassThrough"))

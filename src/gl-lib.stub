@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.7 2001-10-02 09:07:54 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.8 2001-10-02 11:10:12 shirok Exp $
 ;;;
 
 "
@@ -967,10 +967,12 @@
      }
      break;
    case GL_COLOR_INDEXES:
-     if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 3) {
+     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 3) {
+       glMaterialfv(face, pname, SCM_F32VECTOR_ELEMENTS(param));
+     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 3) {
        glMaterialiv(face, pname, SCM_S32VECTOR_ELEMENTS(param));
      } else {
-       Scm_Error(\"bad parameter: %S, must be s32vector of length 3\", param);
+       Scm_Error(\"bad parameter: %S, must be f32 or s32vector of length 3\", param);
      }
      break;
    default:

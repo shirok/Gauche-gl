@@ -1,5 +1,6 @@
 2004-08-21  Shiro Kawai  <shiro@acm.org>
 
+	* lib/gl/util.scm : added
 	* src/glext-lib.stub : added ARB extension bindings.
 	* src/gl-lib.stub, src/gl-syms.stub : moved ARB extension stuff to
 	  glext-lib.stub

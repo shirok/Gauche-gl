@@ -1,7 +1,7 @@
 ;;;
 ;;; gl-syms.stub - GL constants
 ;;;
-;;;  Copyright(C) 2002 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2002-2004 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-syms.stub,v 1.8 2004-08-21 10:32:45 shirok Exp $
+;;;  $Id: gl-syms.stub,v 1.9 2004-08-22 12:27:18 shirok Exp $
 ;;;
 
 "
@@ -600,129 +600,6 @@
       (define-enum GL_ALIASED_POINT_SIZE_RANGE)
       (define-enum GL_ALIASED_LINE_WIDTH_RANGE)
       ))
-
-;; Extensions
-(if "defined(GL_EXT_blend_color)"
-    (begin
-      (define-constant GL_EXT_blend_color #t)
-      (define-enum GL_BLEND_COLOR_EXT)
-      (define-enum GL_CONSTANT_COLOR_EXT)
-      (define-enum GL_ONE_MINUS_CONSTANT_COLOR_EXT)
-      (define-enum GL_CONSTANT_ALPHA_EXT)
-      (define-enum GL_ONE_MINUS_CONSTANT_ALPHA_EXT)
-      (define-enum GL_BLEND_EQUATION_EXT)))
-(if "defined(GL_EXT_blend_minmax)"
-    (begin
-      (define-constant GL_EXT_blend_minmax #t)
-      (define-enum GL_MIN_EXT)
-      (define-enum GL_MAX_EXT)
-      (define-enum GL_FUNC_ADD_EXT)))
-(if "defined(GL_EXT_blend_subtract)"
-    (begin
-      (define-constant GL_EXT_blend_subtract #t)
-      (define-enum GL_FUNC_SUBTRACT_EXT)
-      (define-enum GL_FUNC_REVERSE_SUBTRACT_EXT)))
-(if "defined(GL_EXT_polygon_offset)"
-    (begin
-      (define-constant GL_EXT_polygon_offset #t)
-      (define-enum GL_POLYGON_OFFSET_EXT)
-      (define-enum GL_POLYGON_OFFSET_FACTOR_EXT)
-      (define-enum GL_POLYGON_OFFSET_BIAS_EXT)))
-(if "defined(GL_EXT_vertex_array)"
-    (begin
-      (define-constant GL_EXT_vertex_array #t)
-      (define-enum GL_VERTEX_ARRAY_EXT)
-      (define-enum GL_NORMAL_ARRAY_EXT)
-      (define-enum GL_COLOR_ARRAY_EXT)
-      (define-enum GL_INDEX_ARRAY_EXT)
-      (define-enum GL_TEXTURE_COORD_ARRAY_EXT)
-      (define-enum GL_EDGE_FLAG_ARRAY_EXT)
-      (define-enum GL_VERTEX_ARRAY_SIZE_EXT)
-      (define-enum GL_VERTEX_ARRAY_TYPE_EXT)
-      (define-enum GL_VERTEX_ARRAY_STRIDE_EXT)
-      (define-enum GL_VERTEX_ARRAY_COUNT_EXT)
-      (define-enum GL_NORMAL_ARRAY_TYPE_EXT)
-      (define-enum GL_NORMAL_ARRAY_STRIDE_EXT)
-      (define-enum GL_NORMAL_ARRAY_COUNT_EXT)
-      (define-enum GL_COLOR_ARRAY_SIZE_EXT)
-      (define-enum GL_COLOR_ARRAY_TYPE_EXT)
-      (define-enum GL_COLOR_ARRAY_STRIDE_EXT)
-      (define-enum GL_COLOR_ARRAY_COUNT_EXT)
-      (define-enum GL_INDEX_ARRAY_TYPE_EXT)
-      (define-enum GL_INDEX_ARRAY_STRIDE_EXT)
-      (define-enum GL_INDEX_ARRAY_COUNT_EXT)
-      (define-enum GL_TEXTURE_COORD_ARRAY_SIZE_EXT)
-      (define-enum GL_TEXTURE_COORD_ARRAY_TYPE_EXT)
-      (define-enum GL_TEXTURE_COORD_ARRAY_STRIDE_EXT)
-      (define-enum GL_TEXTURE_COORD_ARRAY_COUNT_EXT)
-      (define-enum GL_EDGE_FLAG_ARRAY_STRIDE_EXT)
-      (define-enum GL_EDGE_FLAG_ARRAY_COUNT_EXT)
-      (define-enum GL_VERTEX_ARRAY_POINTER_EXT)
-      (define-enum GL_NORMAL_ARRAY_POINTER_EXT)
-      (define-enum GL_COLOR_ARRAY_POINTER_EXT)
-      (define-enum GL_INDEX_ARRAY_POINTER_EXT)
-      (define-enum GL_TEXTURE_COORD_ARRAY_POINTER_EXT)
-      (define-enum GL_EDGE_FLAG_ARRAY_POINTER_EXT)))
-(if "defined(GL_EXT_texture_object)"
-    (begin
-      (define-constant GL_EXT_texture_object #t)
-      (if "defined(GL_TEXTURE_PRIORITY_EXT)"
-          (define-enum GL_TEXTURE_PRIORITY_EXT))
-      (if "defined(GL_TEXTURE_RESIDENT_EXT)"
-          (define-enum GL_TEXTURE_RESIDENT_EXT))
-      (if "defined(GL_TEXTURE_1D_BINDING_EXT)"
-          (define-enum GL_TEXTURE_1D_BINDING_EXT))
-      (if "defined(GL_TEXTURE_2D_BINDING_EXT)"
-          (define-enum GL_TEXTURE_2D_BINDING_EXT))))
-(if "defined(GL_EXT_texture3D)"
-    (begin
-      (define-constant GL_EXT_texture3D #t)
-      (if "defined(GL_TEXTURE_3D_BINDING_EXT)"
-          (define-enum GL_TEXTURE_3D_BINDING_EXT))
-      (define-enum GL_PACK_SKIP_IMAGES_EXT)
-      (define-enum GL_PACK_IMAGE_HEIGHT_EXT)
-      (define-enum GL_UNPACK_SKIP_IMAGES_EXT)
-      (define-enum GL_UNPACK_IMAGE_HEIGHT_EXT)
-      (define-enum GL_TEXTURE_3D_EXT)
-      (define-enum GL_PROXY_TEXTURE_3D_EXT)
-      (define-enum GL_TEXTURE_DEPTH_EXT)
-      (define-enum GL_TEXTURE_WRAP_R_EXT)
-      (define-enum GL_MAX_3D_TEXTURE_SIZE_EXT)))
-(if "defined(GL_EXT_paletted_texture)"
-    (begin
-      (define-constant GL_EXT_paletted_texture #t)
-      (if "defined(GL_TABLE_TOO_LARGE_EXT)"
-	  (define-enum GL_TABLE_TOO_LARGE_EXT))
-      (if "defined(GL_COLOR_TABLE_FORMAT_EXT)"
-	  (begin 
-            (define-enum GL_COLOR_TABLE_FORMAT_EXT)
-            (define-enum GL_COLOR_TABLE_WIDTH_EXT)
-            (define-enum GL_COLOR_TABLE_RED_SIZE_EXT)
-            (define-enum GL_COLOR_TABLE_GREEN_SIZE_EXT)
-            (define-enum GL_COLOR_TABLE_BLUE_SIZE_EXT)
-            (define-enum GL_COLOR_TABLE_ALPHA_SIZE_EXT)
-            (define-enum GL_COLOR_TABLE_LUMINANCE_SIZE_EXT)
-            (define-enum GL_COLOR_TABLE_INTENSITY_SIZE_EXT)))
-      (if "!defined(__CYGWIN__)"
-	  (define-enum GL_TEXTURE_INDEX_SIZE_EXT))
-      (define-enum GL_COLOR_INDEX1_EXT)
-      (define-enum GL_COLOR_INDEX2_EXT)
-      (define-enum GL_COLOR_INDEX4_EXT)
-      (define-enum GL_COLOR_INDEX8_EXT)
-      (define-enum GL_COLOR_INDEX12_EXT)
-      (define-enum GL_COLOR_INDEX16_EXT)))
-(if "defined(GL_EXT_rescale_normal)"
-    (begin
-      (define-constant GL_EXT_rescale_normal #t)
-      (define-enum GL_RESCALE_NORMAL_EXT)))
-(if "defined(GL_EXT_abgr)"
-    (begin
-      (define-constant GL_EXT_abgr #t)
-      (define-enum GL_ABGR_EXT)))
-(if "defined(GL_SGIS_texture_edge_clamp)"
-    (begin
-      (define-constant GL_SGIS_texture_edge_clamp #t)
-      (define-enum GL_CLAMP_TO_EDGE_SGIS)))
 
 ;; glPush/PopAttrib bits
 (define-enum GL_CURRENT_BIT)

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.2 2004-08-22 10:33:50 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.3 2004-08-22 12:27:18 shirok Exp $
 ;;;
 
 "
@@ -170,7 +170,7 @@
 )) ;; GL_ARB_fragment_program
 
 ;;=============================================================
-;; GL_ARB_fragment_shadow
+;; GL_ARB_fragment_program_shadow
 ;;
 
 (if "defined(GL_ARB_fragment_program_shadow)" (begin
@@ -1226,6 +1226,1759 @@
 
 )) ;; GL_ARB_window_pos
 
+;;=============================================================
+;; GL_ATI_texture_float
+;;
+
+(if "defined(GL_ATI_texture_float)" (begin
+
+(define-constant GL_ATI_texture_float #t)
+
+(define-enum GL_RGBA_FLOAT32_ATI)
+(define-enum GL_RGB_FLOAT32_ATI)
+(define-enum GL_ALPHA_FLOAT32_ATI)
+(define-enum GL_INTENSITY_FLOAT32_ATI)
+(define-enum GL_LUMINANCE_FLOAT32_ATI)
+(define-enum GL_LUMINANCE_ALPHA_FLOAT32_ATI)
+(define-enum GL_RGBA_FLOAT16_ATI)
+(define-enum GL_RGB_FLOAT16_ATI)
+(define-enum GL_ALPHA_FLOAT16_ATI)
+(define-enum GL_INTENSITY_FLOAT16_ATI)
+(define-enum GL_LUMINANCE_FLOAT16_ATI)
+(define-enum GL_LUMINANCE_ALPHA_FLOAT16_ATI)
+
+)) ;; GL_ATI_texture_float
+
+;;=============================================================
+;; GL_ATI_draw_buffers
+;;
+
+(if "defined(GL_ATI_draw_buffers)" (begin
+
+(define-constant GL_ATI_draw_buffers #t)
+
+(define-enum GL_MAX_DRAW_BUFFERS_ATI)
+(define-enum GL_DRAW_BUFFER0_ATI)
+(define-enum GL_DRAW_BUFFER1_ATI)
+(define-enum GL_DRAW_BUFFER2_ATI)
+(define-enum GL_DRAW_BUFFER3_ATI)
+(define-enum GL_DRAW_BUFFER4_ATI)
+(define-enum GL_DRAW_BUFFER5_ATI)
+(define-enum GL_DRAW_BUFFER6_ATI)
+(define-enum GL_DRAW_BUFFER7_ATI)
+(define-enum GL_DRAW_BUFFER8_ATI)
+(define-enum GL_DRAW_BUFFER9_ATI)
+(define-enum GL_DRAW_BUFFER10_ATI)
+(define-enum GL_DRAW_BUFFER11_ATI)
+(define-enum GL_DRAW_BUFFER12_ATI)
+(define-enum GL_DRAW_BUFFER13_ATI)
+(define-enum GL_DRAW_BUFFER14_ATI)
+(define-enum GL_DRAW_BUFFER15_ATI)
+
+)) ;; GL_ATI_draw_buffers
+
+;;=============================================================
+;; GL_EXT_422_pixels
+;;
+
+(if "defined(GL_EXT_422_pixels)" (begin
+
+(define-constant GL_EXT_422_pixels #t)
+
+(define-enum GL_422_EXT)
+(define-enum GL_422_REV_EXT)
+(define-enum GL_422_AVERAGE_EXT)
+(define-enum GL_422_REV_AVERAGE_EXT)
+
+)) ;; GL_EXT_422_pixels
+
+;;=============================================================
+;; GL_EXT_abgr
+;;
+
+(if "defined(GL_EXT_abgr)" (begin
+
+(define-constant GL_EXT_abgr #t)
+
+(define-enum GL_ABGR_EXT)
+
+)) ;; GL_EXT_abgr
+
+;;=============================================================
+;; GL_EXT_bgra
+;;
+
+(if "defined(GL_EXT_bgra)" (begin
+
+(define-constant GL_EXT_bgra #t)
+
+(define-enum GL_BGR_EXT)
+(define-enum GL_BGRA_EXT)
+
+)) ;; GL_EXT_bgra
+
+;;=============================================================
+;; GL_EXT_blend_color
+;;
+
+(if "defined(GL_EXT_blend_color)" (begin
+
+(define-constant GL_EXT_blend_color #t)
+
+(define-enum GL_CONSTANT_COLOR_EXT)
+(define-enum GL_ONE_MINUS_CONSTANT_COLOR_EXT)
+(define-enum GL_CONSTANT_ALPHA_EXT)
+(define-enum GL_ONE_MINUS_CONSTANT_ALPHA_EXT)
+(define-enum GL_BLEND_COLOR_EXT)
+
+)) ;; GL_EXT_blend_color
+
+;;=============================================================
+;; GL_EXT_blend_equation_separate
+;;
+
+(if "defined(GL_EXT_blend_equation_separate)" (begin
+
+(define-constant GL_EXT_blend_equation_separate #t)
+
+(define-enum GL_BLEND_EQUATION_RGB_EXT)
+(define-enum GL_BLEND_EQUATION_ALPHA_EXT)
+
+)) ;; GL_EXT_blend_equation_separate
+
+;;=============================================================
+;; GL_EXT_blend_func_separate
+;;
+
+(if "defined(GL_EXT_blend_func_separate)" (begin
+
+(define-constant GL_EXT_blend_func_separate #t)
+
+(define-enum GL_BLEND_DST_RGB_EXT)
+(define-enum GL_BLEND_SRC_RGB_EXT)
+(define-enum GL_BLEND_DST_ALPHA_EXT)
+(define-enum GL_BLEND_SRC_ALPHA_EXT)
+
+)) ;; GL_EXT_blend_func_separate
+
+;;=============================================================
+;; GL_EXT_blend_logic_op
+;;
+
+(if "defined(GL_EXT_blend_logic_op)" (begin
+
+(define-constant GL_EXT_blend_logic_op #t)
+
+)) ;; GL_EXT_blend_logic_op
+
+;;=============================================================
+;; GL_EXT_blend_minmax
+;;
+
+(if "defined(GL_EXT_blend_minmax)" (begin
+
+(define-constant GL_EXT_blend_minmax #t)
+
+(define-enum GL_FUNC_ADD_EXT)
+(define-enum GL_MIN_EXT)
+(define-enum GL_MAX_EXT)
+(define-enum GL_BLEND_EQUATION_EXT)
+
+)) ;; GL_EXT_blend_minmax
+
+;;=============================================================
+;; GL_EXT_blend_subtract
+;;
+
+(if "defined(GL_EXT_blend_subtract)" (begin
+
+(define-constant GL_EXT_blend_subtract #t)
+
+(define-enum GL_FUNC_SUBTRACT_EXT)
+(define-enum GL_FUNC_REVERSE_SUBTRACT_EXT)
+
+)) ;; GL_EXT_blend_subtract
+
+;;=============================================================
+;; GL_EXT_Cg_shader
+;;
+
+(if "defined(GL_EXT_Cg_shader)" (begin
+
+(define-constant GL_EXT_Cg_shader #t)
+
+(define-enum GL_CG_VERTEX_SHADER_EXT)
+(define-enum GL_CG_FRAGMENT_SHADER_EXT)
+
+)) ;; GL_EXT_Cg_shader
+
+;;=============================================================
+;; GL_EXT_polygon_offset
+;;
+
+(if "defined(GL_EXT_polygon_offset)" (begin
+
+(define-constant GL_EXT_polygon_offset #t)
+
+(define-enum GL_POLYGON_OFFSET_EXT)
+(define-enum GL_POLYGON_OFFSET_FACTOR_EXT)
+(define-enum GL_POLYGON_OFFSET_BIAS_EXT)
+
+)) ;; GL_EXT_polygon_offset
+
+;;=============================================================
+;; GL_EXT_clip_volume_hint
+;;
+
+(if "defined(GL_EXT_clip_volume_hint)" (begin
+
+(define-constant GL_EXT_clip_volume_hint #t)
+
+(define-enum GL_CLIP_VOLUME_CLIPPING_HINT_EXT)
+
+)) ;; GL_EXT_clip_volume_hint
+
+;;=============================================================
+;; GL_EXT_cmyka
+;;
+
+(if "defined(GL_EXT_cmyka)" (begin
+
+(define-constant GL_EXT_cmyka #t)
+
+(define-enum GL_CMYK_EXT)
+(define-enum GL_CMYKA_EXT)
+(define-enum GL_PACK_CMYK_HINT_EXT)
+(define-enum GL_UNPACK_CMYK_HINT_EXT)
+
+)) ;; GL_EXT_cmyka
+
+;;=============================================================
+;; GL_EXT_color_subtable
+;;
+
+(if "defined(GL_EXT_color_subtable)" (begin
+
+(define-constant GL_EXT_color_subtable #t)
+
+)) ;; GL_EXT_color_subtable
+
+;;=============================================================
+;; GL_EXT_compiled_vertex_array
+;;
+
+(if "defined(GL_EXT_compiled_vertex_array)" (begin
+
+(define-constant GL_EXT_compiled_vertex_array #t)
+
+(define-enum GL_ARRAY_ELEMENT_LOCK_FIRST_EXT)
+(define-enum GL_ARRAY_ELEMENT_LOCK_COUNT_EXT)
+
+)) ;; GL_EXT_compiled_vertex_array
+
+;;=============================================================
+;; GL_EXT_convolution
+;;
+
+(if "defined(GL_EXT_convolution)" (begin
+
+(define-constant GL_EXT_convolution #t)
+
+(define-enum GL_CONVOLUTION_1D_EXT)
+(define-enum GL_CONVOLUTION_2D_EXT)
+(define-enum GL_SEPARABLE_2D_EXT)
+(define-enum GL_CONVOLUTION_BORDER_MODE_EXT)
+(define-enum GL_CONVOLUTION_FILTER_SCALE_EXT)
+(define-enum GL_CONVOLUTION_FILTER_BIAS_EXT)
+(define-enum GL_REDUCE_EXT)
+(define-enum GL_CONVOLUTION_FORMAT_EXT)
+(define-enum GL_CONVOLUTION_WIDTH_EXT)
+(define-enum GL_CONVOLUTION_HEIGHT_EXT)
+(define-enum GL_MAX_CONVOLUTION_WIDTH_EXT)
+(define-enum GL_MAX_CONVOLUTION_HEIGHT_EXT)
+(define-enum GL_POST_CONVOLUTION_RED_SCALE_EXT)
+(define-enum GL_POST_CONVOLUTION_GREEN_SCALE_EXT)
+(define-enum GL_POST_CONVOLUTION_BLUE_SCALE_EXT)
+(define-enum GL_POST_CONVOLUTION_ALPHA_SCALE_EXT)
+(define-enum GL_POST_CONVOLUTION_RED_BIAS_EXT)
+(define-enum GL_POST_CONVOLUTION_GREEN_BIAS_EXT)
+(define-enum GL_POST_CONVOLUTION_BLUE_BIAS_EXT)
+(define-enum GL_POST_CONVOLUTION_ALPHA_BIAS_EXT)
+
+)) ;; GL_EXT_convolution
+
+;;=============================================================
+;; GL_EXT_copy_texture
+;;
+
+(if "defined(GL_EXT_copy_texture)" (begin
+
+(define-constant GL_EXT_copy_texture #t)
+
+)) ;; GL_EXT_copy_texture
+
+;;=============================================================
+;; GL_EXT_cull_vertex
+;;
+
+(if "defined(GL_EXT_cull_vertex)" (begin
+
+(define-constant GL_EXT_cull_vertex #t)
+
+(define-enum GL_CULL_VERTEX_EXT)
+(define-enum GL_CULL_VERTEX_EYE_POSITION_EXT)
+(define-enum GL_CULL_VERTEX_OBJECT_POSITION_EXT)
+
+)) ;; GL_EXT_cull_vertex
+
+;;=============================================================
+;; GL_EXT_depth_bounds_test
+;;
+
+(if "defined(GL_EXT_depth_bounds_test)" (begin
+
+(define-constant GL_EXT_depth_bounds_test #t)
+
+(define-enum GL_DEPTH_BOUNDS_TEST_EXT)
+(define-enum GL_DEPTH_BOUNDS_EXT)
+
+)) ;; GL_EXT_depth_bounds_test
+
+;;=============================================================
+;; GL_EXT_draw_range_elements
+;;
+
+(if "defined(GL_EXT_draw_range_elements)" (begin
+
+(define-constant GL_EXT_draw_range_elements #t)
+
+(define-enum GL_MAX_ELEMENTS_VERTICES_EXT)
+(define-enum GL_MAX_ELEMENTS_INDICES_EXT)
+
+)) ;; GL_EXT_draw_range_elements
+
+;;=============================================================
+;; GL_EXT_fog_coord
+;;
+
+(if "defined(GL_EXT_fog_coord)" (begin
+
+(define-constant GL_EXT_fog_coord #t)
+
+(define-enum GL_FOG_COORDINATE_SOURCE_EXT)
+(define-enum GL_FOG_COORDINATE_EXT)
+(define-enum GL_FRAGMENT_DEPTH_EXT)
+(define-enum GL_CURRENT_FOG_COORDINATE_EXT)
+(define-enum GL_FOG_COORDINATE_ARRAY_TYPE_EXT)
+(define-enum GL_FOG_COORDINATE_ARRAY_STRIDE_EXT)
+(define-enum GL_FOG_COORDINATE_ARRAY_POINTER_EXT)
+(define-enum GL_FOG_COORDINATE_ARRAY_EXT)
+
+)) ;; GL_EXT_fog_coord
+
+;;=============================================================
+;; GL_EXT_histogram
+;;
+
+(if "defined(GL_EXT_histogram)" (begin
+
+(define-constant GL_EXT_histogram #t)
+
+(define-enum GL_HISTOGRAM_EXT)
+(define-enum GL_PROXY_HISTOGRAM_EXT)
+(define-enum GL_HISTOGRAM_WIDTH_EXT)
+(define-enum GL_HISTOGRAM_FORMAT_EXT)
+(define-enum GL_HISTOGRAM_RED_SIZE_EXT)
+(define-enum GL_HISTOGRAM_GREEN_SIZE_EXT)
+(define-enum GL_HISTOGRAM_BLUE_SIZE_EXT)
+(define-enum GL_HISTOGRAM_ALPHA_SIZE_EXT)
+(define-enum GL_HISTOGRAM_LUMINANCE_SIZE_EXT)
+(define-enum GL_HISTOGRAM_SINK_EXT)
+(define-enum GL_MINMAX_EXT)
+(define-enum GL_MINMAX_FORMAT_EXT)
+(define-enum GL_MINMAX_SINK_EXT)
+(define-enum GL_TABLE_TOO_LARGE_EXT)
+
+)) ;; GL_EXT_histogram
+
+;;=============================================================
+;; GL_EXT_misc_attribute
+;;
+
+(if "defined(GL_EXT_misc_attribute)" (begin
+
+(define-constant GL_EXT_misc_attribute #t)
+
+)) ;; GL_EXT_misc_attribute
+
+;;=============================================================
+;; GL_EXT_index_array_formats
+;;
+
+(if "defined(GL_EXT_index_array_formats)" (begin
+
+(define-constant GL_EXT_index_array_formats #t)
+
+(define-enum GL_IUI_V2F_EXT)
+(define-enum GL_IUI_V3F_EXT)
+(define-enum GL_IUI_N3F_V2F_EXT)
+(define-enum GL_IUI_N3F_V3F_EXT)
+(define-enum GL_T2F_IUI_V2F_EXT)
+(define-enum GL_T2F_IUI_V3F_EXT)
+(define-enum GL_T2F_IUI_N3F_V2F_EXT)
+(define-enum GL_T2F_IUI_N3F_V3F_EXT)
+
+)) ;; GL_EXT_index_array_formats
+
+;;=============================================================
+;; GL_EXT_index_func
+;;
+
+(if "defined(GL_EXT_index_func)" (begin
+
+(define-constant GL_EXT_index_func #t)
+
+(define-enum GL_INDEX_TEST_EXT)
+(define-enum GL_INDEX_TEST_FUNC_EXT)
+(define-enum GL_INDEX_TEST_REF_EXT)
+
+)) ;; GL_EXT_index_func
+
+;;=============================================================
+;; GL_EXT_index_material
+;;
+
+(if "defined(GL_EXT_index_material)" (begin
+
+(define-constant GL_EXT_index_material #t)
+
+(define-enum GL_INDEX_MATERIAL_EXT)
+(define-enum GL_INDEX_MATERIAL_PARAMETER_EXT)
+(define-enum GL_INDEX_MATERIAL_FACE_EXT)
+
+)) ;; GL_EXT_index_material
+
+;;=============================================================
+;; GL_EXT_index_texture
+;;
+
+(if "defined(GL_EXT_index_texture)" (begin
+
+(define-constant GL_EXT_index_texture #t)
+
+)) ;; GL_EXT_index_texture
+
+;;=============================================================
+;; GL_EXT_light_texture
+;;
+
+(if "defined(GL_EXT_light_texture)" (begin
+
+(define-constant GL_EXT_light_texture #t)
+
+(define-enum GL_FRAGMENT_MATERIAL_EXT)
+(define-enum GL_FRAGMENT_NORMAL_EXT)
+(define-enum GL_FRAGMENT_COLOR_EXT)
+(define-enum GL_ATTENUATION_EXT)
+(define-enum GL_SHADOW_ATTENUATION_EXT)
+(define-enum GL_TEXTURE_APPLICATION_MODE_EXT)
+(define-enum GL_TEXTURE_LIGHT_EXT)
+(define-enum GL_TEXTURE_MATERIAL_FACE_EXT)
+(define-enum GL_TEXTURE_MATERIAL_PARAMETER_EXT)
+
+)) ;; GL_EXT_light_texture
+
+;;=============================================================
+;; GL_EXT_multi_draw_arrays
+;;
+
+(if "defined(GL_EXT_multi_draw_arrays)" (begin
+
+(define-constant GL_EXT_multi_draw_arrays #t)
+
+)) ;; GL_EXT_multi_draw_arrays
+
+;;=============================================================
+;; GL_EXT_packed_pixels
+;;
+
+(if "defined(GL_EXT_packed_pixels)" (begin
+
+(define-constant GL_EXT_packed_pixels #t)
+
+(define-enum GL_UNSIGNED_BYTE_3_3_2_EXT)
+(define-enum GL_UNSIGNED_SHORT_4_4_4_4_EXT)
+(define-enum GL_UNSIGNED_SHORT_5_5_5_1_EXT)
+(define-enum GL_UNSIGNED_INT_8_8_8_8_EXT)
+(define-enum GL_UNSIGNED_INT_10_10_10_2_EXT)
+
+)) ;; GL_EXT_packed_pixels
+
+;;=============================================================
+;; GL_EXT_paletted_texture
+;;
+
+(if "defined(GL_EXT_paletted_texture)" (begin
+
+(define-constant GL_EXT_paletted_texture #t)
+
+(define-enum GL_COLOR_INDEX1_EXT)
+(define-enum GL_COLOR_INDEX2_EXT)
+(define-enum GL_COLOR_INDEX4_EXT)
+(define-enum GL_COLOR_INDEX8_EXT)
+(define-enum GL_COLOR_INDEX12_EXT)
+(define-enum GL_COLOR_INDEX16_EXT)
+(define-enum GL_TEXTURE_INDEX_SIZE_EXT)
+
+)) ;; GL_EXT_paletted_texture
+
+;;=============================================================
+;; GL_EXT_pixel_buffer_object
+;;
+
+(if "defined(GL_EXT_pixel_buffer_object)" (begin
+
+(define-constant GL_EXT_pixel_buffer_object #t)
+
+(define-enum GL_PIXEL_PACK_BUFFER_EXT)
+(define-enum GL_PIXEL_UNPACK_BUFFER_EXT)
+(define-enum GL_PIXEL_PACK_BUFFER_BINDING_EXT)
+(define-enum GL_PIXEL_UNPACK_BUFFER_BINDING_EXT)
+
+)) ;; GL_EXT_pixel_buffer_object
+
+;;=============================================================
+;; GL_EXT_pixel_transform
+;;
+
+(if "defined(GL_EXT_pixel_transform)" (begin
+
+(define-constant GL_EXT_pixel_transform #t)
+
+(define-enum GL_PIXEL_TRANSFORM_2D_EXT)
+(define-enum GL_PIXEL_MAG_FILTER_EXT)
+(define-enum GL_PIXEL_MIN_FILTER_EXT)
+(define-enum GL_PIXEL_CUBIC_WEIGHT_EXT)
+(define-enum GL_CUBIC_EXT)
+(define-enum GL_AVERAGE_EXT)
+(define-enum GL_PIXEL_TRANSFORM_2D_STACK_DEPTH_EXT)
+(define-enum GL_MAX_PIXEL_TRANSFORM_2D_STACK_DEPTH_EXT)
+(define-enum GL_PIXEL_TRANSFORM_2D_MATRIX_EXT)
+
+)) ;; GL_EXT_pixel_transform
+
+;;=============================================================
+;; GL_EXT_pixel_transform_color_table
+;;
+
+(if "defined(GL_EXT_pixel_transform_color_table)" (begin
+
+(define-constant GL_EXT_pixel_transform_color_table #t)
+
+)) ;; GL_EXT_pixel_transform_color_table
+
+;;=============================================================
+;; GL_EXT_point_parameters
+;;
+
+(if "defined(GL_EXT_point_parameters)" (begin
+
+(define-constant GL_EXT_point_parameters #t)
+
+(define-enum GL_POINT_SIZE_MIN_EXT)
+(define-enum GL_POINT_SIZE_MAX_EXT)
+(define-enum GL_POINT_FADE_THRESHOLD_SIZE_EXT)
+(define-enum GL_DISTANCE_ATTENUATION_EXT)
+
+)) ;; GL_EXT_point_parameters
+
+;;=============================================================
+;; GL_EXT_rescale_normal
+;;
+
+(if "defined(GL_EXT_rescale_normal)" (begin
+
+(define-constant GL_EXT_rescale_normal #t)
+
+(define-enum GL_RESCALE_NORMAL_EXT)
+
+)) ;; GL_EXT_rescale_normal
+
+;;=============================================================
+;; GL_EXT_secondary_color
+;;
+
+(if "defined(GL_EXT_secondary_color)" (begin
+
+(define-constant GL_EXT_secondary_color #t)
+
+(define-enum GL_COLOR_SUM_EXT)
+(define-enum GL_CURRENT_SECONDARY_COLOR_EXT)
+(define-enum GL_SECONDARY_COLOR_ARRAY_SIZE_EXT)
+(define-enum GL_SECONDARY_COLOR_ARRAY_TYPE_EXT)
+(define-enum GL_SECONDARY_COLOR_ARRAY_STRIDE_EXT)
+(define-enum GL_SECONDARY_COLOR_ARRAY_POINTER_EXT)
+(define-enum GL_SECONDARY_COLOR_ARRAY_EXT)
+
+)) ;; GL_EXT_secondary_color
+
+;;=============================================================
+;; GL_EXT_separate_specular_color
+;;
+
+(if "defined(GL_EXT_separate_specular_color)" (begin
+
+(define-constant GL_EXT_separate_specular_color #t)
+
+(define-enum GL_LIGHT_MODEL_COLOR_CONTROL_EXT)
+(define-enum GL_SINGLE_COLOR_EXT)
+(define-enum GL_SEPARATE_SPECULAR_COLOR_EXT)
+
+)) ;; GL_EXT_separate_specular_color
+
+;;=============================================================
+;; GL_EXT_shadow_funcs
+;;
+
+(if "defined(GL_EXT_shadow_funcs)" (begin
+
+(define-constant GL_EXT_shadow_funcs #t)
+
+)) ;; GL_EXT_shadow_funcs
+
+;;=============================================================
+;; GL_EXT_shared_texture_palette
+;;
+
+(if "defined(GL_EXT_shared_texture_palette)" (begin
+
+(define-constant GL_EXT_shared_texture_palette #t)
+
+(define-enum GL_SHARED_TEXTURE_PALETTE_EXT)
+
+)) ;; GL_EXT_shared_texture_palette
+
+;;=============================================================
+;; GL_EXT_stencil_two_side
+;;
+
+(if "defined(GL_EXT_stencil_two_side)" (begin
+
+(define-constant GL_EXT_stencil_two_side #t)
+
+(define-enum GL_STENCIL_TEST_TWO_SIDE_EXT)
+(define-enum GL_ACTIVE_STENCIL_FACE_EXT)
+
+)) ;; GL_EXT_stencil_two_side
+
+;;=============================================================
+;; GL_EXT_stencil_wrap
+;;
+
+(if "defined(GL_EXT_stencil_wrap)" (begin
+
+(define-constant GL_EXT_stencil_wrap #t)
+
+(define-enum GL_INCR_WRAP_EXT)
+(define-enum GL_DECR_WRAP_EXT)
+
+)) ;; GL_EXT_stencil_wrap
+
+;;=============================================================
+;; GL_EXT_subtexture
+;;
+
+(if "defined(GL_EXT_subtexture)" (begin
+
+(define-constant GL_EXT_subtexture #t)
+
+)) ;; GL_EXT_subtexture
+
+;;=============================================================
+;; GL_EXT_texture
+;;
+
+(if "defined(GL_EXT_texture)" (begin
+
+(define-constant GL_EXT_texture #t)
+
+(define-enum GL_ALPHA4_EXT)
+(define-enum GL_ALPHA8_EXT)
+(define-enum GL_ALPHA12_EXT)
+(define-enum GL_ALPHA16_EXT)
+(define-enum GL_LUMINANCE4_EXT)
+(define-enum GL_LUMINANCE8_EXT)
+(define-enum GL_LUMINANCE12_EXT)
+(define-enum GL_LUMINANCE16_EXT)
+(define-enum GL_LUMINANCE4_ALPHA4_EXT)
+(define-enum GL_LUMINANCE6_ALPHA2_EXT)
+(define-enum GL_LUMINANCE8_ALPHA8_EXT)
+(define-enum GL_LUMINANCE12_ALPHA4_EXT)
+(define-enum GL_LUMINANCE12_ALPHA12_EXT)
+(define-enum GL_LUMINANCE16_ALPHA16_EXT)
+(define-enum GL_INTENSITY_EXT)
+(define-enum GL_INTENSITY4_EXT)
+(define-enum GL_INTENSITY8_EXT)
+(define-enum GL_INTENSITY12_EXT)
+(define-enum GL_INTENSITY16_EXT)
+(define-enum GL_RGB2_EXT)
+(define-enum GL_RGB4_EXT)
+(define-enum GL_RGB5_EXT)
+(define-enum GL_RGB8_EXT)
+(define-enum GL_RGB10_EXT)
+(define-enum GL_RGB12_EXT)
+(define-enum GL_RGB16_EXT)
+(define-enum GL_RGBA2_EXT)
+(define-enum GL_RGBA4_EXT)
+(define-enum GL_RGB5_A1_EXT)
+(define-enum GL_RGBA8_EXT)
+(define-enum GL_RGB10_A2_EXT)
+(define-enum GL_RGBA12_EXT)
+(define-enum GL_RGBA16_EXT)
+(define-enum GL_TEXTURE_RED_SIZE_EXT)
+(define-enum GL_TEXTURE_GREEN_SIZE_EXT)
+(define-enum GL_TEXTURE_BLUE_SIZE_EXT)
+(define-enum GL_TEXTURE_ALPHA_SIZE_EXT)
+(define-enum GL_TEXTURE_LUMINANCE_SIZE_EXT)
+(define-enum GL_TEXTURE_INTENSITY_SIZE_EXT)
+(define-enum GL_REPLACE_EXT)
+(define-enum GL_PROXY_TEXTURE_1D_EXT)
+(define-enum GL_PROXY_TEXTURE_2D_EXT)
+(define-enum GL_TEXTURE_TOO_LARGE_EXT)
+
+)) ;; GL_EXT_texture
+
+;;=============================================================
+;; GL_EXT_texture_compression_s3tc
+;;
+
+(if "defined(GL_EXT_texture_compression_s3tc)" (begin
+
+(define-constant GL_EXT_texture_compression_s3tc #t)
+
+(define-enum GL_COMPRESSED_RGB_S3TC_DXT1_EXT)
+(define-enum GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)
+(define-enum GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)
+(define-enum GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
+
+)) ;; GL_EXT_texture_compression_s3tc
+
+;;=============================================================
+;; GL_EXT_texture_cube_map
+;;
+
+(if "defined(GL_EXT_texture_cube_map)" (begin
+
+(define-constant GL_EXT_texture_cube_map #t)
+
+(define-enum GL_NORMAL_MAP_EXT)
+(define-enum GL_REFLECTION_MAP_EXT)
+(define-enum GL_TEXTURE_CUBE_MAP_EXT)
+(define-enum GL_TEXTURE_BINDING_CUBE_MAP_EXT)
+(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT)
+(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_X_EXT)
+(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_Y_EXT)
+(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_EXT)
+(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_Z_EXT)
+(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_EXT)
+(define-enum GL_PROXY_TEXTURE_CUBE_MAP_EXT)
+(define-enum GL_MAX_CUBE_MAP_TEXTURE_SIZE_EXT)
+
+)) ;; GL_EXT_texture_cube_map
+
+;;=============================================================
+;; GL_EXT_coordinate_frame
+;;
+
+(if "defined(GL_EXT_coordinate_frame)" (begin
+
+(define-constant GL_EXT_coordinate_frame #t)
+
+(define-enum GL_TANGENT_ARRAY_EXT)
+(define-enum GL_BINORMAL_ARRAY_EXT)
+(define-enum GL_CURRENT_TANGENT_EXT)
+(define-enum GL_CURRENT_BINORMAL_EXT)
+(define-enum GL_TANGENT_ARRAY_TYPE_EXT)
+(define-enum GL_TANGENT_ARRAY_STRIDE_EXT)
+(define-enum GL_BINORMAL_ARRAY_TYPE_EXT)
+(define-enum GL_BINORMAL_ARRAY_STRIDE_EXT)
+(define-enum GL_TANGENT_ARRAY_POINTER_EXT)
+(define-enum GL_BINORMAL_ARRAY_POINTER_EXT)
+(define-enum GL_MAP1_TANGENT_EXT)
+(define-enum GL_MAP2_TANGENT_EXT)
+(define-enum GL_MAP1_BINORMAL_EXT)
+(define-enum GL_MAP2_BINORMAL_EXT)
+
+)) ;; GL_EXT_coordinate_frame
+
+;;=============================================================
+;; GL_EXT_texture_edge_clamp
+;;
+
+(if "defined(GL_EXT_texture_edge_clamp)" (begin
+
+(define-constant GL_EXT_texture_edge_clamp #t)
+
+(define-enum GL_CLAMP_TO_EDGE_EXT)
+
+)) ;; GL_EXT_texture_edge_clamp
+
+;;=============================================================
+;; GL_EXT_texture_env_add
+;;
+
+(if "defined(GL_EXT_texture_env_add)" (begin
+
+(define-constant GL_EXT_texture_env_add #t)
+
+)) ;; GL_EXT_texture_env_add
+
+;;=============================================================
+;; GL_EXT_texture_env_combine
+;;
+
+(if "defined(GL_EXT_texture_env_combine)" (begin
+
+(define-constant GL_EXT_texture_env_combine #t)
+
+(define-enum GL_COMBINE_EXT)
+(define-enum GL_COMBINE_RGB_EXT)
+(define-enum GL_COMBINE_ALPHA_EXT)
+(define-enum GL_RGB_SCALE_EXT)
+(define-enum GL_ADD_SIGNED_EXT)
+(define-enum GL_INTERPOLATE_EXT)
+(define-enum GL_CONSTANT_EXT)
+(define-enum GL_PRIMARY_COLOR_EXT)
+(define-enum GL_PREVIOUS_EXT)
+(define-enum GL_SOURCE0_RGB_EXT)
+(define-enum GL_SOURCE1_RGB_EXT)
+(define-enum GL_SOURCE2_RGB_EXT)
+(define-enum GL_SOURCE3_RGB_EXT)
+(define-enum GL_SOURCE4_RGB_EXT)
+(define-enum GL_SOURCE5_RGB_EXT)
+(define-enum GL_SOURCE6_RGB_EXT)
+(define-enum GL_SOURCE7_RGB_EXT)
+(define-enum GL_SOURCE0_ALPHA_EXT)
+(define-enum GL_SOURCE1_ALPHA_EXT)
+(define-enum GL_SOURCE2_ALPHA_EXT)
+(define-enum GL_SOURCE3_ALPHA_EXT)
+(define-enum GL_SOURCE4_ALPHA_EXT)
+(define-enum GL_SOURCE5_ALPHA_EXT)
+(define-enum GL_SOURCE6_ALPHA_EXT)
+(define-enum GL_SOURCE7_ALPHA_EXT)
+(define-enum GL_OPERAND0_RGB_EXT)
+(define-enum GL_OPERAND1_RGB_EXT)
+(define-enum GL_OPERAND2_RGB_EXT)
+(define-enum GL_OPERAND3_RGB_EXT)
+(define-enum GL_OPERAND4_RGB_EXT)
+(define-enum GL_OPERAND5_RGB_EXT)
+(define-enum GL_OPERAND6_RGB_EXT)
+(define-enum GL_OPERAND7_RGB_EXT)
+(define-enum GL_OPERAND0_ALPHA_EXT)
+(define-enum GL_OPERAND1_ALPHA_EXT)
+(define-enum GL_OPERAND2_ALPHA_EXT)
+(define-enum GL_OPERAND3_ALPHA_EXT)
+(define-enum GL_OPERAND4_ALPHA_EXT)
+(define-enum GL_OPERAND5_ALPHA_EXT)
+(define-enum GL_OPERAND6_ALPHA_EXT)
+(define-enum GL_OPERAND7_ALPHA_EXT)
+
+)) ;; GL_EXT_texture_env_combine
+
+;;=============================================================
+;; GL_EXT_texture_env_dot3
+;;
+
+(if "defined(GL_EXT_texture_env_dot3)" (begin
+
+(define-constant GL_EXT_texture_env_dot3 #t)
+
+(define-enum GL_DOT3_RGB_EXT)
+(define-enum GL_DOT3_RGBA_EXT)
+
+)) ;; GL_EXT_texture_env_dot3
+
+;;=============================================================
+;; GL_EXT_texture_filter_anisotropic
+;;
+
+(if "defined(GL_EXT_texture_filter_anisotropic)" (begin
+
+(define-constant GL_EXT_texture_filter_anisotropic #t)
+
+(define-enum GL_TEXTURE_MAX_ANISOTROPY_EXT)
+(define-enum GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT)
+
+)) ;; GL_EXT_texture_filter_anisotropic
+
+;;=============================================================
+;; GL_EXT_texture_lod_bias
+;;
+
+(if "defined(GL_EXT_texture_lod_bias)" (begin
+
+(define-constant GL_EXT_texture_lod_bias #t)
+
+(define-enum GL_MAX_TEXTURE_LOD_BIAS_EXT)
+(define-enum GL_TEXTURE_FILTER_CONTROL_EXT)
+(define-enum GL_TEXTURE_LOD_BIAS_EXT)
+
+)) ;; GL_EXT_texture_lod_bias
+
+;;=============================================================
+;; GL_EXT_texture_object
+;;
+
+(if "defined(GL_EXT_texture_object)" (begin
+
+(define-constant GL_EXT_texture_object #t)
+
+(if "defined(GL_TEXTURE_PRIORITY_EXT)"
+  (define-enum GL_TEXTURE_PRIORITY_EXT))
+(if "defined(GL_TEXTURE_RESIDENT_EXT)"
+  (define-enum GL_TEXTURE_RESIDENT_EXT))
+(if "defined(GL_TEXTURE_1D_BINDING_EXT)"
+  (define-enum GL_TEXTURE_1D_BINDING_EXT))
+(if "defined(GL_TEXTURE_2D_BINDING_EXT)"
+  (define-enum GL_TEXTURE_2D_BINDING_EXT))
+
+)) ;; GL_EXT_texture_object
+
+;;=============================================================
+;; GL_EXT_texture_perturb_normal
+;;
+
+(if "defined(GL_EXT_texture_perturb_normal)" (begin
+
+(define-constant GL_EXT_texture_perturb_normal #t)
+
+(define-enum GL_PERTURB_EXT)
+(define-enum GL_TEXTURE_NORMAL_EXT)
+
+)) ;; GL_EXT_texture_perturb_normal
+
+;;=============================================================
+;; GL_EXT_texture3D
+;;
+
+(if "defined(GL_EXT_texture3D)" (begin
+
+(define-constant GL_EXT_texture3D #t)
+
+(define-enum GL_PACK_SKIP_IMAGES)
+(define-enum GL_PACK_SKIP_IMAGES_EXT)
+(define-enum GL_PACK_IMAGE_HEIGHT)
+(define-enum GL_PACK_IMAGE_HEIGHT_EXT)
+(define-enum GL_UNPACK_SKIP_IMAGES)
+(define-enum GL_UNPACK_SKIP_IMAGES_EXT)
+(define-enum GL_UNPACK_IMAGE_HEIGHT)
+(define-enum GL_UNPACK_IMAGE_HEIGHT_EXT)
+(define-enum GL_TEXTURE_3D)
+(define-enum GL_TEXTURE_3D_EXT)
+(define-enum GL_PROXY_TEXTURE_3D)
+(define-enum GL_PROXY_TEXTURE_3D_EXT)
+(define-enum GL_TEXTURE_DEPTH)
+(define-enum GL_TEXTURE_DEPTH_EXT)
+(define-enum GL_TEXTURE_WRAP_R)
+(define-enum GL_TEXTURE_WRAP_R_EXT)
+(define-enum GL_MAX_3D_TEXTURE_SIZE)
+(define-enum GL_MAX_3D_TEXTURE_SIZE_EXT)
+
+)) ;; GL_EXT_texture3D
+
+;;=============================================================
+;; GL_EXT_texture_rectangle
+;;
+
+(if "defined(GL_EXT_texture_rectangle)" (begin
+
+(define-constant GL_EXT_texture_rectangle #t)
+
+(define-enum GL_TEXTURE_RECTANGLE_EXT)
+(define-enum GL_TEXTURE_BINDING_RECTANGLE_EXT)
+(define-enum GL_PROXY_TEXTURE_RECTANGLE_EXT)
+(define-enum GL_MAX_RECTANGLE_TEXTURE_SIZE_EXT)
+
+)) ;; GL_EXT_texture_rectangle
+
+;;=============================================================
+;; GL_EXT_vertex_array
+;;
+
+(if "defined(GL_EXT_vertex_array)" (begin
+
+(define-constant GL_EXT_vertex_array #t)
+
+(define-enum GL_VERTEX_ARRAY_EXT)
+(define-enum GL_NORMAL_ARRAY_EXT)
+(define-enum GL_COLOR_ARRAY_EXT)
+(define-enum GL_INDEX_ARRAY_EXT)
+(define-enum GL_TEXTURE_COORD_ARRAY_EXT)
+(define-enum GL_EDGE_FLAG_ARRAY_EXT)
+(define-enum GL_VERTEX_ARRAY_SIZE_EXT)
+(define-enum GL_VERTEX_ARRAY_TYPE_EXT)
+(define-enum GL_VERTEX_ARRAY_STRIDE_EXT)
+(define-enum GL_VERTEX_ARRAY_COUNT_EXT)
+(define-enum GL_NORMAL_ARRAY_TYPE_EXT)
+(define-enum GL_NORMAL_ARRAY_STRIDE_EXT)
+(define-enum GL_NORMAL_ARRAY_COUNT_EXT)
+(define-enum GL_COLOR_ARRAY_SIZE_EXT)
+(define-enum GL_COLOR_ARRAY_TYPE_EXT)
+(define-enum GL_COLOR_ARRAY_STRIDE_EXT)
+(define-enum GL_COLOR_ARRAY_COUNT_EXT)
+(define-enum GL_INDEX_ARRAY_TYPE_EXT)
+(define-enum GL_INDEX_ARRAY_STRIDE_EXT)
+(define-enum GL_INDEX_ARRAY_COUNT_EXT)
+(define-enum GL_TEXTURE_COORD_ARRAY_SIZE_EXT)
+(define-enum GL_TEXTURE_COORD_ARRAY_TYPE_EXT)
+(define-enum GL_TEXTURE_COORD_ARRAY_STRIDE_EXT)
+(define-enum GL_TEXTURE_COORD_ARRAY_COUNT_EXT)
+(define-enum GL_EDGE_FLAG_ARRAY_STRIDE_EXT)
+(define-enum GL_EDGE_FLAG_ARRAY_COUNT_EXT)
+(define-enum GL_VERTEX_ARRAY_POINTER_EXT)
+(define-enum GL_NORMAL_ARRAY_POINTER_EXT)
+(define-enum GL_COLOR_ARRAY_POINTER_EXT)
+(define-enum GL_INDEX_ARRAY_POINTER_EXT)
+(define-enum GL_TEXTURE_COORD_ARRAY_POINTER_EXT)
+(define-enum GL_EDGE_FLAG_ARRAY_POINTER_EXT)
+
+)) ;; GL_EXT_vertex_array
+
+;;=============================================================
+;; GL_EXT_vertex_weighting
+;;
+
+(if "defined(GL_EXT_vertex_weighting)" (begin
+
+(define-constant GL_EXT_vertex_weighting #t)
+
+(define-enum GL_MODELVIEW0_STACK_DEPTH_EXT)
+(define-enum GL_MODELVIEW1_STACK_DEPTH_EXT)
+(define-enum GL_MODELVIEW0_MATRIX_EXT)
+(define-enum GL_MODELVIEW_MATRIX1_EXT)
+(define-enum GL_VERTEX_WEIGHTING_EXT)
+(define-enum GL_MODELVIEW0_EXT)
+(define-enum GL_MODELVIEW1_EXT)
+(define-enum GL_CURRENT_VERTEX_WEIGHT_EXT)
+(define-enum GL_VERTEX_WEIGHT_ARRAY_EXT)
+(define-enum GL_VERTEX_WEIGHT_ARRAY_SIZE_EXT)
+(define-enum GL_VERTEX_WEIGHT_ARRAY_TYPE_EXT)
+(define-enum GL_VERTEX_WEIGHT_ARRAY_STRIDE_EXT)
+(define-enum GL_VERTEX_WEIGHT_ARRAY_POINTER_EXT)
+
+)) ;; GL_EXT_vertex_weighting
+
+;;=============================================================
+;; GL_NV_blend_square
+;;
+
+(if "defined(GL_NV_blend_square)" (begin
+
+(define-constant GL_NV_blend_square #t)
+
+)) ;; GL_NV_blend_square
+
+;;=============================================================
+;; GL_NV_copy_depth_to_color
+;;
+
+(if "defined(GL_NV_copy_depth_to_color)" (begin
+
+(define-constant GL_NV_copy_depth_to_color #t)
+
+(define-enum GL_DEPTH_STENCIL_TO_RGBA_NV)
+(define-enum GL_DEPTH_STENCIL_TO_BGRA_NV)
+
+)) ;; GL_NV_copy_depth_to_color
+
+;;=============================================================
+;; GL_NV_depth_clamp
+;;
+
+(if "defined(GL_NV_depth_clamp)" (begin
+
+(define-constant GL_NV_depth_clamp #t)
+
+(define-enum GL_DEPTH_CLAMP_NV)
+
+)) ;; GL_NV_depth_clamp
+
+;;=============================================================
+;; GL_NV_element_array
+;;
+
+(if "defined(GL_NV_element_array)" (begin
+
+(define-constant GL_NV_element_array #t)
+
+(define-enum GL_ELEMENT_ARRAY_TYPE_NV)
+(define-enum GL_ELEMENT_ARRAY_POINTER_NV)
+
+)) ;; GL_NV_element_array
+
+;;=============================================================
+;; GL_NV_fence
+;;
+
+(if "defined(GL_NV_fence)" (begin
+
+(define-constant GL_NV_fence #t)
+
+(define-enum GL_ALL_COMPLETED_NV)
+(define-enum GL_FENCE_STATUS_NV)
+(define-enum GL_FENCE_CONDITION_NV)
+
+)) ;; GL_NV_fence
+
+;;=============================================================
+;; GL_NV_float_buffer
+;;
+
+(if "defined(GL_NV_float_buffer)" (begin
+
+(define-constant GL_NV_float_buffer #t)
+
+(define-enum GL_FLOAT_R_NV)
+(define-enum GL_FLOAT_RG_NV)
+(define-enum GL_FLOAT_RGB_NV)
+(define-enum GL_FLOAT_RGBA_NV)
+(define-enum GL_FLOAT_R16_NV)
+(define-enum GL_FLOAT_R32_NV)
+(define-enum GL_FLOAT_RG16_NV)
+(define-enum GL_FLOAT_RG32_NV)
+(define-enum GL_FLOAT_RGB16_NV)
+(define-enum GL_FLOAT_RGB32_NV)
+(define-enum GL_FLOAT_RGBA16_NV)
+(define-enum GL_FLOAT_RGBA32_NV)
+(define-enum GL_TEXTURE_FLOAT_COMPONENTS_NV)
+(define-enum GL_FLOAT_CLEAR_COLOR_VALUE_NV)
+(define-enum GL_FLOAT_RGBA_MODE_NV)
+
+)) ;; GL_NV_float_buffer
+
+;;=============================================================
+;; GL_NV_fog_distance
+;;
+
+(if "defined(GL_NV_fog_distance)" (begin
+
+(define-constant GL_NV_fog_distance #t)
+
+(define-enum GL_FOG_DISTANCE_MODE_NV)
+(define-enum GL_EYE_RADIAL_NV)
+(define-enum GL_EYE_PLANE_ABSOLUTE_NV)
+
+)) ;; GL_NV_fog_distance
+
+;;=============================================================
+;; GL_NV_fragment_program
+;;
+
+(if "defined(GL_NV_fragment_program)" (begin
+
+(define-constant GL_NV_fragment_program #t)
+
+(define-enum GL_FRAGMENT_PROGRAM_NV)
+(define-enum GL_MAX_TEXTURE_COORDS_NV)
+(define-enum GL_MAX_TEXTURE_IMAGE_UNITS_NV)
+(define-enum GL_FRAGMENT_PROGRAM_BINDING_NV)
+(define-enum GL_PROGRAM_ERROR_STRING_NV)
+(define-enum GL_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMETERS_NV)
+
+)) ;; GL_NV_fragment_program
+
+;;=============================================================
+;; GL_NV_fragment_program2
+;;
+
+(if "defined(GL_NV_fragment_program2)" (begin
+
+(define-constant GL_NV_fragment_program2 #t)
+
+(define-enum GL_MAX_PROGRAM_IF_DEPTH_NV)
+(define-enum GL_MAX_PROGRAM_LOOP_DEPTH_NV)
+(define-enum GL_MAX_PROGRAM_LOOP_COUNT_NV)
+
+)) ;; GL_NV_fragment_program2
+
+;;=============================================================
+;; GL_NV_half_float
+;;
+
+(if "defined(GL_NV_half_float)" (begin
+
+(define-constant GL_NV_half_float #t)
+
+(define-enum GL_HALF_FLOAT_NV)
+
+)) ;; GL_NV_half_float
+
+;;=============================================================
+;; GL_NV_light_max_exponent
+;;
+
+(if "defined(GL_NV_light_max_exponent)" (begin
+
+(define-constant GL_NV_light_max_exponent #t)
+
+(define-enum GL_MAX_SHININESS_NV)
+(define-enum GL_MAX_SPOT_EXPONENT_NV)
+
+)) ;; GL_NV_light_max_exponent
+
+;;=============================================================
+;; GL_NV_multisample_filter_hint
+;;
+
+(if "defined(GL_NV_multisample_filter_hint)" (begin
+
+(define-constant GL_NV_multisample_filter_hint #t)
+
+(define-enum GL_MULTISAMPLE_FILTER_HINT_NV)
+
+)) ;; GL_NV_multisample_filter_hint
+
+;;=============================================================
+;; GL_NV_occlusion_query
+;;
+
+(if "defined(GL_NV_occlusion_query)" (begin
+
+(define-constant GL_NV_occlusion_query #t)
+
+(define-enum GL_PIXEL_COUNTER_BITS_NV)
+(define-enum GL_CURRENT_OCCLUSION_QUERY_ID_NV)
+(define-enum GL_PIXEL_COUNT_NV)
+(define-enum GL_PIXEL_COUNT_AVAILABLE_NV)
+
+)) ;; GL_NV_occlusion_query
+
+;;=============================================================
+;; GL_NV_packed_depth_stencil
+;;
+
+(if "defined(GL_NV_packed_depth_stencil)" (begin
+
+(define-constant GL_NV_packed_depth_stencil #t)
+
+(define-enum GL_DEPTH_STENCIL_NV)
+(define-enum GL_UNSIGNED_INT_24_8_NV)
+
+)) ;; GL_NV_packed_depth_stencil
+
+;;=============================================================
+;; GL_NV_pixel_buffer_object
+;;
+
+(if "defined(GL_NV_pixel_buffer_object)" (begin
+
+(define-constant GL_NV_pixel_buffer_object #t)
+
+(define-enum GL_PIXEL_PACK_BUFFER_NV)
+(define-enum GL_PIXEL_UNPACK_BUFFER_NV)
+(define-enum GL_PIXEL_PACK_BUFFER_BINDING_NV)
+(define-enum GL_PIXEL_UNPACK_BUFFER_BINDING_NV)
+
+)) ;; GL_NV_pixel_buffer_object
+
+;;=============================================================
+;; GL_NV_pixel_data_range
+;;
+
+(if "defined(GL_NV_pixel_data_range)" (begin
+
+(define-constant GL_NV_pixel_data_range #t)
+
+(define-enum GL_WRITE_PIXEL_DATA_RANGE_NV)
+(define-enum GL_READ_PIXEL_DATA_RANGE_NV)
+(define-enum GL_WRITE_PIXEL_DATA_RANGE_LENGTH_NV)
+(define-enum GL_READ_PIXEL_DATA_RANGE_LENGTH_NV)
+(define-enum GL_WRITE_PIXEL_DATA_RANGE_POINTER_NV)
+(define-enum GL_READ_PIXEL_DATA_RANGE_POINTER_NV)
+
+)) ;; GL_NV_pixel_data_range
+
+;;=============================================================
+;; GL_NV_point_sprite
+;;
+
+(if "defined(GL_NV_point_sprite)" (begin
+
+(define-constant GL_NV_point_sprite #t)
+
+(define-enum GL_POINT_SPRITE_NV)
+(define-enum GL_COORD_REPLACE_NV)
+(define-enum GL_POINT_SPRITE_R_MODE_NV)
+
+)) ;; GL_NV_point_sprite
+
+;;=============================================================
+;; GL_NV_primitive_restart
+;;
+
+(if "defined(GL_NV_primitive_restart)" (begin
+
+(define-constant GL_NV_primitive_restart #t)
+
+(define-enum GL_PRIMITIVE_RESTART_NV)
+(define-enum GL_PRIMITIVE_RESTART_INDEX_NV)
+
+)) ;; GL_NV_primitive_restart
+
+;;=============================================================
+;; GL_NV_register_combiners
+;;
+
+(if "defined(GL_NV_register_combiners)" (begin
+
+(define-constant GL_NV_register_combiners #t)
+
+(define-enum GL_REGISTER_COMBINERS_NV)
+(define-enum GL_VARIABLE_A_NV)
+(define-enum GL_VARIABLE_B_NV)
+(define-enum GL_VARIABLE_C_NV)
+(define-enum GL_VARIABLE_D_NV)
+(define-enum GL_VARIABLE_E_NV)
+(define-enum GL_VARIABLE_F_NV)
+(define-enum GL_VARIABLE_G_NV)
+(define-enum GL_CONSTANT_COLOR0_NV)
+(define-enum GL_CONSTANT_COLOR1_NV)
+(define-enum GL_PRIMARY_COLOR_NV)
+(define-enum GL_SECONDARY_COLOR_NV)
+(define-enum GL_SPARE0_NV)
+(define-enum GL_SPARE1_NV)
+(define-enum GL_DISCARD_NV)
+(define-enum GL_E_TIMES_F_NV)
+(define-enum GL_SPARE0_PLUS_SECONDARY_COLOR_NV)
+(define-enum GL_UNSIGNED_IDENTITY_NV)
+(define-enum GL_UNSIGNED_INVERT_NV)
+(define-enum GL_EXPAND_NORMAL_NV)
+(define-enum GL_EXPAND_NEGATE_NV)
+(define-enum GL_HALF_BIAS_NORMAL_NV)
+(define-enum GL_HALF_BIAS_NEGATE_NV)
+(define-enum GL_SIGNED_IDENTITY_NV)
+(define-enum GL_SIGNED_NEGATE_NV)
+(define-enum GL_SCALE_BY_TWO_NV)
+(define-enum GL_SCALE_BY_FOUR_NV)
+(define-enum GL_SCALE_BY_ONE_HALF_NV)
+(define-enum GL_BIAS_BY_NEGATIVE_ONE_HALF_NV)
+(define-enum GL_COMBINER_INPUT_NV)
+(define-enum GL_COMBINER_MAPPING_NV)
+(define-enum GL_COMBINER_COMPONENT_USAGE_NV)
+(define-enum GL_COMBINER_AB_DOT_PRODUCT_NV)
+(define-enum GL_COMBINER_CD_DOT_PRODUCT_NV)
+(define-enum GL_COMBINER_MUX_SUM_NV)
+(define-enum GL_COMBINER_SCALE_NV)
+(define-enum GL_COMBINER_BIAS_NV)
+(define-enum GL_COMBINER_AB_OUTPUT_NV)
+(define-enum GL_COMBINER_CD_OUTPUT_NV)
+(define-enum GL_COMBINER_SUM_OUTPUT_NV)
+(define-enum GL_MAX_GENERAL_COMBINERS_NV)
+(define-enum GL_NUM_GENERAL_COMBINERS_NV)
+(define-enum GL_COLOR_SUM_CLAMP_NV)
+(define-enum GL_COMBINER0_NV)
+(define-enum GL_COMBINER1_NV)
+(define-enum GL_COMBINER2_NV)
+(define-enum GL_COMBINER3_NV)
+(define-enum GL_COMBINER4_NV)
+(define-enum GL_COMBINER5_NV)
+(define-enum GL_COMBINER6_NV)
+(define-enum GL_COMBINER7_NV)
+
+)) ;; GL_NV_register_combiners
+
+;;=============================================================
+;; GL_NV_register_combiners2
+;;
+
+(if "defined(GL_NV_register_combiners2)" (begin
+
+(define-constant GL_NV_register_combiners2 #t)
+
+(define-enum GL_PER_STAGE_CONSTANTS_NV)
+
+)) ;; GL_NV_register_combiners2
+
+;;=============================================================
+;; GL_NV_stencil_two_side
+;;
+
+(if "defined(GL_NV_stencil_two_side)" (begin
+
+(define-constant GL_NV_stencil_two_side #t)
+
+(define-enum GL_STENCIL_TEST_TWO_SIDE_NV)
+(define-enum GL_ACTIVE_STENCIL_FACE_NV)
+
+)) ;; GL_NV_stencil_two_side
+
+;;=============================================================
+;; GL_NV_texgen_emboss
+;;
+
+(if "defined(GL_NV_texgen_emboss)" (begin
+
+(define-constant GL_NV_texgen_emboss #t)
+
+(define-enum GL_EMBOSS_LIGHT_NV)
+(define-enum GL_EMBOSS_CONSTANT_NV)
+(define-enum GL_EMBOSS_MAP_NV)
+
+)) ;; GL_NV_texgen_emboss
+
+;;=============================================================
+;; GL_NV_texgen_reflection
+;;
+
+(if "defined(GL_NV_texgen_reflection)" (begin
+
+(define-constant GL_NV_texgen_reflection #t)
+
+(define-enum GL_NORMAL_MAP_NV)
+(define-enum GL_REFLECTION_MAP_NV)
+
+)) ;; GL_NV_texgen_reflection
+
+;;=============================================================
+;; GL_NV_texture_compression_vtc
+;;
+
+(if "defined(GL_NV_texture_compression_vtc)" (begin
+
+(define-constant GL_NV_texture_compression_vtc #t)
+
+)) ;; GL_NV_texture_compression_vtc
+
+;;=============================================================
+;; GL_NV_texture_env_combine4
+;;
+
+(if "defined(GL_NV_texture_env_combine4)" (begin
+
+(define-constant GL_NV_texture_env_combine4 #t)
+
+(define-enum GL_COMBINE4_NV)
+(define-enum GL_SOURCE3_RGB_NV)
+(define-enum GL_SOURCE3_ALPHA_NV)
+(define-enum GL_OPERAND3_RGB_NV)
+(define-enum GL_OPERAND3_ALPHA_NV)
+
+)) ;; GL_NV_texture_env_combine4
+
+;;=============================================================
+;; GL_NV_texture_expand_normal
+;;
+
+(if "defined(GL_NV_texture_expand_normal)" (begin
+
+(define-constant GL_NV_texture_expand_normal #t)
+
+(define-enum GL_TEXTURE_UNSIGNED_REMAP_MODE_NV)
+
+)) ;; GL_NV_texture_expand_normal
+
+;;=============================================================
+;; GL_NV_texture_rectangle
+;;
+
+(if "defined(GL_NV_texture_rectangle)" (begin
+
+(define-constant GL_NV_texture_rectangle #t)
+
+(define-enum GL_TEXTURE_RECTANGLE_NV)
+(define-enum GL_TEXTURE_BINDING_RECTANGLE_NV)
+(define-enum GL_PROXY_TEXTURE_RECTANGLE_NV)
+(define-enum GL_MAX_RECTANGLE_TEXTURE_SIZE_NV)
+
+)) ;; GL_NV_texture_rectangle
+
+;;=============================================================
+;; GL_NV_texture_shader
+;;
+
+(if "defined(GL_NV_texture_shader)" (begin
+
+(define-constant GL_NV_texture_shader #t)
+
+(define-enum GL_OFFSET_TEXTURE_RECTANGLE_NV)
+(define-enum GL_OFFSET_TEXTURE_RECTANGLE_SCALE_NV)
+(define-enum GL_DOT_PRODUCT_TEXTURE_RECTANGLE_NV)
+(define-enum GL_RGBA_UNSIGNED_DOT_PRODUCT_MAPPING_NV)
+(define-enum GL_UNSIGNED_INT_S8_S8_8_8_NV)
+(define-enum GL_UNSIGNED_INT_8_8_S8_S8_REV_NV)
+(define-enum GL_DSDT_MAG_INTENSITY_NV)
+(define-enum GL_SHADER_CONSISTENT_NV)
+(define-enum GL_TEXTURE_SHADER_NV)
+(define-enum GL_SHADER_OPERATION_NV)
+(define-enum GL_CULL_MODES_NV)
+(define-enum GL_OFFSET_TEXTURE_MATRIX_NV)
+(define-enum GL_OFFSET_TEXTURE_SCALE_NV)
+(define-enum GL_OFFSET_TEXTURE_BIAS_NV)
+(define-enum GL_OFFSET_TEXTURE_2D_MATRIX_NV)
+(define-enum GL_OFFSET_TEXTURE_2D_SCALE_NV)
+(define-enum GL_OFFSET_TEXTURE_2D_BIAS_NV)
+(define-enum GL_PREVIOUS_TEXTURE_INPUT_NV)
+(define-enum GL_CONST_EYE_NV)
+(define-enum GL_PASS_THROUGH_NV)
+(define-enum GL_CULL_FRAGMENT_NV)
+(define-enum GL_OFFSET_TEXTURE_2D_NV)
+(define-enum GL_DEPENDENT_AR_TEXTURE_2D_NV)
+(define-enum GL_DEPENDENT_GB_TEXTURE_2D_NV)
+(define-enum GL_DOT_PRODUCT_NV)
+(define-enum GL_DOT_PRODUCT_DEPTH_REPLACE_NV)
+(define-enum GL_DOT_PRODUCT_TEXTURE_2D_NV)
+(define-enum GL_DOT_PRODUCT_TEXTURE_3D_NV)
+(define-enum GL_DOT_PRODUCT_TEXTURE_CUBE_MAP_NV)
+(define-enum GL_DOT_PRODUCT_DIFFUSE_CUBE_MAP_NV)
+(define-enum GL_DOT_PRODUCT_REFLECT_CUBE_MAP_NV)
+(define-enum GL_DOT_PRODUCT_CONST_EYE_REFLECT_CUBE_MAP_NV)
+(define-enum GL_HILO_NV)
+(define-enum GL_DSDT_NV)
+(define-enum GL_DSDT_MAG_NV)
+(define-enum GL_DSDT_MAG_VIB_NV)
+(define-enum GL_HILO16_NV)
+(define-enum GL_SIGNED_HILO_NV)
+(define-enum GL_SIGNED_HILO16_NV)
+(define-enum GL_SIGNED_RGBA_NV)
+(define-enum GL_SIGNED_RGBA8_NV)
+(define-enum GL_SIGNED_RGB_NV)
+(define-enum GL_SIGNED_RGB8_NV)
+(define-enum GL_SIGNED_LUMINANCE_NV)
+(define-enum GL_SIGNED_LUMINANCE8_NV)
+(define-enum GL_SIGNED_LUMINANCE_ALPHA_NV)
+(define-enum GL_SIGNED_LUMINANCE8_ALPHA8_NV)
+(define-enum GL_SIGNED_ALPHA_NV)
+(define-enum GL_SIGNED_ALPHA8_NV)
+(define-enum GL_SIGNED_INTENSITY_NV)
+(define-enum GL_SIGNED_INTENSITY8_NV)
+(define-enum GL_DSDT8_NV)
+(define-enum GL_DSDT8_MAG8_NV)
+(define-enum GL_DSDT8_MAG8_INTENSITY8_NV)
+(define-enum GL_SIGNED_RGB_UNSIGNED_ALPHA_NV)
+(define-enum GL_SIGNED_RGB8_UNSIGNED_ALPHA8_NV)
+(define-enum GL_HI_SCALE_NV)
+(define-enum GL_LO_SCALE_NV)
+(define-enum GL_DS_SCALE_NV)
+(define-enum GL_DT_SCALE_NV)
+(define-enum GL_MAGNITUDE_SCALE_NV)
+(define-enum GL_VIBRANCE_SCALE_NV)
+(define-enum GL_HI_BIAS_NV)
+(define-enum GL_LO_BIAS_NV)
+(define-enum GL_DS_BIAS_NV)
+(define-enum GL_DT_BIAS_NV)
+(define-enum GL_MAGNITUDE_BIAS_NV)
+(define-enum GL_VIBRANCE_BIAS_NV)
+(define-enum GL_TEXTURE_BORDER_VALUES_NV)
+(define-enum GL_TEXTURE_HI_SIZE_NV)
+(define-enum GL_TEXTURE_LO_SIZE_NV)
+(define-enum GL_TEXTURE_DS_SIZE_NV)
+(define-enum GL_TEXTURE_DT_SIZE_NV)
+(define-enum GL_TEXTURE_MAG_SIZE_NV)
+
+)) ;; GL_NV_texture_shader
+
+;;=============================================================
+;; GL_NV_texture_shader2
+;;
+
+(if "defined(GL_NV_texture_shader2)" (begin
+
+(define-constant GL_NV_texture_shader2 #t)
+
+)) ;; GL_NV_texture_shader2
+
+;;=============================================================
+;; GL_NV_texture_shader3
+;;
+
+(if "defined(GL_NV_texture_shader3)" (begin
+
+(define-constant GL_NV_texture_shader3 #t)
+
+(define-enum GL_OFFSET_PROJECTIVE_TEXTURE_2D_NV)
+(define-enum GL_OFFSET_PROJECTIVE_TEXTURE_2D_SCALE_NV)
+(define-enum GL_OFFSET_PROJECTIVE_TEXTURE_RECTANGLE_NV)
+(define-enum GL_OFFSET_PROJECTIVE_TEXTURE_RECTANGLE_SCALE_NV)
+(define-enum GL_OFFSET_HILO_TEXTURE_2D_NV)
+(define-enum GL_OFFSET_HILO_TEXTURE_RECTANGLE_NV)
+(define-enum GL_OFFSET_HILO_PROJECTIVE_TEXTURE_2D_NV)
+(define-enum GL_OFFSET_HILO_PROJECTIVE_TEXTURE_RECTANGLE_NV)
+(define-enum GL_DEPENDENT_HILO_TEXTURE_2D_NV)
+(define-enum GL_DEPENDENT_RGB_TEXTURE_3D_NV)
+(define-enum GL_DEPENDENT_RGB_TEXTURE_CUBE_MAP_NV)
+(define-enum GL_DOT_PRODUCT_PASS_THROUGH_NV)
+(define-enum GL_DOT_PRODUCT_TEXTURE_1D_NV)
+(define-enum GL_DOT_PRODUCT_AFFINE_DEPTH_REPLACE_NV)
+(define-enum GL_HILO8_NV)
+(define-enum GL_SIGNED_HILO8_NV)
+(define-enum GL_FORCE_BLUE_TO_ONE_NV)
+
+)) ;; GL_NV_texture_shader3
+
+;;=============================================================
+;; GL_NV_vertex_array_range
+;;
+
+(if "defined(GL_NV_vertex_array_range)" (begin
+
+(define-constant GL_NV_vertex_array_range #t)
+
+(define-enum GL_VERTEX_ARRAY_RANGE_NV)
+(define-enum GL_VERTEX_ARRAY_RANGE_LENGTH_NV)
+(define-enum GL_VERTEX_ARRAY_RANGE_VALID_NV)
+(define-enum GL_MAX_VERTEX_ARRAY_RANGE_ELEMENT_NV)
+(define-enum GL_VERTEX_ARRAY_RANGE_POINTER_NV)
+
+)) ;; GL_NV_vertex_array_range
+
+;;=============================================================
+;; GL_NV_vertex_array_range2
+;;
+
+(if "defined(GL_NV_vertex_array_range2)" (begin
+
+(define-constant GL_NV_vertex_array_range2 #t)
+
+(define-enum GL_VERTEX_ARRAY_RANGE_WITHOUT_FLUSH_NV)
+
+)) ;; GL_NV_vertex_array_range2
+
+;;=============================================================
+;; GL_NV_vertex_program
+;;
+
+(if "defined(GL_NV_vertex_program)" (begin
+
+(define-constant GL_NV_vertex_program #t)
+
+(define-enum GL_VERTEX_PROGRAM_NV)
+(define-enum GL_VERTEX_STATE_PROGRAM_NV)
+(define-enum GL_ATTRIB_ARRAY_SIZE_NV)
+(define-enum GL_ATTRIB_ARRAY_STRIDE_NV)
+(define-enum GL_ATTRIB_ARRAY_TYPE_NV)
+(define-enum GL_CURRENT_ATTRIB_NV)
+(define-enum GL_PROGRAM_LENGTH_NV)
+(define-enum GL_PROGRAM_STRING_NV)
+(define-enum GL_MODELVIEW_PROJECTION_NV)
+(define-enum GL_IDENTITY_NV)
+(define-enum GL_INVERSE_NV)
+(define-enum GL_TRANSPOSE_NV)
+(define-enum GL_INVERSE_TRANSPOSE_NV)
+(define-enum GL_MAX_TRACK_MATRIX_STACK_DEPTH_NV)
+(define-enum GL_MAX_TRACK_MATRICES_NV)
+(define-enum GL_MATRIX0_NV)
+(define-enum GL_MATRIX1_NV)
+(define-enum GL_MATRIX2_NV)
+(define-enum GL_MATRIX3_NV)
+(define-enum GL_MATRIX4_NV)
+(define-enum GL_MATRIX5_NV)
+(define-enum GL_MATRIX6_NV)
+(define-enum GL_MATRIX7_NV)
+(define-enum GL_CURRENT_MATRIX_STACK_DEPTH_NV)
+(define-enum GL_CURRENT_MATRIX_NV)
+(define-enum GL_VERTEX_PROGRAM_POINT_SIZE_NV)
+(define-enum GL_VERTEX_PROGRAM_TWO_SIDE_NV)
+(define-enum GL_PROGRAM_PARAMETER_NV)
+(define-enum GL_ATTRIB_ARRAY_POINTER_NV)
+(define-enum GL_PROGRAM_TARGET_NV)
+(define-enum GL_PROGRAM_RESIDENT_NV)
+(define-enum GL_TRACK_MATRIX_NV)
+(define-enum GL_TRACK_MATRIX_TRANSFORM_NV)
+(define-enum GL_VERTEX_PROGRAM_BINDING_NV)
+(define-enum GL_PROGRAM_ERROR_POSITION_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY0_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY1_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY2_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY3_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY4_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY5_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY6_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY7_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY8_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY9_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY10_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY11_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY12_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY13_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY14_NV)
+(define-enum GL_VERTEX_ATTRIB_ARRAY15_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB0_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB1_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB2_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB3_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB4_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB5_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB6_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB7_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB8_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB9_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB10_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB11_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB12_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB13_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB14_4_NV)
+(define-enum GL_MAP1_VERTEX_ATTRIB15_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB0_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB1_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB2_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB3_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB4_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB5_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB6_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB7_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB8_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB9_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB10_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB11_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB12_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB13_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB14_4_NV)
+(define-enum GL_MAP2_VERTEX_ATTRIB15_4_NV)
+
+)) ;; GL_NV_vertex_program
+
+;;=============================================================
+;; GL_NV_vertex_program1_1
+;;
+
+(if "defined(GL_NV_vertex_program1_1)" (begin
+
+(define-constant GL_NV_vertex_program1_1 #t)
+
+)) ;; GL_NV_vertex_program1_1
+
+;;=============================================================
+;; GL_NV_vertex_program2
+;;
+
+(if "defined(GL_NV_vertex_program2)" (begin
+
+(define-constant GL_NV_vertex_program2 #t)
+
+)) ;; GL_NV_vertex_program2
+
+;;=============================================================
+;; GL_NV_vertex_program2_option
+;;
+
+(if "defined(GL_NV_vertex_program2_option)" (begin
+
+(define-constant GL_NV_vertex_program2_option #t)
+
+(define-enum GL_MAX_PROGRAM_EXEC_INSTRUCTIONS_NV)
+(define-enum GL_MAX_PROGRAM_CALL_DEPTH_NV)
+
+)) ;; GL_NV_vertex_program2_option
+
+;;=============================================================
+;; GL_NV_vertex_program3
+;;
+
+(if "defined(GL_NV_vertex_program3)" (begin
+
+(define-constant GL_NV_vertex_program3 #t)
+
+)) ;; GL_NV_vertex_program3
 
 ;; Local variables:
 ;; mode: scheme

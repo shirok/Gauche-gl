@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.14 2002-09-29 21:14:13 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.15 2002-09-30 10:29:12 shirok Exp $
  */
 
 #include <gauche.h>
@@ -346,7 +346,7 @@ ScmObj Scm_MakePoint4f(float x, float y, float z, float w)
 ScmObj Scm_MakePoint4fv(const float *d)
 {
     if (d) return Scm_MakePoint4f(d[0], d[1], d[2], d[3]);
-    else   return Scm_MakePoint4f(0.0, 0.0, 0.0, 0.0);
+    else   return Scm_MakePoint4f(0.0, 0.0, 0.0, 1.0);
 }
 
 ScmObj Scm_MakePoint4fvShared(float d[])

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.13 2002-09-29 11:47:19 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.14 2002-09-29 21:14:13 shirok Exp $
  */
 
 #include <gauche.h>
@@ -803,6 +803,13 @@ ScmObj Scm_MakeQuatfvShared(float d[])
     SCM_SET_CLASS(v, SCM_CLASS_QUATF);
     SCM_QUATF_D(v) = d;
     return SCM_OBJ(v);
+}
+
+ScmObj Scm_QuatfSetv(ScmQuatf *q, const float d[])
+{
+    float *fv = SCM_QUATF_D(q);
+    fv[0]=d[0]; fv[1]=d[1]; fv[2]=d[2]; fv[3]=d[3];
+    SCM_RETURN(SCM_OBJ(q));
 }
 
 ScmObj Scm_ListToQuatf(ScmObj l)

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.12 2002-09-29 11:37:52 shirok Exp $
+ *  $Id: math3d.h,v 1.13 2002-09-29 21:14:24 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -255,6 +255,7 @@ extern ScmObj Scm_MakeQuatfv(const float d[4]);
 extern ScmObj Scm_MakeQuatfvShared(float d[4]);
 extern ScmObj Scm_ListToQuatf(ScmObj l);
 extern ScmObj Scm_QuatfToList(const ScmQuatf *q);
+extern ScmObj Scm_QuatfSetv(ScmQuatf *q, const float d[4]);
 
 extern ScmObj Scm_QuatfAdd(const ScmQuatf *p, const ScmQuatf *q);
 extern void   Scm_QuatfAddv(float *r, const float *p, const float *q);

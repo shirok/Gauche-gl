@@ -244,17 +244,42 @@
 ;;------------------------------------------------------------------
 (test-section "quatf")
 
-(test "rotation -> quaterion"
-      (let ((phi (* 75 pi/180)))
-        (quatf (* (sin phi) (/ 1 (sqrt 15)))
-               (* (sin phi) (/ 2 (sqrt 15)))
-               (* (sin phi) (/ 3 (sqrt 15)))
-               (cos phi)))
+(test "conjugate"
+      (make-quatf (vector4f 0 (/ 1 (sqrt 5)) (/ 2 (sqrt 5))) -0.5)
       (lambda ()
-        (make-quatf (vector4f (/ 1 (sqrt 15))
-                              (/ 2 (sqrt 15))
-                              (/ 3 (sqrt 15)))
-                    (* 150 pi/180))))
+        (quatf-conjugate
+         (make-quatf (vector4f 0 (/ 1 (sqrt 5)) (/ 2 (sqrt 5))) 0.5))))
+
+(let ((p (make-quatf (vector4f-normalize (vector4f 3 2 1)) -1.6))
+      (q (make-quatf (vector4f-normalize (vector4f 0 2 5)) 0.7))
+      (r (make-quatf (vector4f-normalize (vector4f 2 1 3)) 0.1)))
+  (test "add, sub, and mul"
+        (list (+ p q) (- p q) (* p q) p)
+        (lambda ()
+          (let ((p+ (quatf-copy p))
+                (p- (quatf-copy p))
+                (p* (quatf-copy p)))
+            (quatf-add! p+ q)
+            (quatf-sub! p- q)
+            (quatf-mul! p* q)
+            (list p+ p- p* p)))))
+
+(test "rotation -> quaterion"
+      (let* ((phi (* 75 pi/180))
+             (q   (quatf (* (sin phi) (/ 1 (sqrt 15)))
+                         (* (sin phi) (/ 2 (sqrt 15)))
+                         (* (sin phi) (/ 3 (sqrt 15)))
+                         (cos phi))))
+        (list q q))
+      (lambda ()
+        (let1 rotv (vector4f (/ 1 (sqrt 15))
+                             (/ 2 (sqrt 15))
+                             (/ 3 (sqrt 15)))
+          (list (make-quatf rotv (* 150 pi/180))
+                (let1 q (make-quatf)
+                  (rotation->quatf! q rotv (* 150 pi/180))))))
+      )
+
 
 (test "transform by quaternion"
       (* (rotation->matrix4f (vector4f 0 (/ 1 (sqrt 5)) (/ 2 (sqrt 5)))

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.14 2002-09-29 11:57:18 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.15 2002-09-29 21:14:13 shirok Exp $
 ;;;
 
 "
@@ -437,14 +437,9 @@
   "if (SCM_UNBOUNDP(vec)) {
     SCM_RETURN(Scm_MakeQuatf(0.0, 0.0, 0.0, 1.0));
   } else {
-    float *q = NULL;
+    float *q;
     double sint, cost;
-    if (SCM_VECTOR4FP(vec)) q = SCM_VECTOR4F_D(vec);
-    else if (SCM_F32VECTORP(vec) && SCM_F32VECTOR_SIZE(vec) > 3) {
-      q = SCM_F32VECTOR_ELEMENTS(vec);
-    } else {
-      Scm_Error(\"vector4f or f32vector is required, but got %S\", vec);
-    }
+    SCM_MATH3D_X3FP(q, vec);
     sint = sin(angle/2.0);
     cost = cos(angle/2.0);
     SCM_RETURN(Scm_MakeQuatf(sint*q[0], sint*q[1], sint*q[2], cost));
@@ -463,10 +458,34 @@
 (define-cproc quatf->f32vector (q::<quatf>)
   "SCM_RETURN(Scm_MakeF32VectorFromArray(4, SCM_QUATF_D(q)));")
 
+(define-cproc quatf-copy (q::<quatf>)
+  "SCM_RETURN(Scm_MakeQuatfv(SCM_QUATF_D(q)));")
+(define-cproc quatf-copy! (dst::<quatf> src::<quatf>)
+  "SCM_RETURN(Scm_QuatfSetv(dst, SCM_QUATF_D(src)));")
+
+(define-cproc rotation->quatf! (q::<quatf> v angle::<real>)
+  "float *qv = SCM_QUATF_D(q), *vv;
+  double sint, cost;
+  SCM_MATH3D_X3FP(vv, v);
+  sint = sin(angle/2.0);
+  cost = cos(angle/2.0);
+  qv[0] = sint*vv[0]; qv[1] = sint*vv[1]; qv[2] = sint*vv[2]; qv[3] = cost;
+  SCM_RETURN(SCM_OBJ(q));")
+
 (define-cproc quatf-add (p::<quatf> q::<quatf>)
   (return "Scm_QuatfAdd"))
+(define-cproc quatf-add! (p::<quatf> q::<quatf>)
+  "float r[4];
+  Scm_QuatfAddv(r, SCM_QUATF_D(p), SCM_QUATF_D(q));
+  SCM_RETURN(Scm_QuatfSetv(p, r));")
+
 (define-cproc quatf-sub (p::<quatf> q::<quatf>)
   (return "Scm_QuatfSub"))
+(define-cproc quatf-sub! (p::<quatf> q::<quatf>)
+  "float r[4];
+  Scm_QuatfSubv(r, SCM_QUATF_D(p), SCM_QUATF_D(q));
+  SCM_RETURN(Scm_QuatfSetv(p, r));")
+
 (define-cproc quatf-scale (q::<quatf> s::<real>)
   "float *d = SCM_QUATF_D(q);
   if (s == 0.0) Scm_Error(\"divide by zero\");
@@ -479,6 +498,10 @@
 
 (define-cproc quatf-mul (p::<quatf> q::<quatf>)
   (return "Scm_QuatfMul"))
+(define-cproc quatf-mul! (p::<quatf> q::<quatf>)
+  "float r[4];
+  Scm_QuatfMulv(r, SCM_QUATF_D(p), SCM_QUATF_D(q));
+  SCM_RETURN(Scm_QuatfSetv(p, r));")
 
 ;; calculate qpq*
 (define-cproc quatf-transform (quat::<quatf> v)

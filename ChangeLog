@@ -1,3 +1,10 @@
+2002-08-25  Shiro Kawai  <shiro@acm.org>
+
+	* src/gl-syms.stub, src/gauche-gl.c : #ifdef-ed most of extension
+	  symbols, as well as OpenGL 1.1, 1,2 and a part of 1.3 features.
+	* src/glut-lib.stub : fixed a long-missed bug in glut-init that
+	  assumed the passed argument list lacks argv[0].
+
 2002-08-17  Shiro Kawai  <shiro@acm.org>
 
 	* src/gl-lib.stub : added gl-call-lists

@@ -1,3 +1,11 @@
+2001-10-19  Shiro Kawai  <shiro@acm.org>
+
+	* examples/mandelbrot.scm : added texturing sample.
+
+2001-10-15  Shiro Kawai  <shiro@acm.org>
+
+	* examples/glbook/ : added example6-2
+
 2001-10-14  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.1

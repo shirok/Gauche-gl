@@ -1,5 +1,7 @@
 2003-10-04  Shiro Kawai  <shiro@acm.org>
 
+	* release 0.3
+	
 	* configure.in, lib/gl.scm, lib/gl/glut.scm, lib/gl/math3d.scm,
 	  src/* : adapted to Cygwin - works with Cygwin 1.5.5/opengl 1.1.0-6.
 

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.13 2001-10-15 08:33:27 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.14 2002-02-11 09:31:24 shirok Exp $
 ;;;
 
 "
@@ -3000,8 +3000,8 @@
   "Scm_MakeInteger(GL_CLIENT_PIXEL_STORE_BIT)")
 (define-symbol |GL_CLIENT_VERTEX_ARRAY_BIT| "sym_GL_CLIENT_VERTEX_ARRAY_BIT"
   "Scm_MakeInteger(GL_CLIENT_VERTEX_ARRAY_BIT)")
-(define-symbol |GL_CLIENT_ALL_ATTRIB_BITS| "sym_GL_CLIENT_ALL_ATTRIB_BITS"
-  "Scm_MakeInteger(GL_CLIENT_ALL_ATTRIB_BITS)")
+(define-symbol |GL_ALL_CLIENT_ATTRIB_BITS| "sym_GL_ALL_CLIENT_ATTRIB_BITS"
+  "Scm_MakeInteger(GL_ALL_CLIENT_ATTRIB_BITS)")
 
 ;; Local variables:
 ;; mode: scheme

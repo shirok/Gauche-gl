@@ -1,7 +1,7 @@
 ;;;
 ;;; gl/math3d.scm - auxiliary vector arithmetics for 3D graphics
 ;;;
-;;;  Copyright(C) 2002 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2002-2003 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.9 2003-01-06 06:02:53 shirok Exp $
+;;;  $Id: math3d.scm,v 1.10 2003-01-20 10:26:21 shirok Exp $
 ;;;
 
 (define-module gl.math3d
@@ -201,11 +201,11 @@
      (let ((len (size-expr . args))
            (i 0))
        (proc (lambda () (>= i len))
-             (lambda () (begin0 (ref obj i) (inc i))))))
+             (lambda () (begin0 (ref obj i) (inc! i))))))
     ((_ len ref obj proc)
      (let ((i 0))
        (proc (lambda () (>= i len))
-             (lambda () (begin0 (ref obj i) (inc i))))))
+             (lambda () (begin0 (ref obj i) (inc! i))))))
     ))
 
 (define-method call-with-iterator ((v <vector4f>) proc . args)

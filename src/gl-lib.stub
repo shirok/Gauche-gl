@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.12 2001-10-14 13:02:33 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.13 2001-10-15 08:33:27 shirok Exp $
 ;;;
 
 "
@@ -1229,30 +1229,43 @@
   (assert (small-integer? height))
   (assert (small-integer? format))
   (assert (small-integer? type))
-  "  int eltsize, size, packed; ScmObj vec = SCM_UNDEFINED;
-  size = Scm_GLPixelDataSize(width, height, format, type, &eltsize, &packed);
-  SCM_ASSERT(eltsize == 1 || eltsize == 2 || eltsize == 4);
-  switch (eltsize) {
-    case 1:
+  "  int elttype, size, packed; ScmObj vec = SCM_UNDEFINED;
+  size = Scm_GLPixelDataSize(width, height, format, type, &elttype, &packed);
+  switch (elttype) {
+    case SCM_GL_BYTE:
+      vec = Scm_MakeS8Vector(size, 0);
+      glReadPixels(x, y, width, height, format, type,
+                   SCM_S8VECTOR_ELEMENTS(vec));
+      break;
+    case SCM_GL_UBYTE:
       vec = Scm_MakeU8Vector(size, 0);
       glReadPixels(x, y, width, height, format, type,
                    SCM_U8VECTOR_ELEMENTS(vec));
       break;
-    case 2:
+    case SCM_GL_SHORT:
+      vec = Scm_MakeS16Vector(size, 0);
+      glReadPixels(x, y, width, height, format, type,
+                   SCM_S16VECTOR_ELEMENTS(vec));
+      break;
+    case SCM_GL_USHORT:
       vec = Scm_MakeU16Vector(size, 0);
       glReadPixels(x, y, width, height, format, type,
                    SCM_U16VECTOR_ELEMENTS(vec));
       break;
-    case 4:
-      if (packed) {
-        vec = Scm_MakeU32Vector(size, 0);
-        glReadPixels(x, y, width, height, format, type,
-                     SCM_U32VECTOR_ELEMENTS(vec));
-      } else {
-        vec = Scm_MakeF32Vector(size, 0);
-        glReadPixels(x, y, width, height, format, type,
-                     SCM_F32VECTOR_ELEMENTS(vec));
-      }
+    case SCM_GL_INT:
+      vec = Scm_MakeS32Vector(size, 0);
+      glReadPixels(x, y, width, height, format, type,
+                   SCM_S32VECTOR_ELEMENTS(vec));
+      break;
+    case SCM_GL_UINT:
+      vec = Scm_MakeU32Vector(size, 0);
+      glReadPixels(x, y, width, height, format, type,
+                   SCM_U32VECTOR_ELEMENTS(vec));
+      break;
+    case SCM_GL_FLOAT:
+      vec = Scm_MakeF32Vector(size, 0);
+      glReadPixels(x, y, width, height, format, type,
+                   SCM_F32VECTOR_ELEMENTS(vec));
       break;
   }
   SCM_RETURN(vec);")
@@ -1264,34 +1277,60 @@
   (assert (small-integer? height))
   (assert (small-integer? format))
   (assert (small-integer? type))
-  "  int eltsize, size, packed; ScmObj vec = SCM_UNDEFINED;
-  size = Scm_GLPixelDataSize(width, height, format, type, &eltsize, &packed);
-  SCM_ASSERT(eltsize == 1 || eltsize == 2 || eltsize == 4);
-  switch (eltsize) {
-    case 1:
+  "  int elttype, size, packed; ScmObj vec = SCM_UNDEFINED;
+  size = Scm_GLPixelDataSize(width, height, format, type, &elttype, &packed);
+  switch (elttype) {
+    case SCM_GL_BYTE:
+      if (!SCM_S8VECTORP(pixels)) {
+        Scm_Error(\"s8vector required, but got %S\", pixels);
+      }
+      glDrawPixels(width, height, format, type,
+                   SCM_S8VECTOR_ELEMENTS(pixels));
+      break;
+    case SCM_GL_UBYTE:
       if (!SCM_U8VECTORP(pixels)) {
         Scm_Error(\"u8vector required, but got %S\", pixels);
       }
       glDrawPixels(width, height, format, type,
                    SCM_U8VECTOR_ELEMENTS(pixels));
       break;
-    case 2:
+
+    case SCM_GL_SHORT:
+      if (!SCM_S16VECTORP(pixels)) {
+        Scm_Error(\"s16vector required, but got %S\", pixels);
+      }
+      glDrawPixels(width, height, format, type,
+                   SCM_S16VECTOR_ELEMENTS(pixels));
+      break;
+    case SCM_GL_USHORT:
       if (!SCM_U16VECTORP(pixels)) {
         Scm_Error(\"u16vector required, but got %S\", pixels);
       }
       glDrawPixels(width, height, format, type,
                    SCM_U16VECTOR_ELEMENTS(pixels));
       break;
-    case 4:
-      if (SCM_U32VECTORP(pixels)) {
-        glDrawPixels(width, height, format, type,
-                     SCM_U32VECTOR_ELEMENTS(pixels));
-      } else if (SCM_F32VECTORP(pixels)) {
-        glDrawPixels(width, height, format, type,
-                     SCM_F32VECTOR_ELEMENTS(pixels));
-      } else {
-        Scm_Error(\"u32vector or f32vector required, but got %S\", pixels);
+
+    case SCM_GL_INT:
+      if (!SCM_S32VECTORP(pixels)) {
+        Scm_Error(\"s32vector required, but got %S\", pixels);
       }
+      glDrawPixels(width, height, format, type,
+                   SCM_S32VECTOR_ELEMENTS(pixels));
+      break;
+    case SCM_GL_UINT:
+      if (!SCM_U32VECTORP(pixels)) {
+        Scm_Error(\"u32vector required, but got %S\", pixels);
+      }
+      glDrawPixels(width, height, format, type,
+                   SCM_U32VECTOR_ELEMENTS(pixels));
+      break;
+
+    case SCM_GL_FLOAT:
+      if (!SCM_F32VECTORP(pixels)) {
+        Scm_Error(\"f32vector required, but got %S\", pixels);
+      }
+      glDrawPixels(width, height, format, type,
+                   SCM_F32VECTOR_ELEMENTS(pixels));
       break;
   }
   SCM_RETURN(SCM_UNDEFINED);")
@@ -1369,7 +1408,7 @@
   (assert (small-integer? pname))
   "switch (pname) {
     case GL_TEXTURE_ENV_MODE:
-      if (SCM_INT_P(param)) {
+      if (SCM_INTP(param)) {
         glTexEnvi(target, pname, SCM_INT_VALUE(param));
       } else {
         Scm_Error(\"integer parameter required for GL_TEXTURE_ENV_MODE, but got %S\", param);
@@ -1387,10 +1426,250 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-;(define-cproc gl-tex-parameter (target pname param)
-;  (assert (small-integer? target))
-;  (assert (small-integer? pname))
-  
+(define-cproc gl-tex-parameter (target pname param)
+  (assert (small-integer? target))
+  (assert (small-integer? pname))
+  "switch (pname) {
+     case GL_TEXTURE_WRAP_S:;
+     case GL_TEXTURE_WRAP_T:;
+     case GL_TEXTURE_WRAP_R:;
+     case GL_TEXTURE_MAG_FILTER:;
+     case GL_TEXTURE_MIN_FILTER:;
+     case GL_TEXTURE_BASE_LEVEL:;
+     case GL_TEXTURE_MAX_LEVEL:;
+       if (SCM_INTP(param)) {
+         glTexParameteri(target, pname, Scm_GetInteger(param));
+       } else {
+         Scm_Error(\"integer parameter required, but got %S\", param);
+       }
+       break;
+     case GL_TEXTURE_PRIORITY:;
+     case GL_TEXTURE_MIN_LOD:;
+     case GL_TEXTURE_MAX_LOD:;
+       if (SCM_REALP(param)) {
+         glTexParameterf(target, pname, (GLfloat)Scm_GetDouble(param));
+       } else {
+         Scm_Error(\"real parameter required, but got %S\", param);
+       }
+       break;
+     case GL_TEXTURE_BORDER_COLOR:
+       if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
+         glTexParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
+       } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
+         glTexParameteriv(target, pname, SCM_S32VECTOR_ELEMENTS(param));
+       } else {
+         Scm_Error(\"f32 or s32 vector parameter of size 4 required, but got %S\", param);
+       }
+       break;
+     default:
+       Scm_Error(\"unknown or unsupported glTexParameter pname: %d\", pname);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-get-tex-parameter (target pname)
+  (assert (small-integer? target))
+  (assert (small-integer? pname))
+  " ScmObj vec; GLint i; GLfloat f;
+  switch (pname) {
+     case GL_TEXTURE_WRAP_S:;
+     case GL_TEXTURE_WRAP_T:;
+     case GL_TEXTURE_WRAP_R:;
+     case GL_TEXTURE_MAG_FILTER:;
+     case GL_TEXTURE_MIN_FILTER:;
+     case GL_TEXTURE_BASE_LEVEL:;
+     case GL_TEXTURE_MAX_LEVEL:;
+       glGetTexParameteriv(target, pname, &i);
+       SCM_RETURN(Scm_MakeInteger(i));
+     case GL_TEXTURE_PRIORITY:;
+     case GL_TEXTURE_MIN_LOD:;
+     case GL_TEXTURE_MAX_LOD:;
+       glGetTexParameterfv(target, pname, &f);
+       SCM_RETURN(Scm_MakeFlonum((double)f));
+     case GL_TEXTURE_BORDER_COLOR:
+       vec = Scm_MakeF32Vector(4, 0.0);
+       glGetTexParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(vec));
+       SCM_RETURN(vec);
+     default:
+       Scm_Error(\"unknown or unsupported glTexParameter pname: %d\", pname);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+; gl-get-tex-level-parameter
+
+;; caller must ensure vector has enough length
+(define-cproc gl-tex-image-1d (target level internalformat
+                               width border format type texels)
+  (assert (small-integer? target))
+  (assert (small-integer? level))
+  (assert (small-integer? internalformat))
+  (assert (small-integer? width))
+  (assert (small-integer? border))
+  (assert (small-integer? format))
+  (assert (small-integer? type))
+  "int datatype = Scm_GLPixelDataType(type, NULL);
+  switch (datatype) {
+    case SCM_GL_BYTE:
+      if (!SCM_S8VECTORP(texels)) {
+        Scm_Error(\"s8vector texels required, but got %S\", texels);
+      }
+      glTexImage1D(target, level, internalformat, width, border, format, type, SCM_S8VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_UBYTE:
+      if (!SCM_U8VECTORP(texels)) {
+        Scm_Error(\"u8vector texels required, but got %S\", texels);
+      }
+      glTexImage1D(target, level, internalformat, width, border, format, type, SCM_U8VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_SHORT:
+      if (!SCM_S16VECTORP(texels)) {
+        Scm_Error(\"s16vector texels required, but got %S\", texels);
+      }
+      glTexImage1D(target, level, internalformat, width, border, format, type, SCM_S16VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_USHORT:
+      if (!SCM_U16VECTORP(texels)) {
+        Scm_Error(\"u16vector texels required, but got %S\", texels);
+      }
+      glTexImage1D(target, level, internalformat, width, border, format, type, SCM_U16VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_INT:
+      if (!SCM_S32VECTORP(texels)) {
+        Scm_Error(\"s32vector texels required, but got %S\", texels);
+      }
+      glTexImage1D(target, level, internalformat, width, border, format, type, SCM_S32VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_UINT:
+      if (!SCM_U32VECTORP(texels)) {
+        Scm_Error(\"u32vector texels required, but got %S\", texels);
+      }
+      glTexImage1D(target, level, internalformat, width, border, format, type, SCM_U32VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_FLOAT:
+      if (!SCM_F32VECTORP(texels)) {
+        Scm_Error(\"f32vector texels required, but got %S\", texels);
+      }
+      glTexImage1D(target, level, internalformat, width, border, format, type, SCM_F32VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_FLOAT_OR_INT:
+      if (SCM_F32VECTORP(texels)) {
+        glTexImage1D(target, level, internalformat, width, border, format, type, SCM_F32VECTOR_ELEMENTS(texels));
+      } else if (SCM_S32VECTORP(texels)) {
+        glTexImage1D(target, level, internalformat, width, border, format, type, SCM_S32VECTOR_ELEMENTS(texels));
+      } else {
+        Scm_Error(\"s32vector or f64vector texels required, but got %S\", texels);
+      }
+      break;
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+
+;; caller must ensure vector has enough length
+(define-cproc gl-tex-image-2d (target level internalformat
+                               width height border format type texels)
+  (assert (small-integer? target))
+  (assert (small-integer? level))
+  (assert (small-integer? internalformat))
+  (assert (small-integer? width))
+  (assert (small-integer? height))
+  (assert (small-integer? border))
+  (assert (small-integer? format))
+  (assert (small-integer? type))
+  "int datatype = Scm_GLPixelDataType(type, NULL);
+  switch (datatype) {
+    case SCM_GL_BYTE:
+      if (!SCM_S8VECTORP(texels)) {
+        Scm_Error(\"s8vector texels required, but got %S\", texels);
+      }
+      glTexImage2D(target, level, internalformat, width, height, border, format, type, SCM_S8VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_UBYTE:
+      if (!SCM_U8VECTORP(texels)) {
+        Scm_Error(\"u8vector texels required, but got %S\", texels);
+      }
+      glTexImage2D(target, level, internalformat, width, height, border, format, type, SCM_U8VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_SHORT:
+      if (!SCM_S16VECTORP(texels)) {
+        Scm_Error(\"s16vector texels required, but got %S\", texels);
+      }
+      glTexImage2D(target, level, internalformat, width, height, border, format, type, SCM_S16VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_USHORT:
+      if (!SCM_U16VECTORP(texels)) {
+        Scm_Error(\"u16vector texels required, but got %S\", texels);
+      }
+      glTexImage2D(target, level, internalformat, width, height, border, format, type, SCM_U16VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_INT:
+      if (!SCM_S32VECTORP(texels)) {
+        Scm_Error(\"s32vector texels required, but got %S\", texels);
+      }
+      glTexImage2D(target, level, internalformat, width, height, border, format, type, SCM_S32VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_UINT:
+      if (!SCM_U32VECTORP(texels)) {
+        Scm_Error(\"u32vector texels required, but got %S\", texels);
+      }
+      glTexImage2D(target, level, internalformat, width, height, border, format, type, SCM_U32VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_FLOAT:
+      if (!SCM_F32VECTORP(texels)) {
+        Scm_Error(\"f32vector texels required, but got %S\", texels);
+      }
+      glTexImage2D(target, level, internalformat, width, height, border, format, type, SCM_F32VECTOR_ELEMENTS(texels));
+      break;
+    case SCM_GL_FLOAT_OR_INT:
+      if (SCM_F32VECTORP(texels)) {
+        glTexImage2D(target, level, internalformat, width, height, border, format, type, SCM_F32VECTOR_ELEMENTS(texels));
+      } else if (SCM_S32VECTORP(texels)) {
+        glTexImage2D(target, level, internalformat, width, height, border, format, type, SCM_S32VECTOR_ELEMENTS(texels));
+      } else {
+        Scm_Error(\"s32vector or f64vector texels required, but got %S\", texels);
+      }
+      break;
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+; gl-get-tex-image
+
+(define-cproc gl-gen-textures (size)
+  (assert (small-integer? size))
+  "ScmObj vec;
+  if (size <= 0) Scm_Error(\"size must be a positive integer, but got %d\", size);
+  vec = Scm_MakeU32Vector(size, 0);
+  glGenTextures(size, SCM_U32VECTOR_ELEMENTS(vec));
+  SCM_RETURN(vec);")
+
+(define-cproc gl-delete-textures (names)
+  "if (!SCM_U32VECTORP(names)) Scm_Error(\"texture names must be an u32vector, but got %S\", names);
+  glDeleteTextures(SCM_U32VECTOR_SIZE(names), SCM_U32VECTOR_ELEMENTS(names));")
+
+(define-cproc gl-bind-texture (target name)
+  (assert (small-integer? target))
+  (assert (exact? name))
+  "glBindTexture(target, name);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+; gl-prioritize-textures
+
+; gl-are-textures-resident 
+
+(define-cproc gl-is-texture (name)
+  (assert (exact? name))
+  "SCM_RETURN(SCM_MAKE_INT(glIsTexture(name)));")
+
+; gl-tex-sub-image-1d
+
+; gl-tex-sub-image-2d
+
+; gl-copy-tex-image-1d
+
+; gl-copy-tex-image-2d
+
+; gl-copy-tex-sub-image-1d
+
+; gl-copy-tex-sub-image-2d
+
 
 ;;=============================================================
 ;; Fog

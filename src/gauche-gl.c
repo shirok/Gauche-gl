@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.8 2001-10-14 10:01:11 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.9 2001-10-15 08:33:27 shirok Exp $
  */
 
 #include <gauche.h>
@@ -63,49 +63,60 @@ int Scm_GLStateInfoSize(GLenum state)
    return -1;
 }
 
-/* given pixel format and pixel type, return # of elements used for
-   pixel data. */
-int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
-                        int *eltsize, int *packed)
+/* given pixel data type GLenum, returns the appropriate data type. */
+int Scm_GLPixelDataType(GLenum type, int *packed)
 {
-    int components = 0, packedsize = 0, typesize = 0;
-
+    if (packed) *packed = FALSE; /* default */
     switch (type) {
-    case GL_BITMAP: 
-        /* special handling is required for bitmap */
-        break;
-    case GL_UNSIGNED_BYTE:;
     case GL_BYTE:;
-        typesize = 1; break;
+        return SCM_GL_BYTE;
+    case GL_BITMAP: 
     case GL_UNSIGNED_BYTE_3_3_2:;
     case GL_UNSIGNED_BYTE_2_3_3_REV:;
-        packedsize = 3;
-        typesize = 1; break;
-    case GL_UNSIGNED_SHORT:;
+        if (packed) *packed = TRUE;
+        /* FALLTHROUGH */
+    case GL_UNSIGNED_BYTE:;
+        return SCM_GL_UBYTE;
     case GL_SHORT:;
-        typesize = 2; break;
+        return SCM_GL_SHORT;
     case GL_UNSIGNED_SHORT_5_6_5:;
     case GL_UNSIGNED_SHORT_5_6_5_REV:;
     case GL_UNSIGNED_SHORT_4_4_4_4:;
     case GL_UNSIGNED_SHORT_4_4_4_4_REV:;
     case GL_UNSIGNED_SHORT_5_5_5_1:;
     case GL_UNSIGNED_SHORT_1_5_5_5_REV:;
-        packedsize = 4;
-        typesize = 2; break;
-    case GL_UNSIGNED_INT:;
+        if (packed) *packed = TRUE;
+        /* FALLTHROUGH */
+    case GL_UNSIGNED_SHORT:;
+        return SCM_GL_USHORT;
     case GL_INT:;
-    case GL_FLOAT:;
-        typesize = 4; break;
+        return SCM_GL_INT;
     case GL_UNSIGNED_INT_8_8_8_8:;
     case GL_UNSIGNED_INT_8_8_8_8_REV:;
     case GL_UNSIGNED_INT_10_10_10_2:;
     case GL_UNSIGNED_INT_2_10_10_10_REV:;
-        packedsize = 4;
-        typesize = 4; break;
+        if (packed) *packed = TRUE;
+        /* FALLTHROUGH */
+    case GL_UNSIGNED_INT:;
+        return SCM_GL_UINT;
+    case GL_FLOAT:;
+        return SCM_GL_FLOAT;
     default:
         /* TODO: packedsize types added to GL1.2 */
         Scm_Error("unsupported or invalid pixel data type: %d", type);
     }
+    return 0;                   /* NOTREACHED */
+}
+
+/* given pixel format and pixel type, return # of elements used for
+   pixel data. */
+/* TODO: need to take into account the pixel store settings! */
+int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
+                        int *elttype, int *packed)
+{
+    int components = 0, packedsize = 0;
+    *elttype = Scm_GLPixelDataType(type, packed);
+
     switch (format) {
     case GL_COLOR_INDEX:;
     case GL_RED:;
@@ -125,21 +136,13 @@ int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
     /*case GL_BGRA:;*/
         components = 4; break;
     }
-    if (typesize == 0) {
+    if (type == GL_BITMAP) {
         /* bitmap.  each raster line is rounded up to byte boundary. */
-        *eltsize = 1;
         return ((components*w+7)/8)*h;
     }
-    *eltsize = typesize;
-    if (packedsize > 0) {
-        if  (components != packedsize) {
-            Scm_Error("pixel format %d doesn't match pixel data type %d",
-                      format, type);
-        }
-        *packed = TRUE;
+    if (*packed) {
         return w*h;
     } else {
-        *packed = FALSE;
         return w*h*components;
     }
 }

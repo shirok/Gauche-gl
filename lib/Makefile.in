@@ -13,7 +13,8 @@ SCM_INSTALL_DIR = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)libdir`
 
 SCMFILES = gl.scm \
 	   gl/math3d.scm \
-	   gl/glut.scm
+	   gl/glut.scm \
+	   gl/util.scm
 
 CONFIG_GENERATED = Makefile
 

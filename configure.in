@@ -2,7 +2,7 @@ dnl
 dnl Configuring gauche-gl 
 dnl  process this file with "autoconf -l `gauche-config --ac`" to
 dnl  generate 'configure'.
-dnl $Id: configure.in,v 1.16 2003-10-05 10:25:48 shirok Exp $
+dnl $Id: configure.in,v 1.17 2003-10-14 04:01:45 fuyuki Exp $
 AC_PREREQ(2.54)
 AC_INIT(Gauche-gl, 0.3, shiro@acm.org)
 AC_GAUCHE_INIT_EXT
@@ -33,7 +33,7 @@ AC_ARG_WITH(glut, [  --with-glut[=PATH]:      Use GLUT library installed under P
 ])
 
 # Check for headers
-AC_CHECK_HEADERS(GL/glext.h, , , GL/gl.h)
+AC_CHECK_HEADERS(GL/glext.h, , , [#include <GL/gl.h>])
 AC_CHECK_HEADERS(GL/glx.h, [   # OpenGL/X11
      # NB: FreeBSD seems to need -lX11 -lXext.  We are on X11 system anyway,
      # so I assume this won't do any harm.

@@ -1,3 +1,8 @@
+2003-10-14  Kimura Fuyuki  <fuyuki@nigredo.org>
+
+	* configure.in : fixed a bug that has prevented the configure
+	  script from finding glext.h
+
 2003-10-09  Shiro Kawai  <shiro@acm.org>
 
 	* */Makefile.in : cleaned up install rules by using mkinstalldirs.

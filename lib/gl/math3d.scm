@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.7 2002-09-29 10:13:35 shirok Exp $
+;;;  $Id: math3d.scm,v 1.8 2002-10-22 10:51:02 shirok Exp $
 ;;;
 
 (define-module gl.math3d
@@ -29,6 +29,26 @@
 (define-reader-ctor 'point4f  point4f)
 (define-reader-ctor 'matrix4f matrix4f)
 (define-reader-ctor 'quatf    quatf)
+
+(define-reader-ctor 'vector4f-array
+  (lambda (length . vectors)
+    (let1 arr (make-vector4f-array length)
+      (let loop ((i 0)
+                 (v vectors))
+        (when (< i length)
+          (vector4f-array-set! arr i (list->vector4f (car v)))
+          (loop (+ i 1) (cdr v))))
+      arr)))
+
+(define-reader-ctor 'point4f-array
+  (lambda (length . points)
+    (let1 arr (make-point4f-array length)
+      (let loop ((i 0)
+                 (p points))
+        (when (< i length)
+          (point4f-array-set! arr i (list->point4f (car p)))
+          (loop (+ i 1) (cdr p))))
+      arr)))
 
 ;;=================================================================
 ;; Auxiliary fns

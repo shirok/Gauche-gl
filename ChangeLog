@@ -1,3 +1,12 @@
+2002-10-22  Shiro Kawai  <shiro@acm.org>
+
+	* lib/gl/math3d.scm : added reader ctor for vector4f-array and
+	  point4f-array
+
+2002-10-14  Shiro Kawai  <shiro@acm.org>
+
+	* release 0.2
+
 2002-10-08  Shiro Kawai  <shiro@acm.org>
 
 	* doc/* : start writing texinfo document.

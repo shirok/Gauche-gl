@@ -8,8 +8,8 @@ MAKEINFO = @MAKEINFO@
 GZIP_PROGRAM = @GZIP_PROGRAM@
 
 # Manual page destination.
-mandir  = `$(GAUCHE_CONFIG) --mandir`
-infodir = `$(GAUCHE_CONFIG) --infodir`
+mandir  = $(DESTDIR)`$(GAUCHE_CONFIG) --mandir`
+infodir = $(DESTDIR)`$(GAUCHE_CONFIG) --infodir`
 
 all: info
 

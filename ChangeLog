@@ -1,3 +1,7 @@
+2003-07-14  Shiro Kawai  <shiro@acm.org>
+
+	* */Makefile.in : added $(DESTDIR) to install target directories
+
 2003-03-07  Shiro Kawai  <shiro@acm.org>
 
 	* doc/extract (filter): escaped '{' and '}' in regexp.

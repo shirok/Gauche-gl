@@ -2,6 +2,7 @@
 
 (use gl)
 (use gl.glut)
+(use srfi-4)
 
 (define (disp)
   (gl-clear |GL_COLOR_BUFFER_BIT|)

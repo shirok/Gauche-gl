@@ -2,6 +2,7 @@
 
 (use gl)
 (use gl.glut)
+(use srfi-4)
 
 (define *diffuse* (f32vector 0.5 0.5 0.5 1.0))
 

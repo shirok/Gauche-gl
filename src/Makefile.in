@@ -12,7 +12,7 @@ SCMFILES = gl.scm
 HEADERS = 
 
 TARGET = gauche-gl.so
-OBJS = gl-lib.o
+OBJS = gauche-gl.o gl-lib.o
 CONFIG_GENERATED = Makefile config.cache config.log config.status
 
 INSTALL_TYPE = @INSTALL_TYPE@

@@ -1,0 +1,25 @@
+
+.PHONY: test clean install
+
+
+all :
+	cd src; $(MAKE) all
+
+test : all
+	cd src; $(MAKE) test
+
+clean :
+	rm -rf core *~
+	cd src; $(MAKE) clean
+
+distclean : clean
+	cd src; $(MAKE) distclean
+	rm -rf Makefile config.cache config.log config.status
+
+install :
+	cd src; $(MAKE) install
+
+realclean : clean
+	cd src; $(MAKE) realclean
+	rm -rf configure Makefile config.cache config.log config.status
+

@@ -1,0 +1,1785 @@
+;;;
+;;; gl-lib.stub - glue functions for GL
+;;;
+;;;  Copyright(C) 2000-2001 by Shiro Kawai (shiro@acm.org)
+;;;
+;;;  Permission to use, copy, modify, distribute this software and
+;;;  accompanying documentation for any purpose is hereby granted,
+;;;  provided that existing copyright notices are retained in all
+;;;  copies and that this notice is included verbatim in all
+;;;  distributions.
+;;;  This software is provided as is, without express or implied
+;;;  warranty.  In no circumstances the author(s) shall be liable
+;;;  for any damages arising out of the use of this software.
+;;;
+;;;  $Id: gl-lib.stub,v 1.1 2001-09-28 11:39:33 shirok Exp $
+;;;
+
+"
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glx.h>
+"
+
+;; The functions are ordered in the same way as Mesa's header file.
+
+;;=============================================================
+;; Miscellaneous
+;;
+
+(define-cproc gl-clear-index (c)
+  (assert (number? c))
+  "glClearIndex((GLfloat)Scm_GetDouble(c)); SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-clear-color (r g b a)
+  (assert (number? r))
+  (assert (number? g))
+  (assert (number? b))
+  (assert (number? a))
+  "glClearColor((GLclampf)Scm_GetDouble(r),
+                (GLclampf)Scm_GetDouble(g),
+                (GLclampf)Scm_GetDouble(b),
+                (GLclampf)Scm_GetDouble(a));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-clear (mask)
+  (assert (exact? mask))
+  "glClear((GLbitfield)Scm_GetUInteger(mask));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-index-mask (mask)
+  (assert (exact? mask))
+  "glIndexMask((GLuint)Scm_GetUInteger(mask));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-color-mask (r g b a)
+  "glColorMask(!SCM_FALSEP(r), !SCM_FALSEP(g), !SCM_FALSEP(b), !SCM_FALSEP(a));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-alpha-func (func ref)
+  (assert (small-integer? func))
+  (assert (number? ref))
+  "glAlphaFunc((GLenum)SCM_INT_VALUE(func), (GLclampf)Scm_GetDouble(ref));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-blend-func (func factor)
+  (assert (small-integer? func))
+  (assert (number? factor))
+  "glBlendFunc((GLenum)SCM_INT_VALUE(func), (GLclampf)Scm_GetDouble(factor));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-logic-op (opcode)
+  (assert (small-integer? opcode))
+  "glLogicOp((GLenum)SCM_INT_VALUE(opcode));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-cull-face (mode)
+  (assert (small-integer? mode))
+  "glCullFace((GLenum)SCM_INT_VALUE(mode));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-front-face (mode)
+  (assert (small-integer? mode))
+  "glFrontFace((GLenum)SCM_INT_VALUE(mode));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-point-size (size)
+  (assert (number? size))
+  "glPointSize((GLfloat)Scm_GetDouble(size));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-line-width (width)
+  (assert (number? width))
+  "glLineWidth((GLfloat)Scm_GetDouble(width));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-line-stipple (factor pat)
+  (assert (small-integer? factor))
+  (assert (small-integer? pat))
+  "glLineStipple((GLint)SCM_INT_VALUE(factor), (GLushort)SCM_INT_VALUE(pat));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-polygon-mode (face mode)
+  (assert (small-integer? face))
+  (assert (small-integer? mode))
+  "glPolygonMode((GLenum)SCM_INT_VALUE(face), (GLenum)SCM_INT_VALUE(mode));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; glPolygonStipple
+
+(define-cproc gl-edge-flag (flag)
+  "glEdgeFlag(!SCM_FALSEP(flag));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; glEdgeFlagv
+
+;; glScissor
+
+;; glClipPlane
+
+;; glGetClipPlane
+
+(define-cproc gl-draw-buffer (mode)
+  (assert (small-integer? mode))
+  "glDrawBuffer((GLenum)SCM_INT_VALUE(mode));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-read-buffer (mode)
+  (assert (small-integer? mode))
+  "glReadBuffer((GLenum)SCM_INT_VALUE(mode));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-enable (cap)
+  (assert (small-integer? cap))
+  "glEnable((GLenum)SCM_INT_VALUE(cap));
+   SCM_RETURN(SCM_UNDEFINED);")
+  
+(define-cproc gl-disable (cap)
+  (assert (small-integer? cap))
+  "glDisable((GLenum)SCM_INT_VALUE(cap));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-is-enabled (cap)
+  (assert (small-integer? cap))
+  "SCM_RETURN(SCM_MAKE_BOOL(glIsEnabled((GLenum)SCM_INT_VALUE(cap))));")
+
+(define-cproc gl-enable-client-state (cap)
+  (assert (small-integer? cap))
+  "glEnableClientState((GLenum)SCM_INT_VALUE(cap));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-disable-client-state (cap)
+  (assert (small-integer? cap))
+  "glDisableClientState((GLenum)SCM_INT_VALUE(cap));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; glGetBooleanv
+;; glGetIntegerv
+;; glGetFloatv
+;; glGetDoublev
+;; glGetPointerv
+
+(define-cproc gl-push-attrib (mask)
+  (assert (exact? mask))
+  "glPushAttrib((GLbitfield)Scm_GetUInteger(mask));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-pop-attrib ()
+  "glPopAttrib();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-push-client-attrib (mask)
+  (assert (exact? mask))
+  "glPushClientAttrib((GLbitfield)Scm_GetUInteger(mask));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-pop-client-attrib ()
+  "glPopClientAttrib();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-render-mode (mode)
+  (assert (small-integer? mode))
+  "SCM_RETURN(Scm_MakeInteger(glRenderMode((GLenum)SCM_INT_VALUE(mode))));")
+
+(define-cproc gl-get-error ()
+  "SCM_RETURN(Scm_MakeInteger(glGetError()));")
+
+(define-cproc gl-get-string (name)
+  (assert (small-integer? name))
+  "SCM_RETURN(SCM_MAKSTR_IMMUTABLE(glGetString(SCM_INT_VALUE(name))));")
+
+(define-cproc gl-flush ()
+  "glFlush();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-finish ()
+  "glFinish();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; glHint
+
+;;=============================================================
+;; Depth Buffer
+;;
+
+;;=============================================================
+;; Accumulation Buffer
+;;
+
+;;=============================================================
+;; Transformation
+;;
+
+(define-cproc gl-matrix-mode (mode)
+  (assert (small-integer? mode))
+  "glMatrixMode(SCM_INT_VALUE(mode));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+
+
+
+
+
+;;=============================================================
+;; Constants
+;;
+(define-symbol |GL_FALSE| "sym_GL_FALSE"
+  "Scm_MakeInteger(GL_FALSE)")
+(define-symbol |GL_TRUE| "sym_GL_TRUE"
+  "Scm_MakeInteger(GL_TRUE)")
+(define-symbol |GL_BYTE| "sym_GL_BYTE"
+  "Scm_MakeInteger(GL_BYTE)")
+(define-symbol |GL_UNSIGNED_BYTE| "sym_GL_UNSIGNED_BYTE"
+  "Scm_MakeInteger(GL_UNSIGNED_BYTE)")
+(define-symbol |GL_SHORT| "sym_GL_SHORT"
+  "Scm_MakeInteger(GL_SHORT)")
+(define-symbol |GL_UNSIGNED_SHORT| "sym_GL_UNSIGNED_SHORT"
+  "Scm_MakeInteger(GL_UNSIGNED_SHORT)")
+(define-symbol |GL_INT| "sym_GL_INT"
+  "Scm_MakeInteger(GL_INT)")
+(define-symbol |GL_UNSIGNED_INT| "sym_GL_UNSIGNED_INT"
+  "Scm_MakeInteger(GL_UNSIGNED_INT)")
+(define-symbol |GL_FLOAT| "sym_GL_FLOAT"
+  "Scm_MakeInteger(GL_FLOAT)")
+(define-symbol |GL_DOUBLE| "sym_GL_DOUBLE"
+  "Scm_MakeInteger(GL_DOUBLE)")
+(define-symbol |GL_2_BYTES| "sym_GL_2_BYTES"
+  "Scm_MakeInteger(GL_2_BYTES)")
+(define-symbol |GL_3_BYTES| "sym_GL_3_BYTES"
+  "Scm_MakeInteger(GL_3_BYTES)")
+(define-symbol |GL_4_BYTES| "sym_GL_4_BYTES"
+  "Scm_MakeInteger(GL_4_BYTES)")
+(define-symbol |GL_LINES| "sym_GL_LINES"
+  "Scm_MakeInteger(GL_LINES)")
+(define-symbol |GL_POINTS| "sym_GL_POINTS"
+  "Scm_MakeInteger(GL_POINTS)")
+(define-symbol |GL_LINE_STRIP| "sym_GL_LINE_STRIP"
+  "Scm_MakeInteger(GL_LINE_STRIP)")
+(define-symbol |GL_LINE_LOOP| "sym_GL_LINE_LOOP"
+  "Scm_MakeInteger(GL_LINE_LOOP)")
+(define-symbol |GL_TRIANGLES| "sym_GL_TRIANGLES"
+  "Scm_MakeInteger(GL_TRIANGLES)")
+(define-symbol |GL_TRIANGLE_STRIP| "sym_GL_TRIANGLE_STRIP"
+  "Scm_MakeInteger(GL_TRIANGLE_STRIP)")
+(define-symbol |GL_TRIANGLE_FAN| "sym_GL_TRIANGLE_FAN"
+  "Scm_MakeInteger(GL_TRIANGLE_FAN)")
+(define-symbol |GL_QUADS| "sym_GL_QUADS"
+  "Scm_MakeInteger(GL_QUADS)")
+(define-symbol |GL_QUAD_STRIP| "sym_GL_QUAD_STRIP"
+  "Scm_MakeInteger(GL_QUAD_STRIP)")
+(define-symbol |GL_POLYGON| "sym_GL_POLYGON"
+  "Scm_MakeInteger(GL_POLYGON)")
+(define-symbol |GL_EDGE_FLAG| "sym_GL_EDGE_FLAG"
+  "Scm_MakeInteger(GL_EDGE_FLAG)")
+(define-symbol |GL_VERTEX_ARRAY| "sym_GL_VERTEX_ARRAY"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY)")
+(define-symbol |GL_NORMAL_ARRAY| "sym_GL_NORMAL_ARRAY"
+  "Scm_MakeInteger(GL_NORMAL_ARRAY)")
+(define-symbol |GL_COLOR_ARRAY| "sym_GL_COLOR_ARRAY"
+  "Scm_MakeInteger(GL_COLOR_ARRAY)")
+(define-symbol |GL_INDEX_ARRAY| "sym_GL_INDEX_ARRAY"
+  "Scm_MakeInteger(GL_INDEX_ARRAY)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY| "sym_GL_TEXTURE_COORD_ARRAY"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY)")
+(define-symbol |GL_EDGE_FLAG_ARRAY| "sym_GL_EDGE_FLAG_ARRAY"
+  "Scm_MakeInteger(GL_EDGE_FLAG_ARRAY)")
+(define-symbol |GL_VERTEX_ARRAY_SIZE| "sym_GL_VERTEX_ARRAY_SIZE"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_SIZE)")
+(define-symbol |GL_VERTEX_ARRAY_TYPE| "sym_GL_VERTEX_ARRAY_TYPE"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_TYPE)")
+(define-symbol |GL_VERTEX_ARRAY_STRIDE| "sym_GL_VERTEX_ARRAY_STRIDE"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_STRIDE)")
+(define-symbol |GL_NORMAL_ARRAY_TYPE| "sym_GL_NORMAL_ARRAY_TYPE"
+  "Scm_MakeInteger(GL_NORMAL_ARRAY_TYPE)")
+(define-symbol |GL_NORMAL_ARRAY_STRIDE| "sym_GL_NORMAL_ARRAY_STRIDE"
+  "Scm_MakeInteger(GL_NORMAL_ARRAY_STRIDE)")
+(define-symbol |GL_COLOR_ARRAY_SIZE| "sym_GL_COLOR_ARRAY_SIZE"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_SIZE)")
+(define-symbol |GL_COLOR_ARRAY_TYPE| "sym_GL_COLOR_ARRAY_TYPE"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_TYPE)")
+(define-symbol |GL_COLOR_ARRAY_STRIDE| "sym_GL_COLOR_ARRAY_STRIDE"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_STRIDE)")
+(define-symbol |GL_INDEX_ARRAY_TYPE| "sym_GL_INDEX_ARRAY_TYPE"
+  "Scm_MakeInteger(GL_INDEX_ARRAY_TYPE)")
+(define-symbol |GL_INDEX_ARRAY_STRIDE| "sym_GL_INDEX_ARRAY_STRIDE"
+  "Scm_MakeInteger(GL_INDEX_ARRAY_STRIDE)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_SIZE| "sym_GL_TEXTURE_COORD_ARRAY_SIZE"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_SIZE)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_TYPE| "sym_GL_TEXTURE_COORD_ARRAY_TYPE"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_TYPE)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_STRIDE| "sym_GL_TEXTURE_COORD_ARRAY_STRIDE"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_STRIDE)")
+(define-symbol |GL_EDGE_FLAG_ARRAY_STRIDE| "sym_GL_EDGE_FLAG_ARRAY_STRIDE"
+  "Scm_MakeInteger(GL_EDGE_FLAG_ARRAY_STRIDE)")
+(define-symbol |GL_VERTEX_ARRAY_POINTER| "sym_GL_VERTEX_ARRAY_POINTER"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_POINTER)")
+(define-symbol |GL_NORMAL_ARRAY_POINTER| "sym_GL_NORMAL_ARRAY_POINTER"
+  "Scm_MakeInteger(GL_NORMAL_ARRAY_POINTER)")
+(define-symbol |GL_COLOR_ARRAY_POINTER| "sym_GL_COLOR_ARRAY_POINTER"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_POINTER)")
+(define-symbol |GL_INDEX_ARRAY_POINTER| "sym_GL_INDEX_ARRAY_POINTER"
+  "Scm_MakeInteger(GL_INDEX_ARRAY_POINTER)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_POINTER| "sym_GL_TEXTURE_COORD_ARRAY_POINTER"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_POINTER)")
+(define-symbol |GL_EDGE_FLAG_ARRAY_POINTER| "sym_GL_EDGE_FLAG_ARRAY_POINTER"
+  "Scm_MakeInteger(GL_EDGE_FLAG_ARRAY_POINTER)")
+(define-symbol |GL_V2F| "sym_GL_V2F"
+  "Scm_MakeInteger(GL_V2F)")
+(define-symbol |GL_V3F| "sym_GL_V3F"
+  "Scm_MakeInteger(GL_V3F)")
+(define-symbol |GL_C4UB_V2F| "sym_GL_C4UB_V2F"
+  "Scm_MakeInteger(GL_C4UB_V2F)")
+(define-symbol |GL_C4UB_V3F| "sym_GL_C4UB_V3F"
+  "Scm_MakeInteger(GL_C4UB_V3F)")
+(define-symbol |GL_C3F_V3F| "sym_GL_C3F_V3F"
+  "Scm_MakeInteger(GL_C3F_V3F)")
+(define-symbol |GL_N3F_V3F| "sym_GL_N3F_V3F"
+  "Scm_MakeInteger(GL_N3F_V3F)")
+(define-symbol |GL_C4F_N3F_V3F| "sym_GL_C4F_N3F_V3F"
+  "Scm_MakeInteger(GL_C4F_N3F_V3F)")
+(define-symbol |GL_T2F_V3F| "sym_GL_T2F_V3F"
+  "Scm_MakeInteger(GL_T2F_V3F)")
+(define-symbol |GL_T4F_V4F| "sym_GL_T4F_V4F"
+  "Scm_MakeInteger(GL_T4F_V4F)")
+(define-symbol |GL_T2F_C4UB_V3F| "sym_GL_T2F_C4UB_V3F"
+  "Scm_MakeInteger(GL_T2F_C4UB_V3F)")
+(define-symbol |GL_T2F_C3F_V3F| "sym_GL_T2F_C3F_V3F"
+  "Scm_MakeInteger(GL_T2F_C3F_V3F)")
+(define-symbol |GL_T2F_N3F_V3F| "sym_GL_T2F_N3F_V3F"
+  "Scm_MakeInteger(GL_T2F_N3F_V3F)")
+(define-symbol |GL_T2F_C4F_N3F_V3F| "sym_GL_T2F_C4F_N3F_V3F"
+  "Scm_MakeInteger(GL_T2F_C4F_N3F_V3F)")
+(define-symbol |GL_T4F_C4F_N3F_V4F| "sym_GL_T4F_C4F_N3F_V4F"
+  "Scm_MakeInteger(GL_T4F_C4F_N3F_V4F)")
+(define-symbol |GL_MATRIX_MODE| "sym_GL_MATRIX_MODE"
+  "Scm_MakeInteger(GL_MATRIX_MODE)")
+(define-symbol |GL_MODELVIEW| "sym_GL_MODELVIEW"
+  "Scm_MakeInteger(GL_MODELVIEW)")
+(define-symbol |GL_PROJECTION| "sym_GL_PROJECTION"
+  "Scm_MakeInteger(GL_PROJECTION)")
+(define-symbol |GL_TEXTURE| "sym_GL_TEXTURE"
+  "Scm_MakeInteger(GL_TEXTURE)")
+(define-symbol |GL_POINT_SMOOTH| "sym_GL_POINT_SMOOTH"
+  "Scm_MakeInteger(GL_POINT_SMOOTH)")
+(define-symbol |GL_POINT_SIZE| "sym_GL_POINT_SIZE"
+  "Scm_MakeInteger(GL_POINT_SIZE)")
+(define-symbol |GL_POINT_SIZE_GRANULARITY| "sym_GL_POINT_SIZE_GRANULARITY"
+  "Scm_MakeInteger(GL_POINT_SIZE_GRANULARITY)")
+(define-symbol |GL_POINT_SIZE_RANGE| "sym_GL_POINT_SIZE_RANGE"
+  "Scm_MakeInteger(GL_POINT_SIZE_RANGE)")
+(define-symbol |GL_LINE_SMOOTH| "sym_GL_LINE_SMOOTH"
+  "Scm_MakeInteger(GL_LINE_SMOOTH)")
+(define-symbol |GL_LINE_STIPPLE| "sym_GL_LINE_STIPPLE"
+  "Scm_MakeInteger(GL_LINE_STIPPLE)")
+(define-symbol |GL_LINE_STIPPLE_PATTERN| "sym_GL_LINE_STIPPLE_PATTERN"
+  "Scm_MakeInteger(GL_LINE_STIPPLE_PATTERN)")
+(define-symbol |GL_LINE_STIPPLE_REPEAT| "sym_GL_LINE_STIPPLE_REPEAT"
+  "Scm_MakeInteger(GL_LINE_STIPPLE_REPEAT)")
+(define-symbol |GL_LINE_WIDTH| "sym_GL_LINE_WIDTH"
+  "Scm_MakeInteger(GL_LINE_WIDTH)")
+(define-symbol |GL_LINE_WIDTH_GRANULARITY| "sym_GL_LINE_WIDTH_GRANULARITY"
+  "Scm_MakeInteger(GL_LINE_WIDTH_GRANULARITY)")
+(define-symbol |GL_LINE_WIDTH_RANGE| "sym_GL_LINE_WIDTH_RANGE"
+  "Scm_MakeInteger(GL_LINE_WIDTH_RANGE)")
+(define-symbol |GL_POINT| "sym_GL_POINT"
+  "Scm_MakeInteger(GL_POINT)")
+(define-symbol |GL_LINE| "sym_GL_LINE"
+  "Scm_MakeInteger(GL_LINE)")
+(define-symbol |GL_FILL| "sym_GL_FILL"
+  "Scm_MakeInteger(GL_FILL)")
+(define-symbol |GL_CCW| "sym_GL_CCW"
+  "Scm_MakeInteger(GL_CCW)")
+(define-symbol |GL_CW| "sym_GL_CW"
+  "Scm_MakeInteger(GL_CW)")
+(define-symbol |GL_FRONT| "sym_GL_FRONT"
+  "Scm_MakeInteger(GL_FRONT)")
+(define-symbol |GL_BACK| "sym_GL_BACK"
+  "Scm_MakeInteger(GL_BACK)")
+(define-symbol |GL_CULL_FACE| "sym_GL_CULL_FACE"
+  "Scm_MakeInteger(GL_CULL_FACE)")
+(define-symbol |GL_CULL_FACE_MODE| "sym_GL_CULL_FACE_MODE"
+  "Scm_MakeInteger(GL_CULL_FACE_MODE)")
+(define-symbol |GL_POLYGON_SMOOTH| "sym_GL_POLYGON_SMOOTH"
+  "Scm_MakeInteger(GL_POLYGON_SMOOTH)")
+(define-symbol |GL_POLYGON_STIPPLE| "sym_GL_POLYGON_STIPPLE"
+  "Scm_MakeInteger(GL_POLYGON_STIPPLE)")
+(define-symbol |GL_FRONT_FACE| "sym_GL_FRONT_FACE"
+  "Scm_MakeInteger(GL_FRONT_FACE)")
+(define-symbol |GL_POLYGON_MODE| "sym_GL_POLYGON_MODE"
+  "Scm_MakeInteger(GL_POLYGON_MODE)")
+(define-symbol |GL_POLYGON_OFFSET_FACTOR| "sym_GL_POLYGON_OFFSET_FACTOR"
+  "Scm_MakeInteger(GL_POLYGON_OFFSET_FACTOR)")
+(define-symbol |GL_POLYGON_OFFSET_UNITS| "sym_GL_POLYGON_OFFSET_UNITS"
+  "Scm_MakeInteger(GL_POLYGON_OFFSET_UNITS)")
+(define-symbol |GL_POLYGON_OFFSET_POINT| "sym_GL_POLYGON_OFFSET_POINT"
+  "Scm_MakeInteger(GL_POLYGON_OFFSET_POINT)")
+(define-symbol |GL_POLYGON_OFFSET_LINE| "sym_GL_POLYGON_OFFSET_LINE"
+  "Scm_MakeInteger(GL_POLYGON_OFFSET_LINE)")
+(define-symbol |GL_POLYGON_OFFSET_FILL| "sym_GL_POLYGON_OFFSET_FILL"
+  "Scm_MakeInteger(GL_POLYGON_OFFSET_FILL)")
+(define-symbol |GL_COMPILE| "sym_GL_COMPILE"
+  "Scm_MakeInteger(GL_COMPILE)")
+(define-symbol |GL_COMPILE_AND_EXECUTE| "sym_GL_COMPILE_AND_EXECUTE"
+  "Scm_MakeInteger(GL_COMPILE_AND_EXECUTE)")
+(define-symbol |GL_LIST_BASE| "sym_GL_LIST_BASE"
+  "Scm_MakeInteger(GL_LIST_BASE)")
+(define-symbol |GL_LIST_INDEX| "sym_GL_LIST_INDEX"
+  "Scm_MakeInteger(GL_LIST_INDEX)")
+(define-symbol |GL_LIST_MODE| "sym_GL_LIST_MODE"
+  "Scm_MakeInteger(GL_LIST_MODE)")
+(define-symbol |GL_NEVER| "sym_GL_NEVER"
+  "Scm_MakeInteger(GL_NEVER)")
+(define-symbol |GL_LESS| "sym_GL_LESS"
+  "Scm_MakeInteger(GL_LESS)")
+(define-symbol |GL_GEQUAL| "sym_GL_GEQUAL"
+  "Scm_MakeInteger(GL_GEQUAL)")
+(define-symbol |GL_LEQUAL| "sym_GL_LEQUAL"
+  "Scm_MakeInteger(GL_LEQUAL)")
+(define-symbol |GL_GREATER| "sym_GL_GREATER"
+  "Scm_MakeInteger(GL_GREATER)")
+(define-symbol |GL_NOTEQUAL| "sym_GL_NOTEQUAL"
+  "Scm_MakeInteger(GL_NOTEQUAL)")
+(define-symbol |GL_EQUAL| "sym_GL_EQUAL"
+  "Scm_MakeInteger(GL_EQUAL)")
+(define-symbol |GL_ALWAYS| "sym_GL_ALWAYS"
+  "Scm_MakeInteger(GL_ALWAYS)")
+(define-symbol |GL_DEPTH_TEST| "sym_GL_DEPTH_TEST"
+  "Scm_MakeInteger(GL_DEPTH_TEST)")
+(define-symbol |GL_DEPTH_BITS| "sym_GL_DEPTH_BITS"
+  "Scm_MakeInteger(GL_DEPTH_BITS)")
+(define-symbol |GL_DEPTH_CLEAR_VALUE| "sym_GL_DEPTH_CLEAR_VALUE"
+  "Scm_MakeInteger(GL_DEPTH_CLEAR_VALUE)")
+(define-symbol |GL_DEPTH_FUNC| "sym_GL_DEPTH_FUNC"
+  "Scm_MakeInteger(GL_DEPTH_FUNC)")
+(define-symbol |GL_DEPTH_RANGE| "sym_GL_DEPTH_RANGE"
+  "Scm_MakeInteger(GL_DEPTH_RANGE)")
+(define-symbol |GL_DEPTH_WRITEMASK| "sym_GL_DEPTH_WRITEMASK"
+  "Scm_MakeInteger(GL_DEPTH_WRITEMASK)")
+(define-symbol |GL_DEPTH_COMPONENT| "sym_GL_DEPTH_COMPONENT"
+  "Scm_MakeInteger(GL_DEPTH_COMPONENT)")
+(define-symbol |GL_LIGHTING| "sym_GL_LIGHTING"
+  "Scm_MakeInteger(GL_LIGHTING)")
+(define-symbol |GL_LIGHT0| "sym_GL_LIGHT0"
+  "Scm_MakeInteger(GL_LIGHT0)")
+(define-symbol |GL_LIGHT1| "sym_GL_LIGHT1"
+  "Scm_MakeInteger(GL_LIGHT1)")
+(define-symbol |GL_LIGHT2| "sym_GL_LIGHT2"
+  "Scm_MakeInteger(GL_LIGHT2)")
+(define-symbol |GL_LIGHT3| "sym_GL_LIGHT3"
+  "Scm_MakeInteger(GL_LIGHT3)")
+(define-symbol |GL_LIGHT4| "sym_GL_LIGHT4"
+  "Scm_MakeInteger(GL_LIGHT4)")
+(define-symbol |GL_LIGHT5| "sym_GL_LIGHT5"
+  "Scm_MakeInteger(GL_LIGHT5)")
+(define-symbol |GL_LIGHT6| "sym_GL_LIGHT6"
+  "Scm_MakeInteger(GL_LIGHT6)")
+(define-symbol |GL_LIGHT7| "sym_GL_LIGHT7"
+  "Scm_MakeInteger(GL_LIGHT7)")
+(define-symbol |GL_SPOT_EXPONENT| "sym_GL_SPOT_EXPONENT"
+  "Scm_MakeInteger(GL_SPOT_EXPONENT)")
+(define-symbol |GL_SPOT_CUTOFF| "sym_GL_SPOT_CUTOFF"
+  "Scm_MakeInteger(GL_SPOT_CUTOFF)")
+(define-symbol |GL_CONSTANT_ATTENUATION| "sym_GL_CONSTANT_ATTENUATION"
+  "Scm_MakeInteger(GL_CONSTANT_ATTENUATION)")
+(define-symbol |GL_LINEAR_ATTENUATION| "sym_GL_LINEAR_ATTENUATION"
+  "Scm_MakeInteger(GL_LINEAR_ATTENUATION)")
+(define-symbol |GL_QUADRATIC_ATTENUATION| "sym_GL_QUADRATIC_ATTENUATION"
+  "Scm_MakeInteger(GL_QUADRATIC_ATTENUATION)")
+(define-symbol |GL_AMBIENT| "sym_GL_AMBIENT"
+  "Scm_MakeInteger(GL_AMBIENT)")
+(define-symbol |GL_DIFFUSE| "sym_GL_DIFFUSE"
+  "Scm_MakeInteger(GL_DIFFUSE)")
+(define-symbol |GL_SPECULAR| "sym_GL_SPECULAR"
+  "Scm_MakeInteger(GL_SPECULAR)")
+(define-symbol |GL_SHININESS| "sym_GL_SHININESS"
+  "Scm_MakeInteger(GL_SHININESS)")
+(define-symbol |GL_EMISSION| "sym_GL_EMISSION"
+  "Scm_MakeInteger(GL_EMISSION)")
+(define-symbol |GL_POSITION| "sym_GL_POSITION"
+  "Scm_MakeInteger(GL_POSITION)")
+(define-symbol |GL_SPOT_DIRECTION| "sym_GL_SPOT_DIRECTION"
+  "Scm_MakeInteger(GL_SPOT_DIRECTION)")
+(define-symbol |GL_AMBIENT_AND_DIFFUSE| "sym_GL_AMBIENT_AND_DIFFUSE"
+  "Scm_MakeInteger(GL_AMBIENT_AND_DIFFUSE)")
+(define-symbol |GL_COLOR_INDEXES| "sym_GL_COLOR_INDEXES"
+  "Scm_MakeInteger(GL_COLOR_INDEXES)")
+(define-symbol |GL_LIGHT_MODEL_TWO_SIDE| "sym_GL_LIGHT_MODEL_TWO_SIDE"
+  "Scm_MakeInteger(GL_LIGHT_MODEL_TWO_SIDE)")
+(define-symbol |GL_LIGHT_MODEL_LOCAL_VIEWER| "sym_GL_LIGHT_MODEL_LOCAL_VIEWER"
+  "Scm_MakeInteger(GL_LIGHT_MODEL_LOCAL_VIEWER)")
+(define-symbol |GL_LIGHT_MODEL_AMBIENT| "sym_GL_LIGHT_MODEL_AMBIENT"
+  "Scm_MakeInteger(GL_LIGHT_MODEL_AMBIENT)")
+(define-symbol |GL_FRONT_AND_BACK| "sym_GL_FRONT_AND_BACK"
+  "Scm_MakeInteger(GL_FRONT_AND_BACK)")
+(define-symbol |GL_SHADE_MODEL| "sym_GL_SHADE_MODEL"
+  "Scm_MakeInteger(GL_SHADE_MODEL)")
+(define-symbol |GL_FLAT| "sym_GL_FLAT"
+  "Scm_MakeInteger(GL_FLAT)")
+(define-symbol |GL_SMOOTH| "sym_GL_SMOOTH"
+  "Scm_MakeInteger(GL_SMOOTH)")
+(define-symbol |GL_COLOR_MATERIAL| "sym_GL_COLOR_MATERIAL"
+  "Scm_MakeInteger(GL_COLOR_MATERIAL)")
+(define-symbol |GL_COLOR_MATERIAL_FACE| "sym_GL_COLOR_MATERIAL_FACE"
+  "Scm_MakeInteger(GL_COLOR_MATERIAL_FACE)")
+(define-symbol |GL_COLOR_MATERIAL_PARAMETER| "sym_GL_COLOR_MATERIAL_PARAMETER"
+  "Scm_MakeInteger(GL_COLOR_MATERIAL_PARAMETER)")
+(define-symbol |GL_NORMALIZE| "sym_GL_NORMALIZE"
+  "Scm_MakeInteger(GL_NORMALIZE)")
+(define-symbol |GL_CLIP_PLANE0| "sym_GL_CLIP_PLANE0"
+  "Scm_MakeInteger(GL_CLIP_PLANE0)")
+(define-symbol |GL_CLIP_PLANE1| "sym_GL_CLIP_PLANE1"
+  "Scm_MakeInteger(GL_CLIP_PLANE1)")
+(define-symbol |GL_CLIP_PLANE2| "sym_GL_CLIP_PLANE2"
+  "Scm_MakeInteger(GL_CLIP_PLANE2)")
+(define-symbol |GL_CLIP_PLANE3| "sym_GL_CLIP_PLANE3"
+  "Scm_MakeInteger(GL_CLIP_PLANE3)")
+(define-symbol |GL_CLIP_PLANE4| "sym_GL_CLIP_PLANE4"
+  "Scm_MakeInteger(GL_CLIP_PLANE4)")
+(define-symbol |GL_CLIP_PLANE5| "sym_GL_CLIP_PLANE5"
+  "Scm_MakeInteger(GL_CLIP_PLANE5)")
+(define-symbol |GL_ACCUM_RED_BITS| "sym_GL_ACCUM_RED_BITS"
+  "Scm_MakeInteger(GL_ACCUM_RED_BITS)")
+(define-symbol |GL_ACCUM_GREEN_BITS| "sym_GL_ACCUM_GREEN_BITS"
+  "Scm_MakeInteger(GL_ACCUM_GREEN_BITS)")
+(define-symbol |GL_ACCUM_BLUE_BITS| "sym_GL_ACCUM_BLUE_BITS"
+  "Scm_MakeInteger(GL_ACCUM_BLUE_BITS)")
+(define-symbol |GL_ACCUM_ALPHA_BITS| "sym_GL_ACCUM_ALPHA_BITS"
+  "Scm_MakeInteger(GL_ACCUM_ALPHA_BITS)")
+(define-symbol |GL_ACCUM_CLEAR_VALUE| "sym_GL_ACCUM_CLEAR_VALUE"
+  "Scm_MakeInteger(GL_ACCUM_CLEAR_VALUE)")
+(define-symbol |GL_ACCUM| "sym_GL_ACCUM"
+  "Scm_MakeInteger(GL_ACCUM)")
+(define-symbol |GL_ADD| "sym_GL_ADD"
+  "Scm_MakeInteger(GL_ADD)")
+(define-symbol |GL_LOAD| "sym_GL_LOAD"
+  "Scm_MakeInteger(GL_LOAD)")
+(define-symbol |GL_MULT| "sym_GL_MULT"
+  "Scm_MakeInteger(GL_MULT)")
+(define-symbol |GL_RETURN| "sym_GL_RETURN"
+  "Scm_MakeInteger(GL_RETURN)")
+(define-symbol |GL_ALPHA_TEST| "sym_GL_ALPHA_TEST"
+  "Scm_MakeInteger(GL_ALPHA_TEST)")
+(define-symbol |GL_ALPHA_TEST_REF| "sym_GL_ALPHA_TEST_REF"
+  "Scm_MakeInteger(GL_ALPHA_TEST_REF)")
+(define-symbol |GL_ALPHA_TEST_FUNC| "sym_GL_ALPHA_TEST_FUNC"
+  "Scm_MakeInteger(GL_ALPHA_TEST_FUNC)")
+(define-symbol |GL_BLEND| "sym_GL_BLEND"
+  "Scm_MakeInteger(GL_BLEND)")
+(define-symbol |GL_BLEND_SRC| "sym_GL_BLEND_SRC"
+  "Scm_MakeInteger(GL_BLEND_SRC)")
+(define-symbol |GL_BLEND_DST| "sym_GL_BLEND_DST"
+  "Scm_MakeInteger(GL_BLEND_DST)")
+(define-symbol |GL_ZERO| "sym_GL_ZERO"
+  "Scm_MakeInteger(GL_ZERO)")
+(define-symbol |GL_ONE| "sym_GL_ONE"
+  "Scm_MakeInteger(GL_ONE)")
+(define-symbol |GL_SRC_COLOR| "sym_GL_SRC_COLOR"
+  "Scm_MakeInteger(GL_SRC_COLOR)")
+(define-symbol |GL_ONE_MINUS_SRC_COLOR| "sym_GL_ONE_MINUS_SRC_COLOR"
+  "Scm_MakeInteger(GL_ONE_MINUS_SRC_COLOR)")
+(define-symbol |GL_DST_COLOR| "sym_GL_DST_COLOR"
+  "Scm_MakeInteger(GL_DST_COLOR)")
+(define-symbol |GL_ONE_MINUS_DST_COLOR| "sym_GL_ONE_MINUS_DST_COLOR"
+  "Scm_MakeInteger(GL_ONE_MINUS_DST_COLOR)")
+(define-symbol |GL_SRC_ALPHA| "sym_GL_SRC_ALPHA"
+  "Scm_MakeInteger(GL_SRC_ALPHA)")
+(define-symbol |GL_ONE_MINUS_SRC_ALPHA| "sym_GL_ONE_MINUS_SRC_ALPHA"
+  "Scm_MakeInteger(GL_ONE_MINUS_SRC_ALPHA)")
+(define-symbol |GL_DST_ALPHA| "sym_GL_DST_ALPHA"
+  "Scm_MakeInteger(GL_DST_ALPHA)")
+(define-symbol |GL_ONE_MINUS_DST_ALPHA| "sym_GL_ONE_MINUS_DST_ALPHA"
+  "Scm_MakeInteger(GL_ONE_MINUS_DST_ALPHA)")
+(define-symbol |GL_SRC_ALPHA_SATURATE| "sym_GL_SRC_ALPHA_SATURATE"
+  "Scm_MakeInteger(GL_SRC_ALPHA_SATURATE)")
+(define-symbol |GL_CONSTANT_COLOR| "sym_GL_CONSTANT_COLOR"
+  "Scm_MakeInteger(GL_CONSTANT_COLOR)")
+(define-symbol |GL_ONE_MINUS_CONSTANT_COLOR| "sym_GL_ONE_MINUS_CONSTANT_COLOR"
+  "Scm_MakeInteger(GL_ONE_MINUS_CONSTANT_COLOR)")
+(define-symbol |GL_CONSTANT_ALPHA| "sym_GL_CONSTANT_ALPHA"
+  "Scm_MakeInteger(GL_CONSTANT_ALPHA)")
+(define-symbol |GL_ONE_MINUS_CONSTANT_ALPHA| "sym_GL_ONE_MINUS_CONSTANT_ALPHA"
+  "Scm_MakeInteger(GL_ONE_MINUS_CONSTANT_ALPHA)")
+(define-symbol |GL_FEEDBACK| "sym_GL_FEEDBACK"
+  "Scm_MakeInteger(GL_FEEDBACK)")
+(define-symbol |GL_RENDER| "sym_GL_RENDER"
+  "Scm_MakeInteger(GL_RENDER)")
+(define-symbol |GL_SELECT| "sym_GL_SELECT"
+  "Scm_MakeInteger(GL_SELECT)")
+(define-symbol |GL_2D| "sym_GL_2D"
+  "Scm_MakeInteger(GL_2D)")
+(define-symbol |GL_3D| "sym_GL_3D"
+  "Scm_MakeInteger(GL_3D)")
+(define-symbol |GL_3D_COLOR| "sym_GL_3D_COLOR"
+  "Scm_MakeInteger(GL_3D_COLOR)")
+(define-symbol |GL_3D_COLOR_TEXTURE| "sym_GL_3D_COLOR_TEXTURE"
+  "Scm_MakeInteger(GL_3D_COLOR_TEXTURE)")
+(define-symbol |GL_4D_COLOR_TEXTURE| "sym_GL_4D_COLOR_TEXTURE"
+  "Scm_MakeInteger(GL_4D_COLOR_TEXTURE)")
+(define-symbol |GL_POINT_TOKEN| "sym_GL_POINT_TOKEN"
+  "Scm_MakeInteger(GL_POINT_TOKEN)")
+(define-symbol |GL_LINE_TOKEN| "sym_GL_LINE_TOKEN"
+  "Scm_MakeInteger(GL_LINE_TOKEN)")
+(define-symbol |GL_LINE_RESET_TOKEN| "sym_GL_LINE_RESET_TOKEN"
+  "Scm_MakeInteger(GL_LINE_RESET_TOKEN)")
+(define-symbol |GL_POLYGON_TOKEN| "sym_GL_POLYGON_TOKEN"
+  "Scm_MakeInteger(GL_POLYGON_TOKEN)")
+(define-symbol |GL_BITMAP_TOKEN| "sym_GL_BITMAP_TOKEN"
+  "Scm_MakeInteger(GL_BITMAP_TOKEN)")
+(define-symbol |GL_DRAW_PIXEL_TOKEN| "sym_GL_DRAW_PIXEL_TOKEN"
+  "Scm_MakeInteger(GL_DRAW_PIXEL_TOKEN)")
+(define-symbol |GL_COPY_PIXEL_TOKEN| "sym_GL_COPY_PIXEL_TOKEN"
+  "Scm_MakeInteger(GL_COPY_PIXEL_TOKEN)")
+(define-symbol |GL_PASS_THROUGH_TOKEN| "sym_GL_PASS_THROUGH_TOKEN"
+  "Scm_MakeInteger(GL_PASS_THROUGH_TOKEN)")
+(define-symbol |GL_FEEDBACK_BUFFER_POINTER| "sym_GL_FEEDBACK_BUFFER_POINTER"
+  "Scm_MakeInteger(GL_FEEDBACK_BUFFER_POINTER)")
+(define-symbol |GL_FEEDBACK_BUFFER_SIZE| "sym_GL_FEEDBACK_BUFFER_SIZE"
+  "Scm_MakeInteger(GL_FEEDBACK_BUFFER_SIZE)")
+(define-symbol |GL_FEEDBACK_BUFFER_TYPE| "sym_GL_FEEDBACK_BUFFER_TYPE"
+  "Scm_MakeInteger(GL_FEEDBACK_BUFFER_TYPE)")
+(define-symbol |GL_SELECTION_BUFFER_POINTER| "sym_GL_SELECTION_BUFFER_POINTER"
+  "Scm_MakeInteger(GL_SELECTION_BUFFER_POINTER)")
+(define-symbol |GL_SELECTION_BUFFER_SIZE| "sym_GL_SELECTION_BUFFER_SIZE"
+  "Scm_MakeInteger(GL_SELECTION_BUFFER_SIZE)")
+(define-symbol |GL_FOG| "sym_GL_FOG"
+  "Scm_MakeInteger(GL_FOG)")
+(define-symbol |GL_FOG_MODE| "sym_GL_FOG_MODE"
+  "Scm_MakeInteger(GL_FOG_MODE)")
+(define-symbol |GL_FOG_DENSITY| "sym_GL_FOG_DENSITY"
+  "Scm_MakeInteger(GL_FOG_DENSITY)")
+(define-symbol |GL_FOG_COLOR| "sym_GL_FOG_COLOR"
+  "Scm_MakeInteger(GL_FOG_COLOR)")
+(define-symbol |GL_FOG_INDEX| "sym_GL_FOG_INDEX"
+  "Scm_MakeInteger(GL_FOG_INDEX)")
+(define-symbol |GL_FOG_START| "sym_GL_FOG_START"
+  "Scm_MakeInteger(GL_FOG_START)")
+(define-symbol |GL_FOG_END| "sym_GL_FOG_END"
+  "Scm_MakeInteger(GL_FOG_END)")
+(define-symbol |GL_LINEAR| "sym_GL_LINEAR"
+  "Scm_MakeInteger(GL_LINEAR)")
+(define-symbol |GL_EXP| "sym_GL_EXP"
+  "Scm_MakeInteger(GL_EXP)")
+(define-symbol |GL_EXP2| "sym_GL_EXP2"
+  "Scm_MakeInteger(GL_EXP2)")
+(define-symbol |GL_LOGIC_OP| "sym_GL_LOGIC_OP"
+  "Scm_MakeInteger(GL_LOGIC_OP)")
+(define-symbol |GL_INDEX_LOGIC_OP| "sym_GL_INDEX_LOGIC_OP"
+  "Scm_MakeInteger(GL_INDEX_LOGIC_OP)")
+(define-symbol |GL_COLOR_LOGIC_OP| "sym_GL_COLOR_LOGIC_OP"
+  "Scm_MakeInteger(GL_COLOR_LOGIC_OP)")
+(define-symbol |GL_LOGIC_OP_MODE| "sym_GL_LOGIC_OP_MODE"
+  "Scm_MakeInteger(GL_LOGIC_OP_MODE)")
+(define-symbol |GL_CLEAR| "sym_GL_CLEAR"
+  "Scm_MakeInteger(GL_CLEAR)")
+(define-symbol |GL_SET| "sym_GL_SET"
+  "Scm_MakeInteger(GL_SET)")
+(define-symbol |GL_COPY| "sym_GL_COPY"
+  "Scm_MakeInteger(GL_COPY)")
+(define-symbol |GL_COPY_INVERTED| "sym_GL_COPY_INVERTED"
+  "Scm_MakeInteger(GL_COPY_INVERTED)")
+(define-symbol |GL_NOOP| "sym_GL_NOOP"
+  "Scm_MakeInteger(GL_NOOP)")
+(define-symbol |GL_INVERT| "sym_GL_INVERT"
+  "Scm_MakeInteger(GL_INVERT)")
+(define-symbol |GL_AND| "sym_GL_AND"
+  "Scm_MakeInteger(GL_AND)")
+(define-symbol |GL_NAND| "sym_GL_NAND"
+  "Scm_MakeInteger(GL_NAND)")
+(define-symbol |GL_OR| "sym_GL_OR"
+  "Scm_MakeInteger(GL_OR)")
+(define-symbol |GL_NOR| "sym_GL_NOR"
+  "Scm_MakeInteger(GL_NOR)")
+(define-symbol |GL_XOR| "sym_GL_XOR"
+  "Scm_MakeInteger(GL_XOR)")
+(define-symbol |GL_EQUIV| "sym_GL_EQUIV"
+  "Scm_MakeInteger(GL_EQUIV)")
+(define-symbol |GL_AND_REVERSE| "sym_GL_AND_REVERSE"
+  "Scm_MakeInteger(GL_AND_REVERSE)")
+(define-symbol |GL_AND_INVERTED| "sym_GL_AND_INVERTED"
+  "Scm_MakeInteger(GL_AND_INVERTED)")
+(define-symbol |GL_OR_REVERSE| "sym_GL_OR_REVERSE"
+  "Scm_MakeInteger(GL_OR_REVERSE)")
+(define-symbol |GL_OR_INVERTED| "sym_GL_OR_INVERTED"
+  "Scm_MakeInteger(GL_OR_INVERTED)")
+(define-symbol |GL_STENCIL_TEST| "sym_GL_STENCIL_TEST"
+  "Scm_MakeInteger(GL_STENCIL_TEST)")
+(define-symbol |GL_STENCIL_WRITEMASK| "sym_GL_STENCIL_WRITEMASK"
+  "Scm_MakeInteger(GL_STENCIL_WRITEMASK)")
+(define-symbol |GL_STENCIL_BITS| "sym_GL_STENCIL_BITS"
+  "Scm_MakeInteger(GL_STENCIL_BITS)")
+(define-symbol |GL_STENCIL_FUNC| "sym_GL_STENCIL_FUNC"
+  "Scm_MakeInteger(GL_STENCIL_FUNC)")
+(define-symbol |GL_STENCIL_VALUE_MASK| "sym_GL_STENCIL_VALUE_MASK"
+  "Scm_MakeInteger(GL_STENCIL_VALUE_MASK)")
+(define-symbol |GL_STENCIL_REF| "sym_GL_STENCIL_REF"
+  "Scm_MakeInteger(GL_STENCIL_REF)")
+(define-symbol |GL_STENCIL_FAIL| "sym_GL_STENCIL_FAIL"
+  "Scm_MakeInteger(GL_STENCIL_FAIL)")
+(define-symbol |GL_STENCIL_PASS_DEPTH_PASS| "sym_GL_STENCIL_PASS_DEPTH_PASS"
+  "Scm_MakeInteger(GL_STENCIL_PASS_DEPTH_PASS)")
+(define-symbol |GL_STENCIL_PASS_DEPTH_FAIL| "sym_GL_STENCIL_PASS_DEPTH_FAIL"
+  "Scm_MakeInteger(GL_STENCIL_PASS_DEPTH_FAIL)")
+(define-symbol |GL_STENCIL_CLEAR_VALUE| "sym_GL_STENCIL_CLEAR_VALUE"
+  "Scm_MakeInteger(GL_STENCIL_CLEAR_VALUE)")
+(define-symbol |GL_STENCIL_INDEX| "sym_GL_STENCIL_INDEX"
+  "Scm_MakeInteger(GL_STENCIL_INDEX)")
+(define-symbol |GL_KEEP| "sym_GL_KEEP"
+  "Scm_MakeInteger(GL_KEEP)")
+(define-symbol |GL_REPLACE| "sym_GL_REPLACE"
+  "Scm_MakeInteger(GL_REPLACE)")
+(define-symbol |GL_INCR| "sym_GL_INCR"
+  "Scm_MakeInteger(GL_INCR)")
+(define-symbol |GL_DECR| "sym_GL_DECR"
+  "Scm_MakeInteger(GL_DECR)")
+(define-symbol |GL_NONE| "sym_GL_NONE"
+  "Scm_MakeInteger(GL_NONE)")
+(define-symbol |GL_LEFT| "sym_GL_LEFT"
+  "Scm_MakeInteger(GL_LEFT)")
+(define-symbol |GL_RIGHT| "sym_GL_RIGHT"
+  "Scm_MakeInteger(GL_RIGHT)")
+(define-symbol |GL_FRONT_LEFT| "sym_GL_FRONT_LEFT"
+  "Scm_MakeInteger(GL_FRONT_LEFT)")
+(define-symbol |GL_FRONT_RIGHT| "sym_GL_FRONT_RIGHT"
+  "Scm_MakeInteger(GL_FRONT_RIGHT)")
+(define-symbol |GL_BACK_LEFT| "sym_GL_BACK_LEFT"
+  "Scm_MakeInteger(GL_BACK_LEFT)")
+(define-symbol |GL_BACK_RIGHT| "sym_GL_BACK_RIGHT"
+  "Scm_MakeInteger(GL_BACK_RIGHT)")
+(define-symbol |GL_AUX0| "sym_GL_AUX0"
+  "Scm_MakeInteger(GL_AUX0)")
+(define-symbol |GL_AUX1| "sym_GL_AUX1"
+  "Scm_MakeInteger(GL_AUX1)")
+(define-symbol |GL_AUX2| "sym_GL_AUX2"
+  "Scm_MakeInteger(GL_AUX2)")
+(define-symbol |GL_AUX3| "sym_GL_AUX3"
+  "Scm_MakeInteger(GL_AUX3)")
+(define-symbol |GL_COLOR_INDEX| "sym_GL_COLOR_INDEX"
+  "Scm_MakeInteger(GL_COLOR_INDEX)")
+(define-symbol |GL_RED| "sym_GL_RED"
+  "Scm_MakeInteger(GL_RED)")
+(define-symbol |GL_GREEN| "sym_GL_GREEN"
+  "Scm_MakeInteger(GL_GREEN)")
+(define-symbol |GL_BLUE| "sym_GL_BLUE"
+  "Scm_MakeInteger(GL_BLUE)")
+(define-symbol |GL_ALPHA| "sym_GL_ALPHA"
+  "Scm_MakeInteger(GL_ALPHA)")
+(define-symbol |GL_LUMINANCE| "sym_GL_LUMINANCE"
+  "Scm_MakeInteger(GL_LUMINANCE)")
+(define-symbol |GL_LUMINANCE_ALPHA| "sym_GL_LUMINANCE_ALPHA"
+  "Scm_MakeInteger(GL_LUMINANCE_ALPHA)")
+(define-symbol |GL_ALPHA_BITS| "sym_GL_ALPHA_BITS"
+  "Scm_MakeInteger(GL_ALPHA_BITS)")
+(define-symbol |GL_RED_BITS| "sym_GL_RED_BITS"
+  "Scm_MakeInteger(GL_RED_BITS)")
+(define-symbol |GL_GREEN_BITS| "sym_GL_GREEN_BITS"
+  "Scm_MakeInteger(GL_GREEN_BITS)")
+(define-symbol |GL_BLUE_BITS| "sym_GL_BLUE_BITS"
+  "Scm_MakeInteger(GL_BLUE_BITS)")
+(define-symbol |GL_INDEX_BITS| "sym_GL_INDEX_BITS"
+  "Scm_MakeInteger(GL_INDEX_BITS)")
+(define-symbol |GL_SUBPIXEL_BITS| "sym_GL_SUBPIXEL_BITS"
+  "Scm_MakeInteger(GL_SUBPIXEL_BITS)")
+(define-symbol |GL_AUX_BUFFERS| "sym_GL_AUX_BUFFERS"
+  "Scm_MakeInteger(GL_AUX_BUFFERS)")
+(define-symbol |GL_READ_BUFFER| "sym_GL_READ_BUFFER"
+  "Scm_MakeInteger(GL_READ_BUFFER)")
+(define-symbol |GL_DRAW_BUFFER| "sym_GL_DRAW_BUFFER"
+  "Scm_MakeInteger(GL_DRAW_BUFFER)")
+(define-symbol |GL_DOUBLEBUFFER| "sym_GL_DOUBLEBUFFER"
+  "Scm_MakeInteger(GL_DOUBLEBUFFER)")
+(define-symbol |GL_STEREO| "sym_GL_STEREO"
+  "Scm_MakeInteger(GL_STEREO)")
+(define-symbol |GL_BITMAP| "sym_GL_BITMAP"
+  "Scm_MakeInteger(GL_BITMAP)")
+(define-symbol |GL_COLOR| "sym_GL_COLOR"
+  "Scm_MakeInteger(GL_COLOR)")
+(define-symbol |GL_DEPTH| "sym_GL_DEPTH"
+  "Scm_MakeInteger(GL_DEPTH)")
+(define-symbol |GL_STENCIL| "sym_GL_STENCIL"
+  "Scm_MakeInteger(GL_STENCIL)")
+(define-symbol |GL_DITHER| "sym_GL_DITHER"
+  "Scm_MakeInteger(GL_DITHER)")
+(define-symbol |GL_RGB| "sym_GL_RGB"
+  "Scm_MakeInteger(GL_RGB)")
+(define-symbol |GL_RGBA| "sym_GL_RGBA"
+  "Scm_MakeInteger(GL_RGBA)")
+(define-symbol |GL_MAX_LIST_NESTING| "sym_GL_MAX_LIST_NESTING"
+  "Scm_MakeInteger(GL_MAX_LIST_NESTING)")
+(define-symbol |GL_MAX_ATTRIB_STACK_DEPTH| "sym_GL_MAX_ATTRIB_STACK_DEPTH"
+  "Scm_MakeInteger(GL_MAX_ATTRIB_STACK_DEPTH)")
+(define-symbol |GL_MAX_MODELVIEW_STACK_DEPTH| "sym_GL_MAX_MODELVIEW_STACK_DEPTH"
+  "Scm_MakeInteger(GL_MAX_MODELVIEW_STACK_DEPTH)")
+(define-symbol |GL_MAX_NAME_STACK_DEPTH| "sym_GL_MAX_NAME_STACK_DEPTH"
+  "Scm_MakeInteger(GL_MAX_NAME_STACK_DEPTH)")
+(define-symbol |GL_MAX_PROJECTION_STACK_DEPTH| "sym_GL_MAX_PROJECTION_STACK_DEPTH"
+  "Scm_MakeInteger(GL_MAX_PROJECTION_STACK_DEPTH)")
+(define-symbol |GL_MAX_TEXTURE_STACK_DEPTH| "sym_GL_MAX_TEXTURE_STACK_DEPTH"
+  "Scm_MakeInteger(GL_MAX_TEXTURE_STACK_DEPTH)")
+(define-symbol |GL_MAX_EVAL_ORDER| "sym_GL_MAX_EVAL_ORDER"
+  "Scm_MakeInteger(GL_MAX_EVAL_ORDER)")
+(define-symbol |GL_MAX_LIGHTS| "sym_GL_MAX_LIGHTS"
+  "Scm_MakeInteger(GL_MAX_LIGHTS)")
+(define-symbol |GL_MAX_CLIP_PLANES| "sym_GL_MAX_CLIP_PLANES"
+  "Scm_MakeInteger(GL_MAX_CLIP_PLANES)")
+(define-symbol |GL_MAX_TEXTURE_SIZE| "sym_GL_MAX_TEXTURE_SIZE"
+  "Scm_MakeInteger(GL_MAX_TEXTURE_SIZE)")
+(define-symbol |GL_MAX_PIXEL_MAP_TABLE| "sym_GL_MAX_PIXEL_MAP_TABLE"
+  "Scm_MakeInteger(GL_MAX_PIXEL_MAP_TABLE)")
+(define-symbol |GL_MAX_VIEWPORT_DIMS| "sym_GL_MAX_VIEWPORT_DIMS"
+  "Scm_MakeInteger(GL_MAX_VIEWPORT_DIMS)")
+(define-symbol |GL_MAX_CLIENT_ATTRIB_STACK_DEPTH| "sym_GL_MAX_CLIENT_ATTRIB_STACK_DEPTH"
+  "Scm_MakeInteger(GL_MAX_CLIENT_ATTRIB_STACK_DEPTH)")
+(define-symbol |GL_ATTRIB_STACK_DEPTH| "sym_GL_ATTRIB_STACK_DEPTH"
+  "Scm_MakeInteger(GL_ATTRIB_STACK_DEPTH)")
+(define-symbol |GL_CLIENT_ATTRIB_STACK_DEPTH| "sym_GL_CLIENT_ATTRIB_STACK_DEPTH"
+  "Scm_MakeInteger(GL_CLIENT_ATTRIB_STACK_DEPTH)")
+(define-symbol |GL_COLOR_CLEAR_VALUE| "sym_GL_COLOR_CLEAR_VALUE"
+  "Scm_MakeInteger(GL_COLOR_CLEAR_VALUE)")
+(define-symbol |GL_COLOR_WRITEMASK| "sym_GL_COLOR_WRITEMASK"
+  "Scm_MakeInteger(GL_COLOR_WRITEMASK)")
+(define-symbol |GL_CURRENT_INDEX| "sym_GL_CURRENT_INDEX"
+  "Scm_MakeInteger(GL_CURRENT_INDEX)")
+(define-symbol |GL_CURRENT_COLOR| "sym_GL_CURRENT_COLOR"
+  "Scm_MakeInteger(GL_CURRENT_COLOR)")
+(define-symbol |GL_CURRENT_NORMAL| "sym_GL_CURRENT_NORMAL"
+  "Scm_MakeInteger(GL_CURRENT_NORMAL)")
+(define-symbol |GL_CURRENT_RASTER_COLOR| "sym_GL_CURRENT_RASTER_COLOR"
+  "Scm_MakeInteger(GL_CURRENT_RASTER_COLOR)")
+(define-symbol |GL_CURRENT_RASTER_DISTANCE| "sym_GL_CURRENT_RASTER_DISTANCE"
+  "Scm_MakeInteger(GL_CURRENT_RASTER_DISTANCE)")
+(define-symbol |GL_CURRENT_RASTER_INDEX| "sym_GL_CURRENT_RASTER_INDEX"
+  "Scm_MakeInteger(GL_CURRENT_RASTER_INDEX)")
+(define-symbol |GL_CURRENT_RASTER_POSITION| "sym_GL_CURRENT_RASTER_POSITION"
+  "Scm_MakeInteger(GL_CURRENT_RASTER_POSITION)")
+(define-symbol |GL_CURRENT_RASTER_TEXTURE_COORDS| "sym_GL_CURRENT_RASTER_TEXTURE_COORDS"
+  "Scm_MakeInteger(GL_CURRENT_RASTER_TEXTURE_COORDS)")
+(define-symbol |GL_CURRENT_RASTER_POSITION_VALID| "sym_GL_CURRENT_RASTER_POSITION_VALID"
+  "Scm_MakeInteger(GL_CURRENT_RASTER_POSITION_VALID)")
+(define-symbol |GL_CURRENT_TEXTURE_COORDS| "sym_GL_CURRENT_TEXTURE_COORDS"
+  "Scm_MakeInteger(GL_CURRENT_TEXTURE_COORDS)")
+(define-symbol |GL_INDEX_CLEAR_VALUE| "sym_GL_INDEX_CLEAR_VALUE"
+  "Scm_MakeInteger(GL_INDEX_CLEAR_VALUE)")
+(define-symbol |GL_INDEX_MODE| "sym_GL_INDEX_MODE"
+  "Scm_MakeInteger(GL_INDEX_MODE)")
+(define-symbol |GL_INDEX_WRITEMASK| "sym_GL_INDEX_WRITEMASK"
+  "Scm_MakeInteger(GL_INDEX_WRITEMASK)")
+(define-symbol |GL_MODELVIEW_MATRIX| "sym_GL_MODELVIEW_MATRIX"
+  "Scm_MakeInteger(GL_MODELVIEW_MATRIX)")
+(define-symbol |GL_MODELVIEW_STACK_DEPTH| "sym_GL_MODELVIEW_STACK_DEPTH"
+  "Scm_MakeInteger(GL_MODELVIEW_STACK_DEPTH)")
+(define-symbol |GL_NAME_STACK_DEPTH| "sym_GL_NAME_STACK_DEPTH"
+  "Scm_MakeInteger(GL_NAME_STACK_DEPTH)")
+(define-symbol |GL_PROJECTION_MATRIX| "sym_GL_PROJECTION_MATRIX"
+  "Scm_MakeInteger(GL_PROJECTION_MATRIX)")
+(define-symbol |GL_PROJECTION_STACK_DEPTH| "sym_GL_PROJECTION_STACK_DEPTH"
+  "Scm_MakeInteger(GL_PROJECTION_STACK_DEPTH)")
+(define-symbol |GL_RENDER_MODE| "sym_GL_RENDER_MODE"
+  "Scm_MakeInteger(GL_RENDER_MODE)")
+(define-symbol |GL_RGBA_MODE| "sym_GL_RGBA_MODE"
+  "Scm_MakeInteger(GL_RGBA_MODE)")
+(define-symbol |GL_TEXTURE_MATRIX| "sym_GL_TEXTURE_MATRIX"
+  "Scm_MakeInteger(GL_TEXTURE_MATRIX)")
+(define-symbol |GL_TEXTURE_STACK_DEPTH| "sym_GL_TEXTURE_STACK_DEPTH"
+  "Scm_MakeInteger(GL_TEXTURE_STACK_DEPTH)")
+(define-symbol |GL_VIEWPORT| "sym_GL_VIEWPORT"
+  "Scm_MakeInteger(GL_VIEWPORT)")
+(define-symbol |GL_AUTO_NORMAL| "sym_GL_AUTO_NORMAL"
+  "Scm_MakeInteger(GL_AUTO_NORMAL)")
+(define-symbol |GL_MAP1_COLOR_4| "sym_GL_MAP1_COLOR_4"
+  "Scm_MakeInteger(GL_MAP1_COLOR_4)")
+(define-symbol |GL_MAP1_GRID_DOMAIN| "sym_GL_MAP1_GRID_DOMAIN"
+  "Scm_MakeInteger(GL_MAP1_GRID_DOMAIN)")
+(define-symbol |GL_MAP1_GRID_SEGMENTS| "sym_GL_MAP1_GRID_SEGMENTS"
+  "Scm_MakeInteger(GL_MAP1_GRID_SEGMENTS)")
+(define-symbol |GL_MAP1_INDEX| "sym_GL_MAP1_INDEX"
+  "Scm_MakeInteger(GL_MAP1_INDEX)")
+(define-symbol |GL_MAP1_NORMAL| "sym_GL_MAP1_NORMAL"
+  "Scm_MakeInteger(GL_MAP1_NORMAL)")
+(define-symbol |GL_MAP1_TEXTURE_COORD_1| "sym_GL_MAP1_TEXTURE_COORD_1"
+  "Scm_MakeInteger(GL_MAP1_TEXTURE_COORD_1)")
+(define-symbol |GL_MAP1_TEXTURE_COORD_2| "sym_GL_MAP1_TEXTURE_COORD_2"
+  "Scm_MakeInteger(GL_MAP1_TEXTURE_COORD_2)")
+(define-symbol |GL_MAP1_TEXTURE_COORD_3| "sym_GL_MAP1_TEXTURE_COORD_3"
+  "Scm_MakeInteger(GL_MAP1_TEXTURE_COORD_3)")
+(define-symbol |GL_MAP1_TEXTURE_COORD_4| "sym_GL_MAP1_TEXTURE_COORD_4"
+  "Scm_MakeInteger(GL_MAP1_TEXTURE_COORD_4)")
+(define-symbol |GL_MAP1_VERTEX_3| "sym_GL_MAP1_VERTEX_3"
+  "Scm_MakeInteger(GL_MAP1_VERTEX_3)")
+(define-symbol |GL_MAP1_VERTEX_4| "sym_GL_MAP1_VERTEX_4"
+  "Scm_MakeInteger(GL_MAP1_VERTEX_4)")
+(define-symbol |GL_MAP2_COLOR_4| "sym_GL_MAP2_COLOR_4"
+  "Scm_MakeInteger(GL_MAP2_COLOR_4)")
+(define-symbol |GL_MAP2_GRID_DOMAIN| "sym_GL_MAP2_GRID_DOMAIN"
+  "Scm_MakeInteger(GL_MAP2_GRID_DOMAIN)")
+(define-symbol |GL_MAP2_GRID_SEGMENTS| "sym_GL_MAP2_GRID_SEGMENTS"
+  "Scm_MakeInteger(GL_MAP2_GRID_SEGMENTS)")
+(define-symbol |GL_MAP2_INDEX| "sym_GL_MAP2_INDEX"
+  "Scm_MakeInteger(GL_MAP2_INDEX)")
+(define-symbol |GL_MAP2_NORMAL| "sym_GL_MAP2_NORMAL"
+  "Scm_MakeInteger(GL_MAP2_NORMAL)")
+(define-symbol |GL_MAP2_TEXTURE_COORD_1| "sym_GL_MAP2_TEXTURE_COORD_1"
+  "Scm_MakeInteger(GL_MAP2_TEXTURE_COORD_1)")
+(define-symbol |GL_MAP2_TEXTURE_COORD_2| "sym_GL_MAP2_TEXTURE_COORD_2"
+  "Scm_MakeInteger(GL_MAP2_TEXTURE_COORD_2)")
+(define-symbol |GL_MAP2_TEXTURE_COORD_3| "sym_GL_MAP2_TEXTURE_COORD_3"
+  "Scm_MakeInteger(GL_MAP2_TEXTURE_COORD_3)")
+(define-symbol |GL_MAP2_TEXTURE_COORD_4| "sym_GL_MAP2_TEXTURE_COORD_4"
+  "Scm_MakeInteger(GL_MAP2_TEXTURE_COORD_4)")
+(define-symbol |GL_MAP2_VERTEX_3| "sym_GL_MAP2_VERTEX_3"
+  "Scm_MakeInteger(GL_MAP2_VERTEX_3)")
+(define-symbol |GL_MAP2_VERTEX_4| "sym_GL_MAP2_VERTEX_4"
+  "Scm_MakeInteger(GL_MAP2_VERTEX_4)")
+(define-symbol |GL_COEFF| "sym_GL_COEFF"
+  "Scm_MakeInteger(GL_COEFF)")
+(define-symbol |GL_DOMAIN| "sym_GL_DOMAIN"
+  "Scm_MakeInteger(GL_DOMAIN)")
+(define-symbol |GL_ORDER| "sym_GL_ORDER"
+  "Scm_MakeInteger(GL_ORDER)")
+(define-symbol |GL_FOG_HINT| "sym_GL_FOG_HINT"
+  "Scm_MakeInteger(GL_FOG_HINT)")
+(define-symbol |GL_LINE_SMOOTH_HINT| "sym_GL_LINE_SMOOTH_HINT"
+  "Scm_MakeInteger(GL_LINE_SMOOTH_HINT)")
+(define-symbol |GL_PERSPECTIVE_CORRECTION_HINT| "sym_GL_PERSPECTIVE_CORRECTION_HINT"
+  "Scm_MakeInteger(GL_PERSPECTIVE_CORRECTION_HINT)")
+(define-symbol |GL_POINT_SMOOTH_HINT| "sym_GL_POINT_SMOOTH_HINT"
+  "Scm_MakeInteger(GL_POINT_SMOOTH_HINT)")
+(define-symbol |GL_POLYGON_SMOOTH_HINT| "sym_GL_POLYGON_SMOOTH_HINT"
+  "Scm_MakeInteger(GL_POLYGON_SMOOTH_HINT)")
+(define-symbol |GL_DONT_CARE| "sym_GL_DONT_CARE"
+  "Scm_MakeInteger(GL_DONT_CARE)")
+(define-symbol |GL_FASTEST| "sym_GL_FASTEST"
+  "Scm_MakeInteger(GL_FASTEST)")
+(define-symbol |GL_NICEST| "sym_GL_NICEST"
+  "Scm_MakeInteger(GL_NICEST)")
+(define-symbol |GL_SCISSOR_TEST| "sym_GL_SCISSOR_TEST"
+  "Scm_MakeInteger(GL_SCISSOR_TEST)")
+(define-symbol |GL_SCISSOR_BOX| "sym_GL_SCISSOR_BOX"
+  "Scm_MakeInteger(GL_SCISSOR_BOX)")
+(define-symbol |GL_MAP_COLOR| "sym_GL_MAP_COLOR"
+  "Scm_MakeInteger(GL_MAP_COLOR)")
+(define-symbol |GL_MAP_STENCIL| "sym_GL_MAP_STENCIL"
+  "Scm_MakeInteger(GL_MAP_STENCIL)")
+(define-symbol |GL_INDEX_SHIFT| "sym_GL_INDEX_SHIFT"
+  "Scm_MakeInteger(GL_INDEX_SHIFT)")
+(define-symbol |GL_INDEX_OFFSET| "sym_GL_INDEX_OFFSET"
+  "Scm_MakeInteger(GL_INDEX_OFFSET)")
+(define-symbol |GL_RED_SCALE| "sym_GL_RED_SCALE"
+  "Scm_MakeInteger(GL_RED_SCALE)")
+(define-symbol |GL_RED_BIAS| "sym_GL_RED_BIAS"
+  "Scm_MakeInteger(GL_RED_BIAS)")
+(define-symbol |GL_GREEN_SCALE| "sym_GL_GREEN_SCALE"
+  "Scm_MakeInteger(GL_GREEN_SCALE)")
+(define-symbol |GL_GREEN_BIAS| "sym_GL_GREEN_BIAS"
+  "Scm_MakeInteger(GL_GREEN_BIAS)")
+(define-symbol |GL_BLUE_SCALE| "sym_GL_BLUE_SCALE"
+  "Scm_MakeInteger(GL_BLUE_SCALE)")
+(define-symbol |GL_BLUE_BIAS| "sym_GL_BLUE_BIAS"
+  "Scm_MakeInteger(GL_BLUE_BIAS)")
+(define-symbol |GL_ALPHA_SCALE| "sym_GL_ALPHA_SCALE"
+  "Scm_MakeInteger(GL_ALPHA_SCALE)")
+(define-symbol |GL_ALPHA_BIAS| "sym_GL_ALPHA_BIAS"
+  "Scm_MakeInteger(GL_ALPHA_BIAS)")
+(define-symbol |GL_DEPTH_SCALE| "sym_GL_DEPTH_SCALE"
+  "Scm_MakeInteger(GL_DEPTH_SCALE)")
+(define-symbol |GL_DEPTH_BIAS| "sym_GL_DEPTH_BIAS"
+  "Scm_MakeInteger(GL_DEPTH_BIAS)")
+(define-symbol |GL_PIXEL_MAP_S_TO_S_SIZE| "sym_GL_PIXEL_MAP_S_TO_S_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_S_TO_S_SIZE)")
+(define-symbol |GL_PIXEL_MAP_I_TO_I_SIZE| "sym_GL_PIXEL_MAP_I_TO_I_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_I_SIZE)")
+(define-symbol |GL_PIXEL_MAP_I_TO_R_SIZE| "sym_GL_PIXEL_MAP_I_TO_R_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_R_SIZE)")
+(define-symbol |GL_PIXEL_MAP_I_TO_G_SIZE| "sym_GL_PIXEL_MAP_I_TO_G_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_G_SIZE)")
+(define-symbol |GL_PIXEL_MAP_I_TO_B_SIZE| "sym_GL_PIXEL_MAP_I_TO_B_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_B_SIZE)")
+(define-symbol |GL_PIXEL_MAP_I_TO_A_SIZE| "sym_GL_PIXEL_MAP_I_TO_A_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_A_SIZE)")
+(define-symbol |GL_PIXEL_MAP_R_TO_R_SIZE| "sym_GL_PIXEL_MAP_R_TO_R_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_R_TO_R_SIZE)")
+(define-symbol |GL_PIXEL_MAP_G_TO_G_SIZE| "sym_GL_PIXEL_MAP_G_TO_G_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_G_TO_G_SIZE)")
+(define-symbol |GL_PIXEL_MAP_B_TO_B_SIZE| "sym_GL_PIXEL_MAP_B_TO_B_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_B_TO_B_SIZE)")
+(define-symbol |GL_PIXEL_MAP_A_TO_A_SIZE| "sym_GL_PIXEL_MAP_A_TO_A_SIZE"
+  "Scm_MakeInteger(GL_PIXEL_MAP_A_TO_A_SIZE)")
+(define-symbol |GL_PIXEL_MAP_S_TO_S| "sym_GL_PIXEL_MAP_S_TO_S"
+  "Scm_MakeInteger(GL_PIXEL_MAP_S_TO_S)")
+(define-symbol |GL_PIXEL_MAP_I_TO_I| "sym_GL_PIXEL_MAP_I_TO_I"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_I)")
+(define-symbol |GL_PIXEL_MAP_I_TO_R| "sym_GL_PIXEL_MAP_I_TO_R"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_R)")
+(define-symbol |GL_PIXEL_MAP_I_TO_G| "sym_GL_PIXEL_MAP_I_TO_G"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_G)")
+(define-symbol |GL_PIXEL_MAP_I_TO_B| "sym_GL_PIXEL_MAP_I_TO_B"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_B)")
+(define-symbol |GL_PIXEL_MAP_I_TO_A| "sym_GL_PIXEL_MAP_I_TO_A"
+  "Scm_MakeInteger(GL_PIXEL_MAP_I_TO_A)")
+(define-symbol |GL_PIXEL_MAP_R_TO_R| "sym_GL_PIXEL_MAP_R_TO_R"
+  "Scm_MakeInteger(GL_PIXEL_MAP_R_TO_R)")
+(define-symbol |GL_PIXEL_MAP_G_TO_G| "sym_GL_PIXEL_MAP_G_TO_G"
+  "Scm_MakeInteger(GL_PIXEL_MAP_G_TO_G)")
+(define-symbol |GL_PIXEL_MAP_B_TO_B| "sym_GL_PIXEL_MAP_B_TO_B"
+  "Scm_MakeInteger(GL_PIXEL_MAP_B_TO_B)")
+(define-symbol |GL_PIXEL_MAP_A_TO_A| "sym_GL_PIXEL_MAP_A_TO_A"
+  "Scm_MakeInteger(GL_PIXEL_MAP_A_TO_A)")
+(define-symbol |GL_PACK_ALIGNMENT| "sym_GL_PACK_ALIGNMENT"
+  "Scm_MakeInteger(GL_PACK_ALIGNMENT)")
+(define-symbol |GL_PACK_LSB_FIRST| "sym_GL_PACK_LSB_FIRST"
+  "Scm_MakeInteger(GL_PACK_LSB_FIRST)")
+(define-symbol |GL_PACK_ROW_LENGTH| "sym_GL_PACK_ROW_LENGTH"
+  "Scm_MakeInteger(GL_PACK_ROW_LENGTH)")
+(define-symbol |GL_PACK_SKIP_PIXELS| "sym_GL_PACK_SKIP_PIXELS"
+  "Scm_MakeInteger(GL_PACK_SKIP_PIXELS)")
+(define-symbol |GL_PACK_SKIP_ROWS| "sym_GL_PACK_SKIP_ROWS"
+  "Scm_MakeInteger(GL_PACK_SKIP_ROWS)")
+(define-symbol |GL_PACK_SWAP_BYTES| "sym_GL_PACK_SWAP_BYTES"
+  "Scm_MakeInteger(GL_PACK_SWAP_BYTES)")
+(define-symbol |GL_UNPACK_ALIGNMENT| "sym_GL_UNPACK_ALIGNMENT"
+  "Scm_MakeInteger(GL_UNPACK_ALIGNMENT)")
+(define-symbol |GL_UNPACK_LSB_FIRST| "sym_GL_UNPACK_LSB_FIRST"
+  "Scm_MakeInteger(GL_UNPACK_LSB_FIRST)")
+(define-symbol |GL_UNPACK_ROW_LENGTH| "sym_GL_UNPACK_ROW_LENGTH"
+  "Scm_MakeInteger(GL_UNPACK_ROW_LENGTH)")
+(define-symbol |GL_UNPACK_SKIP_PIXELS| "sym_GL_UNPACK_SKIP_PIXELS"
+  "Scm_MakeInteger(GL_UNPACK_SKIP_PIXELS)")
+(define-symbol |GL_UNPACK_SKIP_ROWS| "sym_GL_UNPACK_SKIP_ROWS"
+  "Scm_MakeInteger(GL_UNPACK_SKIP_ROWS)")
+(define-symbol |GL_UNPACK_SWAP_BYTES| "sym_GL_UNPACK_SWAP_BYTES"
+  "Scm_MakeInteger(GL_UNPACK_SWAP_BYTES)")
+(define-symbol |GL_ZOOM_X| "sym_GL_ZOOM_X"
+  "Scm_MakeInteger(GL_ZOOM_X)")
+(define-symbol |GL_ZOOM_Y| "sym_GL_ZOOM_Y"
+  "Scm_MakeInteger(GL_ZOOM_Y)")
+(define-symbol |GL_TEXTURE_ENV| "sym_GL_TEXTURE_ENV"
+  "Scm_MakeInteger(GL_TEXTURE_ENV)")
+(define-symbol |GL_TEXTURE_ENV_MODE| "sym_GL_TEXTURE_ENV_MODE"
+  "Scm_MakeInteger(GL_TEXTURE_ENV_MODE)")
+(define-symbol |GL_TEXTURE_1D| "sym_GL_TEXTURE_1D"
+  "Scm_MakeInteger(GL_TEXTURE_1D)")
+(define-symbol |GL_TEXTURE_2D| "sym_GL_TEXTURE_2D"
+  "Scm_MakeInteger(GL_TEXTURE_2D)")
+(define-symbol |GL_TEXTURE_WRAP_S| "sym_GL_TEXTURE_WRAP_S"
+  "Scm_MakeInteger(GL_TEXTURE_WRAP_S)")
+(define-symbol |GL_TEXTURE_WRAP_T| "sym_GL_TEXTURE_WRAP_T"
+  "Scm_MakeInteger(GL_TEXTURE_WRAP_T)")
+(define-symbol |GL_TEXTURE_MAG_FILTER| "sym_GL_TEXTURE_MAG_FILTER"
+  "Scm_MakeInteger(GL_TEXTURE_MAG_FILTER)")
+(define-symbol |GL_TEXTURE_MIN_FILTER| "sym_GL_TEXTURE_MIN_FILTER"
+  "Scm_MakeInteger(GL_TEXTURE_MIN_FILTER)")
+(define-symbol |GL_TEXTURE_ENV_COLOR| "sym_GL_TEXTURE_ENV_COLOR"
+  "Scm_MakeInteger(GL_TEXTURE_ENV_COLOR)")
+(define-symbol |GL_TEXTURE_GEN_S| "sym_GL_TEXTURE_GEN_S"
+  "Scm_MakeInteger(GL_TEXTURE_GEN_S)")
+(define-symbol |GL_TEXTURE_GEN_T| "sym_GL_TEXTURE_GEN_T"
+  "Scm_MakeInteger(GL_TEXTURE_GEN_T)")
+(define-symbol |GL_TEXTURE_GEN_MODE| "sym_GL_TEXTURE_GEN_MODE"
+  "Scm_MakeInteger(GL_TEXTURE_GEN_MODE)")
+(define-symbol |GL_TEXTURE_BORDER_COLOR| "sym_GL_TEXTURE_BORDER_COLOR"
+  "Scm_MakeInteger(GL_TEXTURE_BORDER_COLOR)")
+(define-symbol |GL_TEXTURE_WIDTH| "sym_GL_TEXTURE_WIDTH"
+  "Scm_MakeInteger(GL_TEXTURE_WIDTH)")
+(define-symbol |GL_TEXTURE_HEIGHT| "sym_GL_TEXTURE_HEIGHT"
+  "Scm_MakeInteger(GL_TEXTURE_HEIGHT)")
+(define-symbol |GL_TEXTURE_BORDER| "sym_GL_TEXTURE_BORDER"
+  "Scm_MakeInteger(GL_TEXTURE_BORDER)")
+(define-symbol |GL_TEXTURE_COMPONENTS| "sym_GL_TEXTURE_COMPONENTS"
+  "Scm_MakeInteger(GL_TEXTURE_COMPONENTS)")
+(define-symbol |GL_TEXTURE_RED_SIZE| "sym_GL_TEXTURE_RED_SIZE"
+  "Scm_MakeInteger(GL_TEXTURE_RED_SIZE)")
+(define-symbol |GL_TEXTURE_GREEN_SIZE| "sym_GL_TEXTURE_GREEN_SIZE"
+  "Scm_MakeInteger(GL_TEXTURE_GREEN_SIZE)")
+(define-symbol |GL_TEXTURE_BLUE_SIZE| "sym_GL_TEXTURE_BLUE_SIZE"
+  "Scm_MakeInteger(GL_TEXTURE_BLUE_SIZE)")
+(define-symbol |GL_TEXTURE_ALPHA_SIZE| "sym_GL_TEXTURE_ALPHA_SIZE"
+  "Scm_MakeInteger(GL_TEXTURE_ALPHA_SIZE)")
+(define-symbol |GL_TEXTURE_LUMINANCE_SIZE| "sym_GL_TEXTURE_LUMINANCE_SIZE"
+  "Scm_MakeInteger(GL_TEXTURE_LUMINANCE_SIZE)")
+(define-symbol |GL_TEXTURE_INTENSITY_SIZE| "sym_GL_TEXTURE_INTENSITY_SIZE"
+  "Scm_MakeInteger(GL_TEXTURE_INTENSITY_SIZE)")
+(define-symbol |GL_NEAREST_MIPMAP_NEAREST| "sym_GL_NEAREST_MIPMAP_NEAREST"
+  "Scm_MakeInteger(GL_NEAREST_MIPMAP_NEAREST)")
+(define-symbol |GL_NEAREST_MIPMAP_LINEAR| "sym_GL_NEAREST_MIPMAP_LINEAR"
+  "Scm_MakeInteger(GL_NEAREST_MIPMAP_LINEAR)")
+(define-symbol |GL_LINEAR_MIPMAP_NEAREST| "sym_GL_LINEAR_MIPMAP_NEAREST"
+  "Scm_MakeInteger(GL_LINEAR_MIPMAP_NEAREST)")
+(define-symbol |GL_LINEAR_MIPMAP_LINEAR| "sym_GL_LINEAR_MIPMAP_LINEAR"
+  "Scm_MakeInteger(GL_LINEAR_MIPMAP_LINEAR)")
+(define-symbol |GL_OBJECT_LINEAR| "sym_GL_OBJECT_LINEAR"
+  "Scm_MakeInteger(GL_OBJECT_LINEAR)")
+(define-symbol |GL_OBJECT_PLANE| "sym_GL_OBJECT_PLANE"
+  "Scm_MakeInteger(GL_OBJECT_PLANE)")
+(define-symbol |GL_EYE_LINEAR| "sym_GL_EYE_LINEAR"
+  "Scm_MakeInteger(GL_EYE_LINEAR)")
+(define-symbol |GL_EYE_PLANE| "sym_GL_EYE_PLANE"
+  "Scm_MakeInteger(GL_EYE_PLANE)")
+(define-symbol |GL_SPHERE_MAP| "sym_GL_SPHERE_MAP"
+  "Scm_MakeInteger(GL_SPHERE_MAP)")
+(define-symbol |GL_DECAL| "sym_GL_DECAL"
+  "Scm_MakeInteger(GL_DECAL)")
+(define-symbol |GL_MODULATE| "sym_GL_MODULATE"
+  "Scm_MakeInteger(GL_MODULATE)")
+(define-symbol |GL_NEAREST| "sym_GL_NEAREST"
+  "Scm_MakeInteger(GL_NEAREST)")
+(define-symbol |GL_REPEAT| "sym_GL_REPEAT"
+  "Scm_MakeInteger(GL_REPEAT)")
+(define-symbol |GL_CLAMP| "sym_GL_CLAMP"
+  "Scm_MakeInteger(GL_CLAMP)")
+(define-symbol |GL_S| "sym_GL_S"
+  "Scm_MakeInteger(GL_S)")
+(define-symbol |GL_T| "sym_GL_T"
+  "Scm_MakeInteger(GL_T)")
+(define-symbol |GL_R| "sym_GL_R"
+  "Scm_MakeInteger(GL_R)")
+(define-symbol |GL_Q| "sym_GL_Q"
+  "Scm_MakeInteger(GL_Q)")
+(define-symbol |GL_TEXTURE_GEN_R| "sym_GL_TEXTURE_GEN_R"
+  "Scm_MakeInteger(GL_TEXTURE_GEN_R)")
+(define-symbol |GL_TEXTURE_GEN_Q| "sym_GL_TEXTURE_GEN_Q"
+  "Scm_MakeInteger(GL_TEXTURE_GEN_Q)")
+(define-symbol |GL_PROXY_TEXTURE_1D| "sym_GL_PROXY_TEXTURE_1D"
+  "Scm_MakeInteger(GL_PROXY_TEXTURE_1D)")
+(define-symbol |GL_PROXY_TEXTURE_2D| "sym_GL_PROXY_TEXTURE_2D"
+  "Scm_MakeInteger(GL_PROXY_TEXTURE_2D)")
+(define-symbol |GL_TEXTURE_PRIORITY| "sym_GL_TEXTURE_PRIORITY"
+  "Scm_MakeInteger(GL_TEXTURE_PRIORITY)")
+(define-symbol |GL_TEXTURE_RESIDENT| "sym_GL_TEXTURE_RESIDENT"
+  "Scm_MakeInteger(GL_TEXTURE_RESIDENT)")
+(define-symbol |GL_TEXTURE_BINDING_1D| "sym_GL_TEXTURE_BINDING_1D"
+  "Scm_MakeInteger(GL_TEXTURE_BINDING_1D)")
+(define-symbol |GL_TEXTURE_BINDING_2D| "sym_GL_TEXTURE_BINDING_2D"
+  "Scm_MakeInteger(GL_TEXTURE_BINDING_2D)")
+(define-symbol |GL_TEXTURE_INTERNAL_FORMAT| "sym_GL_TEXTURE_INTERNAL_FORMAT"
+  "Scm_MakeInteger(GL_TEXTURE_INTERNAL_FORMAT)")
+(define-symbol |GL_PACK_SKIP_IMAGES| "sym_GL_PACK_SKIP_IMAGES"
+  "Scm_MakeInteger(GL_PACK_SKIP_IMAGES)")
+(define-symbol |GL_PACK_IMAGE_HEIGHT| "sym_GL_PACK_IMAGE_HEIGHT"
+  "Scm_MakeInteger(GL_PACK_IMAGE_HEIGHT)")
+(define-symbol |GL_UNPACK_SKIP_IMAGES| "sym_GL_UNPACK_SKIP_IMAGES"
+  "Scm_MakeInteger(GL_UNPACK_SKIP_IMAGES)")
+(define-symbol |GL_UNPACK_IMAGE_HEIGHT| "sym_GL_UNPACK_IMAGE_HEIGHT"
+  "Scm_MakeInteger(GL_UNPACK_IMAGE_HEIGHT)")
+(define-symbol |GL_TEXTURE_3D| "sym_GL_TEXTURE_3D"
+  "Scm_MakeInteger(GL_TEXTURE_3D)")
+(define-symbol |GL_PROXY_TEXTURE_3D| "sym_GL_PROXY_TEXTURE_3D"
+  "Scm_MakeInteger(GL_PROXY_TEXTURE_3D)")
+(define-symbol |GL_TEXTURE_DEPTH| "sym_GL_TEXTURE_DEPTH"
+  "Scm_MakeInteger(GL_TEXTURE_DEPTH)")
+(define-symbol |GL_TEXTURE_WRAP_R| "sym_GL_TEXTURE_WRAP_R"
+  "Scm_MakeInteger(GL_TEXTURE_WRAP_R)")
+(define-symbol |GL_MAX_3D_TEXTURE_SIZE| "sym_GL_MAX_3D_TEXTURE_SIZE"
+  "Scm_MakeInteger(GL_MAX_3D_TEXTURE_SIZE)")
+(define-symbol |GL_TEXTURE_BINDING_3D| "sym_GL_TEXTURE_BINDING_3D"
+  "Scm_MakeInteger(GL_TEXTURE_BINDING_3D)")
+(define-symbol |GL_ALPHA4| "sym_GL_ALPHA4"
+  "Scm_MakeInteger(GL_ALPHA4)")
+(define-symbol |GL_ALPHA8| "sym_GL_ALPHA8"
+  "Scm_MakeInteger(GL_ALPHA8)")
+(define-symbol |GL_ALPHA12| "sym_GL_ALPHA12"
+  "Scm_MakeInteger(GL_ALPHA12)")
+(define-symbol |GL_ALPHA16| "sym_GL_ALPHA16"
+  "Scm_MakeInteger(GL_ALPHA16)")
+(define-symbol |GL_LUMINANCE4| "sym_GL_LUMINANCE4"
+  "Scm_MakeInteger(GL_LUMINANCE4)")
+(define-symbol |GL_LUMINANCE8| "sym_GL_LUMINANCE8"
+  "Scm_MakeInteger(GL_LUMINANCE8)")
+(define-symbol |GL_LUMINANCE12| "sym_GL_LUMINANCE12"
+  "Scm_MakeInteger(GL_LUMINANCE12)")
+(define-symbol |GL_LUMINANCE16| "sym_GL_LUMINANCE16"
+  "Scm_MakeInteger(GL_LUMINANCE16)")
+(define-symbol |GL_LUMINANCE4_ALPHA4| "sym_GL_LUMINANCE4_ALPHA4"
+  "Scm_MakeInteger(GL_LUMINANCE4_ALPHA4)")
+(define-symbol |GL_LUMINANCE6_ALPHA2| "sym_GL_LUMINANCE6_ALPHA2"
+  "Scm_MakeInteger(GL_LUMINANCE6_ALPHA2)")
+(define-symbol |GL_LUMINANCE8_ALPHA8| "sym_GL_LUMINANCE8_ALPHA8"
+  "Scm_MakeInteger(GL_LUMINANCE8_ALPHA8)")
+(define-symbol |GL_LUMINANCE12_ALPHA4| "sym_GL_LUMINANCE12_ALPHA4"
+  "Scm_MakeInteger(GL_LUMINANCE12_ALPHA4)")
+(define-symbol |GL_LUMINANCE12_ALPHA12| "sym_GL_LUMINANCE12_ALPHA12"
+  "Scm_MakeInteger(GL_LUMINANCE12_ALPHA12)")
+(define-symbol |GL_LUMINANCE16_ALPHA16| "sym_GL_LUMINANCE16_ALPHA16"
+  "Scm_MakeInteger(GL_LUMINANCE16_ALPHA16)")
+(define-symbol |GL_INTENSITY| "sym_GL_INTENSITY"
+  "Scm_MakeInteger(GL_INTENSITY)")
+(define-symbol |GL_INTENSITY4| "sym_GL_INTENSITY4"
+  "Scm_MakeInteger(GL_INTENSITY4)")
+(define-symbol |GL_INTENSITY8| "sym_GL_INTENSITY8"
+  "Scm_MakeInteger(GL_INTENSITY8)")
+(define-symbol |GL_INTENSITY12| "sym_GL_INTENSITY12"
+  "Scm_MakeInteger(GL_INTENSITY12)")
+(define-symbol |GL_INTENSITY16| "sym_GL_INTENSITY16"
+  "Scm_MakeInteger(GL_INTENSITY16)")
+(define-symbol |GL_R3_G3_B2| "sym_GL_R3_G3_B2"
+  "Scm_MakeInteger(GL_R3_G3_B2)")
+(define-symbol |GL_RGB4| "sym_GL_RGB4"
+  "Scm_MakeInteger(GL_RGB4)")
+(define-symbol |GL_RGB5| "sym_GL_RGB5"
+  "Scm_MakeInteger(GL_RGB5)")
+(define-symbol |GL_RGB8| "sym_GL_RGB8"
+  "Scm_MakeInteger(GL_RGB8)")
+(define-symbol |GL_RGB10| "sym_GL_RGB10"
+  "Scm_MakeInteger(GL_RGB10)")
+(define-symbol |GL_RGB12| "sym_GL_RGB12"
+  "Scm_MakeInteger(GL_RGB12)")
+(define-symbol |GL_RGB16| "sym_GL_RGB16"
+  "Scm_MakeInteger(GL_RGB16)")
+(define-symbol |GL_RGBA2| "sym_GL_RGBA2"
+  "Scm_MakeInteger(GL_RGBA2)")
+(define-symbol |GL_RGBA4| "sym_GL_RGBA4"
+  "Scm_MakeInteger(GL_RGBA4)")
+(define-symbol |GL_RGB5_A1| "sym_GL_RGB5_A1"
+  "Scm_MakeInteger(GL_RGB5_A1)")
+(define-symbol |GL_RGBA8| "sym_GL_RGBA8"
+  "Scm_MakeInteger(GL_RGBA8)")
+(define-symbol |GL_RGB10_A2| "sym_GL_RGB10_A2"
+  "Scm_MakeInteger(GL_RGB10_A2)")
+(define-symbol |GL_RGBA12| "sym_GL_RGBA12"
+  "Scm_MakeInteger(GL_RGBA12)")
+(define-symbol |GL_RGBA16| "sym_GL_RGBA16"
+  "Scm_MakeInteger(GL_RGBA16)")
+(define-symbol |GL_VENDOR| "sym_GL_VENDOR"
+  "Scm_MakeInteger(GL_VENDOR)")
+(define-symbol |GL_RENDERER| "sym_GL_RENDERER"
+  "Scm_MakeInteger(GL_RENDERER)")
+(define-symbol |GL_VERSION| "sym_GL_VERSION"
+  "Scm_MakeInteger(GL_VERSION)")
+(define-symbol |GL_EXTENSIONS| "sym_GL_EXTENSIONS"
+  "Scm_MakeInteger(GL_EXTENSIONS)")
+(define-symbol |GL_INVALID_VALUE| "sym_GL_INVALID_VALUE"
+  "Scm_MakeInteger(GL_INVALID_VALUE)")
+(define-symbol |GL_INVALID_ENUM| "sym_GL_INVALID_ENUM"
+  "Scm_MakeInteger(GL_INVALID_ENUM)")
+(define-symbol |GL_INVALID_OPERATION| "sym_GL_INVALID_OPERATION"
+  "Scm_MakeInteger(GL_INVALID_OPERATION)")
+(define-symbol |GL_STACK_OVERFLOW| "sym_GL_STACK_OVERFLOW"
+  "Scm_MakeInteger(GL_STACK_OVERFLOW)")
+(define-symbol |GL_STACK_UNDERFLOW| "sym_GL_STACK_UNDERFLOW"
+  "Scm_MakeInteger(GL_STACK_UNDERFLOW)")
+(define-symbol |GL_OUT_OF_MEMORY| "sym_GL_OUT_OF_MEMORY"
+  "Scm_MakeInteger(GL_OUT_OF_MEMORY)")
+(define-symbol |GL_CONSTANT_COLOR_EXT| "sym_GL_CONSTANT_COLOR_EXT"
+  "Scm_MakeInteger(GL_CONSTANT_COLOR_EXT)")
+(define-symbol |GL_ONE_MINUS_CONSTANT_COLOR_EXT| "sym_GL_ONE_MINUS_CONSTANT_COLOR_EXT"
+  "Scm_MakeInteger(GL_ONE_MINUS_CONSTANT_COLOR_EXT)")
+(define-symbol |GL_CONSTANT_ALPHA_EXT| "sym_GL_CONSTANT_ALPHA_EXT"
+  "Scm_MakeInteger(GL_CONSTANT_ALPHA_EXT)")
+(define-symbol |GL_ONE_MINUS_CONSTANT_ALPHA_EXT| "sym_GL_ONE_MINUS_CONSTANT_ALPHA_EXT"
+  "Scm_MakeInteger(GL_ONE_MINUS_CONSTANT_ALPHA_EXT)")
+(define-symbol |GL_BLEND_EQUATION_EXT| "sym_GL_BLEND_EQUATION_EXT"
+  "Scm_MakeInteger(GL_BLEND_EQUATION_EXT)")
+(define-symbol |GL_MIN_EXT| "sym_GL_MIN_EXT"
+  "Scm_MakeInteger(GL_MIN_EXT)")
+(define-symbol |GL_MAX_EXT| "sym_GL_MAX_EXT"
+  "Scm_MakeInteger(GL_MAX_EXT)")
+(define-symbol |GL_FUNC_ADD_EXT| "sym_GL_FUNC_ADD_EXT"
+  "Scm_MakeInteger(GL_FUNC_ADD_EXT)")
+(define-symbol |GL_FUNC_SUBTRACT_EXT| "sym_GL_FUNC_SUBTRACT_EXT"
+  "Scm_MakeInteger(GL_FUNC_SUBTRACT_EXT)")
+(define-symbol |GL_FUNC_REVERSE_SUBTRACT_EXT| "sym_GL_FUNC_REVERSE_SUBTRACT_EXT"
+  "Scm_MakeInteger(GL_FUNC_REVERSE_SUBTRACT_EXT)")
+(define-symbol |GL_BLEND_COLOR_EXT| "sym_GL_BLEND_COLOR_EXT"
+  "Scm_MakeInteger(GL_BLEND_COLOR_EXT)")
+(define-symbol |GL_POLYGON_OFFSET_EXT| "sym_GL_POLYGON_OFFSET_EXT"
+  "Scm_MakeInteger(GL_POLYGON_OFFSET_EXT)")
+(define-symbol |GL_POLYGON_OFFSET_FACTOR_EXT| "sym_GL_POLYGON_OFFSET_FACTOR_EXT"
+  "Scm_MakeInteger(GL_POLYGON_OFFSET_FACTOR_EXT)")
+(define-symbol |GL_POLYGON_OFFSET_BIAS_EXT| "sym_GL_POLYGON_OFFSET_BIAS_EXT"
+  "Scm_MakeInteger(GL_POLYGON_OFFSET_BIAS_EXT)")
+(define-symbol |GL_VERTEX_ARRAY_EXT| "sym_GL_VERTEX_ARRAY_EXT"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_EXT)")
+(define-symbol |GL_NORMAL_ARRAY_EXT| "sym_GL_NORMAL_ARRAY_EXT"
+  "Scm_MakeInteger(GL_NORMAL_ARRAY_EXT)")
+(define-symbol |GL_COLOR_ARRAY_EXT| "sym_GL_COLOR_ARRAY_EXT"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_EXT)")
+(define-symbol |GL_INDEX_ARRAY_EXT| "sym_GL_INDEX_ARRAY_EXT"
+  "Scm_MakeInteger(GL_INDEX_ARRAY_EXT)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_EXT| "sym_GL_TEXTURE_COORD_ARRAY_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_EXT)")
+(define-symbol |GL_EDGE_FLAG_ARRAY_EXT| "sym_GL_EDGE_FLAG_ARRAY_EXT"
+  "Scm_MakeInteger(GL_EDGE_FLAG_ARRAY_EXT)")
+(define-symbol |GL_VERTEX_ARRAY_SIZE_EXT| "sym_GL_VERTEX_ARRAY_SIZE_EXT"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_SIZE_EXT)")
+(define-symbol |GL_VERTEX_ARRAY_TYPE_EXT| "sym_GL_VERTEX_ARRAY_TYPE_EXT"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_TYPE_EXT)")
+(define-symbol |GL_VERTEX_ARRAY_STRIDE_EXT| "sym_GL_VERTEX_ARRAY_STRIDE_EXT"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_STRIDE_EXT)")
+(define-symbol |GL_VERTEX_ARRAY_COUNT_EXT| "sym_GL_VERTEX_ARRAY_COUNT_EXT"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_COUNT_EXT)")
+(define-symbol |GL_NORMAL_ARRAY_TYPE_EXT| "sym_GL_NORMAL_ARRAY_TYPE_EXT"
+  "Scm_MakeInteger(GL_NORMAL_ARRAY_TYPE_EXT)")
+(define-symbol |GL_NORMAL_ARRAY_STRIDE_EXT| "sym_GL_NORMAL_ARRAY_STRIDE_EXT"
+  "Scm_MakeInteger(GL_NORMAL_ARRAY_STRIDE_EXT)")
+(define-symbol |GL_NORMAL_ARRAY_COUNT_EXT| "sym_GL_NORMAL_ARRAY_COUNT_EXT"
+  "Scm_MakeInteger(GL_NORMAL_ARRAY_COUNT_EXT)")
+(define-symbol |GL_COLOR_ARRAY_SIZE_EXT| "sym_GL_COLOR_ARRAY_SIZE_EXT"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_SIZE_EXT)")
+(define-symbol |GL_COLOR_ARRAY_TYPE_EXT| "sym_GL_COLOR_ARRAY_TYPE_EXT"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_TYPE_EXT)")
+(define-symbol |GL_COLOR_ARRAY_STRIDE_EXT| "sym_GL_COLOR_ARRAY_STRIDE_EXT"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_STRIDE_EXT)")
+(define-symbol |GL_COLOR_ARRAY_COUNT_EXT| "sym_GL_COLOR_ARRAY_COUNT_EXT"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_COUNT_EXT)")
+(define-symbol |GL_INDEX_ARRAY_TYPE_EXT| "sym_GL_INDEX_ARRAY_TYPE_EXT"
+  "Scm_MakeInteger(GL_INDEX_ARRAY_TYPE_EXT)")
+(define-symbol |GL_INDEX_ARRAY_STRIDE_EXT| "sym_GL_INDEX_ARRAY_STRIDE_EXT"
+  "Scm_MakeInteger(GL_INDEX_ARRAY_STRIDE_EXT)")
+(define-symbol |GL_INDEX_ARRAY_COUNT_EXT| "sym_GL_INDEX_ARRAY_COUNT_EXT"
+  "Scm_MakeInteger(GL_INDEX_ARRAY_COUNT_EXT)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_SIZE_EXT| "sym_GL_TEXTURE_COORD_ARRAY_SIZE_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_SIZE_EXT)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_TYPE_EXT| "sym_GL_TEXTURE_COORD_ARRAY_TYPE_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_TYPE_EXT)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_STRIDE_EXT| "sym_GL_TEXTURE_COORD_ARRAY_STRIDE_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_STRIDE_EXT)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_COUNT_EXT| "sym_GL_TEXTURE_COORD_ARRAY_COUNT_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_COUNT_EXT)")
+(define-symbol |GL_EDGE_FLAG_ARRAY_STRIDE_EXT| "sym_GL_EDGE_FLAG_ARRAY_STRIDE_EXT"
+  "Scm_MakeInteger(GL_EDGE_FLAG_ARRAY_STRIDE_EXT)")
+(define-symbol |GL_EDGE_FLAG_ARRAY_COUNT_EXT| "sym_GL_EDGE_FLAG_ARRAY_COUNT_EXT"
+  "Scm_MakeInteger(GL_EDGE_FLAG_ARRAY_COUNT_EXT)")
+(define-symbol |GL_VERTEX_ARRAY_POINTER_EXT| "sym_GL_VERTEX_ARRAY_POINTER_EXT"
+  "Scm_MakeInteger(GL_VERTEX_ARRAY_POINTER_EXT)")
+(define-symbol |GL_NORMAL_ARRAY_POINTER_EXT| "sym_GL_NORMAL_ARRAY_POINTER_EXT"
+  "Scm_MakeInteger(GL_NORMAL_ARRAY_POINTER_EXT)")
+(define-symbol |GL_COLOR_ARRAY_POINTER_EXT| "sym_GL_COLOR_ARRAY_POINTER_EXT"
+  "Scm_MakeInteger(GL_COLOR_ARRAY_POINTER_EXT)")
+(define-symbol |GL_INDEX_ARRAY_POINTER_EXT| "sym_GL_INDEX_ARRAY_POINTER_EXT"
+  "Scm_MakeInteger(GL_INDEX_ARRAY_POINTER_EXT)")
+(define-symbol |GL_TEXTURE_COORD_ARRAY_POINTER_EXT| "sym_GL_TEXTURE_COORD_ARRAY_POINTER_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_ARRAY_POINTER_EXT)")
+(define-symbol |GL_EDGE_FLAG_ARRAY_POINTER_EXT| "sym_GL_EDGE_FLAG_ARRAY_POINTER_EXT"
+  "Scm_MakeInteger(GL_EDGE_FLAG_ARRAY_POINTER_EXT)")
+(define-symbol |GL_TEXTURE_PRIORITY_EXT| "sym_GL_TEXTURE_PRIORITY_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_PRIORITY_EXT)")
+(define-symbol |GL_TEXTURE_RESIDENT_EXT| "sym_GL_TEXTURE_RESIDENT_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_RESIDENT_EXT)")
+(define-symbol |GL_TEXTURE_1D_BINDING_EXT| "sym_GL_TEXTURE_1D_BINDING_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_1D_BINDING_EXT)")
+(define-symbol |GL_TEXTURE_2D_BINDING_EXT| "sym_GL_TEXTURE_2D_BINDING_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_2D_BINDING_EXT)")
+(define-symbol |GL_PACK_SKIP_IMAGES_EXT| "sym_GL_PACK_SKIP_IMAGES_EXT"
+  "Scm_MakeInteger(GL_PACK_SKIP_IMAGES_EXT)")
+(define-symbol |GL_PACK_IMAGE_HEIGHT_EXT| "sym_GL_PACK_IMAGE_HEIGHT_EXT"
+  "Scm_MakeInteger(GL_PACK_IMAGE_HEIGHT_EXT)")
+(define-symbol |GL_UNPACK_SKIP_IMAGES_EXT| "sym_GL_UNPACK_SKIP_IMAGES_EXT"
+  "Scm_MakeInteger(GL_UNPACK_SKIP_IMAGES_EXT)")
+(define-symbol |GL_UNPACK_IMAGE_HEIGHT_EXT| "sym_GL_UNPACK_IMAGE_HEIGHT_EXT"
+  "Scm_MakeInteger(GL_UNPACK_IMAGE_HEIGHT_EXT)")
+(define-symbol |GL_TEXTURE_3D_EXT| "sym_GL_TEXTURE_3D_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_3D_EXT)")
+(define-symbol |GL_PROXY_TEXTURE_3D_EXT| "sym_GL_PROXY_TEXTURE_3D_EXT"
+  "Scm_MakeInteger(GL_PROXY_TEXTURE_3D_EXT)")
+(define-symbol |GL_TEXTURE_DEPTH_EXT| "sym_GL_TEXTURE_DEPTH_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_DEPTH_EXT)")
+(define-symbol |GL_TEXTURE_WRAP_R_EXT| "sym_GL_TEXTURE_WRAP_R_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_WRAP_R_EXT)")
+(define-symbol |GL_MAX_3D_TEXTURE_SIZE_EXT| "sym_GL_MAX_3D_TEXTURE_SIZE_EXT"
+  "Scm_MakeInteger(GL_MAX_3D_TEXTURE_SIZE_EXT)")
+(define-symbol |GL_TEXTURE_3D_BINDING_EXT| "sym_GL_TEXTURE_3D_BINDING_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_3D_BINDING_EXT)")
+(define-symbol |GL_TABLE_TOO_LARGE_EXT| "sym_GL_TABLE_TOO_LARGE_EXT"
+  "Scm_MakeInteger(GL_TABLE_TOO_LARGE_EXT)")
+(define-symbol |GL_COLOR_TABLE_FORMAT_EXT| "sym_GL_COLOR_TABLE_FORMAT_EXT"
+  "Scm_MakeInteger(GL_COLOR_TABLE_FORMAT_EXT)")
+(define-symbol |GL_COLOR_TABLE_WIDTH_EXT| "sym_GL_COLOR_TABLE_WIDTH_EXT"
+  "Scm_MakeInteger(GL_COLOR_TABLE_WIDTH_EXT)")
+(define-symbol |GL_COLOR_TABLE_RED_SIZE_EXT| "sym_GL_COLOR_TABLE_RED_SIZE_EXT"
+  "Scm_MakeInteger(GL_COLOR_TABLE_RED_SIZE_EXT)")
+(define-symbol |GL_COLOR_TABLE_GREEN_SIZE_EXT| "sym_GL_COLOR_TABLE_GREEN_SIZE_EXT"
+  "Scm_MakeInteger(GL_COLOR_TABLE_GREEN_SIZE_EXT)")
+(define-symbol |GL_COLOR_TABLE_BLUE_SIZE_EXT| "sym_GL_COLOR_TABLE_BLUE_SIZE_EXT"
+  "Scm_MakeInteger(GL_COLOR_TABLE_BLUE_SIZE_EXT)")
+(define-symbol |GL_COLOR_TABLE_ALPHA_SIZE_EXT| "sym_GL_COLOR_TABLE_ALPHA_SIZE_EXT"
+  "Scm_MakeInteger(GL_COLOR_TABLE_ALPHA_SIZE_EXT)")
+(define-symbol |GL_COLOR_TABLE_LUMINANCE_SIZE_EXT| "sym_GL_COLOR_TABLE_LUMINANCE_SIZE_EXT"
+  "Scm_MakeInteger(GL_COLOR_TABLE_LUMINANCE_SIZE_EXT)")
+(define-symbol |GL_COLOR_TABLE_INTENSITY_SIZE_EXT| "sym_GL_COLOR_TABLE_INTENSITY_SIZE_EXT"
+  "Scm_MakeInteger(GL_COLOR_TABLE_INTENSITY_SIZE_EXT)")
+(define-symbol |GL_TEXTURE_INDEX_SIZE_EXT| "sym_GL_TEXTURE_INDEX_SIZE_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_INDEX_SIZE_EXT)")
+(define-symbol |GL_COLOR_INDEX1_EXT| "sym_GL_COLOR_INDEX1_EXT"
+  "Scm_MakeInteger(GL_COLOR_INDEX1_EXT)")
+(define-symbol |GL_COLOR_INDEX2_EXT| "sym_GL_COLOR_INDEX2_EXT"
+  "Scm_MakeInteger(GL_COLOR_INDEX2_EXT)")
+(define-symbol |GL_COLOR_INDEX4_EXT| "sym_GL_COLOR_INDEX4_EXT"
+  "Scm_MakeInteger(GL_COLOR_INDEX4_EXT)")
+(define-symbol |GL_COLOR_INDEX8_EXT| "sym_GL_COLOR_INDEX8_EXT"
+  "Scm_MakeInteger(GL_COLOR_INDEX8_EXT)")
+(define-symbol |GL_COLOR_INDEX12_EXT| "sym_GL_COLOR_INDEX12_EXT"
+  "Scm_MakeInteger(GL_COLOR_INDEX12_EXT)")
+(define-symbol |GL_COLOR_INDEX16_EXT| "sym_GL_COLOR_INDEX16_EXT"
+  "Scm_MakeInteger(GL_COLOR_INDEX16_EXT)")
+(define-symbol |GL_SHARED_TEXTURE_PALETTE_EXT| "sym_GL_SHARED_TEXTURE_PALETTE_EXT"
+  "Scm_MakeInteger(GL_SHARED_TEXTURE_PALETTE_EXT)")
+(define-symbol |GL_POINT_SIZE_MIN_EXT| "sym_GL_POINT_SIZE_MIN_EXT"
+  "Scm_MakeInteger(GL_POINT_SIZE_MIN_EXT)")
+(define-symbol |GL_POINT_SIZE_MAX_EXT| "sym_GL_POINT_SIZE_MAX_EXT"
+  "Scm_MakeInteger(GL_POINT_SIZE_MAX_EXT)")
+(define-symbol |GL_POINT_FADE_THRESHOLD_SIZE_EXT| "sym_GL_POINT_FADE_THRESHOLD_SIZE_EXT"
+  "Scm_MakeInteger(GL_POINT_FADE_THRESHOLD_SIZE_EXT)")
+(define-symbol |GL_DISTANCE_ATTENUATION_EXT| "sym_GL_DISTANCE_ATTENUATION_EXT"
+  "Scm_MakeInteger(GL_DISTANCE_ATTENUATION_EXT)")
+(define-symbol |GL_RESCALE_NORMAL_EXT| "sym_GL_RESCALE_NORMAL_EXT"
+  "Scm_MakeInteger(GL_RESCALE_NORMAL_EXT)")
+(define-symbol |GL_ABGR_EXT| "sym_GL_ABGR_EXT"
+  "Scm_MakeInteger(GL_ABGR_EXT)")
+(define-symbol |GL_SELECTED_TEXTURE_SGIS| "sym_GL_SELECTED_TEXTURE_SGIS"
+  "Scm_MakeInteger(GL_SELECTED_TEXTURE_SGIS)")
+(define-symbol |GL_SELECTED_TEXTURE_COORD_SET_SGIS| "sym_GL_SELECTED_TEXTURE_COORD_SET_SGIS"
+  "Scm_MakeInteger(GL_SELECTED_TEXTURE_COORD_SET_SGIS)")
+(define-symbol |GL_MAX_TEXTURES_SGIS| "sym_GL_MAX_TEXTURES_SGIS"
+  "Scm_MakeInteger(GL_MAX_TEXTURES_SGIS)")
+(define-symbol |GL_TEXTURE0_SGIS| "sym_GL_TEXTURE0_SGIS"
+  "Scm_MakeInteger(GL_TEXTURE0_SGIS)")
+(define-symbol |GL_TEXTURE1_SGIS| "sym_GL_TEXTURE1_SGIS"
+  "Scm_MakeInteger(GL_TEXTURE1_SGIS)")
+(define-symbol |GL_TEXTURE2_SGIS| "sym_GL_TEXTURE2_SGIS"
+  "Scm_MakeInteger(GL_TEXTURE2_SGIS)")
+(define-symbol |GL_TEXTURE3_SGIS| "sym_GL_TEXTURE3_SGIS"
+  "Scm_MakeInteger(GL_TEXTURE3_SGIS)")
+(define-symbol |GL_TEXTURE_COORD_SET_SOURCE_SGIS| "sym_GL_TEXTURE_COORD_SET_SOURCE_SGIS"
+  "Scm_MakeInteger(GL_TEXTURE_COORD_SET_SOURCE_SGIS)")
+(define-symbol |GL_SELECTED_TEXTURE_EXT| "sym_GL_SELECTED_TEXTURE_EXT"
+  "Scm_MakeInteger(GL_SELECTED_TEXTURE_EXT)")
+(define-symbol |GL_SELECTED_TEXTURE_COORD_SET_EXT| "sym_GL_SELECTED_TEXTURE_COORD_SET_EXT"
+  "Scm_MakeInteger(GL_SELECTED_TEXTURE_COORD_SET_EXT)")
+(define-symbol |GL_SELECTED_TEXTURE_TRANSFORM_EXT| "sym_GL_SELECTED_TEXTURE_TRANSFORM_EXT"
+  "Scm_MakeInteger(GL_SELECTED_TEXTURE_TRANSFORM_EXT)")
+(define-symbol |GL_MAX_TEXTURES_EXT| "sym_GL_MAX_TEXTURES_EXT"
+  "Scm_MakeInteger(GL_MAX_TEXTURES_EXT)")
+(define-symbol |GL_MAX_TEXTURE_COORD_SETS_EXT| "sym_GL_MAX_TEXTURE_COORD_SETS_EXT"
+  "Scm_MakeInteger(GL_MAX_TEXTURE_COORD_SETS_EXT)")
+(define-symbol |GL_TEXTURE_ENV_COORD_SET_EXT| "sym_GL_TEXTURE_ENV_COORD_SET_EXT"
+  "Scm_MakeInteger(GL_TEXTURE_ENV_COORD_SET_EXT)")
+(define-symbol |GL_TEXTURE0_EXT| "sym_GL_TEXTURE0_EXT"
+  "Scm_MakeInteger(GL_TEXTURE0_EXT)")
+(define-symbol |GL_TEXTURE1_EXT| "sym_GL_TEXTURE1_EXT"
+  "Scm_MakeInteger(GL_TEXTURE1_EXT)")
+(define-symbol |GL_TEXTURE2_EXT| "sym_GL_TEXTURE2_EXT"
+  "Scm_MakeInteger(GL_TEXTURE2_EXT)")
+(define-symbol |GL_TEXTURE3_EXT| "sym_GL_TEXTURE3_EXT"
+  "Scm_MakeInteger(GL_TEXTURE3_EXT)")
+(define-symbol |GL_CLAMP_TO_EDGE_SGIS| "sym_GL_CLAMP_TO_EDGE_SGIS"
+  "Scm_MakeInteger(GL_CLAMP_TO_EDGE_SGIS)")
+(define-symbol |GL_RESCALE_NORMAL| "sym_GL_RESCALE_NORMAL"
+  "Scm_MakeInteger(GL_RESCALE_NORMAL)")
+(define-symbol |GL_CLAMP_TO_EDGE| "sym_GL_CLAMP_TO_EDGE"
+  "Scm_MakeInteger(GL_CLAMP_TO_EDGE)")
+(define-symbol |GL_MAX_ELEMENTS_VERTICES| "sym_GL_MAX_ELEMENTS_VERTICES"
+  "Scm_MakeInteger(GL_MAX_ELEMENTS_VERTICES)")
+(define-symbol |GL_MAX_ELEMENTS_INDICES| "sym_GL_MAX_ELEMENTS_INDICES"
+  "Scm_MakeInteger(GL_MAX_ELEMENTS_INDICES)")
+(define-symbol |GL_BGR| "sym_GL_BGR"
+  "Scm_MakeInteger(GL_BGR)")
+(define-symbol |GL_BGRA| "sym_GL_BGRA"
+  "Scm_MakeInteger(GL_BGRA)")
+(define-symbol |GL_UNSIGNED_BYTE_3_3_2| "sym_GL_UNSIGNED_BYTE_3_3_2"
+  "Scm_MakeInteger(GL_UNSIGNED_BYTE_3_3_2)")
+(define-symbol |GL_UNSIGNED_BYTE_2_3_3_REV| "sym_GL_UNSIGNED_BYTE_2_3_3_REV"
+  "Scm_MakeInteger(GL_UNSIGNED_BYTE_2_3_3_REV)")
+(define-symbol |GL_UNSIGNED_SHORT_5_6_5| "sym_GL_UNSIGNED_SHORT_5_6_5"
+  "Scm_MakeInteger(GL_UNSIGNED_SHORT_5_6_5)")
+(define-symbol |GL_UNSIGNED_SHORT_5_6_5_REV| "sym_GL_UNSIGNED_SHORT_5_6_5_REV"
+  "Scm_MakeInteger(GL_UNSIGNED_SHORT_5_6_5_REV)")
+(define-symbol |GL_UNSIGNED_SHORT_4_4_4_4| "sym_GL_UNSIGNED_SHORT_4_4_4_4"
+  "Scm_MakeInteger(GL_UNSIGNED_SHORT_4_4_4_4)")
+(define-symbol |GL_UNSIGNED_SHORT_4_4_4_4_REV| "sym_GL_UNSIGNED_SHORT_4_4_4_4_REV"
+  "Scm_MakeInteger(GL_UNSIGNED_SHORT_4_4_4_4_REV)")
+(define-symbol |GL_UNSIGNED_SHORT_5_5_5_1| "sym_GL_UNSIGNED_SHORT_5_5_5_1"
+  "Scm_MakeInteger(GL_UNSIGNED_SHORT_5_5_5_1)")
+(define-symbol |GL_UNSIGNED_SHORT_1_5_5_5_REV| "sym_GL_UNSIGNED_SHORT_1_5_5_5_REV"
+  "Scm_MakeInteger(GL_UNSIGNED_SHORT_1_5_5_5_REV)")
+(define-symbol |GL_UNSIGNED_INT_8_8_8_8| "sym_GL_UNSIGNED_INT_8_8_8_8"
+  "Scm_MakeInteger(GL_UNSIGNED_INT_8_8_8_8)")
+(define-symbol |GL_UNSIGNED_INT_8_8_8_8_REV| "sym_GL_UNSIGNED_INT_8_8_8_8_REV"
+  "Scm_MakeInteger(GL_UNSIGNED_INT_8_8_8_8_REV)")
+(define-symbol |GL_UNSIGNED_INT_10_10_10_2| "sym_GL_UNSIGNED_INT_10_10_10_2"
+  "Scm_MakeInteger(GL_UNSIGNED_INT_10_10_10_2)")
+(define-symbol |GL_UNSIGNED_INT_2_10_10_10_REV| "sym_GL_UNSIGNED_INT_2_10_10_10_REV"
+  "Scm_MakeInteger(GL_UNSIGNED_INT_2_10_10_10_REV)")
+(define-symbol |GL_LIGHT_MODEL_COLOR_CONTROL| "sym_GL_LIGHT_MODEL_COLOR_CONTROL"
+  "Scm_MakeInteger(GL_LIGHT_MODEL_COLOR_CONTROL)")
+(define-symbol |GL_SINGLE_COLOR| "sym_GL_SINGLE_COLOR"
+  "Scm_MakeInteger(GL_SINGLE_COLOR)")
+(define-symbol |GL_SEPARATE_SPECULAR_COLOR| "sym_GL_SEPARATE_SPECULAR_COLOR"
+  "Scm_MakeInteger(GL_SEPARATE_SPECULAR_COLOR)")
+(define-symbol |GL_TEXTURE_MIN_LOD| "sym_GL_TEXTURE_MIN_LOD"
+  "Scm_MakeInteger(GL_TEXTURE_MIN_LOD)")
+(define-symbol |GL_TEXTURE_MAX_LOD| "sym_GL_TEXTURE_MAX_LOD"
+  "Scm_MakeInteger(GL_TEXTURE_MAX_LOD)")
+(define-symbol |GL_TEXTURE_BASE_LEVEL| "sym_GL_TEXTURE_BASE_LEVEL"
+  "Scm_MakeInteger(GL_TEXTURE_BASE_LEVEL)")
+(define-symbol |GL_TEXTURE_MAX_LEVEL| "sym_GL_TEXTURE_MAX_LEVEL"
+  "Scm_MakeInteger(GL_TEXTURE_MAX_LEVEL)")
+(define-symbol |GL_CURRENT_BIT| "sym_GL_CURRENT_BIT"
+  "Scm_MakeInteger(GL_CURRENT_BIT)")
+(define-symbol |GL_POINT_BIT| "sym_GL_POINT_BIT"
+  "Scm_MakeInteger(GL_POINT_BIT)")
+(define-symbol |GL_LINE_BIT| "sym_GL_LINE_BIT"
+  "Scm_MakeInteger(GL_LINE_BIT)")
+(define-symbol |GL_POLYGON_BIT| "sym_GL_POLYGON_BIT"
+  "Scm_MakeInteger(GL_POLYGON_BIT)")
+(define-symbol |GL_POLYGON_STIPPLE_BIT| "sym_GL_POLYGON_STIPPLE_BIT"
+  "Scm_MakeInteger(GL_POLYGON_STIPPLE_BIT)")
+(define-symbol |GL_PIXEL_MODE_BIT| "sym_GL_PIXEL_MODE_BIT"
+  "Scm_MakeInteger(GL_PIXEL_MODE_BIT)")
+(define-symbol |GL_LIGHTING_BIT| "sym_GL_LIGHTING_BIT"
+  "Scm_MakeInteger(GL_LIGHTING_BIT)")
+(define-symbol |GL_FOG_BIT| "sym_GL_FOG_BIT"
+  "Scm_MakeInteger(GL_FOG_BIT)")
+(define-symbol |GL_DEPTH_BUFFER_BIT| "sym_GL_DEPTH_BUFFER_BIT"
+  "Scm_MakeInteger(GL_DEPTH_BUFFER_BIT)")
+(define-symbol |GL_ACCUM_BUFFER_BIT| "sym_GL_ACCUM_BUFFER_BIT"
+  "Scm_MakeInteger(GL_ACCUM_BUFFER_BIT)")
+(define-symbol |GL_STENCIL_BUFFER_BIT| "sym_GL_STENCIL_BUFFER_BIT"
+  "Scm_MakeInteger(GL_STENCIL_BUFFER_BIT)")
+(define-symbol |GL_VIEWPORT_BIT| "sym_GL_VIEWPORT_BIT"
+  "Scm_MakeInteger(GL_VIEWPORT_BIT)")
+(define-symbol |GL_TRANSFORM_BIT| "sym_GL_TRANSFORM_BIT"
+  "Scm_MakeInteger(GL_TRANSFORM_BIT)")
+(define-symbol |GL_ENABLE_BIT| "sym_GL_ENABLE_BIT"
+  "Scm_MakeInteger(GL_ENABLE_BIT)")
+(define-symbol |GL_COLOR_BUFFER_BIT| "sym_GL_COLOR_BUFFER_BIT"
+  "Scm_MakeInteger(GL_COLOR_BUFFER_BIT)")
+(define-symbol |GL_HINT_BIT| "sym_GL_HINT_BIT"
+  "Scm_MakeInteger(GL_HINT_BIT)")
+(define-symbol |GL_EVAL_BIT| "sym_GL_EVAL_BIT"
+  "Scm_MakeInteger(GL_EVAL_BIT)")
+(define-symbol |GL_LIST_BIT| "sym_GL_LIST_BIT"
+  "Scm_MakeInteger(GL_LIST_BIT)")
+(define-symbol |GL_TEXTURE_BIT| "sym_GL_TEXTURE_BIT"
+  "Scm_MakeInteger(GL_TEXTURE_BIT)")
+(define-symbol |GL_SCISSOR_BIT| "sym_GL_SCISSOR_BIT"
+  "Scm_MakeInteger(GL_SCISSOR_BIT)")
+(define-symbol |GL_ALL_ATTRIB_BITS| "sym_GL_ALL_ATTRIB_BITS"
+  "Scm_MakeInteger(GL_ALL_ATTRIB_BITS)")
+(define-symbol |GL_CLIENT_PIXEL_STORE_BIT| "sym_GL_CLIENT_PIXEL_STORE_BIT"
+  "Scm_MakeInteger(GL_CLIENT_PIXEL_STORE_BIT)")
+(define-symbol |GL_CLIENT_VERTEX_ARRAY_BIT| "sym_GL_CLIENT_VERTEX_ARRAY_BIT"
+  "Scm_MakeInteger(GL_CLIENT_VERTEX_ARRAY_BIT)")
+(define-symbol |GL_CLIENT_ALL_ATTRIB_BITS| "sym_GL_CLIENT_ALL_ATTRIB_BITS"
+  "Scm_MakeInteger(GL_CLIENT_ALL_ATTRIB_BITS)")
+(define-symbol |GLU_SMOOTH| "sym_GLU_SMOOTH"
+  "Scm_MakeInteger(GLU_SMOOTH)")
+(define-symbol |GLU_FLAT| "sym_GLU_FLAT"
+  "Scm_MakeInteger(GLU_FLAT)")
+(define-symbol |GLU_NONE| "sym_GLU_NONE"
+  "Scm_MakeInteger(GLU_NONE)")
+(define-symbol |GLU_POINT| "sym_GLU_POINT"
+  "Scm_MakeInteger(GLU_POINT)")
+(define-symbol |GLU_LINE| "sym_GLU_LINE"
+  "Scm_MakeInteger(GLU_LINE)")
+(define-symbol |GLU_FILL| "sym_GLU_FILL"
+  "Scm_MakeInteger(GLU_FILL)")
+(define-symbol |GLU_SILHOUETTE| "sym_GLU_SILHOUETTE"
+  "Scm_MakeInteger(GLU_SILHOUETTE)")
+(define-symbol |GLU_OUTSIDE| "sym_GLU_OUTSIDE"
+  "Scm_MakeInteger(GLU_OUTSIDE)")
+(define-symbol |GLU_INSIDE| "sym_GLU_INSIDE"
+  "Scm_MakeInteger(GLU_INSIDE)")
+(define-symbol |GLU_BEGIN| "sym_GLU_BEGIN"
+  "Scm_MakeInteger(GLU_BEGIN)")
+(define-symbol |GLU_VERTEX| "sym_GLU_VERTEX"
+  "Scm_MakeInteger(GLU_VERTEX)")
+(define-symbol |GLU_END| "sym_GLU_END"
+  "Scm_MakeInteger(GLU_END)")
+(define-symbol |GLU_ERROR| "sym_GLU_ERROR"
+  "Scm_MakeInteger(GLU_ERROR)")
+(define-symbol |GLU_EDGE_FLAG| "sym_GLU_EDGE_FLAG"
+  "Scm_MakeInteger(GLU_EDGE_FLAG)")
+(define-symbol |GLU_CW| "sym_GLU_CW"
+  "Scm_MakeInteger(GLU_CW)")
+(define-symbol |GLU_CCW| "sym_GLU_CCW"
+  "Scm_MakeInteger(GLU_CCW)")
+(define-symbol |GLU_INTERIOR| "sym_GLU_INTERIOR"
+  "Scm_MakeInteger(GLU_INTERIOR)")
+(define-symbol |GLU_EXTERIOR| "sym_GLU_EXTERIOR"
+  "Scm_MakeInteger(GLU_EXTERIOR)")
+(define-symbol |GLU_UNKNOWN| "sym_GLU_UNKNOWN"
+  "Scm_MakeInteger(GLU_UNKNOWN)")
+(define-symbol |GLU_TESS_ERROR1| "sym_GLU_TESS_ERROR1"
+  "Scm_MakeInteger(GLU_TESS_ERROR1)")
+(define-symbol |GLU_TESS_ERROR2| "sym_GLU_TESS_ERROR2"
+  "Scm_MakeInteger(GLU_TESS_ERROR2)")
+(define-symbol |GLU_TESS_ERROR3| "sym_GLU_TESS_ERROR3"
+  "Scm_MakeInteger(GLU_TESS_ERROR3)")
+(define-symbol |GLU_TESS_ERROR4| "sym_GLU_TESS_ERROR4"
+  "Scm_MakeInteger(GLU_TESS_ERROR4)")
+(define-symbol |GLU_TESS_ERROR5| "sym_GLU_TESS_ERROR5"
+  "Scm_MakeInteger(GLU_TESS_ERROR5)")
+(define-symbol |GLU_TESS_ERROR6| "sym_GLU_TESS_ERROR6"
+  "Scm_MakeInteger(GLU_TESS_ERROR6)")
+(define-symbol |GLU_TESS_ERROR7| "sym_GLU_TESS_ERROR7"
+  "Scm_MakeInteger(GLU_TESS_ERROR7)")
+(define-symbol |GLU_TESS_ERROR8| "sym_GLU_TESS_ERROR8"
+  "Scm_MakeInteger(GLU_TESS_ERROR8)")
+(define-symbol |GLU_TESS_ERROR9| "sym_GLU_TESS_ERROR9"
+  "Scm_MakeInteger(GLU_TESS_ERROR9)")
+(define-symbol |GLU_AUTO_LOAD_MATRIX| "sym_GLU_AUTO_LOAD_MATRIX"
+  "Scm_MakeInteger(GLU_AUTO_LOAD_MATRIX)")
+(define-symbol |GLU_CULLING| "sym_GLU_CULLING"
+  "Scm_MakeInteger(GLU_CULLING)")
+(define-symbol |GLU_PARAMETRIC_TOLERANCE| "sym_GLU_PARAMETRIC_TOLERANCE"
+  "Scm_MakeInteger(GLU_PARAMETRIC_TOLERANCE)")
+(define-symbol |GLU_SAMPLING_TOLERANCE| "sym_GLU_SAMPLING_TOLERANCE"
+  "Scm_MakeInteger(GLU_SAMPLING_TOLERANCE)")
+(define-symbol |GLU_DISPLAY_MODE| "sym_GLU_DISPLAY_MODE"
+  "Scm_MakeInteger(GLU_DISPLAY_MODE)")
+(define-symbol |GLU_SAMPLING_METHOD| "sym_GLU_SAMPLING_METHOD"
+  "Scm_MakeInteger(GLU_SAMPLING_METHOD)")
+(define-symbol |GLU_U_STEP| "sym_GLU_U_STEP"
+  "Scm_MakeInteger(GLU_U_STEP)")
+(define-symbol |GLU_V_STEP| "sym_GLU_V_STEP"
+  "Scm_MakeInteger(GLU_V_STEP)")
+(define-symbol |GLU_PATH_LENGTH| "sym_GLU_PATH_LENGTH"
+  "Scm_MakeInteger(GLU_PATH_LENGTH)")
+(define-symbol |GLU_PARAMETRIC_ERROR| "sym_GLU_PARAMETRIC_ERROR"
+  "Scm_MakeInteger(GLU_PARAMETRIC_ERROR)")
+(define-symbol |GLU_DOMAIN_DISTANCE| "sym_GLU_DOMAIN_DISTANCE"
+  "Scm_MakeInteger(GLU_DOMAIN_DISTANCE)")
+(define-symbol |GLU_MAP1_TRIM_2| "sym_GLU_MAP1_TRIM_2"
+  "Scm_MakeInteger(GLU_MAP1_TRIM_2)")
+(define-symbol |GLU_MAP1_TRIM_3| "sym_GLU_MAP1_TRIM_3"
+  "Scm_MakeInteger(GLU_MAP1_TRIM_3)")
+(define-symbol |GLU_OUTLINE_POLYGON| "sym_GLU_OUTLINE_POLYGON"
+  "Scm_MakeInteger(GLU_OUTLINE_POLYGON)")
+(define-symbol |GLU_OUTLINE_PATCH| "sym_GLU_OUTLINE_PATCH"
+  "Scm_MakeInteger(GLU_OUTLINE_PATCH)")
+(define-symbol |GLU_NURBS_ERROR1| "sym_GLU_NURBS_ERROR1"
+  "Scm_MakeInteger(GLU_NURBS_ERROR1)")
+(define-symbol |GLU_NURBS_ERROR2| "sym_GLU_NURBS_ERROR2"
+  "Scm_MakeInteger(GLU_NURBS_ERROR2)")
+(define-symbol |GLU_NURBS_ERROR3| "sym_GLU_NURBS_ERROR3"
+  "Scm_MakeInteger(GLU_NURBS_ERROR3)")
+(define-symbol |GLU_NURBS_ERROR4| "sym_GLU_NURBS_ERROR4"
+  "Scm_MakeInteger(GLU_NURBS_ERROR4)")
+(define-symbol |GLU_NURBS_ERROR5| "sym_GLU_NURBS_ERROR5"
+  "Scm_MakeInteger(GLU_NURBS_ERROR5)")
+(define-symbol |GLU_NURBS_ERROR6| "sym_GLU_NURBS_ERROR6"
+  "Scm_MakeInteger(GLU_NURBS_ERROR6)")
+(define-symbol |GLU_NURBS_ERROR7| "sym_GLU_NURBS_ERROR7"
+  "Scm_MakeInteger(GLU_NURBS_ERROR7)")
+(define-symbol |GLU_NURBS_ERROR8| "sym_GLU_NURBS_ERROR8"
+  "Scm_MakeInteger(GLU_NURBS_ERROR8)")
+(define-symbol |GLU_NURBS_ERROR9| "sym_GLU_NURBS_ERROR9"
+  "Scm_MakeInteger(GLU_NURBS_ERROR9)")
+(define-symbol |GLU_NURBS_ERROR10| "sym_GLU_NURBS_ERROR10"
+  "Scm_MakeInteger(GLU_NURBS_ERROR10)")
+(define-symbol |GLU_NURBS_ERROR11| "sym_GLU_NURBS_ERROR11"
+  "Scm_MakeInteger(GLU_NURBS_ERROR11)")
+(define-symbol |GLU_NURBS_ERROR12| "sym_GLU_NURBS_ERROR12"
+  "Scm_MakeInteger(GLU_NURBS_ERROR12)")
+(define-symbol |GLU_NURBS_ERROR13| "sym_GLU_NURBS_ERROR13"
+  "Scm_MakeInteger(GLU_NURBS_ERROR13)")
+(define-symbol |GLU_NURBS_ERROR14| "sym_GLU_NURBS_ERROR14"
+  "Scm_MakeInteger(GLU_NURBS_ERROR14)")
+(define-symbol |GLU_NURBS_ERROR15| "sym_GLU_NURBS_ERROR15"
+  "Scm_MakeInteger(GLU_NURBS_ERROR15)")
+(define-symbol |GLU_NURBS_ERROR16| "sym_GLU_NURBS_ERROR16"
+  "Scm_MakeInteger(GLU_NURBS_ERROR16)")
+(define-symbol |GLU_NURBS_ERROR17| "sym_GLU_NURBS_ERROR17"
+  "Scm_MakeInteger(GLU_NURBS_ERROR17)")
+(define-symbol |GLU_NURBS_ERROR18| "sym_GLU_NURBS_ERROR18"
+  "Scm_MakeInteger(GLU_NURBS_ERROR18)")
+(define-symbol |GLU_NURBS_ERROR19| "sym_GLU_NURBS_ERROR19"
+  "Scm_MakeInteger(GLU_NURBS_ERROR19)")
+(define-symbol |GLU_NURBS_ERROR20| "sym_GLU_NURBS_ERROR20"
+  "Scm_MakeInteger(GLU_NURBS_ERROR20)")
+(define-symbol |GLU_NURBS_ERROR21| "sym_GLU_NURBS_ERROR21"
+  "Scm_MakeInteger(GLU_NURBS_ERROR21)")
+(define-symbol |GLU_NURBS_ERROR22| "sym_GLU_NURBS_ERROR22"
+  "Scm_MakeInteger(GLU_NURBS_ERROR22)")
+(define-symbol |GLU_NURBS_ERROR23| "sym_GLU_NURBS_ERROR23"
+  "Scm_MakeInteger(GLU_NURBS_ERROR23)")
+(define-symbol |GLU_NURBS_ERROR24| "sym_GLU_NURBS_ERROR24"
+  "Scm_MakeInteger(GLU_NURBS_ERROR24)")
+(define-symbol |GLU_NURBS_ERROR25| "sym_GLU_NURBS_ERROR25"
+  "Scm_MakeInteger(GLU_NURBS_ERROR25)")
+(define-symbol |GLU_NURBS_ERROR26| "sym_GLU_NURBS_ERROR26"
+  "Scm_MakeInteger(GLU_NURBS_ERROR26)")
+(define-symbol |GLU_NURBS_ERROR27| "sym_GLU_NURBS_ERROR27"
+  "Scm_MakeInteger(GLU_NURBS_ERROR27)")
+(define-symbol |GLU_NURBS_ERROR28| "sym_GLU_NURBS_ERROR28"
+  "Scm_MakeInteger(GLU_NURBS_ERROR28)")
+(define-symbol |GLU_NURBS_ERROR29| "sym_GLU_NURBS_ERROR29"
+  "Scm_MakeInteger(GLU_NURBS_ERROR29)")
+(define-symbol |GLU_NURBS_ERROR30| "sym_GLU_NURBS_ERROR30"
+  "Scm_MakeInteger(GLU_NURBS_ERROR30)")
+(define-symbol |GLU_NURBS_ERROR31| "sym_GLU_NURBS_ERROR31"
+  "Scm_MakeInteger(GLU_NURBS_ERROR31)")
+(define-symbol |GLU_NURBS_ERROR32| "sym_GLU_NURBS_ERROR32"
+  "Scm_MakeInteger(GLU_NURBS_ERROR32)")
+(define-symbol |GLU_NURBS_ERROR33| "sym_GLU_NURBS_ERROR33"
+  "Scm_MakeInteger(GLU_NURBS_ERROR33)")
+(define-symbol |GLU_NURBS_ERROR34| "sym_GLU_NURBS_ERROR34"
+  "Scm_MakeInteger(GLU_NURBS_ERROR34)")
+(define-symbol |GLU_NURBS_ERROR35| "sym_GLU_NURBS_ERROR35"
+  "Scm_MakeInteger(GLU_NURBS_ERROR35)")
+(define-symbol |GLU_NURBS_ERROR36| "sym_GLU_NURBS_ERROR36"
+  "Scm_MakeInteger(GLU_NURBS_ERROR36)")
+(define-symbol |GLU_NURBS_ERROR37| "sym_GLU_NURBS_ERROR37"
+  "Scm_MakeInteger(GLU_NURBS_ERROR37)")
+(define-symbol |GLU_INVALID_ENUM| "sym_GLU_INVALID_ENUM"
+  "Scm_MakeInteger(GLU_INVALID_ENUM)")
+(define-symbol |GLU_INVALID_VALUE| "sym_GLU_INVALID_VALUE"
+  "Scm_MakeInteger(GLU_INVALID_VALUE)")
+(define-symbol |GLU_OUT_OF_MEMORY| "sym_GLU_OUT_OF_MEMORY"
+  "Scm_MakeInteger(GLU_OUT_OF_MEMORY)")
+(define-symbol |GLU_INCOMPATIBLE_GL_VERSION| "sym_GLU_INCOMPATIBLE_GL_VERSION"
+  "Scm_MakeInteger(GLU_INCOMPATIBLE_GL_VERSION)")
+(define-symbol |GLU_VERSION| "sym_GLU_VERSION"
+  "Scm_MakeInteger(GLU_VERSION)")
+(define-symbol |GLU_EXTENSIONS| "sym_GLU_EXTENSIONS"
+  "Scm_MakeInteger(GLU_EXTENSIONS)")
+(define-symbol |GLX_USE_GL| "sym_GLX_USE_GL"
+  "Scm_MakeInteger(GLX_USE_GL)")
+(define-symbol |GLX_BUFFER_SIZE| "sym_GLX_BUFFER_SIZE"
+  "Scm_MakeInteger(GLX_BUFFER_SIZE)")
+(define-symbol |GLX_LEVEL| "sym_GLX_LEVEL"
+  "Scm_MakeInteger(GLX_LEVEL)")
+(define-symbol |GLX_RGBA| "sym_GLX_RGBA"
+  "Scm_MakeInteger(GLX_RGBA)")
+(define-symbol |GLX_DOUBLEBUFFER| "sym_GLX_DOUBLEBUFFER"
+  "Scm_MakeInteger(GLX_DOUBLEBUFFER)")
+(define-symbol |GLX_STEREO| "sym_GLX_STEREO"
+  "Scm_MakeInteger(GLX_STEREO)")
+(define-symbol |GLX_AUX_BUFFERS| "sym_GLX_AUX_BUFFERS"
+  "Scm_MakeInteger(GLX_AUX_BUFFERS)")
+(define-symbol |GLX_RED_SIZE| "sym_GLX_RED_SIZE"
+  "Scm_MakeInteger(GLX_RED_SIZE)")
+(define-symbol |GLX_GREEN_SIZE| "sym_GLX_GREEN_SIZE"
+  "Scm_MakeInteger(GLX_GREEN_SIZE)")
+(define-symbol |GLX_BLUE_SIZE| "sym_GLX_BLUE_SIZE"
+  "Scm_MakeInteger(GLX_BLUE_SIZE)")
+(define-symbol |GLX_ALPHA_SIZE| "sym_GLX_ALPHA_SIZE"
+  "Scm_MakeInteger(GLX_ALPHA_SIZE)")
+(define-symbol |GLX_DEPTH_SIZE| "sym_GLX_DEPTH_SIZE"
+  "Scm_MakeInteger(GLX_DEPTH_SIZE)")
+(define-symbol |GLX_STENCIL_SIZE| "sym_GLX_STENCIL_SIZE"
+  "Scm_MakeInteger(GLX_STENCIL_SIZE)")
+(define-symbol |GLX_ACCUM_RED_SIZE| "sym_GLX_ACCUM_RED_SIZE"
+  "Scm_MakeInteger(GLX_ACCUM_RED_SIZE)")
+(define-symbol |GLX_ACCUM_GREEN_SIZE| "sym_GLX_ACCUM_GREEN_SIZE"
+  "Scm_MakeInteger(GLX_ACCUM_GREEN_SIZE)")
+(define-symbol |GLX_ACCUM_BLUE_SIZE| "sym_GLX_ACCUM_BLUE_SIZE"
+  "Scm_MakeInteger(GLX_ACCUM_BLUE_SIZE)")
+(define-symbol |GLX_ACCUM_ALPHA_SIZE| "sym_GLX_ACCUM_ALPHA_SIZE"
+  "Scm_MakeInteger(GLX_ACCUM_ALPHA_SIZE)")
+(define-symbol |GLX_X_VISUAL_TYPE_EXT| "sym_GLX_X_VISUAL_TYPE_EXT"
+  "Scm_MakeInteger(GLX_X_VISUAL_TYPE_EXT)")
+(define-symbol |GLX_TRANSPARENT_TYPE_EXT| "sym_GLX_TRANSPARENT_TYPE_EXT"
+  "Scm_MakeInteger(GLX_TRANSPARENT_TYPE_EXT)")
+(define-symbol |GLX_TRANSPARENT_INDEX_VALUE_EXT| "sym_GLX_TRANSPARENT_INDEX_VALUE_EXT"
+  "Scm_MakeInteger(GLX_TRANSPARENT_INDEX_VALUE_EXT)")
+(define-symbol |GLX_TRANSPARENT_RED_VALUE_EXT| "sym_GLX_TRANSPARENT_RED_VALUE_EXT"
+  "Scm_MakeInteger(GLX_TRANSPARENT_RED_VALUE_EXT)")
+(define-symbol |GLX_TRANSPARENT_GREEN_VALUE_EXT| "sym_GLX_TRANSPARENT_GREEN_VALUE_EXT"
+  "Scm_MakeInteger(GLX_TRANSPARENT_GREEN_VALUE_EXT)")
+(define-symbol |GLX_TRANSPARENT_BLUE_VALUE_EXT| "sym_GLX_TRANSPARENT_BLUE_VALUE_EXT"
+  "Scm_MakeInteger(GLX_TRANSPARENT_BLUE_VALUE_EXT)")
+(define-symbol |GLX_TRANSPARENT_ALPHA_VALUE_EXT| "sym_GLX_TRANSPARENT_ALPHA_VALUE_EXT"
+  "Scm_MakeInteger(GLX_TRANSPARENT_ALPHA_VALUE_EXT)")
+
+;; Local variables:
+;; mode: scheme
+;; end:

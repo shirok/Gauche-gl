@@ -11,6 +11,7 @@ test : all
 clean :
 	rm -rf core *~
 	cd src; $(MAKE) clean
+	cd lib; $(MAKE) clean
 
 distclean : clean
 	cd src; $(MAKE) distclean
@@ -18,6 +19,7 @@ distclean : clean
 
 install :
 	cd src; $(MAKE) install
+	cd lib; $(MAKE) install
 
 realclean : clean
 	cd src; $(MAKE) realclean

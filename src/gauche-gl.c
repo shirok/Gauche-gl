@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.13 2002-08-26 10:56:35 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.14 2002-08-29 10:40:54 shirok Exp $
  */
 
 #include <gauche.h>
@@ -145,6 +145,54 @@ int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
         return w*h;
     } else {
         return w*h*components;
+    }
+}
+
+/* Given pixel element type and data size (obtained by Scm_GLPixelDataSize),
+   checks the validity of pixel data, and returns a pointer to the data
+   area of the pixel data. */
+/* TODO: size is not checked yet */
+void *Scm_GLPixelDataCheck(ScmObj pixels, int elttype, int size)
+{
+    switch (elttype) {
+    case SCM_GL_BYTE:
+        if (!SCM_S8VECTORP(pixels)) {
+            Scm_Error("s8vector required, but got %S", pixels);
+        }
+        return (void*)SCM_S8VECTOR_ELEMENTS(pixels);
+    case SCM_GL_UBYTE:
+        if (!SCM_U8VECTORP(pixels)) {
+            Scm_Error("u8vector required, but got %S", pixels);
+        }
+        return (void*)SCM_U8VECTOR_ELEMENTS(pixels);
+    case SCM_GL_SHORT:
+        if (!SCM_S16VECTORP(pixels)) {
+            Scm_Error("s16vector required, but got %S", pixels);
+        }
+        return (void*)SCM_S16VECTOR_ELEMENTS(pixels);
+    case SCM_GL_USHORT:
+        if (!SCM_U16VECTORP(pixels)) {
+            Scm_Error("u16vector required, but got %S", pixels);
+        }
+        return (void*)SCM_U16VECTOR_ELEMENTS(pixels);
+    case SCM_GL_INT:
+        if (!SCM_S32VECTORP(pixels)) {
+            Scm_Error("s32vector required, but got %S", pixels);
+        }
+        return (void*)SCM_S32VECTOR_ELEMENTS(pixels);
+    case SCM_GL_UINT:
+        if (!SCM_U32VECTORP(pixels)) {
+            Scm_Error("u32vector required, but got %S", pixels);
+        }
+        return (void*)SCM_U32VECTOR_ELEMENTS(pixels);
+    case SCM_GL_FLOAT:
+        if (!SCM_F32VECTORP(pixels)) {
+            Scm_Error("f32vector required, but got %S", pixels);
+        }
+        return (void*)SCM_F32VECTOR_ELEMENTS(pixels);
+    default:
+        Scm_Error("Scm_GLPixelDataCheck: unknown element type: %d", elttype);
+        return NULL;
     }
 }
 

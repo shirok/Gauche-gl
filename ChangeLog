@@ -1,3 +1,10 @@
+2002-08-29  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-gl.c : refactored pixel data format check as
+	  Scm_GLPixelDataCheck.
+	* src/gl-lib.stub : added some GL1.2 and extension procs.
+	* examples/glbook/example8-4.scm : renamed from example8-3.scm
+
 2002-08-27  Shiro Kawai  <shiro@acm.org>
 
 	* examples/glbook/example8-3.scm : added

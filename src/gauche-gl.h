@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.8 2002-07-22 14:29:46 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.9 2002-08-29 10:40:54 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -50,6 +50,7 @@ extern int Scm_GLPixelDataType(GLenum type, int *packed);
 extern int Scm_GLPixelDataSize(GLsizei w, GLsizei h,
                                GLenum format, GLenum type,
                                int *elttype, int *packed);
+extern void *Scm_GLPixelDataCheck(ScmObj pixels, int elttype, int size);
 
 /* GLU objects */
 

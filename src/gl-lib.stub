@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.16 2002-07-24 15:39:20 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.17 2002-08-18 02:30:27 shirok Exp $
 ;;;
 
 "
@@ -40,51 +40,46 @@
   (return <void> "glClearColor"))
 
 (define-cproc gl-clear (mask::<uint>)
-  "glClear((GLbitfield)mask);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glClear"))
 
-(define-cproc gl-index-mask (mask)
-  "glIndexMask((GLuint)Scm_GetUInteger(mask));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-index-mask (mask::<uint>)
+  (return <void> "glIndexMask"))
 
 (define-cproc gl-color-mask (r::<boolean> g::<boolean> b::<boolean> a::<boolean>)
   (return <void> "glColorMask"))
 
-(define-cproc gl-alpha-func (func::<fixnum> ref::<real>)
-  "glAlphaFunc((GLenum)func, (GLclampf)ref);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-alpha-func (func::<fixnum> ref::<float>)
+  (return <void> "glAlphaFunc"))
 
-(define-cproc gl-blend-func (func::<fixnum> factor::<real>)
-  "glBlendFunc((GLenum)func, (GLclampf)factor);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-blend-func (func::<fixnum> factor::<float>)
+  (return <void> "glBlendFunc"))
 
 (define-cproc gl-logic-op (opcode::<fixnum>)
-  "glLogicOp((GLenum)opcode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glLogicOp"))
 
 (define-cproc gl-cull-face (mode::<fixnum>)
-  "glCullFace((GLenum)mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glCullFace"))
 
 (define-cproc gl-front-face (mode::<fixnum>)
-  "glFrontFace((GLenum)mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glFrontFace"))
 
-(define-cproc gl-point-size (size::<real>)
-  "glPointSize((GLfloat)size);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-point-size (size::<float>)
+  (return <void> "glPointSize"))
 
-(define-cproc gl-line-width (width::<real>)
-  "glLineWidth((GLfloat)width);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-line-width (width::<float>)
+  (return <void> "glLineWidth"))
 
-(define-cproc gl-line-stipple (factor::<fixnum> pat::<fixnum>)
-  "glLineStipple((GLint)factor, (GLushort)pat);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-line-stipple (factor::<fixnum> pat::<ushort>)
+  (return <void> "glLineStipple"))
 
 (define-cproc gl-polygon-mode (face::<fixnum> mode::<fixnum>)
   "glPolygonMode((GLenum)face, (GLenum)mode);
    SCM_RETURN(SCM_UNDEFINED);")
+
+(if "defined(GL_VERSION_1_1)"
+    (define-cproc gl-polygon-offset (factor::<float> pattern::<ushort>)
+      (return <void> "glPolygonOffset"))
+    )
 
 (define-cproc gl-polygon-stipple (mask)
   "  if (!SCM_U8VECTORP(mask) || SCM_U8VECTOR_SIZE(mask) != 128) {

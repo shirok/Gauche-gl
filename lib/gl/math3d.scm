@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.8 2002-10-22 10:51:02 shirok Exp $
+;;;  $Id: math3d.scm,v 1.9 2003-01-06 06:02:53 shirok Exp $
 ;;;
 
 (define-module gl.math3d
@@ -61,6 +61,30 @@
 (define (f32vector->point4f-array v)
   (check-arg f32vector? v)
   (f32vector->point4f-array/shared (f32vector-copy v)))
+
+(define (list->vector4f-array l)
+  (let* ((len (length l))
+         (a   (make-vector4f-array len))
+         (i   0))
+    (for-each (lambda (elt)
+                (unless (vector4f? elt)
+                  (error "vector4f required, but got" elt))
+                (vector4f-array-set! a i elt)
+                (inc! i))
+              l)
+    a))
+
+(define (list->point4f-array l)
+  (let* ((len (length l))
+         (a   (make-point4f-array len))
+         (i   0))
+    (for-each (lambda (elt)
+                (unless (point4f? elt)
+                  (error "point4f required, but got" elt))
+                (point4f-array-set! a i elt)
+                (inc! i))
+              l)
+    a))
 
 ;;=================================================================
 ;; sequence framework
@@ -164,6 +188,84 @@
   (f32vector->quatf v))
 (define-method coerce-to ((c <quatf-meta>) (v <vector>))
   (list->quatf (vector->list v)))
+
+;;-----------------------------------------------------------------
+;; iterators
+;;
+
+;; Iterator common pattern.  We treat literal length separately, for it would
+;; generate more efficient code.
+(define-syntax %math3dobj-iterator
+  (syntax-rules ()
+    ((_ (size-expr . args) ref obj proc)
+     (let ((len (size-expr . args))
+           (i 0))
+       (proc (lambda () (>= i len))
+             (lambda () (begin0 (ref obj i) (inc i))))))
+    ((_ len ref obj proc)
+     (let ((i 0))
+       (proc (lambda () (>= i len))
+             (lambda () (begin0 (ref obj i) (inc i))))))
+    ))
+
+(define-method call-with-iterator ((v <vector4f>) proc . args)
+  (%math3dobj-iterator 4 vector4f-ref v proc))
+
+(define-method call-with-iterator ((p <point4f>) proc . args)
+  (%math3dobj-iterator 4 point4f-ref p proc))
+
+(define-method call-with-iterator ((m <matrix4f>) proc . args)
+  (%math3dobj-iterator 16 matrix4f-ref m proc))
+
+(define-method call-with-iterator ((q <quatf>) proc . args)
+  (%math3dobj-iterator 4 quatf-ref q proc))
+
+(define-method call-with-iterator ((a <vector4f-array>) proc . args)
+  (%math3dobj-iterator (vector4f-array-length a) vector4f-array-ref a proc))
+
+(define-method call-with-iterator ((a <point4f-array>) proc . args)
+  (%math3dobj-iterator (point4f-array-length a) point4f-array-ref a proc))
+
+;; Iterator builder pattern.
+(define-syntax %math3dobj-builder
+  (syntax-rules ()
+    ((_ len new set proc)
+     (let ((v (new)) (i 0))
+       (proc (lambda (item) (when (>= i len) (set v i item) (inc! i)))
+             (lambda () v))))))
+     
+(define-method call-with-builder ((class <vector4f-meta>) proc . args)
+  (%math3dobj-builder 4 make-vector4f vector4f-set! proc))
+
+(define-method call-with-builder ((class <point4f-meta>) proc . args)
+  (%math3dobj-builder 4 make-point4f point4f-set! proc))
+
+(define-method call-with-builder ((class <matrix4f-meta>) proc . args)
+  (%math3dobj-builder 16 make-matrix4f matrix4f-set! proc))
+
+(define-method call-with-builder ((class <quatf-meta>) proc . args)
+  (%math3dobj-builder 4 make-quatf quatf-set! proc))
+
+(define-syntax %math3dobj-builder*
+  (syntax-rules ()
+    ((_ new list-> set proc args)
+     (let ((size (get-keyword :size args #f)))
+       (if size
+           (let ((v (new size)) (i 0))
+             (proc (lambda (item)
+                     (when (< i size) (set v i item) (inc! i)))
+                   (lambda () v)))
+           (let ((r '()))
+             (proc (lambda (item) (push! r item))
+                   (lambda () (list-> r)))))))))
+
+(define-method call-with-builder ((class <vector4f-array-meta>) proc . args)
+  (%math3dobj-builder* make-vector4f-array list->vector4f-array
+                       vector4f-array-set! proc args))
+
+(define-method call-with-builder ((class <point4f-array-meta>) proc . args)
+  (%math3dobj-builder* make-point4f-array list->point4f-array
+                       point4f-array-set! proc args))
 
 ;;-----------------------------------------------------------------
 ;; operator overload

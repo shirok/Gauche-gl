@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.15 2003-01-05 23:40:18 shirok Exp $
+ *  $Id: math3d.h,v 1.16 2003-01-06 06:02:54 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -281,10 +281,10 @@ extern ScmObj Scm_QuatfNormalizev(float *q);
 extern ScmObj Scm_QuatfNormalizeX(ScmQuatf *q);
 
 /* q[] must be a unit quaternion */
-extern void   Scm_QuatfToMatrixv(float *m, const float *q);
+extern void   Scm_QuatfToMatrix4fv(float *m, const float *q);
 
 /* m[] must be an orthogonal matrix */
-extern void   Scm_MatrixToQuatfv(float *q, const float *m);
+extern void   Scm_Matrix4fToQuatfv(float *q, const float *m);
 
 /* p[] and q[] must be unit quaternions */
 extern void   Scm_QuatfSlerp(float *r, const float *p, const float *q, float t);

@@ -78,6 +78,15 @@
           (vector4f-normalize! v)
           v)))
 
+;; sequence access
+(test "sequence"
+      '(1.0 2.0 3.0 4.0)
+      (lambda () (coerce-to <list> #,(vector4f 1.0 2.0 3.0 4.0))))
+
+(test "sequence"
+      #,(vector4f 1.0 2.0 3.0 4.0)
+      (lambda () (coerce-to <vector4f> '(1.0 2.0 3.0 4.0))))
+
 ;;------------------------------------------------------------------
 (test-section "point4f")
 
@@ -118,6 +127,15 @@
       (lambda ()
         (- #,(point4f 1.0 2.0 3.0)
            #,(point4f 2.0 4.0 6.0))))
+
+;; sequence access
+(test "sequence"
+      '(1.0 2.0 3.0 4.0)
+      (lambda () (coerce-to <list> #,(point4f 1.0 2.0 3.0 4.0))))
+
+(test "sequence"
+      #,(point4f 1.0 2.0 3.0 4.0)
+      (lambda () (coerce-to <point4f> '(1.0 2.0 3.0 4.0))))
 
 ;;------------------------------------------------------------------
 (test-section "matrix4f")
@@ -277,10 +295,10 @@
              (cosphi   (cos phi))
              (1-cosphi (- 1 cosphi))
              (sinphi   (sin phi))
-             (sqrt15   (sqrt 15))
-             (vx       (/ 1 sqrt15))
-             (vy       (/ 2 sqrt15))
-             (vz       (/ 3 sqrt15)))
+             (sqrt14   (sqrt 14))
+             (vx       (/ 1 sqrt14))
+             (vy       (/ 2 sqrt14))
+             (vz       (/ 3 sqrt14)))
         (matrix4f (* 1.1 (+ cosphi (* 1-cosphi vx vx)))
                   (+ (* 1-cosphi vx vy) (* sinphi vz))
                   (- (* 1-cosphi vx vz) (* sinphi vy))
@@ -299,12 +317,25 @@
                   1.0))
       (lambda ()
         (trs->matrix4f #,(vector4f -2.0 -3.0 -4.0)
-                       (vector4f (/ 1 (sqrt 15))
-                                 (/ 2 (sqrt 15))
-                                 (/ 3 (sqrt 15)))
+                       (vector4f (/ 1 (sqrt 14))
+                                 (/ 2 (sqrt 14))
+                                 (/ 3 (sqrt 14)))
                        (* 60 pi/180)
                        #,(vector4f 1.1 1.2 1.3)))
       nearly=?)
+
+;; sequence access
+(test "sequence"
+      '(1.0 2.0 3.0 4.0 -1.0 -2.0 -3.0 -4.0 4.0 3.0 2.0 1.0 -4.0 -3.0 -2.0 -1.0)
+      (lambda ()
+        (coerce-to <list>
+                   #,(matrix4f 1 2 3 4 -1 -2 -3 -4 4 3 2 1 -4 -3 -2 -1))))
+
+(test "sequence"
+      #,(matrix4f 1.0 2.0 3.0 4.0 -1.0 -2.0 -3.0 -4.0 4.0 3.0 2.0 1.0 -4.0 -3.0 -2.0 -1.0)
+      (lambda ()
+        (coerce-to <matrix4f>
+                   '(1.0 2.0 3.0 4.0 -1.0 -2.0 -3.0 -4.0 4.0 3.0 2.0 1.0 -4.0 -3.0 -2.0 -1.0))))
 
 ;;------------------------------------------------------------------
 (test-section "quatf")
@@ -331,15 +362,15 @@
 
 (test "rotation -> quaterion"
       (let* ((phi (* 75 pi/180))
-             (q   (quatf (* (sin phi) (/ 1 (sqrt 15)))
-                         (* (sin phi) (/ 2 (sqrt 15)))
-                         (* (sin phi) (/ 3 (sqrt 15)))
+             (q   (quatf (* (sin phi) (/ 1 (sqrt 14)))
+                         (* (sin phi) (/ 2 (sqrt 14)))
+                         (* (sin phi) (/ 3 (sqrt 14)))
                          (cos phi))))
         (list q q))
       (lambda ()
-        (let1 rotv (vector4f (/ 1 (sqrt 15))
-                             (/ 2 (sqrt 15))
-                             (/ 3 (sqrt 15)))
+        (let1 rotv (vector4f (/ 1 (sqrt 14))
+                             (/ 2 (sqrt 14))
+                             (/ 3 (sqrt 14)))
           (list (make-quatf rotv (* 150 pi/180))
                 (let1 q (make-quatf)
                   (rotation->quatf! q rotv (* 150 pi/180))))))
@@ -371,5 +402,40 @@
                                    (* -41 pi/180))
                        #,(vector4f 1 2 3)))
       nearly=?)
+
+;; matrix <-> quaternion
+(test "quatf->matrix"
+      (rotation->matrix4f (vector4f (/ 3 (sqrt 14))
+                                    (/ 2 (sqrt 14))
+                                    (/ -1 (sqrt 14)))
+                          (* 75 pi/180))
+      (lambda ()
+        (quatf->matrix4f (make-quatf (vector4f (/ 3 (sqrt 14))
+                                               (/ 2 (sqrt 14))
+                                               (/ -1 (sqrt 14)))
+                                     (* 75 pi/180))))
+      nearly=?)
+
+(test "matrix->quatf"
+      (make-quatf (vector4f (/ 7 (sqrt 66))
+                            (/ -1 (sqrt 66))
+                            (/ 4 (sqrt 66)))
+                  (* -13 pi/180))
+      (lambda ()
+        (matrix4f->quatf (rotation->matrix4f (vector4f (/ 7 (sqrt 66))
+                                                       (/ -1 (sqrt 66))
+                                                       (/ 4 (sqrt 66)))
+                                             (* -13 pi/180))))
+      nearly=?)
+
+;; sequence access
+(test "sequence"
+      '(1.0 2.0 3.0 4.0)
+      (lambda () (coerce-to <list> #,(quatf 1.0 2.0 3.0 4.0))))
+
+(test "sequence"
+      #,(quatf 1.0 2.0 3.0 4.0)
+      (lambda () (coerce-to <quatf> '(1.0 2.0 3.0 4.0))))
+
 
 (test-end)

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.16 2003-01-05 23:40:17 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.17 2003-01-06 06:02:53 shirok Exp $
  */
 
 #include <gauche.h>
@@ -952,7 +952,10 @@ ScmObj Scm_QuatfNormalizeX(ScmQuatf *p)
     return SCM_OBJ(p);
 }
 
-void Scm_QuatfToMatrixv(float m[], const float q[])
+/*
+ * Quaternion <-> Matrix
+ */
+void Scm_QuatfToMatrix4fv(float m[], const float q[])
 {
     float x2 = q[0]*q[0], y2 = q[1]*q[1], z2 = q[2]*q[2];
     float xy = q[0]*q[1], yz = q[1]*q[2], zx = q[2]*q[0];
@@ -963,6 +966,42 @@ void Scm_QuatfToMatrixv(float m[], const float q[])
     m[3] = 0; m[7] = 0; m[11] = 0; m[15] = 1;
 }
 
+void Scm_Matrix4fToQuatfv(float q[], const float m[])
+{
+    float trace = m[0] + m[5] + m[10];
+    float s;
+    if (trace > 0.0) {
+        s = 0.5 / sqrtf(trace + 1.0);
+        q[0] = (m[6]-m[9])*s;
+        q[1] = (m[8]-m[2])*s;
+        q[2] = (m[1]-m[4])*s;
+        q[3] = 0.25 / s;
+    } else {
+        static int next[] = { 1, 2, 0 }; /* to avoid modulo */
+        int i, j, k;
+        /* find max elem in m(i,i) for i=0 to 2. */
+        if (m[0] >= m[5]) {
+            if (m[0] >= m[10]) i = 0;
+            else i = 2;
+        } else {
+            if (m[5] >= m[10]) i = 1;
+            else i = 2;
+        }
+        j = next[i]; k = next[j];
+        s = sqrtf((m[i*5] - (m[j*5]+m[k*5])) + 1.0);
+        if (m[j*4+k] < m[k*4+j]) s *= -1.0;
+        q[i] = 0.5 * s;
+        s = 0.5 / s;
+        q[j] = (m[j*4+i] + m[i*4+j]) * s;
+        q[k] = (m[k*4+i] + m[i*4+k]) * s;
+        q[3] = (m[j*4+k] - m[k*4+j]) * s;
+    }
+}
+
+
+/*
+ * Interpolation
+ */
 void Scm_QuatfSlerp(float r[], const float p[], const float q[], float t)
 {
     double cosphi = p[0]*q[0]+p[1]*q[1]+p[2]*q[2]+p[3]*q[3], phi, sinphi;
@@ -977,6 +1016,12 @@ void Scm_QuatfSlerp(float r[], const float p[], const float q[], float t)
     }
     SCM_VECTOR4F_OP(i, r[i] = cp*p[i] + cq*q[i]);
 }
+
+/*
+ * Conversion between Euler angles and Quartenions
+ */
+
+
 
 /*=============================================================
  * Initialization

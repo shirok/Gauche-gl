@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.17 2003-01-05 23:40:18 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.18 2003-01-06 06:02:54 shirok Exp $
 ;;;
 
 "
@@ -499,6 +499,18 @@
 (define-cproc quatf-copy! (dst::<quatf> src::<quatf>)
   "SCM_RETURN(Scm_QuatfSetv(dst, SCM_QUATF_D(src)));")
 
+(define-cproc quatf-ref (q::<quatf> i::<fixnum> &optional fallback)
+  "if (i<0 || i>3) {
+    if (SCM_UNBOUNDP(fallback)) Scm_Error(\"index i out of range: %d\", i);
+    SCM_RETURN(fallback);
+  }
+  SCM_RETURN(Scm_MakeFlonum(SCM_QUATF_D(q)[i]));")
+
+(define-cproc quatf-set! (q::<quatf> i::<fixnum> val::<real>)
+  "if (i<0 || i>3) Scm_Error(\"index i out of range: %d\", i);
+  SCM_QUATF_D(q)[i] = (float)val;
+  SCM_RETURN(SCM_OBJ(q));")
+
 (define-cproc rotation->quatf! (q::<quatf> v angle::<real>)
   "float *qv = SCM_QUATF_D(q), *vv;
   double sint, cost;
@@ -563,11 +575,19 @@
 
 (define-cproc quatf->matrix4f (q::<quatf>)
   "float m[16];
-  Scm_QuatfToMatrixv(m, SCM_QUATF_D(q));
+  Scm_QuatfToMatrix4fv(m, SCM_QUATF_D(q));
   SCM_RETURN(Scm_MakeMatrix4fv(m));")
 (define-cproc quatf->matrix4f! (m::<matrix4f> q::<quatf>)
-  "Scm_QuatfToMatrixv(SCM_MATRIX4F_D(m), SCM_QUATF_D(q));
+  "Scm_QuatfToMatrix4fv(SCM_MATRIX4F_D(m), SCM_QUATF_D(q));
   SCM_RETURN(SCM_OBJ(m));")
+
+(define-cproc matrix4f->quatf (m::<matrix4f>)
+  "float q[4];
+  Scm_Matrix4fToQuatfv(q, SCM_MATRIX4F_D(m));
+  SCM_RETURN(Scm_MakeQuatfv(q));")
+(define-cproc matrix4f->quatf! (q::<quatf> m::<matrix4f>)
+  "Scm_Matrix4fToQuatfv(SCM_QUATF_D(q), SCM_MATRIX4F_D(m));
+  SCM_RETURN(SCM_OBJ(q));")
 
 (define-cproc quatf-slerp (p::<quatf> q::<quatf> t::<real>)
   "float r[4];

@@ -1,6 +1,8 @@
 2002-08-17  Shiro Kawai  <shiro@acm.org>
 
+	* src/gl-lib.stub : added gl-call-lists
 	* src/gauche-glut.c, src/glut-lib.stub : rewrote using define-enum
+	* examples/glbook/example7-[125].scm : added 
 
 2002-08-16  Shiro Kawai  <shiro@acm.org>
 

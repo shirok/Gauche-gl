@@ -3,13 +3,21 @@
 @c EN
 @setfilename gauche-gl-refe.info
 @settitle Gauche-gl : OpenGL binding for Gauche
+@dircategory The Algorithmic Language Scheme
+@direntry
+* Gauche-gl Reference: (gauche-gl-refe.info).	Gauche OpenGL binding
+@end direntry
 @c JP
 @setfilename gauche-gl-refj.info
 @settitle Gauche-gl : OpenGL binding for Gauche
+@dircategory The Algorithmic Language Scheme
+@direntry
+* Gauche-gl Reference (ja): (gauche-gl-refj.info).	Gauche OpenGL binding
+@end direntry
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.3 2002-10-15 11:01:44 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.4 2003-01-06 06:01:49 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -31,7 +39,7 @@
 
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2002 Shiro Kawai (shiro@@acm.org)
+Copyright @copyright{} 2002-2003 Shiro Kawai (shiro@@acm.org)
 
 @end titlepage
 
@@ -51,7 +59,7 @@ This manual is for version @VERSION@.
 * OpenGL API::                  
 * GLU API::                     
 * GLUT API::                    
-* 3D Vector and matrix utility::  
+* 3D vectors and matrices::     
 * GL-Scheme utility::           
 * Indices::                     
 @end menu
@@ -59,6 +67,27 @@ This manual is for version @VERSION@.
 @node Introduction, Installation, Top, Top
 @chapter Introduction
 @c NODE はじめに
+
+Gauche-gl is an extension module of Gauche Scheme implementation.
+It provides the following modules:
+
+@table @code
+@item gl
+The module that provides bindings to OpenGL API.
+It covers almost all functions in OpenGL 1.2,
+and most functions in GLU.
+The functions are described in @ref{OpenGL API} and
+@ref{GLU API}.
+@item gl.glut
+The module that provides bindings to most functions in GLUT.
+The functions are described in @ref{GLUT API}.
+@item gl.math3d
+The module that provides vector and matrix calculations
+optimized for 3D homogeneous coordinates.
+The vectors and matrices objects here can be directly passed to
+Gauche-gl functions.
+The functions are descrbied in @ref{3D vectors and matrices}.
+@end table
 
 @c ======================================================================
 @node Installation, Getting Started, Introduction, Top
@@ -79,7 +108,7 @@ This manual is for version @VERSION@.
 @chapter GLU API
 
 @c ======================================================================
-@node GLUT API, 3D Vector and matrix utility, GLU API, Top
+@node GLUT API, 3D vectors and matrices, GLU API, Top
 @chapter GLUT API
 
 @c ----------------------------------------------------------------------
@@ -566,8 +595,33 @@ This manual is for version @VERSION@.
 
 
 @c ======================================================================
-@node 3D Vector and matrix utility, GL-Scheme utility, GLUT API, Top
-@chapter 3D Vector and matrix utility
+@node 3D vectors and matrices, GL-Scheme utility, GLUT API, Top
+@chapter 3D vectors and matrices
+
+@deftp {Module} gl.math3d
+@mdindex gl.math3d
+The module provides vector and matrix operations useful for
+3D computer graphics.
+
+Actually this module itself doesn't depend on GL; you can use
+this module alone to do matrix calculations.  However, the structure
+of objects are designed so that they can be passed directly to
+Gauche-gl functions, reducing the overhead of type conversions.
+
+The purpose of this module is to provide reasonable performance.
+So the operations are fixed to 3D homogeneous coordinates,
+i.e. a vector is 4-element column vector, and a matrix is 4x4
+square matrix.  If you want more flexibility, @code{<array>}
+class in @code{gauche.array} provides much more generic
+structures, trading performance.
+
+Elements of vectors and matrices are represented in @code{float}
+internally.   When you retrieve each element individually, 
+it is converted to @code{double}, so you might see some precision
+errors.   There are lots of operations directly manipulate group of
+elements without retrieving each element to Scheme world, avoiding
+overhead of conversion.
+@end deftp
 
 @c ----------------------------------------------------------------------
 @menu
@@ -577,262 +631,656 @@ This manual is for version @VERSION@.
 * Quaternions::                 
 @end menu
 
-@node Vectors and points, Vector arrays and point arrays, 3D Vector and matrix utility, 3D Vector and matrix utility
+@node Vectors and points, Vector arrays and point arrays, 3D vectors and matrices, 3D vectors and matrices
 @section Vectors and points
 
 @deftp {Class} <vector4f>
 @deftpx {Class} <point4f>
+@clindex vector4f
+@clindex point4f
+4x1 column vectors.  @code{Vector4f} is intended to be used
+to represent a vector, and @code{point4f} is to a point,
+but as far as OpenGL concerns, both are just an array of four floats,
+@var{x}, @var{y}, @var{z} and @var{w}.
+
+These classes inherit @code{<sequence>} and @code{<collection>}
+classes.  So if you import @code{gauche.sequence} module,
+you can use generic function such as @code{ref} and @code{(setter ref)}
+to get/set individual elements.  The generic version of 
+@code{map} and @code{for-each} can also be used on the vector4f and
+point4f instances.
+
+Aside from the type, 
+the only difference is that the default value of @var{w} component---
+it's 0.0 for vectors, and 1.0 for points.  So usual transformation
+produces expected results; for example point plus vector
+becomes point, vector plus vector becomes vector,
+and translating point changes its coordinates but
+translating vectors doesn't, and so on.
+However, you can set @var{w} component to other value to do 
+nontrivial operations.
+@end deftp
+
+@deftp {Reader syntax} @code{#,(vector4f @var{x} @var{y} @var{z} @var{w})}
+@deftpx {Reader syntax} @code{#,(point4f @var{x} @var{y} @var{z} @var{w})}
+These SRFI-10 syntax can be used to denote literal @code{<vector4f>}
+and @code{<point4f>} instance, respectively.
+
+The write methods are defined so that the instance is written out
+in this form, and can be read back later.
 @end deftp
 
 @defun vector4f? obj
 @defunx point4f? obj
+Returns true iff @var{obj} is vector4f and point4f, respectively.
 @end defun
 
-@defun vector4f x y z &optional w
-@defunx point4f x y z &optional w
+
+@defun vector4f x y z &optional (w 0.0)
+@defunx point4f x y z &optional (w 1.0)
+Creates a vector4f and point4f instance with given values, respectively.
 @end defun
 
 @defun make-vector4f
 @defunx make-point4f
+Another way to create a vector4f and a point4f.
+The first returns @code{#,(vector4f 0.0 0.0 0.0 0.0)},
+and the latter returns @code{#,(point4f 0.0 0.0 0.0 1.0)}.
 @end defun
 
 @defun list->vector4f l
 @defunx list->point4f l
+Convert a list of three or four real numbers to a vector4f and a point4f,
+respectively.
+If @var{l} is not a list of three or four real numbers, an error is
+signalled.
+
+@example
+(list->vector4f l)
+  @equiv{} (apply vector4f l)
+  @equiv{} (coerce-to <vector4f> l)
+@end example
 @end defun
 
 @defun vector4f->list v
 @defunx point4f->list p
+Convert a vector4f and a point4f to a list of four real numbers,
+respectively.
+
+@example
+(vector4f->list v)
+  @equiv{} (coerce-to <list> v)
+  @equiv{} (map (cut ref v <>) (iota 4))
+@end example
 @end defun
 
 @defun f32vector->vector4f v &optional start
 @defunx f32vector->point4f v &optional start
+Creates a vector4f or a point4f, initializing by the elements of
+f32vector @var{v}.   @var{V} must be longer than 4, and the first
+four elements are used to initialize the created vector or point.
+
+If optional @var{start} argument is given, it specifies an index
+of @var{v} from which the initial values are taken; that is,
+@var{start}, @var{start+1}, @var{start+2} and @var{start+3}-th
+elements are used to create a vector or a point.
+This allows to create vectors from plain float array:
+@example
+(map (lambda (off) (f32vector->vector4f vec (* off 4)))
+     (iota (/ (size-of vec) 4)))
+@end example
+
+The conversion can be done using @code{coerce-to}, as well.
+@example
+(f32vector->vector4f vec)
+  @equiv{} (coerce-to <vector4f> vec)
+@end example
 @end defun
 
 @defun vector4f->f32vector v
 @defunx point4f->f32vector p
+Convert a vector4f @var{v} or a point4f @var{p} to four-element
+f32vector.
+
+@example
+(vector4f->f32vector v)
+ @equiv{} (coerce-to <f32vector> v)
+@end example
 @end defun
 
 @defun vector4f-copy v
 @defunx point4f-copy p
+Returns a new copy of vector4f @var{v} or point4f @var{p}, respectively.
 @end defun
 
 @defun vector4f-copy! dstv srcv
 @defunx point4f-copy! dstp srcp
+Destructively sets the content of @var{srcv} or @var{srcp} to
+@var{dstv} or @var{dstp}, respectively.
 @end defun
 
 @defun vector4f-set! v k value
 @defunx point4f-set! p k value
+Sets a real number @var{value} to
+@var{k}-th element of a vector4f @var{v} or a point4f @var{p}.
+
+@example
+(vector4f-set! v k value)
+  @equiv{} (set! (ref v k) value)
+@end example
 @end defun
 
 @defun vector4f-ref v k &optional fallback
 @defunx point4f-ref p k &optional fallback
+Gets a value of @var{k}-th element of a vector4f @var{v} or
+a point4f @var{p}.  If @var{k} is out of range,
+an error is signalled, unless @var{fallback} is provided,
+in such a case @var{fallback} is returned.
+
+@example
+(vector4f-ref v k)
+  @equiv{} (ref v k)
+@end example
 @end defun
 
 @defun vector4f-dot x y
+Returns a dot product of two vector4fs, @var{x} and @var{y}.
 @end defun
 
 @defun vector4f-cross x y
+Returns a cross product of two vector4fs, @var{x} and @var{y}.
+(@var{w} element is ignored).
 @end defun
 
 @defun vector4f-normalize x
 @defunx vector4f-normalize! x
+Returns a normalized vector of vector4f @var{x}.
+@code{Vector4f-normalize} allocates a new vector, while
+@code{vector4f-normalize!} modifies the original vector.
+
+As a special case, 
+if @var{x} is a vector of length 0, a vector of length 0 is returned.
 @end defun
 
 @defun vector4f-add x y
 @defunx vector4f-sub x y
 @defunx vector4f-add! x y
 @defunx vector4f-sub! x y
+Returns a sum of two vector4fs, @var{x} and @var{y}.
+The destructive version modifies @var{x}.
 @end defun
 
 @defun point4f-add x y
 @defunx point4f-add! x y
-@defunx point4f-sub x y
-@defunx point4f-sub! x y
+Adds a point4f @var{x} and a vector4f @var{y}, and returns
+a translated point.  The destructive version modifies @var{x}.
+@end defun
+
+@defun point4f-sub x y
+Subtracts either a vector4f or a point4f @var{y} from
+a point4f @var{x}.  If @var{y} is a vector4f, returns 
+a translated point.  If @var{y} is a point4f, returns
+a vector4f from point @var{y} to point @var{x}.
 @end defun
 
 @c ----------------------------------------------------------------------
-@node Vector arrays and point arrays, Matrices, Vectors and points, 3D Vector and matrix utility
+@node Vector arrays and point arrays, Matrices, Vectors and points, 3D vectors and matrices
 @section Vector arrays and point arrays
 
 @deftp {Class} <vector4f-array>
 @deftpx {Class} <point4f-array>
+@clindex vector4f-array
+@clindex point4f-array
+Represents an array of vector4fs and point4fs.
+This is an efficient way to keep an array of vectors or points,
+for the elements are packed in a simple float array.
+They are especially useful to work with GL's vertex array feature.
+@code{gl-vertex-pointer} can take @code{<point4f-array>},
+and @code{gl-normal-pointer} can take @code{<vector4f-array>}.
+
+It is also possible to "view" a plain f32vector as @code{<vector4f-array>}
+or @code{<point4f-array>} without copying its content, by
+@code{f32vector->vector4f-array/shared} and
+@code{f32vector->point4f-array/shared}.   Combined to
+@code{read-block!}, you can do efficient binary I/O of
+vertex arrays, for example.
+
+Inherits @code{<sequence>} and @code{<collection>}.
+When viewed as a sequence or a collection, they behaves like
+sequence or collection of @code{vector4f} and @code{point4f} objects,
+respectively.
 @end deftp
+
+@defun make-vector4f-array len &optional init-vector
+@defunx make-point4f-array len &optional init-point
+Creates a vector4f-array or point4f-array with @var{len} elements.
+Each element is initialized by a vector4f @var{init-vector} or
+a point4f @var{init-point} if provided.
+@end defun
 
 @defun vector4f-array? obj
 @defunx point4f-array? obj
+Returns true iff @var{obj} is a vector4f-array or a point4f-array,
+respectively.
 @end defun
 
-@defun vector4f-array-length v
-@defunx point4f-array-length v
+@defun vector4f-array-length array
+@defunx point4f-array-length array
+Returns length (number of vectors/points) in array @var{array}.
+@end defun
+
+@deftp {Reader syntax} @code{#,(vector4f-array @var{len} @var{elt} @dots{})}
+@deftpx {Reader syntax} @code{#,(point4f-array @var{len} @var{elt} @dots{})}
+Vector4f-array and point4f-array have external representation
+using this SRFI-10 syntax.  @var{Len} is a length of array,
+and each @var{elt} is a list of four floats representing
+each element of the array.
+
+@example
+(f32vector->vector4f-array #f32(1 2 3 4 6 7 4 3))
+  @result{} #,(vector4f-array 2 (1 2 3 4) (6 7 4 3) )
+@end example
+@end deftp
+
+@defun list->vector4f-array list
+@defunx list->point4f-array list
+From given list of vector4fs or point4fs, creates and returns
+a vector4f-array or point4f-array, respectively.
+@end defun
+
+@defun f32vector->vector4f-array v
+@defunx f32vector->point4f-array v
+Converts f32vector @var{v} to a vector4f-array or a point4f-array.
+The length of @var{v} must be multiple of four.
+The content of @var{v} is copied.
+
+@example
+(f32vector->vector4f-array v)
+  @equiv{} (coerce-to <vector4f-array> v)
+@end example
 @end defun
 
 @defun f32vector->vector4f-array/shared v
 @defunx f32vector->point4f-array/shared v
+Like above, but the content of @var{v} is shared by the result
+array, instead of being copied.
+So the modification of result array will be visible from original
+f32vector @var{v} and vice versa.
+It will allow efficient handling of large vertex arrays.
 @end defun
 
-@defun vector4f-array->f32vector v
-@defunx point4f-array->f32vector v
+@defun vector4f-array->f32vector array
+@defunx point4f-array->f32vector array
+Converts a vector4f-array or a point4f-array @var{array} to a f32vector.
+
+@example
+(vector4f-array->f32vector array)
+  @equiv{} (coerce-to <f32vector> array)
+@end example
 @end defun
 
 @defun vector4f-array-set! array i vector
 @defunx point4f-array-set! array i point
+Sets a vector4f @var{vector} or a point4f @var{point} to
+@var{i}-th element of vector4f-array or point4f-array @var{array},
+respectively.
+
+@example
+(vector4f-array-set! array i vector)
+  @equiv{} (set! (ref array i) vector)
+@end example
 @end defun
 
 @defun vector4f-array-ref array i &optional fallback
 @defunx point4f-array-ref array i &optional fallback
+Returns a vector4f or a point4f which is the @var{i}-th element
+of array @var{array}, respectively.
+If @var{k} is out of range,
+an error is signalled, unless @var{fallback} is provided,
+in such a case @var{fallback} is returned.
+
+@example
+(vector4f-array-ref array i)
+  @equiv{} (ref array i)
+
+(ref #,(vector4f-array 2 (1 2 3 4) (6 7 4 3))  1)
+  @result{} #,(vector4f 6 7 4 3)
+@end example
 @end defun
 
 @defun vector4f-array-ref/shared array i &optional fallback
 @defunx point4f-array-ref/shared array i &optional fallback
+Like above, but the returned vector4f or point4f shares the storage
+with the original array.  Thus the modification of the result
+vector or point will be visible from @var{array}, and vice versa.
 @end defun
 
-
 @c ----------------------------------------------------------------------
-@node Matrices, Quaternions, Vector arrays and point arrays, 3D Vector and matrix utility
+@node Matrices, Quaternions, Vector arrays and point arrays, 3D vectors and matrices
 @section Matrices
 
 @deftp {Class} <matrix4f>
+@clindex matrix4f
+4x4 matrix.  Internally it is represented as an array of 16 floats,
+stored in column-major order.
+(It is the same order OpenGL uses, so it can be passed to OpenGL
+calls without overhead).
+
+Inherits @code{<sequence>} and @code{<collection>}.
+When a matrix4f is treated as a sequence, it works as if it is 
+a single sequence of floats in column-major order.
 @end deftp
 
 @defun make-matrix4f &optional init
+Returns a new matrix4f instance.  If @var{init} is omitted,
+the matrix is a unit matrix.  Otherwise, @var{init} must be a f32vector
+of length 16, and the elements in the matrix is initialized by
+ones in f32vector.
+
+@example
+;; Creates a matrix like this:
+;;    1 2 3 4
+;;    0 1 0 5
+;;    0 0 1 6
+;;    0 0 0 1
+
+(make-matrix4f '#f32vector(1 0 0 0
+                           2 1 0 0
+                           3 0 1 0
+                           4 5 6 1))
+@end example
 @end defun
 
-@defun matrix4f &rest args
+@defun matrix4f m00 m10 m20 m30 m01 m11 m21 m31 m02 m12 m22 m32 m03 m13 m23 m33
+Creates a new matrix4f instance with give values.
 @end defun
 
 @defun matrix4f? obj
+Returns true iff @var{obj} is a matrix4f.
 @end defun
+
+@deftp {Reader syntax} @code{#,(matrix4f @var{elt} @dots{})}
+A matrix4f is represented extrenally using SRFI-10 syntax.
+The elements are listed in column-major order.
+@end deftp
 
 @defun list->matrix4f l
 @defunx matrix4f->list m
+Converts between list of 16 real numbers and matrix4f.
 @end defun
 
 @defun f32vector->matrix4f v &optional start
+Creates a new matrix4f and initializes it with 16 elements in
+f32vector @var{v}.   If optional @var{start} is given,
+it specifies the start offset in vector @var{v} to be used as
+initial values.  The f32vector @var{v} must have enough length.
 @end defun
 
 @defun matrix4f->f32vector m
+Returns a new f32vector that has elements from matrix4f @var{m}.
 @end defun
 
 @defun matrix4f-copy m
-@defunx matrix4f-copy! dstm srcm
+Returns a new copy of @var{m}.
 @end defun
 
-@defun matrix4f-mul m obj
-@end defun
-
-@defun matrix4f-mul! m obj
-@end defun
-
-@defun matrix4f-transpose m
-@defunx matrix4f-transpose! m
+@defun matrix4f-copy! dstm srcm
+Copies contents of @var{srcm} to @var{dstm}.
 @end defun
 
 @defun matrix4f-set! m i value
+Sets a real number @var{value} to @var{i}-th element of matrix @var{m}.
+Since the matrix is laid out in column-major order,
+the one-dimensional index @code{m@{@var{i}@}} and two-dimensional
+index @code{m(@var{i},@var{j})} corresponds as follows:
+@example
+  m(0,0) = m{0}   m(0,1) = m{4}   m(0,2) = m{8}   m(0,3) = m{12}
+  m(1,0) = m{1}   m(1,1) = m{5}   m(1,2) = m{9}   m(1,3) = m{13}
+  m(2,0) = m{2}   m(2,1) = m{6}   m(2,2) = m{10}  m(2,3) = m{14}
+  m(3,0) = m{3}   m(3,1) = m{6}   m(3,2) = m{11}  m(3,3) = m{15}
+@end example
 @end defun
 
 @defun matrix4f-ref m i &optional fallback
+Returns the @var{i}-th element of matrix @var{m}.
+If @var{i} is out of range, an error is signalled,
+unless @var{fallback} is provided, in such a case
+@var{fallback} is returned.
 @end defun
 
 @defun matrix4f-set2! m i j value
+Sets @var{value} to @code{(@var{i}, @var{j})} element of matrix @var{m}.
 @end defun
 
 @defun matrix4f-ref2 m i j
+Returns the @code{(@var{i}, @var{j})} element of matrix @var{m}.
 @end defun
 
 @defun matrix4f-row m i
 @defunx matrix4f-column m i
 @defunx matrix4f-column/shared m i
+Returns @var{i}-th row vector or @var{i}-th column vector
+of matrix @var{m}, as a vector4f instance.
+
+Furthermore, the returned vector from @code{matrix4f-column/shared}
+shares the storage with @code{m}.
+@end defun
+
+@defun matrix4f-mul m obj
+@var{Obj} may be a scalar (real number), a vector4f, a point4f, or a matrix4f.
+Returns @var{m} x @var{obj}.
+@end defun
+
+@defun matrix4f-mul! m obj
+@var{Obj} may be a scalar or a matrix4f.
+Matrix @var{m} is multiplied by @var{obj}, and the result is
+set to @var{m} destructively.
+@end defun
+
+@defun matrix4f-transpose m
+@defunx matrix4f-transpose! m
+Returns a transposed matrix of @var{m}.  The destructive version
+modifies @var{m}.
+@end defun
+
+@defun matrix4f-determinant m
+Returns a determinant of @var{m}.
+@end defun
+
+@defun matrix4f-inverse m &optional (error-on-singular? #t)
+@defunx matrix4f-inverse! m &optional (error-on-singular? #t)
+Returns a inverse matrix of @var{m}.  The destructive version
+modifies @var{m}.  If given @var{m} is a singular matrix,
+an error is signalled by default.  However, if @code{#f} is given
+to the optional @var{error-on-singular?} argument,
+@code{#f} is returned in such a case.
 @end defun
 
 @defun translation->matrix4f translation-vector
 @defunx translation->matrix4f! m translation-vector
+Returns a matrix which represents a translation by @var{translation-vector},
+which must be either a vector4f, a point4f, or
+a f32vector of length 3 or 4.   Only the first three elements
+in @var{translation-vector} is used.
+The destructive version updates @var{m}.
 @end defun
 
 @defun rotation->matrix4f axis angle
 @defunx rotation->matrix4f! m axis angle
+Returns a matrix which represents a rotation around
+@var{axis} by @var{angle} radian.  @var{Axis} must be
+a vector4f or a f32vector of length 3 or 4, and must be normalized.
+The result is undefined if anormalized vector is passed as @var{axis}.
+The destructive version updates @var{m}.
 @end defun
 
 @defun scale->matrix4f scale-vector
 @defunx scale->matrix4f! m scale-vector
+Returns a matrix which represents a scale by @var{scale-vector},
+which must be either a vector4f, a point4f, or
+a f32vector of length 3 or 4.  Only the first three elements
+in @var{scale-vector} is used.  Each element of @var{scale-vector}
+represents the scale factor along x, y, and z axis.
+The destructive version updates @var{m}.
 @end defun
 
 @defun trs->matrix4f translation rotation-axis rotation-angle scale
 @defunx trs->matrix4f! m translation rotation-axis rotation-angle scale
+This combines above three procedure.
+Returns a matrix that represents translation, rotation and
+scale, specified by @var{translation}, @var{rotation-axis},
+@var{rotation-angle} and @var{scale}.
+The destructive version updates @var{m}.
+
+If @code{@var{T}}, @code{@var{R}} and @code{@var{S}}, are
+the matrices that represent translation, rotation and scale, respectively,
+then these procedures effectively calculates
+a matrix @code{@var{TRS}}. 
 @end defun
 
 @defun tqs->matrix4f translation rotation-quat scale
 @defunx tqs->matrix4f! m translation rotation-quat scale
+A variation of @code{trs->matrix4f}.  Instead of axis and angle,
+rotation is represented by a quaternion @var{rotation-quat}.
+@xref{Quaternions}, for more details about quaternions.
 @end defun
 
-
 @c ----------------------------------------------------------------------
-@node Quaternions,  , Matrices, 3D Vector and matrix utility
+@node Quaternions,  , Matrices, 3D vectors and matrices
 @section Quaternions
 
 @deftp {Class} <quatf>
+@clindex quatf
+Quaternions.   Internally quaternions are represented as just
+an array of four floats; the first three are the vector component
+and the last is the scalar component.
+
+Inherits @code{<sequence>} and @code{<collection>}.  When viewed
+as sequence, it is just like a vector of four floats.
 @end deftp
 
 @defun quatf? obj
+Returns true iff @var{obj} is a quaternion.
 @end defun
 
+@deftp {Reader syntax} @code{#,(quatf @var{x} @var{y} @var{z} @var{w})}
+External representation of quaternion
+@var{x}@b{i}+@var{y}@b{j}+@var{z}@b{k}+@var{w}.
+@end deftp
+
 @defun make-quatf &optional axis (angle 0)
+Returns a new unit quaternion that represents a rotation
+around vector @var{axis} by @var{angle} radians.
+@var{Axis} can be a vector4f, a point4f or 
+a f32vector (only first three component is used).
+@var{Axis} must be a unit vector; if @var{axis} is anormalized,
+the result is undefined.
+
+If both @var{axis} and @var{angle} is omitted,
+@code{#,(quatf 0 0 0 1)} is returned.
+@end defun
+
+@defun quatf x y z w
+Returns a new quaternion whose elements are initialized by
+@var{x}, @var{y}, @var{z}, @var{w}.
 @end defun
 
 @defun list->quatf l
 @defunx quatf->list q
+Converts between a list of four real numbers and a quaternion.
 @end defun
 
 @defun f32vector->quatf x &optional start
+Returns a new quaternion whose elements are initialized by
+the first four elements of f32vector @var{x}.
+If @var{start} is given, the initial value is taken
+starting from @var{start}-th index in @var{x}.
 @end defun
 
 @defun quatf->f32vector q
+Returns a new f32vector whose contents is the same as a quaternion @var{q}.
 @end defun
 
 @defun quatf-copy q
-@defunx quatf-copy! dstq srcq
+Returns a fresh copy of a quaternion @var{q}.
+@end defun
+
+@defun quatf-copy! dstq srcq
+Copies contents of a quaternion @var{srcq} to a quaternion @var{dstq}.
 @end defun
 
 @defun rotation->quatf! quat axis angle
+Sets a quaternion @var{quat} so that it represents a rotation
+around a unit vector @var{axis} by angle @var{angle} radians.
+@var{Axis} can be a vector4f, a point4f or 
+a f32vector (only first three component is used).
 @end defun
 
 @defun quatf-add p q
 @defunx quatf-add! p q
 @defunx quatf-sub p q
 @defunx quatf-sub! p q
+Addition and subtraction of quaternions.  The destructive version
+modifies the first argument.
 @end defun
 
 @defun quatf-scale q s
 @defunx quatf-scale! q s
+Multiplies a quaternion @var{q} by a scalar value @var{s}.
+The destructive version modifies @var{q}.
 @end defun
 
 @defun quatf-mul p q
 @defunx quatf-mul! p q
-@end defun
-
-@defun quatf-transform quatf vector
+Multiply two quaternions @var{p} and @var{q}.
+The destructive version modifies @var{p}.
 @end defun
 
 @defun quatf-conjugate q
+Returns a conjugate of a quaternion @var{q}.
+@end defun
+
+@defun quatf-transform q p
+Transforms a vector or a point @var{p} by quaternion @var{q},
+that is, returns @var{qpq*}, where @var{q*} is a conjugate of @var{q}.
+
+This procedure assumes @var{q} is normalized.
+
+@var{P} can be a vector4f, a point4f or a f32vector
+(only first three elements are used).
+Returns the same type of object as @var{p}.
 @end defun
 
 @defun quatf-norm q
+Returns norm of @var{q}.
 @end defun
 
 @defun quatf-normalize q
 @defunx quatf-normalize! q
+Returns normalized quaternion of @var{q}.
+The destructive version modifies @var{q}.
 @end defun
 
 @defun quatf->matrix4f q
 @defunx quatf->matrix4f! m q
+Returns a matrix that represents a rotation specified by a unit
+quaternion @var{q}.
+The behavior is undefined if @var{q} is not normalized.
+The destructive version modifies @var{m}.
 @end defun
 
 @defun quatf-slerp p q t
-@defunx quatf-slerp r p q t
+@defunx quatf-slerp! r p q t
+Returns a quaternion that interpolates between two
+unit quaternions @var{p} and @var{q}, by a scalar value @var{t}.
+The destructive version modifies @var{t}.
 @end defun
 
 
+
+
 @c ======================================================================
-@node GL-Scheme utility, Indices, 3D Vector and matrix utility, Top
+@node GL-Scheme utility, Indices, 3D vectors and matrices, Top
 @chapter GL-Scheme utility
 
 

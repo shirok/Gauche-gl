@@ -1,4 +1,4 @@
-;; Example 9-8   Automatic Texture-Coordinate Generation
+;; Example 9-8  Automatic Texture-Coordinate Generation
 
 (use gl)
 (use gl.glut)

@@ -1,4 +1,36 @@
-#!/bin/sh
-gosh -I../../lib -I../../src $1 $*
+#!/usr/bin/env gosh
 
+;; Run through all examples.
 
+(use file.util)
+(use srfi-1)
+
+(define (get-scripts)
+  (sort (sys-glob "example*.scm")
+        (lambda (a b)
+          (let ((ma (#/example(\d+)-(\d+)/ a))
+                (mb (#/example(\d+)-(\d+)/ b)))
+            (or (< (x->integer (ma 1)) (x->integer (mb 1)))
+                (and (= (x->integer (ma 1)) (x->integer (mb 1)))
+                     (< (x->integer (ma 2)) (x->integer (mb 2)))))))))
+
+(define (get-script-titles scripts)
+  (map (lambda (f)
+         (cond ((#/^\;\;\s*/ (with-input-from-file f read-line))
+                => (lambda (m) (m 'after)))
+               (else f)))
+       scripts))
+
+(define (main args)
+  (let* ((scripts (get-scripts))
+         (titles  (get-script-titles scripts)))
+    (for-each
+     (lambda (script title)
+       (print title)
+       (sys-system #`"gosh -I../../lib -I../../src ,script"))
+     scripts titles))
+  0)
+
+;; Local variables:
+;; mode: scheme
+;; end:

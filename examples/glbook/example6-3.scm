@@ -20,7 +20,7 @@
   (gl-clear-color 0.0 0.0 0.0 0.0)
   )
 
-(define (display)
+(define (disp)
   (gl-clear GL_COLOR_BUFFER_BIT)
 
   (gl-color 0.0 1.0 0.0)
@@ -74,6 +74,6 @@
   (init)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-main-loop)
   0)

@@ -48,6 +48,7 @@
         ((= key (char->integer #\Y))
          (set! *year* (modulo (- *year* 5) 360))
          (glut-post-redisplay))
+        ((= key 27) (exit 0))
         ))
 
 (define (main args)

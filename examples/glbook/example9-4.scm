@@ -44,7 +44,7 @@
   (gl-enable GL_TEXTURE_3D)
   )
 
-(define (display)
+(define (disp)
   (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
   (gl-begin GL_QUADS)
   (gl-tex-coord 0.0 0.0 0.0) (gl-vertex -2.25 -1.0 0.0)
@@ -81,7 +81,7 @@
   (glut-init-window-position 100 100)
   (glut-create-window (car args))
   (init)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
   (glut-main-loop)

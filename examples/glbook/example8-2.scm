@@ -59,7 +59,7 @@
   (gl-call-lists (string-size s) GL_UNSIGNED_BYTE s)
   (gl-pop-attrib))
 
-(define (display)
+(define (disp)
   (gl-clear GL_COLOR_BUFFER_BIT)
   (gl-color '#f32(1.0 1.0 1.0))
   (gl-raster-pos 20 60)
@@ -92,6 +92,6 @@
   (init)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-main-loop)
   0)

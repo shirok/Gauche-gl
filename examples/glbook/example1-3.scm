@@ -42,6 +42,11 @@
      (when (= state GLUT_DOWN) (glut-idle-func #f))))
   )
 
+(define (keyboard key x y)
+  (cond
+   ((= key 27) (exit 0))
+   ))
+
 (define (main args)
   (glut-init args)
   (glut-init-display-mode (logior GLUT_DOUBLE GLUT_RGB))
@@ -51,6 +56,7 @@
   (init)
   (glut-display-func disp)
   (glut-reshape-func reshape)
+  (glut-keyboard-func keyboard)
   (glut-mouse-func mouse)
   (glut-main-loop)
   0)

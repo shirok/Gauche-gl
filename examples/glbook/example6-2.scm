@@ -90,7 +90,8 @@
         (= key (char->integer #\R)))
     (set! *solid-z* MAXZ)
     (set! *transparent-z* MINZ)
-    (glut-post-redisplay)))
+    (glut-post-redisplay))
+   ((= key 27) (exit 0)))
   )
 
 (define (main args)

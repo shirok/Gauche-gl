@@ -63,6 +63,9 @@
   (glu-ortho-2d 0 w 0 h)
   )
 
+(define (keyboard key x y)
+  (when (= key 27) (exit 0)))
+
 (define (main args)
   (glut-init args)
   (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB))
@@ -72,6 +75,7 @@
   (init)
   (glut-display-func disp)
   (glut-reshape-func reshape)
+  (glut-keyboard-func keyboard)
   (glut-main-loop)
   0)
 

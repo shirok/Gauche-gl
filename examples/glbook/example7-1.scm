@@ -1,4 +1,4 @@
-;; Example 7-1 Creating a Display List
+;; Example 7-1  Creating a Display List
 
 (use gl)
 (use gl.glut)
@@ -32,7 +32,7 @@
   (gl-clear-color 0.0 0.0 0.0 0.0)
   )
 
-(define (display)
+(define (disp)
   (gl-clear GL_COLOR_BUFFER_BIT)
   (gl-color 1.0 1.0 1.0)
   (gl-call-list *the-torus*)
@@ -76,6 +76,6 @@
   (init)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-main-loop)
   0)

@@ -5,9 +5,9 @@ To run examples without installing Gauche-gl, invoke gosh with
 
   gosh -I../../src -I../../lib ./example1-2.scm
 
-Alternatively, you can use 'run' script in the directory:
+Typing ESC in the window terminates the example.
 
-  ./run example1-2.scm
+A Scheme script 'run' is provided to go through all the examples.
 
 
 

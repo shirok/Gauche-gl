@@ -1,4 +1,4 @@
-;; Example6-1  Blending Example
+;; Example 6-1  Blending Example
 
 (use gl)
 (use gl.glut)

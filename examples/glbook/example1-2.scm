@@ -22,6 +22,11 @@
   (gl-ortho 0.0 1.0 0.0 1.0 -1.0 1.0)
   )
 
+(define (keyboard key x y)
+  (cond
+   ((= key 27) (exit 0))
+   ))
+
 (define (main args)
   (glut-init args)
   (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB))
@@ -30,6 +35,7 @@
   (glut-create-window "hello")
   (init)
   (glut-display-func disp)
+  (glut-keyboard-func keyboard)
   (glut-main-loop)
   0
   )

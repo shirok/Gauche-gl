@@ -65,7 +65,7 @@
                    0 GL_RGBA GL_UNSIGNED_BYTE *check-image*)
   )
 
-(define (display)
+(define (disp)
   (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
   (gl-enable GL_TEXTURE_2D)
   (gl-tex-env GL_TEXTURE_ENV GL_TEXTURE_ENV_MODE GL_DECAL)
@@ -121,7 +121,7 @@
   (glut-init-window-position 100 100)
   (glut-create-window (car args))
   (init)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
   (glut-main-loop)

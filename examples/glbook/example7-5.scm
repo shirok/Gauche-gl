@@ -1,4 +1,4 @@
-;; Example 7-5 Multiple Display Lists to Define a Stroked Font
+;; Example 7-5  Multiple Display Lists to Define a Stroked Font
 
 (use gl)
 (use gl.glut)
@@ -47,7 +47,7 @@
 (define (print-stroked-string s)
   (gl-call-lists (string-size s) GL_BYTE s))
 
-(define (display)
+(define (disp)
   (gl-clear GL_COLOR_BUFFER_BIT)
   (gl-color 1.0 1.0 1.0)
   (gl-push-matrix)
@@ -86,6 +86,6 @@
   (init)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-main-loop)
   0)

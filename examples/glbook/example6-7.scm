@@ -10,7 +10,7 @@
 (define *polyfactor* 1.0)
 (define *polyunits* 1.0)
 
-(define (display)
+(define (disp)
   (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
   (gl-push-matrix)
   (gl-translate 0.0 0.0 *tdist*)
@@ -115,7 +115,7 @@
   (glut-init-window-size 500 500)
   (glut-create-window (car args))
   (glut-reshape-func reshape)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-mouse-func mouse)
   (glut-keyboard-func keyboard)
   (init)

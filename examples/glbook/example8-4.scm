@@ -35,7 +35,7 @@
   (gl-pixel-store GL_UNPACK_ALIGNMENT 1)
   )
 
-(define (display)
+(define (disp)
   (gl-clear GL_COLOR_BUFFER_BIT)
   (gl-raster-pos 0 0)
   (gl-draw-pixels *check-image-width* *check-image-height* GL_RGB
@@ -92,7 +92,7 @@
   (init)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-motion-func motion)
   (glut-main-loop)
   0)

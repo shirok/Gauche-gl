@@ -1,4 +1,4 @@
-;; Example 6-5 Five Fogged Spheres in RGBA Mode
+;; Example 6-5  Five Fogged Spheres in RGBA Mode
 
 (use gl)
 (use gl.glut)
@@ -33,7 +33,7 @@
   (glut-solid-sphere 0.4 16 16)
   (gl-pop-matrix))
 
-(define (display)
+(define (disp)
   (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
   (render-sphere -2.0 -0.5 -1.0)
   (render-sphere -1.0 -0.5 -2.0)
@@ -80,6 +80,6 @@
   (init)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-main-loop)
   0)

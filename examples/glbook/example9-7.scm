@@ -71,7 +71,7 @@
   (gl-enable GL_TEXTURE_2D)
   )
 
-(define (display)
+(define (disp)
   (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
 
   (gl-bind-texture GL_TEXTURE_2D (ref *texname* 0))
@@ -113,7 +113,7 @@
   (glut-init-window-position 100 100)
   (glut-create-window (car args))
   (init)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
   (glut-main-loop)

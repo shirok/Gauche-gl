@@ -24,7 +24,7 @@
   (gl-clear-index RAMP1START)
   )
 
-(define (display)
+(define (disp)
   (gl-clear GL_COLOR_BUFFER_BIT)
 
   (gl-index RAMP1START)
@@ -78,6 +78,6 @@
   (init)
   (glut-reshape-func reshape)
   (glut-keyboard-func keyboard)
-  (glut-display-func display)
+  (glut-display-func disp)
   (glut-main-loop)
   0)

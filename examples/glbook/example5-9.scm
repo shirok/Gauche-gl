@@ -1,4 +1,4 @@
-;; Example 5-9   Using glColorMaterial
+;; Example 5-9  Using glColorMaterial
 
 (use gl)
 (use gl.glut)
@@ -64,6 +64,9 @@
       (glut-post-redisplay)))
    ))
 
+(define (keyboard key x y)
+  (when (= key 27) (exit 0)))
+
 (define (main args)
   (glut-init args)
   (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB GLUT_DEPTH))
@@ -74,5 +77,6 @@
   (glut-display-func disp)
   (glut-reshape-func reshape)
   (glut-mouse-func mouse)
+  (glut-keyboard-func keyboard)
   (glut-main-loop)
   0)

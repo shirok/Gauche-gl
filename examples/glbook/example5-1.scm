@@ -1,4 +1,4 @@
-;; Example 5-1 Drawing a Lit Sphere
+;; Example 5-1  Drawing a Lit Sphere
 
 (use gl)
 (use gl.glut)
@@ -31,15 +31,18 @@
   (gl-load-identity)
   )
 
+(define (keyboard key x y)
+  (when (= key 27) (exit 0)))
 
 (define (main args)
   (glut-init args)
-  (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB GLUT_DEPTH)))
+  (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB GLUT_DEPTH))
   (glut-init-window-size 500 500)
   (glut-init-window-position 100 100)
   (glut-create-window *program-name*)
   (init)
   (glut-display-func disp)
   (glut-reshape-func reshape)
+  (glut-keyboard-func keyboard)
   (glut-main-loop)
   0)

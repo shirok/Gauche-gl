@@ -1,4 +1,4 @@
-;; Example 3-2   Using Modeling transformations
+;; Example 3-2  Using Modeling transformations
 
 (use gl)
 (use gl.glut)
@@ -51,6 +51,9 @@
   (gl-matrix-mode GL_MODELVIEW)
   )
 
+(define (keyboard key x y)
+  (when (= key 27) (exit 0)))
+
 (define (main args)
   (glut-init args)
   (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB))
@@ -60,5 +63,6 @@
   (init)
   (glut-display-func disp)
   (glut-reshape-func reshape)
+  (glut-keyboard-func keyboard)
   (glut-main-loop)
   0)

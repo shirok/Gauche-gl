@@ -51,7 +51,7 @@ $(GLUTOBJS) : gauche-glut.h
 
 test : all
 	@rm -f test.log
-	$(GOSH) -fin-place test.scm > test.log
+	$(GOSH) -I. -I../lib test.scm > test.log
 
 install : all
 	@for f in $(HEADERS) _end; do \

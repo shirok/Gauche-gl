@@ -1,0 +1,62 @@
+;; Example 5-6  Moving a light with modeling transformations
+
+(use gl)
+(use gl.glut)
+
+(define *spin* 0)
+
+(define (init)
+  (gl-clear-color 0.0 0.0 0.0 0.0)
+  (gl-shade-model |GL_SMOOTH|)
+  (gl-enable |GL_LIGHTING|)
+  (gl-enable |GL_LIGHT0|)
+  (gl-enable |GL_DEPTH_TEST|)
+  )
+
+(define (disp)
+  (gl-clear (logior |GL_COLOR_BUFFER_BIT| |GL_DEPTH_BUFFER_BIT|))
+  (gl-push-matrix)
+  (gl-translate 0.0 0.0 -5.0)
+
+  (gl-push-matrix)
+  (gl-rotate *spin* 1.0 0.0 0.0)
+  (gl-light |GL_LIGHT0| |GL_POSITION| '#f32(0.0 0.0 1.5 1.0))
+
+  (gl-translate 0.0 0.0 1.5)
+  (gl-disable |GL_LIGHTING|)
+  (gl-color 0.0 1.0 1.0)
+  (glut-wire-cube 0.1)
+  (gl-enable |GL_LIGHTING|)
+  (gl-pop-matrix)
+
+  (glut-solid-torus 0.275 0.85 8 15)
+  (gl-pop-matrix)
+  (gl-flush)
+  )
+
+(define (reshape w h)
+  (gl-viewport 0 0 w h)
+  (gl-matrix-mode |GL_PROJECTION|)
+  (gl-load-identity)
+  (glu-perspective 40.0 (/ w h) 1.0 20.0)
+  (gl-matrix-mode |GL_MODELVIEW|)
+  (gl-load-identity)
+  )
+
+(define (mouse button state x y)
+  (when (and (= button |GLUT_LEFT_BUTTON|) (= state |GLUT_DOWN|))
+    (set! *spin* (modulo (+ *spin* 30) 360))
+    (glut-post-redisplay)))
+
+(define (main args)
+  (glut-init args)
+  (glut-init-display-mode (logior |GLUT_SINGLE| |GLUT_RGB| |GLUT_DEPTH|))
+  (glut-init-window-size 500 500)
+  (glut-init-window-position 100 100)
+  (glut-create-window *program-name*)
+  (init)
+  (glut-display-func disp)
+  (glut-reshape-func reshape)
+  (glut-mouse-func mouse)
+  (glut-main-loop)
+  0)

@@ -8,11 +8,11 @@
 
 (define (init)
   (gl-clear-color 0.0 0.0 0.0 0.0)
-  (gl-shade-model |GL_FLAT|)
+  (gl-shade-model GL_FLAT)
   )
 
 (define (disp)
-  (gl-clear |GL_COLOR_BUFFER_BIT|)
+  (gl-clear GL_COLOR_BUFFER_BIT)
   (gl-push-matrix)
   (gl-translate -1.0 0.0 0.0)
   (gl-rotate *shoulder* 0.0 0.0 1.0)
@@ -36,10 +36,10 @@
 
 (define (reshape w h)
   (gl-viewport 0 0 w h)
-  (gl-matrix-mode |GL_PROJECTION|)
+  (gl-matrix-mode GL_PROJECTION)
   (gl-load-identity)
   (glu-perspective 60.0 (/ w h) 1.0 20.0)
-  (gl-matrix-mode |GL_MODELVIEW|)
+  (gl-matrix-mode GL_MODELVIEW)
   (gl-load-identity)
   (gl-translate 0 0 -5.0)
   )
@@ -61,7 +61,7 @@
 
 (define (main args)
   (glut-init args)
-  (glut-init-display-mode (logior |GLUT_DOUBLE| |GLUT_RGB|))
+  (glut-init-display-mode (logior GLUT_DOUBLE GLUT_RGB))
   (glut-init-window-size 500 500)
   (glut-init-window-position 100 100)
   (glut-create-window *program-name*)

@@ -9,7 +9,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.1 2002-10-08 22:16:29 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.2 2002-10-08 23:24:41 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -72,6 +72,10 @@ This manual is for version @VERSION@.
 @c ======================================================================
 @node OpenGL API, GLUT API, Getting Started, Top
 @chapter OpenGL API
+
+@c ======================================================================
+@node GLU API
+@chapter GLU API
 
 
 @c ======================================================================
@@ -177,6 +181,32 @@ This manual is for version @VERSION@.
 
 @defun glut-set-cursor cursor
 @end defun
+
+@defvr {Constant} GLUT_CURSOR_RIGHT_ARROW
+@defvrx {Constant} GLUT_CURSOR_LEFT_ARROW
+@defvrx {Constant} GLUT_CURSOR_INFO
+@defvrx {Constant} GLUT_CURSOR_DESTROY
+@defvrx {Constant} GLUT_CURSOR_HELP
+@defvrx {Constant} GLUT_CURSOR_CYCLE
+@defvrx {Constant} GLUT_CURSOR_SPRAY
+@defvrx {Constant} GLUT_CURSOR_WAIT
+@defvrx {Constant} GLUT_CURSOR_TEXT
+@defvrx {Constant} GLUT_CURSOR_CROSSHAIR
+@defvrx {Constant} GLUT_CURSOR_UP_DOWN
+@defvrx {Constant} GLUT_CURSOR_LEFT_RIGHT
+@defvrx {Constant} GLUT_CURSOR_TOP_SIDE
+@defvrx {Constant} GLUT_CURSOR_BOTTOM_SIDE
+@defvrx {Constant} GLUT_CURSOR_LEFT_SIDE
+@defvrx {Constant} GLUT_CURSOR_RIGHT_SIDE
+@defvrx {Constant} GLUT_CURSOR_TOP_LEFT_CORNER
+@defvrx {Constant} GLUT_CURSOR_TOP_RIGHT_CORNER
+@defvrx {Constant} GLUT_CURSOR_BOTTOM_RIGHT_CORNER
+@defvrx {Constant} GLUT_CURSOR_BOTTOM_LEFT_CORNER
+@defvrx {Constant} GLUT_CURSOR_INHERIT
+@defvrx {Constant} GLUT_CURSOR_NONE
+@defvrx {Constant} GLUT_CURSOR_FULL_CROSSHAIR
+@end defvr
+
 
 @defun glut-warp-pointer x y
 @end defun
@@ -299,8 +329,16 @@ This manual is for version @VERSION@.
 @defun glut-entry-func fn
 @end defun
 
+@defvr {Constant} GLUT_LEFT
+@defvrx {Constant} GLUT_ENTERED
+@end defvr
+
 @defun glut-visibility-func fn
 @end defun
+
+@defvr {Constant} GLUT_NOT_VISIBLE
+@defvrx {Constant} GLUT_VISIBLE
+@end defvr
 
 @defun glut-idle-func fn
 @end defun
@@ -363,6 +401,11 @@ This manual is for version @VERSION@.
 @defun glut-get-color index component
 @end defun
 
+@defvr {Constant} GLUT_RED
+@defvrx {Constant} GLUT_GREEN
+@defvrx {Constant} GLUT_BLUE
+@end defvr
+
 @defun glut-copy-colormap win
 @end defun
 
@@ -373,17 +416,87 @@ This manual is for version @VERSION@.
 @defun glut-get type
 @end defun
 
+@defvr {Constant} GLUT_WINDOW_X
+@defvrx {Constant} GLUT_WINDOW_Y
+@defvrx {Constant} GLUT_WINDOW_WIDTH
+@defvrx {Constant} GLUT_WINDOW_HEIGHT
+@defvrx {Constant} GLUT_WINDOW_BUFFER_SIZE
+@defvrx {Constant} GLUT_WINDOW_STENCIL_SIZE
+@defvrx {Constant} GLUT_WINDOW_DEPTH_SIZE
+@defvrx {Constant} GLUT_WINDOW_RED_SIZE
+@defvrx {Constant} GLUT_WINDOW_GREEN_SIZE
+@defvrx {Constant} GLUT_WINDOW_BLUE_SIZE
+@defvrx {Constant} GLUT_WINDOW_ALPHA_SIZE
+@defvrx {Constant} GLUT_WINDOW_ACCUM_RED_SIZE
+@defvrx {Constant} GLUT_WINDOW_ACCUM_GREEN_SIZE
+@defvrx {Constant} GLUT_WINDOW_ACCUM_BLUE_SIZE
+@defvrx {Constant} GLUT_WINDOW_ACCUM_ALPHA_SIZE
+@defvrx {Constant} GLUT_WINDOW_DOUBLEBUFFER
+@defvrx {Constant} GLUT_WINDOW_RGBA
+@defvrx {Constant} GLUT_WINDOW_PARENT
+@defvrx {Constant} GLUT_WINDOW_NUM_CHILDREN
+@defvrx {Constant} GLUT_WINDOW_COLORMAP_SIZE
+@defvrx {Constant} GLUT_WINDOW_NUM_SAMPLES
+@defvrx {Constant} GLUT_WINDOW_STEREO
+@defvrx {Constant} GLUT_WINDOW_CURSOR
+@defvrx {Constant} GLUT_SCREEN_WIDTH
+@defvrx {Constant} GLUT_SCREEN_HEIGHT
+@defvrx {Constant} GLUT_SCREEN_WIDTH_MM
+@defvrx {Constant} GLUT_SCREEN_HEIGHT_MM
+@defvrx {Constant} GLUT_MENU_NUM_ITEMS
+@defvrx {Constant} GLUT_DISPLAY_MODE_POSSIBLE
+@defvrx {Constant} GLUT_INIT_WINDOW_X
+@defvrx {Constant} GLUT_INIT_WINDOW_Y
+@defvrx {Constant} GLUT_INIT_WINDOW_WIDTH
+@defvrx {Constant} GLUT_INIT_WINDOW_HEIGHT
+@defvrx {Constant} GLUT_INIT_DISPLAY_MODE
+@defvrx {Constant} GLUT_ELAPSED_TIME
+@defvrx {Constant} GLUT_WINDOW_FORMAT_ID
+@end defvr
+
 @defun glut-device-get type
 @end defun
 
-@defun glut-extenson-supported name
+@defvr {Constant} GLUT_HAS_KEYBOARD
+@defvrx {Constant} GLUT_HAS_MOUSE
+@defvrx {Constant} GLUT_HAS_SPACEBALL
+@defvrx {Constant} GLUT_HAS_DIAL_AND_BUTTON_BOX
+@defvrx {Constant} GLUT_HAS_TABLET
+@defvrx {Constant} GLUT_NUM_MOUSE_BUTTONS
+@defvrx {Constant} GLUT_NUM_SPACEBALL_BUTTONS
+@defvrx {Constant} GLUT_NUM_BUTTON_BOX_BUTTONS
+@defvrx {Constant} GLUT_NUM_DIALS
+@defvrx {Constant} GLUT_NUM_TABLET_BUTTONS
+@defvrx {Constant} GLUT_DEVICE_IGNORE_KEY_REPEAT
+@defvrx {Constant} GLUT_DEVICE_KEY_REPEAT
+@defvrx {Constant} GLUT_HAS_JOYSTICK
+@defvrx {Constant} GLUT_OWNS_JOYSTICK
+@defvrx {Constant} GLUT_JOYSTICK_BUTTONS
+@defvrx {Constant} GLUT_JOYSTICK_AXES
+@defvrx {Constant} GLUT_JOYSTICK_POLL_RATE
+@end defvr
+
+@defun glut-extension-supported name
 @end defun
 
 @defun glut-get-modifiers 
 @end defun
 
+@defvr {Constant} GLUT_ACTIVE_SHIFT
+@defvrx {Constant} GLUT_ACTIVE_CTRL
+@defvrx {Constant} GLUT_ACTIVE_ALT
+@end defvr
+
 @defun glut-layer-get type
 @end defun
+
+@defvr {Constant} GLUT_OVERLAY_POSSIBLE
+@defvrx {Constant} GLUT_LAYER_IN_USE
+@defvrx {Constant} GLUT_HAS_OVERLAY
+@defvrx {Constant} GLUT_TRANSPARENT_INDEX
+@defvrx {Constant} GLUT_NORMAL_DAMAGED
+@defvrx {Constant} GLUT_OVERLAY_DAMAGED
+@end defvr
 
 @c ----------------------------------------------------------------------
 @node GLUT font, GLUT pre-built models, GLUT state retrieval, GLUT API

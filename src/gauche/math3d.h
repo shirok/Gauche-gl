@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.2 2002-09-27 10:29:10 shirok Exp $
+ *  $Id: math3d.h,v 1.3 2002-09-27 10:48:50 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -258,7 +258,7 @@ SCM_CLASS_DECL(Scm_Mat4Class);
 #define SCM_MAT4_SET(obj, i, j, v) (SCM_MAT4_D(obj)[(i)+(j)*4] = (v))
 #define SCM_MAT4_COLVEC(obj, i)    (SCM_MAT4_D(obj) + (i)*4)
 
-extern ScmObj Scm_MakeMat4(const float d[]);
+extern ScmObj Scm_MakeMat4v(const float d[]);
 extern ScmObj Scm_ListToMat4(ScmObj l);
 
 extern void   Scm_Mat4MulMat4v(float *, const float *, const float*);

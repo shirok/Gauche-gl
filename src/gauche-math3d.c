@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.2 2002-09-27 10:29:10 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.3 2002-09-27 10:48:46 shirok Exp $
  */
 
 #include <gauche.h>
@@ -467,7 +467,276 @@ void Scm_Point4ArraySetv(ScmPoint4Array *a, int n, float d[])
     SCM_POINT4_ARRAY_SET(a, n, d[0], d[1], d[2], d[3]);
 }
 
+/*=============================================================
+ * Matrix
+ */
+
+static void mat4_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
+{
+    int i;
+    ScmMat4 *m = SCM_MAT4(obj);
+    Scm_Printf(out, "#,(mat4");
+    for (i=0; i<16; i++) {
+        Scm_Printf(out, " %g", SCM_MAT4_D(m)[i]);
+    }
+    Scm_Printf(out, ")");
+}
+
+static int mat4_compare(ScmObj x, ScmObj y, int equalp)
+{
+    if (equalp) {
+        int i;
+        float *p = SCM_MAT4_D(x), *q = SCM_MAT4_D(y);
+        for (i=0; i<16; i++) {
+            if (*p != *q) return -1;
+        }
+        return 0;
+    } else {
+        Scm_Error("can't order matrix %S and %S", x, y);
+        return 0;               /* dummy */
+    }
+}
+
+SCM_DEFINE_BUILTIN_CLASS(Scm_Mat4Class, mat4_print, mat4_compare,
+                         NULL, NULL, sequenceCPL);
+
+ScmObj Scm_MakeMat4v(const float d[])
+{
+    ScmMat4 *m = SCM_NEW(ScmMat4);
+    int i;
+    SCM_SET_CLASS(m, SCM_CLASS_MAT4);
+    m->v = ALLOC_FV(16);
+    if (d == NULL) {
+        for (i=0; i<16; i++) SCM_MAT4_D(m)[i] = ((i/4==i%4)? 1.0 : 0.0);
+    } else {
+        for (i=0; i<16; i++) SCM_MAT4_D(m)[i] = d[i];
+    }
+    return SCM_OBJ(m);
+}
+
+ScmObj Scm_ListToMat4(ScmObj l)
+{
+    int i;
+    ScmObj lp = l;
+    float d[16];
+    for (i=0; i<16; i++, lp = SCM_CDR(lp)) {
+        if (!SCM_PAIRP(lp)) goto badlist;
+        if (!SCM_REALP(SCM_CAR(lp))) goto badlist;
+        d[i] = (float)Scm_GetDouble(SCM_CAR(lp));
+    }
+    if (!SCM_NULLP(lp)) goto badlist;
+    return Scm_MakeMat4v(d);
+  badlist:
+    Scm_Error("list of 16 real numbers required, but got %S", l);
+    return SCM_UNDEFINED;       /* dummy */
+}
+
+/* Matrix X Matrix */
+void Scm_Mat4MulMat4v(float *r, const float *p, const float *q)
+{
+    r[0]  = p[0]*q[0]+p[4]*q[1]+p[8]*q[2]+p[12]*q[3];
+    r[1]  = p[1]*q[0]+p[5]*q[1]+p[9]*q[2]+p[13]*q[3];
+    r[2]  = p[2]*q[0]+p[6]*q[1]+p[10]*q[2]+p[14]*q[3];
+    r[3]  = p[3]*q[0]+p[7]*q[1]+p[11]*q[2]+p[15]*q[3];
+    r[4]  = p[0]*q[4]+p[4]*q[5]+p[8]*q[6]+p[12]*q[7];
+    r[5]  = p[1]*q[4]+p[5]*q[5]+p[9]*q[6]+p[13]*q[7];
+    r[6]  = p[2]*q[4]+p[6]*q[5]+p[10]*q[6]+p[14]*q[7];
+    r[7]  = p[3]*q[4]+p[7]*q[5]+p[11]*q[6]+p[15]*q[7];
+    r[8]  = p[0]*q[8]+p[4]*q[9]+p[8]*q[10]+p[12]*q[11];
+    r[9]  = p[1]*q[8]+p[5]*q[9]+p[9]*q[10]+p[13]*q[11];
+    r[10] = p[2]*q[8]+p[6]*q[9]+p[10]*q[10]+p[14]*q[11];
+    r[11] = p[3]*q[8]+p[7]*q[9]+p[11]*q[10]+p[15]*q[11];
+    r[12] = p[0]*q[12]+p[4]*q[13]+p[8]*q[14]+p[12]*q[15];
+    r[13] = p[1]*q[12]+p[5]*q[13]+p[9]*q[14]+p[13]*q[15];
+    r[14] = p[2]*q[12]+p[6]*q[13]+p[10]*q[14]+p[14]*q[15];
+    r[15] = p[3]*q[12]+p[7]*q[13]+p[11]*q[14]+p[15]*q[15];
+}
+
+ScmObj Scm_MatrixMulMatrix(const ScmMat4 *p, const ScmMat4 *q)
+{
+    ScmMat4 *r = SCM_MAT4(Scm_MakeMat4v(NULL));
+    Scm_Mat4MulMat4v(SCM_MAT4_D(r), SCM_MAT4_D(p), SCM_MAT4_D(q));
+    return SCM_OBJ(r);
+}
+
+/* Matrix X Vector */
+void Scm_Mat4MulVec4v(float *r, const float *m, const float *v)
+{
+    r[0] = m[0]*v[0]+m[4]*v[1]+m[8]*v[2]+m[12]*v[3];
+    r[1] = m[1]*v[0]+m[5]*v[1]+m[9]*v[2]+m[13]*v[3];
+    r[2] = m[2]*v[0]+m[6]*v[1]+m[10]*v[2]+m[14]*v[3];
+    r[3] = m[3]*v[0]+m[7]*v[1]+m[11]*v[2]+m[15]*v[3];
+}
+
+ScmObj Scm_Mat4MulVec4(const ScmMat4 *m, const ScmVec4 *v)
+{
+    ScmVec4 *r = SCM_VEC4(Scm_MakeVec4v(NULL));
+    Scm_Mat4MulVec4v(SCM_MAT4_D(r), SCM_MAT4_D(m), SCM_MAT4_D(v));
+    return SCM_OBJ(r);
+}
+
+ScmObj Scm_Mat4MulPoint4(const ScmMat4 *m, const ScmPoint4 *p)
+{
+    ScmPoint4 *r = SCM_POINT4(Scm_MakePoint4v(NULL));
+    Scm_Mat4MulVec4v(SCM_MAT4_D(r), SCM_MAT4_D(m), SCM_MAT4_D(p));
+    return SCM_OBJ(r);
+}
+
+void   Scm_Mat4Scalev(float *r, double f)
+{
+    int i;
+    for (i=0; i<16; i++) r[i] *= f;
+}
+
+ScmObj Scm_Mat4Scale(const ScmMat4 *m, double f)
+{
+    ScmMat4 *r = SCM_MAT4(Scm_MakeMat4v(NULL));
+    Scm_Mat4Scalev(SCM_MAT4_D(r), f);
+    return SCM_OBJ(r);
+}
+
+/*=============================================================
+ * Quaternion
+ */
+static void quat_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
+{
+    Scm_Printf(out, "#,(quat %g %g %g %g)",
+               SCM_QUAT_D(obj)[0],
+               SCM_QUAT_D(obj)[1],
+               SCM_QUAT_D(obj)[2],
+               SCM_QUAT_D(obj)[3]);
+}
+
+static int quat_compare(ScmObj x, ScmObj y, int equalp)
+{
+    if (equalp) {
+        if (SCM_QUAT_D(x)[0] == SCM_QUAT_D(y)[0]
+            && SCM_QUAT_D(x)[1] == SCM_QUAT_D(y)[1]
+            && SCM_QUAT_D(x)[2] == SCM_QUAT_D(y)[2]
+            && SCM_QUAT_D(x)[3] == SCM_QUAT_D(y)[3]) {
+            return 0;
+        } else {
+            return -1;
+        }
+    } else {
+        Scm_Error("can't order quat %S and %S", x, y);
+        return 0;               /* dummy */
+    }
+}
+
+SCM_DEFINE_BUILTIN_CLASS(Scm_QuatClass, quat_print, quat_compare,
+                         NULL, NULL, sequenceCPL);
+
 /*
+ * Constructors and converters
+ */
+ScmObj Scm_MakeQuat(float x, float y, float z, float w)
+{
+    ScmQuat *v = SCM_NEW(ScmQuat);
+    SCM_SET_CLASS(v, SCM_CLASS_QUAT);
+    SCM_QUAT_D(v) = ALLOC_FV(4);
+    SCM_QUAT_D(v)[0] = x;
+    SCM_QUAT_D(v)[1] = y;
+    SCM_QUAT_D(v)[2] = z;
+    SCM_QUAT_D(v)[3] = w;
+    return SCM_OBJ(v);
+}
+
+ScmObj Scm_MakeQuatv(const float d[])
+{
+    if (d) return Scm_MakeQuat(d[0], d[1], d[2], d[3]);
+    else   return Scm_MakeQuat(0.0, 0.0, 0.0, 1.0);
+}
+
+ScmObj Scm_MakeQuatV(ScmF32Vector *fv)
+{
+    ScmQuat *v = SCM_NEW(ScmQuat);
+    SCM_SET_CLASS(v, SCM_CLASS_QUAT);
+    SCM_QUAT_D(v) = SCM_F32VECTOR_ELEMENTS(fv); /* share storage */
+    return SCM_OBJ(v);
+}
+
+ScmObj Scm_ListToQuat(ScmObj l)
+{
+    int i;
+    float d[4];
+    ScmObj lp = l;
+    for (i=0; i<4; i++, lp = SCM_CDR(lp)) {
+        if (!SCM_PAIRP(lp)) goto badlist;
+        if (!SCM_REALP(SCM_CAR(lp))) goto badlist;
+        d[i] = (float)Scm_GetDouble(SCM_CAR(lp));
+    }
+    return Scm_MakeQuatv(d);
+  badlist:
+    Scm_Error("list of 3 or 4 real numbers required, but got %S", l);
+    return SCM_UNDEFINED;
+}
+
+ScmObj Scm_QuatToList(const ScmQuat *p)
+{
+    return SCM_LIST4(Scm_MakeFlonum(SCM_QUAT_D(p)[0]),
+                     Scm_MakeFlonum(SCM_QUAT_D(p)[1]),
+                     Scm_MakeFlonum(SCM_QUAT_D(p)[2]),
+                     Scm_MakeFlonum(SCM_QUAT_D(p)[3]));
+}
+
+void Scm_QuatAddv(float *r, const float *p, const float *q)
+{
+    SCM_VEC4_OP(i, r[i] = p[i] + q[i]);
+}
+
+ScmObj Scm_QuatAdd(const ScmQuat *p, const ScmQuat *q)
+{
+    float r[4];
+    SCM_VEC4_OP(i, r[i] = SCM_QUAT_D(p)[i] + SCM_QUAT_D(q)[i]);
+    return Scm_MakeQuatv(r);
+}
+
+void Scm_QuatSubv(float *r, const float *p, const float *q)
+{
+    SCM_VEC4_OP(i, r[i] = p[i] - q[i]);
+}
+
+ScmObj Scm_QuatSub(const ScmQuat *p, const ScmQuat *q)
+{
+    float r[4];
+    SCM_VEC4_OP(i, r[i] = SCM_QUAT_D(p)[i] - SCM_QUAT_D(q)[i]);
+    return Scm_MakeQuatv(r);
+}
+
+void Scm_QuatMulv(float *r, const float *p, const float *q)
+{
+    r[0] = p[0]*q[3]+p[1]*q[2]-p[2]*q[1]+p[3]*q[0];
+    r[1] = p[1]*q[3]+p[2]*q[0]-p[0]*q[2]+p[3]*q[1];
+    r[2] = p[2]*q[3]+p[0]*q[1]-p[1]*q[0]+p[3]*q[2];
+    r[3] = p[0]*q[0]+p[1]*q[1]+p[2]*q[2]+p[3]*q[3];
+}
+
+ScmObj Scm_QuatMul(const ScmQuat *p, const ScmQuat *q)
+{
+    float r[4];
+    Scm_QuatMulv(r, SCM_QUAT_D(p), SCM_QUAT_D(q));
+    return Scm_MakeQuatv(r);
+}
+
+ScmObj Scm_QuatNormalize(const ScmQuat *p)
+{
+    float r[4];
+    r[0] = SCM_QUAT_D(p)[0];
+    r[1] = SCM_QUAT_D(p)[1];
+    r[2] = SCM_QUAT_D(p)[2];
+    r[3] = SCM_QUAT_D(p)[3];
+    SCM_QUAT_NORMALIZEV(r);
+    return Scm_MakeQuatv(r);
+}
+
+ScmObj Scm_QuatNormalizeX(ScmQuat *p)
+{
+    SCM_QUAT_NORMALIZEV(SCM_QUAT_D(p));
+    return SCM_OBJ(p);
+}
+
+/*=============================================================
  * Initialization
  */
 extern void Scm_Init_math3d_lib(ScmModule *mod);
@@ -488,6 +757,12 @@ void Scm_Init_gauche_math3d(void)
                          mod);
     Scm_InitBuiltinClass(&Scm_Point4ArrayClass, "<point4-array>",
                          NULL, sizeof(ScmPoint4Array)/sizeof(ScmObj),
+                         mod);
+    Scm_InitBuiltinClass(&Scm_Mat4Class, "<mat4>",
+                         NULL, sizeof(ScmMat4)/sizeof(ScmObj),
+                         mod);
+    Scm_InitBuiltinClass(&Scm_QuatClass, "<quat>",
+                         NULL, sizeof(ScmQuat)/sizeof(ScmObj),
                          mod);
 /*    Scm_Init_math3d_lib(mod);*/
 }

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.14 2002-08-29 10:40:54 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.15 2002-09-13 05:03:26 shirok Exp $
  */
 
 #include <gauche.h>
@@ -113,10 +113,11 @@ int Scm_GLPixelDataType(GLenum type, int *packed)
    pixel data. */
 /* TODO: need to take into account the pixel store settings! */
 int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
-                        int *elttype, int *packed)
+                        int *elttype, int *packedp)
 {
-    int components = 0, packedsize = 0;
-    *elttype = Scm_GLPixelDataType(type, packed);
+    int components = 0, packedsize = 0, packed = FALSE;
+    *elttype = Scm_GLPixelDataType(type, &packed);
+    if (packedp) *packedp = packed;
 
     switch (format) {
     case GL_COLOR_INDEX:;
@@ -141,7 +142,7 @@ int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
         /* bitmap.  each raster line is rounded up to byte boundary. */
         return ((components*w+7)/8)*h;
     }
-    if (*packed) {
+    if (packed) {
         return w*h;
     } else {
         return w*h*components;
@@ -190,6 +191,14 @@ void *Scm_GLPixelDataCheck(ScmObj pixels, int elttype, int size)
             Scm_Error("f32vector required, but got %S", pixels);
         }
         return (void*)SCM_F32VECTOR_ELEMENTS(pixels);
+    case SCM_GL_FLOAT_OR_INT:
+        if (SCM_F32VECTORP(pixels)) {
+            return (void*)SCM_F32VECTOR_ELEMENTS(pixels);
+        } else if (SCM_S32VECTORP(pixels)) {
+            return (void*)SCM_S32VECTOR_ELEMENTS(pixels);
+        }
+        Scm_Error("f32vector or s32vector required, but got %S", pixels);
+        return NULL;
     default:
         Scm_Error("Scm_GLPixelDataCheck: unknown element type: %d", elttype);
         return NULL;

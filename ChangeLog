@@ -1,3 +1,7 @@
+2001-11-21  Shiro Kawai  <shiro@acm.org>
+
+	* src/glu-lib.stub : added more Nurbs support fns.
+	
 2001-11-20  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-gl.h, src/gauche-gl.c, src/glu-lib.stub : added

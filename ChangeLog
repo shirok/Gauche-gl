@@ -1,5 +1,6 @@
 2002-12-15  Shiro Kawai  <shiro@acm.org>
 
+	* release 0.2.1
 	* configure.in : add -lX11 -lXext to link gauche-gl if we're
 	  on X11 systems.  FreeBSD seems to need it, and it won't do
 	  harm as far as we're on X11.

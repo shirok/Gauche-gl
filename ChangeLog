@@ -3,6 +3,7 @@
 	* src/gl-lib.stub : allow gl-call-lists to take a string as either
 	  signed or unsigned byte-array.  It's convenient to draw a charater
 	  string using display lists, even though it only works for ASCII chars.
+	  Also added more texture-related functions.
 
 2002-09-02  Shiro Kawai  <shiro@acm.org>
 

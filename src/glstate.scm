@@ -2,7 +2,7 @@
 ;;;
 ;;; glstate.scm - state variable table
 ;;;
-;;;  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2001-2002 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -13,7 +13,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glstate.scm,v 1.4 2002-07-19 03:12:48 shirok Exp $
+;;;  $Id: glstate.scm,v 1.5 2002-08-17 09:41:24 shirok Exp $
 ;;;
 
 ;;
@@ -25,7 +25,7 @@
 (use gauche.parseopt)
 
 ;; Data
-;;   (name dimension type)
+;;   (name dimension type [version])
 ;;   type: 'getf - available via glGetFloatv
 ;;         'geti - available via glGetIntegerv
 ;;         'getb - available via glGetBooleanv
@@ -37,9 +37,16 @@
 ;;         'conp - available via glGetConvolutionParameter
 ;;         'hisp - available via glGetHistogramParameter
 ;;         #f    - others
+;;   version:  (none) - OpenGL v1.1 and v1.2
+;;             'v1.1  - OpenGL v1.1 only
+;;             'v1.2  - OpenGL v1.2 only
+
+;; Source of this list is the table is the Appendix B: State Variables
+;; of OpenGL Programming Guide.
 
 (define *state*
-  '((gl_current_color                     4   getf)
+  '(;; Current Values and Associated Data
+    (gl_current_color                     4   getf)
     (gl_current_index                     1   geti)
     (gl_current_texture_coords            4   getf)
     (gl_current_normal                    3   getf)
@@ -50,6 +57,7 @@
     (gl_current_raster_texture_coords     4   getf)
     (gl_current_raster_position_valid     1   getb)
     (gl_edge_flag                         1   getb)
+    ;; Vertex Array
     (gl_vertex_array                      1   getb)
     (gl_vertex_array_size                 1   geti)
     (gl_vertex_array_type                 1   geti)
@@ -76,14 +84,15 @@
     (gl_edge_flag_array                   1   getb)
     (gl_edge_flag_array_stride            1   geti)
     (gl_edge_flag_array_pointer           1   getp)
-    ;(gl_client_active_texture_arb         1   geti)
-    ;(gl_color_matrix                     16   getf)
+    (gl_client_active_texture_arb         1   geti v1.2)
+    ;; Transformation
+    (gl_color_matrix                     16   getf v1.2)
     (gl_modelview_matrix                 16   getf)
     (gl_projection_matrix                16   getf)
     (gl_texture_matrix                   16   getf)
     (gl_viewport                          4   geti)
     (gl_depth_range                       2   getf)
-    ;(gl_color_stack_depth                 1   geti)
+    ;(gl_color_stack_depth                 1   geti v1.2) ; Mesa missing this
     (gl_modelview_stack_depth             1   geti)
     (gl_projection_stack_depth            1   geti)
     (gl_texture_stack_depth               1   geti)
@@ -96,6 +105,7 @@
     (gl_clip_plane3                       1   getb)
     (gl_clip_plane4                       1   getb)
     (gl_clip_plane5                       1   getb)
+    ;; Coloring
     (gl_fog_color                         4   getf)
     (gl_fog_index                         1   getf)
     (gl_fog_density                       1   getf)
@@ -104,6 +114,7 @@
     (gl_fog_mode                          1   geti)
     (gl_fog                               1   getb)
     (gl_shade_model                       1   geti)
+    ;; Lighting
     (gl_lighting                          1   getb)
     (gl_color_material                    1   getb)
     (gl_color_material_parameter          1   geti)
@@ -120,6 +131,7 @@
     (gl_light5                            1   getb)
     (gl_light6                            1   getb)
     (gl_light7                            1   getb)
+    ;; Rasterization
     (gl_point_size                        1   getf)
     (gl_point_smooth                      1   getb)
     (gl_line_width                        1   getf)
@@ -133,18 +145,18 @@
     (gl_polygon_smooth                    1   getb)
     (gl_polygon_mode                      1   geti)
     (gl_polygon_offset_factor             1   getf)
-    ;(gl_polygon_offset_bias               1   getf)
-    ;(gl_polygon_offset_bias_ext           1   getf)
+    ;(gl_polygon_offset_bias               1   getf v1.2)  ; Mesa missing this
     (gl_polygon_offset_point              1   getb)
     (gl_polygon_offset_line               1   getb)
-    ;(gl_polygon_offset_full               1   getb)
+    (gl_polygon_offset_fill               1   getb v1.2)
     (gl_polygon_stipple                   1   getb)
+    ;; Texturing
     (gl_texture_1d                        1   getb)
     (gl_texture_2d                        1   getb)
     (gl_texture_3d                        1   getb)
     (gl_texture_binding_1d                1   geti)
     (gl_texture_binding_2d                1   geti)
-    ;(gl_texture_binding_3d                1   geti)
+    (gl_texture_binding_3d                1   geti v1.2)
     (gl_texture_width                     1   texl)
     (gl_texture_height                    1   texl)
     (gl_texture_depth                     1   texl)
@@ -177,7 +189,8 @@
     (gl_eye_plane                         4   texg)
     (gl_object_plane                      4   texg)
     (gl_texture_gen_mode                  1   texg)
-    ;(gl_active_texture_arb                1   geti)
+    (gl_active_texture_arb                1   geti v1.2)
+    ;; Pixel Operations
     (gl_scissor_test                      1   getb)
     (gl_scissor_box                       4   geti)
     (gl_alpha_test                        1   getb)
@@ -194,14 +207,15 @@
     (gl_blend                             1   getb)
     (gl_blend_src                         1   geti)
     (gl_blend_dst                         1   geti)
-    ;(gl_blend_equation                    1   geti)
-    (gl_blend_equation_ext                1   geti)
-    ;(gl_blend_color                       4   getf)
-    (gl_blend_color_ext                   4   getf)
+    (gl_blend_equation                    1   geti v1.2)
+    (gl_blend_equation_ext                1   geti v1.1)
+    (gl_blend_color                       4   getf v1.2)
+    (gl_blend_color_ext                   4   getf v1.1)
     (gl_dither                            1   getb)
     (gl_index_logic_op                    1   getb)
     (gl_color_logic_op                    1   getb)
     (gl_logic_op_mode                     1   geti)
+    ;; Framebuffer Control
     (gl_draw_buffer                       1   geti)
     (gl_index_writemask                   1   geti)
     (gl_color_writemask                   4   getb)
@@ -212,6 +226,7 @@
     (gl_depth_clear_value                 1   geti)
     (gl_stencil_clear_value               1   geti)
     (gl_accum_clear_value                 1   getf)
+    ;; Pixels
     (gl_unpack_swap_bytes                 1   getb)
     (gl_unpack_lsb_first                  1   getb)
     (gl_unpack_image_height               1   geti)
@@ -242,9 +257,9 @@
     (gl_blue_bias                         1   getf)
     (gl_alpha_bias                        1   getf)
     (gl_depth_bias                        1   getf)
-    ;(gl_color_table                       1   getb)
-    ;(gl_post_convolution_color_table      1   getb)
-    ;(gl_post_color_matrix_color_table     1   getb)
+    (gl_color_table                       1   getb v1.2)
+    (gl_post_convolution_color_table      1   getb v1.2)
+    (gl_post_color_matrix_color_table     1   getb v1.2)
     (gl_color_table_format                1   colp)
     (gl_color_table_width                 1   colp)
     (gl_color_table_red_size              1   colp)
@@ -255,9 +270,9 @@
     (gl_color_table_intensity_size        1   colp)
     (gl_color_table_scale                 4   colp)
     (gl_color_table_bias                  4   colp)
-    ;(gl_convolution_1d                    1   getb)
-    ;(gl_convolution_2d                    1   getb)
-    ;(gl_separable_2d                      1   getb)
+    (gl_convolution_1d                    1   getb v1.2)
+    (gl_convolution_2d                    1   getb v1.2)
+    (gl_separable_2d                      1   getb v1.2)
     (gl_convolution_border_color          4   conp)
     (gl_convolution_border_mode           1   conp)
     (gl_convolution_filter_scale          4   conp)
@@ -281,7 +296,7 @@
     (gl_post_color_matrix_green_bias      1   conp)
     (gl_post_color_matrix_blue_bias       1   conp)
     (gl_post_color_matrix_alpha_bias      1   conp)
-    ;(gl_histogram                         1   getb)
+    (gl_histogram                         1   getb v1.2)
     (gl_histogram_width                   1   hisp)
     (gl_histogram_format                  1   hisp)
     (gl_histogram_red_size                1   hisp)
@@ -290,7 +305,7 @@
     (gl_histogram_alpha_size              1   hisp)
     (gl_histogram_luminance_size          1   hisp)
     (gl_histogram_sink                    1   hisp)
-    ;(gl_minmax                            1   getb)
+    (gl_minmax                            1   getb v1.2)
     (gl_zoom_x                            1   getf)
     (gl_zoom_y                            1   getf)
     (gl_pixel_map_i_to_i_size             1   geti)
@@ -304,6 +319,7 @@
     (gl_pixel_map_b_to_b_size             1   geti)
     (gl_pixel_map_a_to_a_size             1   geti)
     (gl_read_buffer                       1   geti)
+    ;; Evaluators
     (gl_map1_vertex_3                     1   getb)
     (gl_map1_vertex_4                     1   getb)
     (gl_map1_index                        1   getb)
@@ -327,11 +343,13 @@
     (gl_map1_grid_segments                1   getf)
     (gl_map2_grid_segments                2   getf)
     (gl_auto_normal                       1   getb)
+    ;; Hints
     (gl_perspective_correction_hint       1   geti)
     (gl_point_smooth_hint                 1   geti)
     (gl_line_smooth_hint                  1   geti)
     (gl_polygon_smooth_hint               1   geti)
     (gl_fog_hint                          1   geti)
+    ;; Implementation-Dependent Values
     (gl_max_lights                        1   geti)
     (gl_max_clip_planes                   1   geti)
     (gl_max_modelview_stack_depth         1   geti)
@@ -352,17 +370,22 @@
     (gl_indeX_mode                        1   getb)
     (gl_doublebuffer                      1   getb)
     (gl_stereo                            1   getb)
-    ;(gl_aliased_point_size_range          2   getf)
-    ;(gl_smooth_point_size_range           2   getf)
-    ;(gl_smooth_point_size_granularity     1   getf)
-    ;(gl_aliased_line_width_range          2   getf)
-    ;(gl_smooth_line_width_range           2   getf)
-    ;(gl_smooth_line_width_granularity     1   getf)
+    (gl_point_size_range                  2   getf v1.1)
+    (gl_point_size_granularity            1   getf v1.1)
+    (gl_aliased_point_size_range          2   getf v1.2)
+    (gl_smooth_point_size_range           2   getf v1.2)
+    (gl_smooth_point_size_granularity     1   getf v1.2)
+    (gl_point_size_range                  2   getf v1.1)
+    (gl_point_size_granularity            1   getf v1.1)
+    (gl_aliased_line_width_range          2   getf v1.2)
+    (gl_smooth_line_width_range           2   getf v1.2)
+    (gl_smooth_line_width_granularity     1   getf v1.2)
     (gl_max_convolution_width             1   conp)
     (gl_max_convolution_height            1   conp)
     (gl_max_elements_indices              1   geti)
     (gl_max_elements_vertices             1   geti)
-    ;(gl_max_texture_units_arb             1   geti)
+    (gl_max_texture_units_arb             1   geti v1.2)
+    ;; Implementation-Dependent Pixel Depths
     (gl_red_bits                          1   geti)
     (gl_green_bits                        1   geti)
     (gl_blue_bits                         1   geti)
@@ -374,6 +397,7 @@
     (gl_accum_green_bits                  1   geti)
     (gl_accum_blue_bits                   1   geti)
     (gl_accum_alpha_bits                  1   geti)
+    ;; Miscellaneous
     (gl_list_base                         1   geti)
     (gl_list_index                        1   geti)
     (gl_list_mode                         1   geti)
@@ -395,16 +419,25 @@
     (for-each (lambda (e)
                 (when (memq (caddr e) '(geti getf getb))
                   (cond ((assv (cadr e) tab)
-                         => (lambda (p) (set! (cdr p) (cons (car e) (cdr p)))))
+                         => (lambda (p) (push! (cdr p) e)))
                         (else
-                         (set! tab (cons (list (cadr e) (car e)) tab))))))
+                         (push! tab (list (cadr e) e))))))
               *state*)
     (for-each (lambda (n)
-                (for-each (lambda (sym)
-                            (let ((name (string-upcase (symbol->string sym))))
-                              (format #t "  case ~a:;\n" name)))
-                          (reverse (cdr n)))
-                (format #t "    return ~a;\n" (car n)))
+                (for-each
+                 (lambda (e)
+                   (let ((name (string-upcase (symbol->string (car e))))
+                         (version (and (pair? (cdddr e)) (cadddr e))))
+                     (case version
+                       ((v1.1)
+                        (print "#if defined(GL_VERSION_1_1) && !defined(GL_VERSION_1_2)"))
+                       ((v1.2)
+                        (print "#if defined(GL_VERSION_1_2)")))
+                     (print #`"  case ,|name|:;")
+                     (when version
+                       (print "#endif"))))
+                 (reverse (cdr n)))
+                (print #`"    return ,(car n);"))
               (reverse tab))))
 
 

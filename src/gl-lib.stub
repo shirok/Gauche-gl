@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.4 2001-09-30 04:48:49 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.5 2001-09-30 05:13:49 shirok Exp $
 ;;;
 
 "
@@ -430,9 +430,9 @@
      double val[4];
      int nvals = Scm_GLGetDoubles(v, args, val, 4, 2);
      switch (nvals) {
-       case 3: glVertex3dv(val);
-       case 2: glVertex2dv(val);
-       case 4: glVertex4dv(val);
+       case 3: glVertex3dv(val); break;
+       case 2: glVertex2dv(val); break;
+       case 4: glVertex4dv(val); break;
      }
   }
   SCM_RETURN(SCM_UNDEFINED);
@@ -511,8 +511,8 @@
      double val[4];
      int nvals = Scm_GLGetDoubles(v, args, val, 4, 3);
      switch (nvals) {
-       case 3: glColor3dv(val);
-       case 4: glColor4dv(val);
+       case 3: glColor3dv(val); break;
+       case 4: glColor4dv(val); break;
      }
   }
   SCM_RETURN(SCM_UNDEFINED);
@@ -557,10 +557,10 @@
      double val[4];
      int nvals = Scm_GLGetDoubles(v, args, val, 4, 1);
      switch (nvals) {
-       case 2: glTexCoord2dv(val);
-       case 1: glTexCoord1dv(val);
-       case 3: glTexCoord3dv(val);
-       case 4: glTexCoord4dv(val);
+       case 2: glTexCoord2dv(val); break;
+       case 1: glTexCoord1dv(val); break;
+       case 3: glTexCoord3dv(val); break;
+       case 4: glTexCoord4dv(val); break;
      }
   }
   SCM_RETURN(SCM_UNDEFINED);
@@ -601,9 +601,9 @@
      double val[4];
      int nvals = Scm_GLGetDoubles(v, args, val, 4, 2);
      switch (nvals) {
-       case 3: glRasterPos3dv(val);
-       case 2: glRasterPos2dv(val);
-       case 4: glRasterPos4dv(val);
+       case 3: glRasterPos3dv(val); break;
+       case 2: glRasterPos2dv(val); break;
+       case 4: glRasterPos4dv(val); break;
      }
   }
   SCM_RETURN(SCM_UNDEFINED);

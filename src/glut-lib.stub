@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.1 2001-09-29 09:10:42 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.2 2001-09-29 11:56:39 shirok Exp $
 ;;;
 
 "
@@ -42,7 +42,7 @@
   i = 1;
   argv[0] = arg0;
   SCM_FOR_EACH(ap, args) {
-    if (!SCM_STRINGP(CAR(ap))) {
+    if (!SCM_STRINGP(SCM_CAR(ap))) {
       Scm_Error(\"string expected, but got %S\", SCM_CAR(ap));
     }
     argv[i] = Scm_GetString(SCM_STRING(SCM_CAR(ap)));

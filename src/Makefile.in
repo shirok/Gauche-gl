@@ -13,7 +13,7 @@ HEADERS =
 
 TARGET = gauche-gl.so gauche-glut.so
 GLOBJS = gauche-gl.o gl-lib.o
-GLUTOBJS = glut-lib.o
+GLUTOBJS = gauche-glut.o glut-lib.o
 OBJS = $(GLOBJS) $(GLUTOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status
 
@@ -31,7 +31,7 @@ gl-lib.c : gl-lib.stub
 	$(GOSH) genstub gl-lib.stub
 
 gauche-glut.so : $(GLUTOBJS)
-	$(CC) $(LDFLAGS) gauche-glut.so $(GLUTOBJS) $(LIBS)
+	$(CC) $(LDFLAGS) gauche-glut.so $(GLUTOBJS) -lglut -lXmu -lXi $(LIBS)
 
 glut-lib.c : glut-lib.stub
 	$(GOSH) genstub glut-lib.stub

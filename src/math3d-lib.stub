@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.9 2002-09-29 10:57:27 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.10 2002-09-29 11:04:36 shirok Exp $
 ;;;
 
 "
@@ -378,6 +378,14 @@
   Scm_TRSToMatrix4fv(r, pt, pv, angle, ps);
   SCM_RETURN(Scm_MakeMatrix4fv(r));")
 
+(define-cproc trs->matrix4f! (m::<matrix4f> t v angle::<real> s)
+  "float *pt, *pv, *ps;
+  SCM_MATH3D_X3FP(pt, t);
+  SCM_MATH3D_X3FP(pv, v);
+  SCM_MATH3D_X3FP(ps, s);
+  Scm_TRSToMatrix4fv(SCM_MATRIX4F_D(m), pt, pv, angle, ps);
+  SCM_RETURN(SCM_OBJ(m));")
+
 (define-cproc tqs->matrix4f (t q s)
   "float r[16], *pt, *pq, *ps;
   SCM_MATH3D_X3FP(pt, t);
@@ -385,6 +393,14 @@
   SCM_MATH3D_X3FP(ps, s);
   Scm_TQSToMatrix4fv(r, pt, pq, ps);
   SCM_RETURN(Scm_MakeMatrix4fv(r));")
+
+(define-cproc tqs->matrix4f! (m::<matrix4f> t q s)
+  "float *pt, *pq, *ps;
+  SCM_MATH3D_X3FP(pt, t);
+  SCM_MATH3D_X4FP(pq, q);
+  SCM_MATH3D_X3FP(ps, s);
+  Scm_TQSToMatrix4fv(SCM_MATRIX4F_D(m), pt, pq, ps);
+  SCM_RETURN(SCM_OBJ(m));")
 
 ;; Quatf ----------------------------------------------------
 

@@ -1,0 +1,7 @@
+This directory contains a port of examples in "OpenGL Programming Guide".
+
+To run examples without installing Gauche-gl, invoke gosh with
+"-I../../src -I../../lib", e.g.
+
+  gosh -I../../src -I../../lib example1-2.scm
+

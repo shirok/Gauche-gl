@@ -1,5 +1,5 @@
 ;;;
-;;; gl.scm - Gauche GL binding
+;;; glut.scm - Gauche GLUT binding
 ;;;
 ;;;  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
 ;;;
@@ -12,15 +12,15 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl.scm,v 1.1 2001-09-30 03:38:37 shirok Exp $
+;;;  $Id: glut.scm,v 1.1 2001-09-30 03:56:25 shirok Exp $
 ;;;
 
-(define-module gl
-  (use srfi-4)                          ;uniform vector
+(define-module gl.glut
   (export-all)
   )
-(select-module gl)
 
-(dynamic-load "gauche-gl")
+(select-module gl.glut)
 
-(provide "gl")
+(dynamic-load "gauche-glut")
+
+(provide "gl/glut")

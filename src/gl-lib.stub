@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.26 2002-09-23 03:41:07 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.27 2002-09-28 02:51:46 shirok Exp $
 ;;;
 
 "
@@ -80,8 +80,7 @@
   (return <void> "glLineStipple"))
 
 (define-cproc gl-polygon-mode (face::<fixnum> mode::<fixnum>)
-  "glPolygonMode((GLenum)face, (GLenum)mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glPolygonMode"))
 
 (if "defined(GL_VERSION_1_1)"
     (define-cproc gl-polygon-offset (factor::<float> units::<float>)
@@ -96,14 +95,12 @@
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-edge-flag (flag::<boolean>)
-  "glEdgeFlag(flag);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glEdgeFlag"))
 
 ;; glEdgeFlagv
 
 (define-cproc gl-scissor (x::<int> y::<int> width::<int> height::<int>)
-  "glScissor((GLint)x, (GLint)y, (GLsizei)width, (GLsizei)height);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glScissor"))
 
 (define-cproc gl-clip-plane (plane::<fixnum> equation)
   "if (!SCM_F64VECTORP(equation) || SCM_F64VECTOR_SIZE(equation) != 4) {
@@ -118,35 +115,29 @@
   SCM_RETURN(SCM_OBJ(v));")
 
 (define-cproc gl-draw-buffer (mode::<fixnum>)
-  "glDrawBuffer((GLenum)mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glDrawBuffer"))
 
 (define-cproc gl-read-buffer (mode::<fixnum>)
-  "glReadBuffer((GLenum)mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glReadBuffer"))
 
 (define-cproc gl-enable (cap::<fixnum>)
-  "glEnable((GLenum)cap);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glEnable"))
   
 (define-cproc gl-disable (cap::<fixnum>)
-  "glDisable((GLenum)cap);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glDisable"))
 
 (define-cproc gl-is-enabled (cap::<fixnum>)
-  "SCM_RETURN(SCM_MAKE_BOOL(glIsEnabled((GLenum)cap)));")
+  (return <boolean> "glIsEnabled"))
 
 (define-cproc gl-enable-client-state (cap::<fixnum>)
-  "glEnableClientState((GLenum)cap);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glEnableClientState"))
 
 (define-cproc gl-disable-client-state (cap::<fixnum>)
-  "glDisableClientState((GLenum)cap);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glDisableClientState"))
 
 ;; Gauche-gl specific
 (define-cproc gl-state-vector-size (state::<fixnum>)
-  "SCM_RETURN(Scm_MakeInteger(Scm_GLStateInfoSize(state)));")
+  (return <integer> "Scm_GLStateInfoSize"))
 
 (define-cproc gl-get-boolean (state::<fixnum>)
   "int vsize = Scm_GLStateInfoSize(state);
@@ -246,165 +237,135 @@
 
 ;; glGetPointerv
 
-(define-cproc gl-push-attrib (mask)
-  "glPushAttrib((GLbitfield)Scm_GetUInteger(mask));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-push-attrib (mask::<ulong>)
+  (return <void> "glPushAttrib"))
 
 (define-cproc gl-pop-attrib ()
-  "glPopAttrib();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glPopAttrib"))
 
-(define-cproc gl-push-client-attrib (mask)
-  "glPushClientAttrib((GLbitfield)Scm_GetUInteger(mask));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-push-client-attrib (mask::<ulong>)
+  (return <void> "glPushClientAttrib"))
 
 (define-cproc gl-pop-client-attrib ()
-  "glPopClientAttrib();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glPopClientAttrib"))
 
 (define-cproc gl-render-mode (mode::<fixnum>)
-  "SCM_RETURN(Scm_MakeInteger(glRenderMode((GLenum)mode)));")
+  (return <integer> "glRenderMode"))
 
 (define-cproc gl-get-error ()
-  "SCM_RETURN(Scm_MakeInteger(glGetError()));")
+  (return <integer> "glGetError"))
 
 (define-cproc gl-get-string (name::<fixnum>)
   "SCM_RETURN(Scm_MakeString(glGetString(name), -1, -1, 0));")
 
 (define-cproc gl-flush ()
-  "glFlush();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glFlush"))
 
 (define-cproc gl-finish ()
-  "glFinish();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glFinish"))
 
 (define-cproc gl-hint (target::<int> mode::<int>)
-  "glHint(target, mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glHint"))
 
 ;;=============================================================
 ;; Depth Buffer
 ;;
 
 (define-cproc gl-clear-depth (depth::<real>)
-  "glClearDepth((GLclampd)depth);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glClearDepth"))
 
 (define-cproc gl-depth-func (func::<fixnum>)
-  "glDepthFunc((GLenum)func);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glDepthFunc"))
 
 (define-cproc gl-depth-mask (flag::<boolean>)
-  "glDepthMask(flag);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glDepthMask"))
 
 (define-cproc gl-depth-range (nearv::<real> farv::<real>)
-  "glDepthRange((GLclampd)nearv, (GLclampd)farv);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glDepthRange"))
 
 ;;=============================================================
 ;; Accumulation Buffer
 ;;
 
 (define-cproc gl-clear-accum (r::<real> g::<real> b::<real> a::<real>)
-  "glClearAccum((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glClearAccum"))
 
 (define-cproc gl-accum (op::<fixnum> value::<real>)
-  "glAccum((GLenum)op, (GLfloat)value);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glAccum"))
 
 ;;=============================================================
 ;; Transformation
 ;;
 
 (define-cproc gl-matrix-mode (mode::<fixnum>)
-  "glMatrixMode(mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glMatrixMode"))
 
 (define-cproc gl-ortho (left::<real> right::<real>
                         bottom::<real> top::<real>
                         nearv::<real> farv::<real>)
-  "glOrtho((GLdouble)left, (GLdouble)right,
-           (GLdouble)bottom, (GLdouble)top,
-           (GLdouble)nearv, (GLdouble)farv);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glOrtho"))
 
 (define-cproc gl-frustum (left::<real> right::<real>
                           bottom::<real> top::<real>
                           nearv::<real> farv::<real>)
-  "glFrustum((GLdouble)left, (GLdouble)right,
-             (GLdouble)bottom, (GLdouble)top,
-             (GLdouble)nearv, (GLdouble)farv);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glFrustum"))
 
 (define-cproc gl-viewport (x::<fixnum> y::<fixnum>
                            width::<fixnum> height::<fixnum>)
-  "glViewport((GLint)x, (GLint)y, (GLsizei)width, (GLsizei)height);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glViewport"))
 
 (define-cproc gl-push-matrix ()
-  "glPushMatrix();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glPushMatrix"))
 
 (define-cproc gl-pop-matrix ()
-  "glPopMatrix();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glPopMatrix"))
 
 (define-cproc gl-load-identity ()
-  "glLoadIdentity();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glLoadIdentity"))
 
 (define-cproc gl-load-matrix (m)
-  "if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
+  "if (SCM_3DMATRIXP(m)) {
+     glLoadMatrixf(SCM_3DMATRIX_D(m));
+  } else if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
      glLoadMatrixf(SCM_F32VECTOR_ELEMENTS(m));
   } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
      glLoadMatrixd(SCM_F64VECTOR_ELEMENTS(m));
   } else {
-     Scm_Error(\"f32vector or f64vector of length 16 is required, but got %S\",
+     Scm_Error(\"3dmatrix, f32vector or f64vector of length 16 is required, but got %S\",
                m);
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-rotate (angle::<real> x::<real> y::<real> z::<real>)
-  "glRotated((GLdouble)angle, (GLdouble)x, (GLdouble)y, (GLdouble)z);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glRotated"))
 
 (define-cproc gl-scale (x::<real> y::<real> z::<real>)
-  "glScaled((GLdouble)x, (GLdouble)y, (GLdouble)z);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (return void "glScaled"))
 
 (define-cproc gl-translate (x::<real> y::<real> z::<real>)
-  "glTranslated((GLdouble)x, (GLdouble)y, (GLdouble)z);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glTranslated"))
 
 ;;=============================================================
 ;; Display lists
 ;;
 
 (define-cproc gl-is-list (list::<int>)
-  "SCM_RETURN(SCM_MAKE_BOOL(glIsList(list)));")
+  (return <boolean> "glIsList"))
 
 (define-cproc gl-delete-lists (list::<int> range::<int>)
-  "glDeleteLists((GLuint)list, (GLsizei)range);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glDeleteLists"))
 
 (define-cproc gl-gen-lists (range::<int>)
-  "GLuint r = glGenLists(range);
-   SCM_RETURN(Scm_MakeIntegerFromUI(r));")
+  (return <ulong> "glGenLists"))
 
 (define-cproc gl-new-list (list::<int> mode::<int>)
-  "glNewList(list, mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glNewList"))
 
 (define-cproc gl-end-list ()
-  "glEndList();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glEndList"))
 
 (define-cproc gl-call-list (list::<int>)
-  "glCallList(list);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glCallList"))
 
 (define-cproc gl-call-lists (n::<int> type::<int> lists)
   "switch (type) {
@@ -480,23 +441,22 @@
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-list-base (base::<int>)
-  "glListBase(base);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glListBase"))
 
 ;;=============================================================
 ;; Drawing functions
 ;;
 
 (define-cproc gl-begin (mode::<int>)
-  "glBegin(mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glBegin"))
 
 (define-cproc gl-end ()
-  "glEnd();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glEnd"))
 
 (define-cproc gl-vertex (v &rest args)
-  "if (SCM_F32VECTORP(v)) {
+  "if (SCM_3DPOINTP(v) || SCM_3DVECTORP(v)) {
+     glVertex3fv(SCM_3DVECTOR_D(v));
+  } else if (SCM_F32VECTORP(v)) {
      switch (SCM_F32VECTOR_SIZE(v)) {
        case 3: glVertex3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
        case 2: glVertex2fv(SCM_F32VECTOR_ELEMENTS(v)); break;
@@ -539,7 +499,9 @@
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-normal (v &rest args)
-  "if (SCM_F32VECTORP(v) && SCM_F32VECTOR_SIZE(v) == 3) {
+  "if (SCM_3DVECTORP(v)) {
+     glNormal3fv(SCM_3DVECTOR_D(v));
+  } else if (SCM_F32VECTORP(v) && SCM_F32VECTOR_SIZE(v) == 3) {
      glNormal3fv(SCM_F32VECTOR_ELEMENTS(v));
   } else if (SCM_F64VECTORP(v) && SCM_F64VECTOR_SIZE(v) == 3) {
      glNormal3dv(SCM_F64VECTOR_ELEMENTS(v));
@@ -710,7 +672,10 @@
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-rect (v1 v2 &rest args)
-  "if (SCM_F32VECTORP(v1)) {
+  "if (SCM_3DPOINTP(v1)) {
+     if (!SCM_3DPOINTP(v2)) goto badarg2;
+     glRectfv(SCM_3DPOINT_D(v1), SCM_3DPOINT_D(v2));
+  } else if (SCM_F32VECTORP(v1)) {
      if (SCM_F32VECTOR_SIZE(v1) != 2) goto badarg1;
      if (!SCM_F32VECTORP(v2) || SCM_F32VECTOR_SIZE(v2) != 2) goto badarg2;
      glRectfv(SCM_F32VECTOR_ELEMENTS(v1), SCM_F32VECTOR_ELEMENTS(v2));
@@ -753,7 +718,7 @@
 (define-cproc gl-vertex-pointer (size::<fixnum> vec
                                  &optional (stride::<fixnum> 0)
                                            (offset::<fixnum> 0))
-  "  if (size < 2 || size > 4) {
+  "if (size < 2 || size > 4) {
     Scm_Error(\"bad argument for size: %d, must be 2, 3 or 4\", size);
   }
   if (stride < 0) {
@@ -762,7 +727,10 @@
   if (offset < 0) {
     Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
   }
-  if (SCM_F32VECTORP(vec)) {
+  if (SCM_3DPOINT_ARRAY_P(vec)) {
+    glVertexPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
+                    (void*)(SCM_3DPOINT_ARRAY_D(vec)+offset));
+  } else if (SCM_F32VECTORP(vec)) {
     glVertexPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
                     (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
   } else if (SCM_F64VECTORP(vec)) {
@@ -788,7 +756,10 @@
   if (offset < 0) {
     Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
   }
-  if (SCM_F32VECTORP(vec)) {
+  if (SCM_3DVECTOR_ARRAY_P(vec)) {
+    glNormalPointer(GL_FLOAT, stride*sizeof(GLfloat),
+                    (void*)(SCM_3DVECTOR_ARRAY_D(vec)+offset));
+  } else if (SCM_F32VECTORP(vec)) {
     glNormalPointer(GL_FLOAT, stride*sizeof(GLfloat),
                     (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
   } else if (SCM_F64VECTORP(vec)) {
@@ -939,8 +910,7 @@
 
 
 (define-cproc gl-draw-arrays (mode::<fixnum> first::<fixnum> count::<fixnum>)
-  "glDrawArrays(mode, first, count);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glDrawArrays"))
 
 ;; Note: we don't allow non-uniform vector for the interleaved arrays, so
 ;; the color component must be float.
@@ -963,8 +933,7 @@
 ;;
 
 (define-cproc gl-shade-model (mode::<fixnum>)
-  "glShadeModel(mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glShadeModel"))
 
 (define-cproc gl-light (light::<fixnum> pname::<fixnum> param)
   "switch (pname) {
@@ -1092,16 +1061,14 @@
    }")
 
 (define-cproc gl-color-material (face::<fixnum> mode::<fixnum>)
-  "glColorMaterial(face, mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glColorMaterial"))
 
 ;;=============================================================
 ;; Raster functions
 ;;
 
 (define-cproc gl-pixel-zoom (xfactor::<real> yfactor::<real>)
-  "glPixelZoom(xfactor, yfactor);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glPixelZoom"))
 
 (define-cproc gl-pixel-store (pname::<fixnum> param)
   "if (SCM_EXACTP(param)) {
@@ -1227,28 +1194,23 @@
 
 (define-cproc gl-copy-pixels (x::<fixnum> y::<fixnum>
                               width::<fixnum> height::<fixnum> type::<fixnum>)
-  "glCopyPixels(x, y, width, height, type);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glCopyPixels"))
 
 ;;=============================================================
 ;; Stenciling
 ;;
 
 (define-cproc gl-stencil-func (func::<fixnum> ref::<int> mask::<uint>)
-  "glStencilFunc((GLenum)func, (GLint)ref, (GLuint)mask);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glStencilFunc"))
 
 (define-cproc gl-stencil-mask (mask::<uint>)
-  "glStencilMask((GLuint)mask);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glStencilMask"))
 
 (define-cproc gl-stencil-op (func::<fixnum> zfail::<fixnum> zpass::<fixnum>)
-  "glStencilFunc((GLenum)func, (GLenum)zfail, (GLenum)zpass); 
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glStencilFunc"))
 
 (define-cproc gl-clear-stencil (s::<int>)
-  "glClearStencil((GLint)s);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (return <void> "glClearStencil"))
 
 ;;=============================================================
 ;; Texture mapping

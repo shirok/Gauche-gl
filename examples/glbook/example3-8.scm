@@ -3,9 +3,6 @@
 (use gl)
 (use gl.glut)
 
-(define *shoulder* 0)
-(define *elbow* 0)
-
 (define (disp)
   (gl-clear |GL_COLOR_BUFFER_BIT|)
   (gl-flush)

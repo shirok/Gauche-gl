@@ -2,6 +2,7 @@ GOSH     = @GOSH@
 GAUCHE_CONFIG = @GAUCHE_CONFIG@
 GAUCHE_TOP = @GAUCHE_TOP@
 
+SHELL    = @SHELL@
 CC       = @CC@
 OPTFLAGS = @OPTFLAGS@
 CFLAGS   = @DEFS@ @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@ $(OPTFLAGS)
@@ -48,7 +49,7 @@ math3d-lib.c : math3d-lib.stub
 	$(GOSH) genstub math3d-lib.stub
 
 libgauche-gl.$(SOEXT) : $(GLOBJS)
-	$(CC) $(LDFLAGS) libgauche-gl.$(SOEXT) -L. -lgauche-math3d $(GLOBJS) $(LIBS)
+	$(CC) $(LDFLAGS) libgauche-gl.$(SOEXT) $(GLOBJS) @GL_EXTRALIBS@ $(LIBS)
 
 gl-lib.c : gl-lib.stub
 	$(GOSH) genstub gl-lib.stub
@@ -67,7 +68,7 @@ gettype-sizes.c : glstate.scm
 $(GLOBJS) : gauche-gl.h gauche/math3d.h
 
 libgauche-glut.$(SOEXT) : $(GLUTOBJS)
-	$(CC) $(LDFLAGS) libgauche-glut.$(SOEXT) $(GLUTOBJS) -L. -lgauche-gl -lgauche-math3d @GLUT_LIBDIR@ @GLUT_LIB@ $(LIBS)
+	$(CC) $(LDFLAGS) libgauche-glut.$(SOEXT) $(GLUTOBJS) @GLUT_LIBDIR@ @GLUT_LIB@ @GLUT_EXTRALIBS@ $(LIBS)
 
 glut-lib.c : glut-lib.stub
 	$(GOSH) genstub glut-lib.stub

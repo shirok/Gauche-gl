@@ -1,6 +1,7 @@
 2002-09-29  Shiro Kawai  <shiro@acm.org>
 
 	* src/gl-lib.stub (gl-mult-matrix): added.
+	* src/math3d-lib.stub : added some more fns.
 
 2002-09-28  Shiro Kawai  <shiro@acm.org>
 

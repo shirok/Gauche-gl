@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.15 2002-09-29 21:14:13 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.16 2002-09-30 10:08:51 shirok Exp $
 ;;;
 
 "
@@ -43,6 +43,9 @@
 
 (define-cproc vector4f? (obj)
   (return <boolean> "SCM_VECTOR4FP"))
+
+(define-cproc make-vector4f ()
+  "SCM_RETURN(Scm_MakeVector4fv(NULL));")
 
 (define-cproc list->vector4f (l::<list>)
   (return "Scm_ListToVector4f"))
@@ -154,6 +157,9 @@
 
 (define-cproc point4f? (obj)
   (return <boolean> "SCM_POINT4FP"))
+
+(define-cproc make-point4f ()
+  "SCM_RETURN(Scm_MakePoint4fv(NULL));")
 
 (define-cproc list->point4f (l::<list>)
   (return "Scm_ListToPoint4f"))
@@ -335,24 +341,28 @@
                               SCM_MATRIX4F_REF(m, i, 1), 
                               SCM_MATRIX4F_REF(m, i, 2),
                               SCM_MATRIX4F_REF(m, i, 3)));"
-  (setter (m::<matrix4f> i::<fixnum> v::<vector4f>)
-    "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
-    SCM_MATRIX4F_SET(m, i, 0, SCM_VECTOR4F_REF(v, 0));
-    SCM_MATRIX4F_SET(m, i, 1, SCM_VECTOR4F_REF(v, 1));
-    SCM_MATRIX4F_SET(m, i, 2, SCM_VECTOR4F_REF(v, 2));
-    SCM_MATRIX4F_SET(m, i, 3, SCM_VECTOR4F_REF(v, 3));
+  (setter (m::<matrix4f> i::<fixnum> v)
+    "float *fv;
+    if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+    SCM_MATH3D_X4FP(fv, v);
+    SCM_MATRIX4F_SET(m, i, 0, fv[0]);
+    SCM_MATRIX4F_SET(m, i, 1, fv[1]);
+    SCM_MATRIX4F_SET(m, i, 2, fv[2]);
+    SCM_MATRIX4F_SET(m, i, 3, fv[3]);
     SCM_RETURN(SCM_UNDEFINED);")
   )
 
 (define-cproc matrix4f-column (m::<matrix4f> i::<fixnum>)
   "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
   SCM_RETURN(Scm_MakeVector4fv(SCM_MATRIX4F_COLVEC(m, i)));"
-  (setter (m::<matrix4f> i::<fixnum> v::<vector4f>)
-    "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
-    SCM_MATRIX4F_SET(m, 0, i, SCM_VECTOR4F_REF(v, 0));
-    SCM_MATRIX4F_SET(m, 1, i, SCM_VECTOR4F_REF(v, 1));
-    SCM_MATRIX4F_SET(m, 2, i, SCM_VECTOR4F_REF(v, 2));
-    SCM_MATRIX4F_SET(m, 3, i, SCM_VECTOR4F_REF(v, 3));
+  (setter (m::<matrix4f> i::<fixnum> v)
+    "float *fv;
+    if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+    SCM_MATH3D_X4FP(fv, v);
+    SCM_MATRIX4F_SET(m, 0, i, fv[0]);
+    SCM_MATRIX4F_SET(m, 1, i, fv[1]);
+    SCM_MATRIX4F_SET(m, 2, i, fv[2]);
+    SCM_MATRIX4F_SET(m, 3, i, fv[3]);
     SCM_RETURN(SCM_UNDEFINED);")
   )
 

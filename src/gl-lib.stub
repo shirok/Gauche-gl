@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.6 2001-10-01 09:32:33 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.7 2001-10-02 09:07:54 shirok Exp $
 ;;;
 
 "
@@ -858,7 +858,7 @@
   (assert (small-integer? stride))
   (assert (small-integer? offset))
   "  switch (format) {
-     GL_C4UB_V2F:; GL_C4UB_V3F:; GL_T2F_C4UB_V3F:
+     case GL_C4UB_V2F:; case GL_C4UB_V3F:; case GL_T2F_C4UB_V3F:
        Scm_Error(\"interleaved arrays with integer color component is not supported.\");
   }
   if (!SCM_F32VECTORP(vec)) {
@@ -2014,8 +2014,6 @@
   "Scm_MakeInteger(GL_TEXTURE_WRAP_R)")
 (define-symbol |GL_MAX_3D_TEXTURE_SIZE| "sym_GL_MAX_3D_TEXTURE_SIZE"
   "Scm_MakeInteger(GL_MAX_3D_TEXTURE_SIZE)")
-(define-symbol |GL_TEXTURE_BINDING_3D| "sym_GL_TEXTURE_BINDING_3D"
-  "Scm_MakeInteger(GL_TEXTURE_BINDING_3D)")
 (define-symbol |GL_ALPHA4| "sym_GL_ALPHA4"
   "Scm_MakeInteger(GL_ALPHA4)")
 (define-symbol |GL_ALPHA8| "sym_GL_ALPHA8"
@@ -2220,90 +2218,12 @@
   "Scm_MakeInteger(GL_TEXTURE_WRAP_R_EXT)")
 (define-symbol |GL_MAX_3D_TEXTURE_SIZE_EXT| "sym_GL_MAX_3D_TEXTURE_SIZE_EXT"
   "Scm_MakeInteger(GL_MAX_3D_TEXTURE_SIZE_EXT)")
-(define-symbol |GL_TEXTURE_3D_BINDING_EXT| "sym_GL_TEXTURE_3D_BINDING_EXT"
-  "Scm_MakeInteger(GL_TEXTURE_3D_BINDING_EXT)")
 (define-symbol |GL_TABLE_TOO_LARGE_EXT| "sym_GL_TABLE_TOO_LARGE_EXT"
   "Scm_MakeInteger(GL_TABLE_TOO_LARGE_EXT)")
-(define-symbol |GL_COLOR_TABLE_FORMAT_EXT| "sym_GL_COLOR_TABLE_FORMAT_EXT"
-  "Scm_MakeInteger(GL_COLOR_TABLE_FORMAT_EXT)")
-(define-symbol |GL_COLOR_TABLE_WIDTH_EXT| "sym_GL_COLOR_TABLE_WIDTH_EXT"
-  "Scm_MakeInteger(GL_COLOR_TABLE_WIDTH_EXT)")
-(define-symbol |GL_COLOR_TABLE_RED_SIZE_EXT| "sym_GL_COLOR_TABLE_RED_SIZE_EXT"
-  "Scm_MakeInteger(GL_COLOR_TABLE_RED_SIZE_EXT)")
-(define-symbol |GL_COLOR_TABLE_GREEN_SIZE_EXT| "sym_GL_COLOR_TABLE_GREEN_SIZE_EXT"
-  "Scm_MakeInteger(GL_COLOR_TABLE_GREEN_SIZE_EXT)")
-(define-symbol |GL_COLOR_TABLE_BLUE_SIZE_EXT| "sym_GL_COLOR_TABLE_BLUE_SIZE_EXT"
-  "Scm_MakeInteger(GL_COLOR_TABLE_BLUE_SIZE_EXT)")
-(define-symbol |GL_COLOR_TABLE_ALPHA_SIZE_EXT| "sym_GL_COLOR_TABLE_ALPHA_SIZE_EXT"
-  "Scm_MakeInteger(GL_COLOR_TABLE_ALPHA_SIZE_EXT)")
-(define-symbol |GL_COLOR_TABLE_LUMINANCE_SIZE_EXT| "sym_GL_COLOR_TABLE_LUMINANCE_SIZE_EXT"
-  "Scm_MakeInteger(GL_COLOR_TABLE_LUMINANCE_SIZE_EXT)")
-(define-symbol |GL_COLOR_TABLE_INTENSITY_SIZE_EXT| "sym_GL_COLOR_TABLE_INTENSITY_SIZE_EXT"
-  "Scm_MakeInteger(GL_COLOR_TABLE_INTENSITY_SIZE_EXT)")
-(define-symbol |GL_TEXTURE_INDEX_SIZE_EXT| "sym_GL_TEXTURE_INDEX_SIZE_EXT"
-  "Scm_MakeInteger(GL_TEXTURE_INDEX_SIZE_EXT)")
-(define-symbol |GL_COLOR_INDEX1_EXT| "sym_GL_COLOR_INDEX1_EXT"
-  "Scm_MakeInteger(GL_COLOR_INDEX1_EXT)")
-(define-symbol |GL_COLOR_INDEX2_EXT| "sym_GL_COLOR_INDEX2_EXT"
-  "Scm_MakeInteger(GL_COLOR_INDEX2_EXT)")
-(define-symbol |GL_COLOR_INDEX4_EXT| "sym_GL_COLOR_INDEX4_EXT"
-  "Scm_MakeInteger(GL_COLOR_INDEX4_EXT)")
-(define-symbol |GL_COLOR_INDEX8_EXT| "sym_GL_COLOR_INDEX8_EXT"
-  "Scm_MakeInteger(GL_COLOR_INDEX8_EXT)")
-(define-symbol |GL_COLOR_INDEX12_EXT| "sym_GL_COLOR_INDEX12_EXT"
-  "Scm_MakeInteger(GL_COLOR_INDEX12_EXT)")
-(define-symbol |GL_COLOR_INDEX16_EXT| "sym_GL_COLOR_INDEX16_EXT"
-  "Scm_MakeInteger(GL_COLOR_INDEX16_EXT)")
-(define-symbol |GL_SHARED_TEXTURE_PALETTE_EXT| "sym_GL_SHARED_TEXTURE_PALETTE_EXT"
-  "Scm_MakeInteger(GL_SHARED_TEXTURE_PALETTE_EXT)")
-(define-symbol |GL_POINT_SIZE_MIN_EXT| "sym_GL_POINT_SIZE_MIN_EXT"
-  "Scm_MakeInteger(GL_POINT_SIZE_MIN_EXT)")
-(define-symbol |GL_POINT_SIZE_MAX_EXT| "sym_GL_POINT_SIZE_MAX_EXT"
-  "Scm_MakeInteger(GL_POINT_SIZE_MAX_EXT)")
-(define-symbol |GL_POINT_FADE_THRESHOLD_SIZE_EXT| "sym_GL_POINT_FADE_THRESHOLD_SIZE_EXT"
-  "Scm_MakeInteger(GL_POINT_FADE_THRESHOLD_SIZE_EXT)")
-(define-symbol |GL_DISTANCE_ATTENUATION_EXT| "sym_GL_DISTANCE_ATTENUATION_EXT"
-  "Scm_MakeInteger(GL_DISTANCE_ATTENUATION_EXT)")
 (define-symbol |GL_RESCALE_NORMAL_EXT| "sym_GL_RESCALE_NORMAL_EXT"
   "Scm_MakeInteger(GL_RESCALE_NORMAL_EXT)")
 (define-symbol |GL_ABGR_EXT| "sym_GL_ABGR_EXT"
   "Scm_MakeInteger(GL_ABGR_EXT)")
-(define-symbol |GL_SELECTED_TEXTURE_SGIS| "sym_GL_SELECTED_TEXTURE_SGIS"
-  "Scm_MakeInteger(GL_SELECTED_TEXTURE_SGIS)")
-(define-symbol |GL_SELECTED_TEXTURE_COORD_SET_SGIS| "sym_GL_SELECTED_TEXTURE_COORD_SET_SGIS"
-  "Scm_MakeInteger(GL_SELECTED_TEXTURE_COORD_SET_SGIS)")
-(define-symbol |GL_MAX_TEXTURES_SGIS| "sym_GL_MAX_TEXTURES_SGIS"
-  "Scm_MakeInteger(GL_MAX_TEXTURES_SGIS)")
-(define-symbol |GL_TEXTURE0_SGIS| "sym_GL_TEXTURE0_SGIS"
-  "Scm_MakeInteger(GL_TEXTURE0_SGIS)")
-(define-symbol |GL_TEXTURE1_SGIS| "sym_GL_TEXTURE1_SGIS"
-  "Scm_MakeInteger(GL_TEXTURE1_SGIS)")
-(define-symbol |GL_TEXTURE2_SGIS| "sym_GL_TEXTURE2_SGIS"
-  "Scm_MakeInteger(GL_TEXTURE2_SGIS)")
-(define-symbol |GL_TEXTURE3_SGIS| "sym_GL_TEXTURE3_SGIS"
-  "Scm_MakeInteger(GL_TEXTURE3_SGIS)")
-(define-symbol |GL_TEXTURE_COORD_SET_SOURCE_SGIS| "sym_GL_TEXTURE_COORD_SET_SOURCE_SGIS"
-  "Scm_MakeInteger(GL_TEXTURE_COORD_SET_SOURCE_SGIS)")
-(define-symbol |GL_SELECTED_TEXTURE_EXT| "sym_GL_SELECTED_TEXTURE_EXT"
-  "Scm_MakeInteger(GL_SELECTED_TEXTURE_EXT)")
-(define-symbol |GL_SELECTED_TEXTURE_COORD_SET_EXT| "sym_GL_SELECTED_TEXTURE_COORD_SET_EXT"
-  "Scm_MakeInteger(GL_SELECTED_TEXTURE_COORD_SET_EXT)")
-(define-symbol |GL_SELECTED_TEXTURE_TRANSFORM_EXT| "sym_GL_SELECTED_TEXTURE_TRANSFORM_EXT"
-  "Scm_MakeInteger(GL_SELECTED_TEXTURE_TRANSFORM_EXT)")
-(define-symbol |GL_MAX_TEXTURES_EXT| "sym_GL_MAX_TEXTURES_EXT"
-  "Scm_MakeInteger(GL_MAX_TEXTURES_EXT)")
-(define-symbol |GL_MAX_TEXTURE_COORD_SETS_EXT| "sym_GL_MAX_TEXTURE_COORD_SETS_EXT"
-  "Scm_MakeInteger(GL_MAX_TEXTURE_COORD_SETS_EXT)")
-(define-symbol |GL_TEXTURE_ENV_COORD_SET_EXT| "sym_GL_TEXTURE_ENV_COORD_SET_EXT"
-  "Scm_MakeInteger(GL_TEXTURE_ENV_COORD_SET_EXT)")
-(define-symbol |GL_TEXTURE0_EXT| "sym_GL_TEXTURE0_EXT"
-  "Scm_MakeInteger(GL_TEXTURE0_EXT)")
-(define-symbol |GL_TEXTURE1_EXT| "sym_GL_TEXTURE1_EXT"
-  "Scm_MakeInteger(GL_TEXTURE1_EXT)")
-(define-symbol |GL_TEXTURE2_EXT| "sym_GL_TEXTURE2_EXT"
-  "Scm_MakeInteger(GL_TEXTURE2_EXT)")
-(define-symbol |GL_TEXTURE3_EXT| "sym_GL_TEXTURE3_EXT"
-  "Scm_MakeInteger(GL_TEXTURE3_EXT)")
 (define-symbol |GL_CLAMP_TO_EDGE_SGIS| "sym_GL_CLAMP_TO_EDGE_SGIS"
   "Scm_MakeInteger(GL_CLAMP_TO_EDGE_SGIS)")
 (define-symbol |GL_RESCALE_NORMAL| "sym_GL_RESCALE_NORMAL"
@@ -2404,226 +2324,6 @@
   "Scm_MakeInteger(GL_CLIENT_VERTEX_ARRAY_BIT)")
 (define-symbol |GL_CLIENT_ALL_ATTRIB_BITS| "sym_GL_CLIENT_ALL_ATTRIB_BITS"
   "Scm_MakeInteger(GL_CLIENT_ALL_ATTRIB_BITS)")
-(define-symbol |GLU_SMOOTH| "sym_GLU_SMOOTH"
-  "Scm_MakeInteger(GLU_SMOOTH)")
-(define-symbol |GLU_FLAT| "sym_GLU_FLAT"
-  "Scm_MakeInteger(GLU_FLAT)")
-(define-symbol |GLU_NONE| "sym_GLU_NONE"
-  "Scm_MakeInteger(GLU_NONE)")
-(define-symbol |GLU_POINT| "sym_GLU_POINT"
-  "Scm_MakeInteger(GLU_POINT)")
-(define-symbol |GLU_LINE| "sym_GLU_LINE"
-  "Scm_MakeInteger(GLU_LINE)")
-(define-symbol |GLU_FILL| "sym_GLU_FILL"
-  "Scm_MakeInteger(GLU_FILL)")
-(define-symbol |GLU_SILHOUETTE| "sym_GLU_SILHOUETTE"
-  "Scm_MakeInteger(GLU_SILHOUETTE)")
-(define-symbol |GLU_OUTSIDE| "sym_GLU_OUTSIDE"
-  "Scm_MakeInteger(GLU_OUTSIDE)")
-(define-symbol |GLU_INSIDE| "sym_GLU_INSIDE"
-  "Scm_MakeInteger(GLU_INSIDE)")
-(define-symbol |GLU_BEGIN| "sym_GLU_BEGIN"
-  "Scm_MakeInteger(GLU_BEGIN)")
-(define-symbol |GLU_VERTEX| "sym_GLU_VERTEX"
-  "Scm_MakeInteger(GLU_VERTEX)")
-(define-symbol |GLU_END| "sym_GLU_END"
-  "Scm_MakeInteger(GLU_END)")
-(define-symbol |GLU_ERROR| "sym_GLU_ERROR"
-  "Scm_MakeInteger(GLU_ERROR)")
-(define-symbol |GLU_EDGE_FLAG| "sym_GLU_EDGE_FLAG"
-  "Scm_MakeInteger(GLU_EDGE_FLAG)")
-(define-symbol |GLU_CW| "sym_GLU_CW"
-  "Scm_MakeInteger(GLU_CW)")
-(define-symbol |GLU_CCW| "sym_GLU_CCW"
-  "Scm_MakeInteger(GLU_CCW)")
-(define-symbol |GLU_INTERIOR| "sym_GLU_INTERIOR"
-  "Scm_MakeInteger(GLU_INTERIOR)")
-(define-symbol |GLU_EXTERIOR| "sym_GLU_EXTERIOR"
-  "Scm_MakeInteger(GLU_EXTERIOR)")
-(define-symbol |GLU_UNKNOWN| "sym_GLU_UNKNOWN"
-  "Scm_MakeInteger(GLU_UNKNOWN)")
-(define-symbol |GLU_TESS_ERROR1| "sym_GLU_TESS_ERROR1"
-  "Scm_MakeInteger(GLU_TESS_ERROR1)")
-(define-symbol |GLU_TESS_ERROR2| "sym_GLU_TESS_ERROR2"
-  "Scm_MakeInteger(GLU_TESS_ERROR2)")
-(define-symbol |GLU_TESS_ERROR3| "sym_GLU_TESS_ERROR3"
-  "Scm_MakeInteger(GLU_TESS_ERROR3)")
-(define-symbol |GLU_TESS_ERROR4| "sym_GLU_TESS_ERROR4"
-  "Scm_MakeInteger(GLU_TESS_ERROR4)")
-(define-symbol |GLU_TESS_ERROR5| "sym_GLU_TESS_ERROR5"
-  "Scm_MakeInteger(GLU_TESS_ERROR5)")
-(define-symbol |GLU_TESS_ERROR6| "sym_GLU_TESS_ERROR6"
-  "Scm_MakeInteger(GLU_TESS_ERROR6)")
-(define-symbol |GLU_TESS_ERROR7| "sym_GLU_TESS_ERROR7"
-  "Scm_MakeInteger(GLU_TESS_ERROR7)")
-(define-symbol |GLU_TESS_ERROR8| "sym_GLU_TESS_ERROR8"
-  "Scm_MakeInteger(GLU_TESS_ERROR8)")
-(define-symbol |GLU_TESS_ERROR9| "sym_GLU_TESS_ERROR9"
-  "Scm_MakeInteger(GLU_TESS_ERROR9)")
-(define-symbol |GLU_AUTO_LOAD_MATRIX| "sym_GLU_AUTO_LOAD_MATRIX"
-  "Scm_MakeInteger(GLU_AUTO_LOAD_MATRIX)")
-(define-symbol |GLU_CULLING| "sym_GLU_CULLING"
-  "Scm_MakeInteger(GLU_CULLING)")
-(define-symbol |GLU_PARAMETRIC_TOLERANCE| "sym_GLU_PARAMETRIC_TOLERANCE"
-  "Scm_MakeInteger(GLU_PARAMETRIC_TOLERANCE)")
-(define-symbol |GLU_SAMPLING_TOLERANCE| "sym_GLU_SAMPLING_TOLERANCE"
-  "Scm_MakeInteger(GLU_SAMPLING_TOLERANCE)")
-(define-symbol |GLU_DISPLAY_MODE| "sym_GLU_DISPLAY_MODE"
-  "Scm_MakeInteger(GLU_DISPLAY_MODE)")
-(define-symbol |GLU_SAMPLING_METHOD| "sym_GLU_SAMPLING_METHOD"
-  "Scm_MakeInteger(GLU_SAMPLING_METHOD)")
-(define-symbol |GLU_U_STEP| "sym_GLU_U_STEP"
-  "Scm_MakeInteger(GLU_U_STEP)")
-(define-symbol |GLU_V_STEP| "sym_GLU_V_STEP"
-  "Scm_MakeInteger(GLU_V_STEP)")
-(define-symbol |GLU_PATH_LENGTH| "sym_GLU_PATH_LENGTH"
-  "Scm_MakeInteger(GLU_PATH_LENGTH)")
-(define-symbol |GLU_PARAMETRIC_ERROR| "sym_GLU_PARAMETRIC_ERROR"
-  "Scm_MakeInteger(GLU_PARAMETRIC_ERROR)")
-(define-symbol |GLU_DOMAIN_DISTANCE| "sym_GLU_DOMAIN_DISTANCE"
-  "Scm_MakeInteger(GLU_DOMAIN_DISTANCE)")
-(define-symbol |GLU_MAP1_TRIM_2| "sym_GLU_MAP1_TRIM_2"
-  "Scm_MakeInteger(GLU_MAP1_TRIM_2)")
-(define-symbol |GLU_MAP1_TRIM_3| "sym_GLU_MAP1_TRIM_3"
-  "Scm_MakeInteger(GLU_MAP1_TRIM_3)")
-(define-symbol |GLU_OUTLINE_POLYGON| "sym_GLU_OUTLINE_POLYGON"
-  "Scm_MakeInteger(GLU_OUTLINE_POLYGON)")
-(define-symbol |GLU_OUTLINE_PATCH| "sym_GLU_OUTLINE_PATCH"
-  "Scm_MakeInteger(GLU_OUTLINE_PATCH)")
-(define-symbol |GLU_NURBS_ERROR1| "sym_GLU_NURBS_ERROR1"
-  "Scm_MakeInteger(GLU_NURBS_ERROR1)")
-(define-symbol |GLU_NURBS_ERROR2| "sym_GLU_NURBS_ERROR2"
-  "Scm_MakeInteger(GLU_NURBS_ERROR2)")
-(define-symbol |GLU_NURBS_ERROR3| "sym_GLU_NURBS_ERROR3"
-  "Scm_MakeInteger(GLU_NURBS_ERROR3)")
-(define-symbol |GLU_NURBS_ERROR4| "sym_GLU_NURBS_ERROR4"
-  "Scm_MakeInteger(GLU_NURBS_ERROR4)")
-(define-symbol |GLU_NURBS_ERROR5| "sym_GLU_NURBS_ERROR5"
-  "Scm_MakeInteger(GLU_NURBS_ERROR5)")
-(define-symbol |GLU_NURBS_ERROR6| "sym_GLU_NURBS_ERROR6"
-  "Scm_MakeInteger(GLU_NURBS_ERROR6)")
-(define-symbol |GLU_NURBS_ERROR7| "sym_GLU_NURBS_ERROR7"
-  "Scm_MakeInteger(GLU_NURBS_ERROR7)")
-(define-symbol |GLU_NURBS_ERROR8| "sym_GLU_NURBS_ERROR8"
-  "Scm_MakeInteger(GLU_NURBS_ERROR8)")
-(define-symbol |GLU_NURBS_ERROR9| "sym_GLU_NURBS_ERROR9"
-  "Scm_MakeInteger(GLU_NURBS_ERROR9)")
-(define-symbol |GLU_NURBS_ERROR10| "sym_GLU_NURBS_ERROR10"
-  "Scm_MakeInteger(GLU_NURBS_ERROR10)")
-(define-symbol |GLU_NURBS_ERROR11| "sym_GLU_NURBS_ERROR11"
-  "Scm_MakeInteger(GLU_NURBS_ERROR11)")
-(define-symbol |GLU_NURBS_ERROR12| "sym_GLU_NURBS_ERROR12"
-  "Scm_MakeInteger(GLU_NURBS_ERROR12)")
-(define-symbol |GLU_NURBS_ERROR13| "sym_GLU_NURBS_ERROR13"
-  "Scm_MakeInteger(GLU_NURBS_ERROR13)")
-(define-symbol |GLU_NURBS_ERROR14| "sym_GLU_NURBS_ERROR14"
-  "Scm_MakeInteger(GLU_NURBS_ERROR14)")
-(define-symbol |GLU_NURBS_ERROR15| "sym_GLU_NURBS_ERROR15"
-  "Scm_MakeInteger(GLU_NURBS_ERROR15)")
-(define-symbol |GLU_NURBS_ERROR16| "sym_GLU_NURBS_ERROR16"
-  "Scm_MakeInteger(GLU_NURBS_ERROR16)")
-(define-symbol |GLU_NURBS_ERROR17| "sym_GLU_NURBS_ERROR17"
-  "Scm_MakeInteger(GLU_NURBS_ERROR17)")
-(define-symbol |GLU_NURBS_ERROR18| "sym_GLU_NURBS_ERROR18"
-  "Scm_MakeInteger(GLU_NURBS_ERROR18)")
-(define-symbol |GLU_NURBS_ERROR19| "sym_GLU_NURBS_ERROR19"
-  "Scm_MakeInteger(GLU_NURBS_ERROR19)")
-(define-symbol |GLU_NURBS_ERROR20| "sym_GLU_NURBS_ERROR20"
-  "Scm_MakeInteger(GLU_NURBS_ERROR20)")
-(define-symbol |GLU_NURBS_ERROR21| "sym_GLU_NURBS_ERROR21"
-  "Scm_MakeInteger(GLU_NURBS_ERROR21)")
-(define-symbol |GLU_NURBS_ERROR22| "sym_GLU_NURBS_ERROR22"
-  "Scm_MakeInteger(GLU_NURBS_ERROR22)")
-(define-symbol |GLU_NURBS_ERROR23| "sym_GLU_NURBS_ERROR23"
-  "Scm_MakeInteger(GLU_NURBS_ERROR23)")
-(define-symbol |GLU_NURBS_ERROR24| "sym_GLU_NURBS_ERROR24"
-  "Scm_MakeInteger(GLU_NURBS_ERROR24)")
-(define-symbol |GLU_NURBS_ERROR25| "sym_GLU_NURBS_ERROR25"
-  "Scm_MakeInteger(GLU_NURBS_ERROR25)")
-(define-symbol |GLU_NURBS_ERROR26| "sym_GLU_NURBS_ERROR26"
-  "Scm_MakeInteger(GLU_NURBS_ERROR26)")
-(define-symbol |GLU_NURBS_ERROR27| "sym_GLU_NURBS_ERROR27"
-  "Scm_MakeInteger(GLU_NURBS_ERROR27)")
-(define-symbol |GLU_NURBS_ERROR28| "sym_GLU_NURBS_ERROR28"
-  "Scm_MakeInteger(GLU_NURBS_ERROR28)")
-(define-symbol |GLU_NURBS_ERROR29| "sym_GLU_NURBS_ERROR29"
-  "Scm_MakeInteger(GLU_NURBS_ERROR29)")
-(define-symbol |GLU_NURBS_ERROR30| "sym_GLU_NURBS_ERROR30"
-  "Scm_MakeInteger(GLU_NURBS_ERROR30)")
-(define-symbol |GLU_NURBS_ERROR31| "sym_GLU_NURBS_ERROR31"
-  "Scm_MakeInteger(GLU_NURBS_ERROR31)")
-(define-symbol |GLU_NURBS_ERROR32| "sym_GLU_NURBS_ERROR32"
-  "Scm_MakeInteger(GLU_NURBS_ERROR32)")
-(define-symbol |GLU_NURBS_ERROR33| "sym_GLU_NURBS_ERROR33"
-  "Scm_MakeInteger(GLU_NURBS_ERROR33)")
-(define-symbol |GLU_NURBS_ERROR34| "sym_GLU_NURBS_ERROR34"
-  "Scm_MakeInteger(GLU_NURBS_ERROR34)")
-(define-symbol |GLU_NURBS_ERROR35| "sym_GLU_NURBS_ERROR35"
-  "Scm_MakeInteger(GLU_NURBS_ERROR35)")
-(define-symbol |GLU_NURBS_ERROR36| "sym_GLU_NURBS_ERROR36"
-  "Scm_MakeInteger(GLU_NURBS_ERROR36)")
-(define-symbol |GLU_NURBS_ERROR37| "sym_GLU_NURBS_ERROR37"
-  "Scm_MakeInteger(GLU_NURBS_ERROR37)")
-(define-symbol |GLU_INVALID_ENUM| "sym_GLU_INVALID_ENUM"
-  "Scm_MakeInteger(GLU_INVALID_ENUM)")
-(define-symbol |GLU_INVALID_VALUE| "sym_GLU_INVALID_VALUE"
-  "Scm_MakeInteger(GLU_INVALID_VALUE)")
-(define-symbol |GLU_OUT_OF_MEMORY| "sym_GLU_OUT_OF_MEMORY"
-  "Scm_MakeInteger(GLU_OUT_OF_MEMORY)")
-(define-symbol |GLU_INCOMPATIBLE_GL_VERSION| "sym_GLU_INCOMPATIBLE_GL_VERSION"
-  "Scm_MakeInteger(GLU_INCOMPATIBLE_GL_VERSION)")
-(define-symbol |GLU_VERSION| "sym_GLU_VERSION"
-  "Scm_MakeInteger(GLU_VERSION)")
-(define-symbol |GLU_EXTENSIONS| "sym_GLU_EXTENSIONS"
-  "Scm_MakeInteger(GLU_EXTENSIONS)")
-(define-symbol |GLX_USE_GL| "sym_GLX_USE_GL"
-  "Scm_MakeInteger(GLX_USE_GL)")
-(define-symbol |GLX_BUFFER_SIZE| "sym_GLX_BUFFER_SIZE"
-  "Scm_MakeInteger(GLX_BUFFER_SIZE)")
-(define-symbol |GLX_LEVEL| "sym_GLX_LEVEL"
-  "Scm_MakeInteger(GLX_LEVEL)")
-(define-symbol |GLX_RGBA| "sym_GLX_RGBA"
-  "Scm_MakeInteger(GLX_RGBA)")
-(define-symbol |GLX_DOUBLEBUFFER| "sym_GLX_DOUBLEBUFFER"
-  "Scm_MakeInteger(GLX_DOUBLEBUFFER)")
-(define-symbol |GLX_STEREO| "sym_GLX_STEREO"
-  "Scm_MakeInteger(GLX_STEREO)")
-(define-symbol |GLX_AUX_BUFFERS| "sym_GLX_AUX_BUFFERS"
-  "Scm_MakeInteger(GLX_AUX_BUFFERS)")
-(define-symbol |GLX_RED_SIZE| "sym_GLX_RED_SIZE"
-  "Scm_MakeInteger(GLX_RED_SIZE)")
-(define-symbol |GLX_GREEN_SIZE| "sym_GLX_GREEN_SIZE"
-  "Scm_MakeInteger(GLX_GREEN_SIZE)")
-(define-symbol |GLX_BLUE_SIZE| "sym_GLX_BLUE_SIZE"
-  "Scm_MakeInteger(GLX_BLUE_SIZE)")
-(define-symbol |GLX_ALPHA_SIZE| "sym_GLX_ALPHA_SIZE"
-  "Scm_MakeInteger(GLX_ALPHA_SIZE)")
-(define-symbol |GLX_DEPTH_SIZE| "sym_GLX_DEPTH_SIZE"
-  "Scm_MakeInteger(GLX_DEPTH_SIZE)")
-(define-symbol |GLX_STENCIL_SIZE| "sym_GLX_STENCIL_SIZE"
-  "Scm_MakeInteger(GLX_STENCIL_SIZE)")
-(define-symbol |GLX_ACCUM_RED_SIZE| "sym_GLX_ACCUM_RED_SIZE"
-  "Scm_MakeInteger(GLX_ACCUM_RED_SIZE)")
-(define-symbol |GLX_ACCUM_GREEN_SIZE| "sym_GLX_ACCUM_GREEN_SIZE"
-  "Scm_MakeInteger(GLX_ACCUM_GREEN_SIZE)")
-(define-symbol |GLX_ACCUM_BLUE_SIZE| "sym_GLX_ACCUM_BLUE_SIZE"
-  "Scm_MakeInteger(GLX_ACCUM_BLUE_SIZE)")
-(define-symbol |GLX_ACCUM_ALPHA_SIZE| "sym_GLX_ACCUM_ALPHA_SIZE"
-  "Scm_MakeInteger(GLX_ACCUM_ALPHA_SIZE)")
-(define-symbol |GLX_X_VISUAL_TYPE_EXT| "sym_GLX_X_VISUAL_TYPE_EXT"
-  "Scm_MakeInteger(GLX_X_VISUAL_TYPE_EXT)")
-(define-symbol |GLX_TRANSPARENT_TYPE_EXT| "sym_GLX_TRANSPARENT_TYPE_EXT"
-  "Scm_MakeInteger(GLX_TRANSPARENT_TYPE_EXT)")
-(define-symbol |GLX_TRANSPARENT_INDEX_VALUE_EXT| "sym_GLX_TRANSPARENT_INDEX_VALUE_EXT"
-  "Scm_MakeInteger(GLX_TRANSPARENT_INDEX_VALUE_EXT)")
-(define-symbol |GLX_TRANSPARENT_RED_VALUE_EXT| "sym_GLX_TRANSPARENT_RED_VALUE_EXT"
-  "Scm_MakeInteger(GLX_TRANSPARENT_RED_VALUE_EXT)")
-(define-symbol |GLX_TRANSPARENT_GREEN_VALUE_EXT| "sym_GLX_TRANSPARENT_GREEN_VALUE_EXT"
-  "Scm_MakeInteger(GLX_TRANSPARENT_GREEN_VALUE_EXT)")
-(define-symbol |GLX_TRANSPARENT_BLUE_VALUE_EXT| "sym_GLX_TRANSPARENT_BLUE_VALUE_EXT"
-  "Scm_MakeInteger(GLX_TRANSPARENT_BLUE_VALUE_EXT)")
-(define-symbol |GLX_TRANSPARENT_ALPHA_VALUE_EXT| "sym_GLX_TRANSPARENT_ALPHA_VALUE_EXT"
-  "Scm_MakeInteger(GLX_TRANSPARENT_ALPHA_VALUE_EXT)")
 
 ;; Local variables:
 ;; mode: scheme

@@ -1,0 +1,700 @@
+;;;
+;;; glut-lib.stub - glue functions for GLUT
+;;;
+;;;  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+;;;
+;;;  Permission to use, copy, modify, distribute this software and
+;;;  accompanying documentation for any purpose is hereby granted,
+;;;  provided that existing copyright notices are retained in all
+;;;  copies and that this notice is included verbatim in all
+;;;  distributions.
+;;;  This software is provided as is, without express or implied
+;;;  warranty.  In no circumstances the author(s) shall be liable
+;;;  for any damages arising out of the use of this software.
+;;;
+;;;  $Id: glut-lib.stub,v 1.1 2001-09-29 09:10:42 shirok Exp $
+;;;
+
+"
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glx.h>
+#include <GL/glut.h>
+"
+
+;;========================================================
+;; Window manipulation
+;;
+
+;; glut-init
+;;   Takes list of args instead of C-style argc/argv
+(define-cproc glut-init (args)
+  "
+  int argc, i;
+  char **argv;
+  ScmObj ap;
+  static char arg0[] = \"\";    /* dummy argv[0] */
+
+  argc = Scm_Length(args);
+  if (argc < 0) Scm_Error(\"list expected, but got %S\", args);
+  argc++;
+  argv = SCM_NEW2(char **, argc * sizeof(char*));
+  i = 1;
+  argv[0] = arg0;
+  SCM_FOR_EACH(ap, args) {
+    if (!SCM_STRINGP(CAR(ap))) {
+      Scm_Error(\"string expected, but got %S\", SCM_CAR(ap));
+    }
+    argv[i] = Scm_GetString(SCM_STRING(SCM_CAR(ap)));
+    i++;
+  }
+
+  glutInit(&argc, argv);
+  SCM_RETURN(Scm_MakeInteger(argc));
+  ")
+
+(define-cproc glut-init-display-mode (mode)
+  (assert (small-integer? mode))
+  "glutInitDisplayMode(mode);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-init-display-string (string)
+  (assert (string? string))
+  "
+#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
+  glutInitDisplayString(Scm_GetStringConst(string));
+#endif
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-init-window-size (width height)
+  (assert (exact? width))
+  (assert (exact? height))
+  "glutInitWindowSize(width, height);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-init-window-position (x y)
+  (assert (exact? x))
+  (assert (exact? y))
+  "glutInitWindowPosition(x, y);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-main-loop ()
+  "glutMainLoop();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-create-window (name)
+  (assert (string? name))
+  "SCM_RETURN(Scm_MakeInteger(glutCreateWindow(Scm_GetStringConst(name))));")
+
+(define-cproc glut-create-sub-window (win x y width height)
+  (assert (exact? win))
+  (assert (exact? x))
+  (assert (exact? y))
+  (assert (exact? width))
+  (assert (exact? height))
+  "int win = glutCreateSubWindow(win, x, y, width, height);
+   SCM_RETURN(Scm_MakeInteger(win));")
+
+(define-cproc glut-destory-window (win)
+  (assert (exact? win))
+  "glutDestroyWindow(win);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-swap-buffers ()
+  "glutSwapBuffers();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-get-window ()
+  "SCM_RETURN(Scm_MakeInteger(glutGetWindow()));")
+
+(define-cproc glut-set-window (win)
+  (assert (exact? win))
+  "glutSetWindow(win);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-set-window-title (title)
+  (assert (string? title))
+  "glutSetWindowTitle(Scm_GetStringConst(title));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-set-icon-title (title)
+  (assert (string? title))
+  "glutSetIconTitle(Scm_GetStringConst(title));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-position-window (x y)
+  (assert (exact? x))
+  (assert (exact? y))
+  "glutPositionWindow(x, y);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-reshape-window (width height)
+  (assert (exact? width))
+  (assert (exact? height))
+  "glutReshapeWindow(width, height);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-push-window ()
+  "glutPushWindow();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-pop-window ()
+  "glutPopWindow();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-iconify-window ()
+  "glutIconifyWindow();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-show-window ()
+  "glutShowWindow();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-hide-window ()
+  "glutHideWindow();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-full-screen ()
+  "#if (GLUT_API_VERSION >= 3)
+   glutFullScreen();
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-set-cursor (cursor)
+  (assert (exact? cursor))
+  "#if (GLUT_API_VERSION >= 3)
+   glutSetCursor(cursor);
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-warp-pointer (x y)
+  (assert (exact? x))
+  (assert (exact? y))
+  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
+   glutWarpPointer(x, y);
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;;========================================================
+;; Overlay APIs
+;;
+
+(define-cproc glut-establish-overlay ()
+  "#if (GLUT_API_VERSION >= 3)
+   glutEstablishOverlay();
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-remove-overlay ()
+  "#if (GLUT_API_VERSION >= 3)
+   glutRemoveOverlay();
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-use-layer (layer)
+  (assert (small-integer? layer))
+  "#if (GLUT_API_VERSION >= 3)
+   glutUseLayer(layer);
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-post-overlay-redisplay ()
+  "#if (GLUT_API_VERSION >= 3)
+   glutPostOverlayRedisplay();
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-post-window-overlay-redisplay (win)
+  (assert (exact? win))
+  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
+   glutPostWindowOverlayRedisplay(win);
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-show-overlay ()
+  "#if (GLUT_API_VERSION >= 3)
+   glutShowOverlay();
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+  
+(define-cproc glut-hide-overlay ()
+  "#if (GLUT_API_VERSION >= 3)
+   glutHideOverlay();
+#endif
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;;========================================================
+;; Menu APIs
+;;
+
+;; Glut menu API doesn't passes the callback function which menu
+;; it is invoked.  We need to keep an assoc list of menu id and
+;; callback fn.
+
+"static ScmObj menu_fn_assoc = SCM_NIL;
+ static void menu_callback(int item)
+ {
+    int menu = glutGetMenu();
+    ScmObj p = Scm_Assoc(SCM_MAKE_INT(menu), menu_fn_assoc, SCM_CMP_EQV);
+    if (SCM_PAIRP(p) && SCM_PROCEDUREP(SCM_CDR(p))) {
+      Scm_Apply(SCM_CDR(p), SCM_LIST1(SCM_MAKE_INT(item)));
+    }
+ }"
+
+(define-cproc glut-create-menu (callback)
+  (assert (procedure? callback))
+  "  int menu = glutCreateMenu(menu_callback);
+  if (menu >= 0) {
+    menu_fn_assoc = Scm_Acons(SCM_MAKE_INT(menu), SCM_OBJ(callback), menu_fn_assoc);
+    SCM_RETURN(SCM_MAKE_INT(menu));
+  } else {
+    SCM_RETURN(SCM_FALSE);
+  }")
+
+(define-cproc glut-destroy-menu (menu)
+  (assert (small-integer? menu))
+  "  menu_fn_assoc =
+       Scm_AssocDelete(SCM_MAKE_INT(menu), menu_fn_assoc, SCM_CMP_EQV);
+  glutDestroyMenu(menu);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-get-menu ()
+  "SCM_RETURN(Scm_MakeInteger(glutGetMenu()));")
+
+(define-cproc glut-set-menu (menu)
+  (assert (small-integer? menu))
+  "glutSetMenu(menu);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-add-menu-entry (label value)
+  (assert (string? label))
+  (assert (exact? value))
+  "glutAddMenuEntry(Scm_GetStringConst(label), value);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-add-sub-menu (label submenu)
+  (assert (string? label))
+  (assert (exact? submenu))
+  "glutAddSubMenu(Scm_GetStringConst(label), submenu);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-change-to-menu-entry (item label value)
+  (assert (exact? item))
+  (assert (string? label))
+  (assert (exact? value))
+  "glutChangeToMenuEntry(item, Scm_GetStringConst(label), value);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-change-to-sub-menu (item label submenu)
+  (assert (exact? item))
+  (assert (string? label))
+  (assert (exact? submenu))
+  "glutChangeToSubMenu(item, Scm_GetStringConst(label), submenu);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-remove-menu-item (item)
+  (assert (exact? item))
+  "glutRemoveMenuItem(item);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-attach-menu (button)
+  (assert (exact? button))
+  "glutAttachMenu(button);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-detach-menu (button)
+  (assert (exact? button))
+  "glutDetachMenu(button);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;;========================================================
+;; Callbacks
+;;
+
+;; GLUT callbacks doesn't allow function to carry closure information,
+;; hence static variables.
+
+;; display ---------------
+"static ScmObj display_fn = SCM_FALSE;
+ static void display_callback()
+ {
+   if (SCM_PROCEDUREP(display_fn)) {
+      Scm_Apply(display_fn, SCM_NIL);
+   }
+ }"
+
+(define-cproc glut-display-func (fn)
+  "  display_fn = fn;
+  glutDisplayFunc(display_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; reshape ---------------
+"static ScmObj reshape_fn = SCM_FALSE;
+ static void reshape_callback(int w, int h)
+ {
+   if (SCM_PROCEDUREP(reshape_fn)) {
+      Scm_Apply(reshape_fn, SCM_LIST2(SCM_MAKE_INT(w), SCM_MAKE_INT(h)));
+   }
+ }"
+
+(define-cproc glut-reshape-func (fn)
+  "  reshape_fn = fn;
+  glutReshapeFunc(reshape_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; keyboard ---------------
+"static ScmObj keyboard_fn = SCM_FALSE;
+ static void keyboard_callback(unsigned char key, int x, int y)
+ {
+   if (SCM_PROCEDUREP(keyboard_fn)) {
+      Scm_Apply(keyboard_fn, SCM_LIST3(SCM_MAKE_INT(key),
+                                       SCM_MAKE_INT(x),
+                                       SCM_MAKE_INT(y)));
+   }
+ }"
+
+(define-cproc glut-keyboard-func (fn)
+  "  keyboard_fn = fn;
+  glutKeyboardFunc(keyboard_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; mouse ---------------
+"static ScmObj mouse_fn = SCM_FALSE;
+ static void mouse_callback(int button, int state, int x, int y)
+ {
+   if (SCM_PROCEDUREP(mouse_fn)) {
+      Scm_Apply(mouse_fn, SCM_LIST4(SCM_MAKE_INT(button),
+                                    SCM_MAKE_INT(state),
+                                    SCM_MAKE_INT(x),
+                                    SCM_MAKE_INT(y)));
+  }
+ }"
+
+(define-cproc glut-mouse-func (fn)
+  "  mouse_fn = fn;
+  glutMouseFunc(mouse_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; motion ---------------
+"static ScmObj motion_fn = SCM_FALSE;
+ static void motion_callback(int x, int y)
+ {
+   if (SCM_PROCEDUREP(motion_fn)) {
+      Scm_Apply(motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
+                                     SCM_MAKE_INT(y)));
+   }
+ }"
+
+(define-cproc glut-motion-func (fn)
+  "  motion_fn = fn;
+  glutMotionFunc(motion_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; passiveMotion ---------------
+"static ScmObj passive_motion_fn = SCM_FALSE;
+ static void passive_motion_callback(int x, int y)
+ {
+   if (SCM_PROCEDUREP(passive_motion_fn)) {
+      Scm_Apply(passive_motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
+                                     SCM_MAKE_INT(y)));
+   }
+ }"
+
+(define-cproc glut-passive-motion-func (fn)
+  "  passive_motion_fn = fn;
+  glutPassiveMotionFunc(passive_motion_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; Entry ---------------
+"static ScmObj entry_fn = SCM_FALSE;
+ static void entry_callback(int state)
+ {
+   if (SCM_PROCEDUREP(entry_fn)) {
+      Scm_Apply(entry_fn, SCM_LIST1(SCM_MAKE_INT(state)));
+   }
+ }"
+
+(define-cproc glut-entry-func (fn)
+  "  entry_fn = fn;
+  glutEntryFunc(entry_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; Visibility ---------------
+"static ScmObj visibility_fn = SCM_FALSE;
+ static void visibility_callback(int state)
+ {
+   if (SCM_PROCEDUREP(visibility_fn)) {
+      Scm_Apply(visibility_fn, SCM_LIST1(SCM_MAKE_INT(state)));
+   }
+ }"
+
+(define-cproc glut-visibility-func (fn)
+  "  visibility_fn = fn;
+  glutVisibilityFunc(visibility_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; Idle ---------------
+"static ScmObj idle_fn = SCM_FALSE;
+ static void idle_callback(void)
+ {
+   if (SCM_PROCEDUREP(idle_fn)) {
+      Scm_Apply(idle_fn, SCM_NIL);
+   }
+ }"
+
+(define-cproc glut-idle-func (fn)
+  "  idle_fn = fn;
+  glutIdleFunc(idle_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; Timer ---------------
+"static ScmObj timer_fn = SCM_FALSE;
+ static void timer_callback(int value)
+ {
+   if (SCM_PROCEDUREP(timer_fn)) {
+      Scm_Apply(timer_fn, SCM_LIST1(SCM_MAKE_INT(value)));
+   }
+ }"
+
+(define-cproc glut-timer-func (millis fn value)
+  (assert (exact? millis))
+  (assert (exact? value))
+  "  timer_fn = fn;
+  glutTimerFunc(millis, timer_callback, value);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; MenuState ---------------
+
+"static ScmObj menu_state_fn = SCM_FALSE;
+ static void menu_state_callback(int state)
+ {
+   if (SCM_PROCEDUREP(menu_state_fn)) {
+      Scm_Apply(menu_state_fn, SCM_LIST1(SCM_MAKE_INT(state)));
+   }
+ }"
+
+(define-cproc glut-menu_state-func (fn)
+  "  menu_state_fn = fn;
+  glutMenuStateFunc(menu_state_callback);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; Special
+
+;; SpaceballMotion
+
+;; SpaceballRotate
+
+;; SpaceballButton
+
+;; ButtonBox
+
+;; Dials
+
+;; TabletMotion
+
+;; TabletButton
+
+;; MenuStatus
+
+;; OverlayDisplay
+
+;; WindowStatus
+
+;; KeyboardUp
+
+;; SpecialUp
+
+;; Joystick
+
+;;========================================================
+;; Colormap
+;;
+
+(define-cproc glut-set-color (index r g b)
+  (assert (exact? index))
+  (assert (number? r))
+  (assert (number? g))
+  (assert (number? b))
+  "glutSetColor((GLint)index,
+                (GLfloat)Scm_GetDouble(r),
+                (GLfloat)Scm_GetDouble(g),
+                (GLfloat)Scm_GetDouble(b));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-get-color (index component)
+  (assert (exact? index))
+  (assert (small-integer? component))
+  "SCM_RETURN(Scm_MakeFlonum((double)glutGetColor(index, component)));")
+
+(define-cproc glut-copy-colormap (win)
+  (assert (exact? win))
+  "glutCopyColormap(win);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;;========================================================
+;; state retrieval
+;;
+
+(define-cproc glut-get (type)
+  (assert (exact? type))
+  "SCM_RETURN(Scm_MakeInteger(glutGet(type)));")
+
+(define-cproc glut-device-get (type)
+  (assert (exact? type))
+  "SCM_RETURN(Scm_MakeInteger(glutDeviceGet(type)));")
+
+(define-cproc glut-extension-supported (name)
+  (assert (string? name))
+  "#if (GLUT_API_VERSION >= 2)
+   SCM_RETURN(SCM_MAKE_BOOL(glutExtensionSupported(Scm_GetStringConst(name))));
+#else
+   SCM_RETURN(SCM_FALSE);
+#endif")
+
+(define-cproc glut-get-modifiers ()
+  "#if (GLUT_API_VERSION >= 3)
+   SCM_RETURN(Scm_MakeInteger(glutGetModifiers()));
+#else
+   SCM_RETURN(SCM_MAKE_INT(0));
+#endif")
+
+(define-cproc glut-layer-get (type)
+  (assert (exact? type))
+  "#if (GLUT_API_VERSION >= 3)
+   SCM_RETURN(Scm_MakeInteger(glutLayerGet(type)));
+#else
+   SCM_RETURN(SCM_MAKE_INT(0));
+#endif")
+
+;;========================================================
+;; font
+;;
+
+;; TODO: font object
+
+;;========================================================
+;; pre-built models
+;;
+
+(define-cproc glut-wire-sphere (radius slices stacks)
+  (assert (number? radius))
+  (assert (exact? slices))
+  (assert (exact? stacks))
+  "glutWireSphere((GLdouble)Scm_GetDouble(radius), (GLint)slices, (GLint)stacks);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-solid-sphere (radius slices stacks)
+  (assert (number? radius))
+  (assert (exact? slices))
+  (assert (exact? stacks))
+  "glutSolidSphere((GLdouble)Scm_GetDouble(radius), (GLint)slices, (GLint)stacks);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-wire-cone (radius height slices stacks)
+  (assert (number? radius))
+  (assert (number? height))
+  (assert (exact? slices))
+  (assert (exact? stacks))
+  "glutWireCone((GLdouble)Scm_GetDouble(radius),
+                (GLdouble)Scm_GetDouble(height),
+                (GLint)slices, (GLint)stacks);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-solid-cone (radius height slices stacks)
+  (assert (number? radius))
+  (assert (number? height))
+  (assert (exact? slices))
+  (assert (exact? stacks))
+  "glutSolidCone((GLdouble)Scm_GetDouble(radius),
+                 (GLdouble)Scm_GetDouble(height),
+                 (GLint)slices, (GLint)stacks);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-wire-cube (size)
+  (assert (number? size))
+  "glutWireCube((GLdouble)Scm_GetDouble(size));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-solid-cube (size)
+  (assert (number? size))
+  "glutSolidCube((GLdouble)Scm_GetDouble(size));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-wire-torus (inner outer sides rings)
+  (assert (number? inner))
+  (assert (number? outer))
+  (assert (exact? sides))
+  (assert (exact? rings))
+  "glutWireTorus((GLdouble)Scm_GetDouble(inner),
+                 (GLdouble)Scm_GetDouble(outer),
+                 (GLint)sides, (GLint)rings);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-solid-torus (inner outer sides rings)
+  (assert (number? inner))
+  (assert (number? outer))
+  (assert (exact? sides))
+  (assert (exact? rings))
+  "glutSolidTorus((GLdouble)Scm_GetDouble(inner),
+                  (GLdouble)Scm_GetDouble(outer),
+                  (GLint)sides, (GLint)rings);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-wire-dodecahedron ()
+  "glutWireDodecahedron();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-solid-dodecahedron ()
+  "glutSolidDodecahedron();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-wire-teapot (size)
+  (assert (number? size))
+  "glutWireTeapot((GLdouble)Scm_GetDouble(size));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-solid-teapot (size)
+  (assert (number? size))
+  "glutSolidTeapot((GLdouble)Scm_GetDouble(size));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-wire-octahedron ()
+  "glutWireOctahedron();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-solid-octahedron ()
+  "glutSolidOctahedron();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-wire-tetrahedron ()
+  "glutWireTetrahedron();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-solid-tetrahedron ()
+  "glutSolidTetrahedron();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-wire-icosahedron ()
+  "glutWireIcosahedron();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc glut-solid-icosahedron ()
+  "glutSolidIcosahedron();
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;;========================================================
+;; Video resize
+;;
+
+;;========================================================
+;; Debug
+;;
+
+;;========================================================
+;; Device control
+;;
+
+
+;; Local variables:
+;; mode: scheme
+;; end:

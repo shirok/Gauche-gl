@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.7 2003-01-08 10:08:33 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.8 2003-01-09 01:36:25 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -59,8 +59,7 @@ This manual is for version @VERSION@.
 * OpenGL API::                  
 * GLU API::                     
 * GLUT API::                    
-* 3D vectors and matrices::     
-* GL-Scheme utility::           
+* Vectors and matrices::        
 * Indices::                     
 @end menu
 
@@ -84,20 +83,222 @@ The functions are described in @ref{GLUT API}.
 @item gl.math3d
 The module that provides vector and matrix calculations
 optimized for 3D homogeneous coordinates.
-The vectors and matrices objects here can be directly passed to
+The vector and matrix objects here can be directly passed to
 Gauche-gl functions.
-The functions are descrbied in @ref{3D vectors and matrices}.
+The functions are descrbied in @ref{Vectors and matrices}.
 @end table
 
 @c ======================================================================
 @node Installation, Getting Started, Introduction, Top
 @chapter Installation
 
+Installing Gauche-gl is usually straightforward on Unix variants.
+At the time of writing this Manual, Gauche-gl can't be complied
+on Cygwin.
+
+You have to have the following programs installed on your machine.
+@itemize @bullet
+@item
+Gauche 0.6.7 or later
+@item
+OpenGL 1.1 equivalent library; the auther checked with Mesa 3.4
+and NVidia's GLX driver.
+@item
+GLUT 3.7 or later.
+@end itemize
+
+The standard way to compile and install Gauche-gl is as follows:
+@example
+% gzcat Gauche-gl-@VERSION@.tgz | tar xf -
+% cd Gauche-gl-@VERSION@
+% ./configure
+% make
+% make test
+% make install
+@end example
+
+The confiugre script figures out the location Gauche is installed,
+and install Gauche-gl in the same place.
+
+If you have GLUT installed in non-standard place, you have to
+tell the configure script where it is.
+@example
+% ./configure --with-glut=DIR
+@end example
+
+It is reported that Mesa in FreeBSD ports is compiled with pthreads
+enabled, and Gauche-gl can't be linked unless Gauche itself is
+compiled with pthreads.  The configure script of Gauche prints
+warning if you specify pthreads, but it is safe as far as you
+don't call make-thread in your program.
 
 @c ======================================================================
 @node Getting Started, OpenGL API, Installation, Top
 @chapter Getting Started
 
+@menu
+* GL calls in Scheme::          
+* Using GLUT::                  
+@end menu
+
+@node GL calls in Scheme, Using GLUT, Getting Started, Getting Started
+@section GL calls in Scheme
+
+I assume you have basic knowledge of OpenGL API.
+Gauche-gl maps OpenGL calls to Scheme procedures
+pretty straightforwardly.  For example, the very first
+example of "OpenGL Programming Guide", the pseudo code
+of OpenGL application, can be written in Gauche-gl like
+this:
+
+@example
+(use gl)
+
+(define (main args)
+  (@i{initialize-a-window-please})
+
+  (gl-clear-color 0.0 0.0 0.0 0.0)
+  (gl-clear GL_COLOR_BUFFER_BIT)
+  (gl-color 1.0 1.0 1.0)
+  (gl-ortho 0.0 1.0 0.0 1.0 -1.0 1.0)
+  (gl-begin* GL_POLYGON
+    (gl-vertex 0.25 0.25 0.0)
+    (gl-vertex 0.75 0.25 0.0)
+    (gl-vertex 0.75 0.75 0.0)
+    (gl-vertex 0.25 0.75 0.0)
+    )
+  (gl-flush)
+  (@i{update-the-window-and-check-for-events})
+  0)
+@end example
+
+Note that @i{initialize-a-window-please} and
+@i{update-the-window-and-check-for-events} are function calls
+dependent on the windowing system.  Gauche-gl comes with GLUT
+binding and you can use it to do basic stuff.  In the separate
+package Gauche-gtk, a binding to GtkGLExt is provided, which allows
+you to do GL rendering inside Gtk widgets.
+
+For the time being, let's focus on the pure GL part.
+
+The mapping of GL call name is straightforward.
+The mixed case names in OpenGL C API is expanded to hyphenated name,
+e.g. @code{glClearColor} @result{} @code{gl-clear-color}.
+OpenGL enums are mapped as is, e.g. 
+@code{GL_POLYGON}.  (Note that Gauche is case-sensitive by default.
+Also not the underscore, not hyphen, in constants).
+
+A few convenience macros, such as @code{gl-begin*}, is defined.
+There are straight bindings of @code{gl-begin} and @code{gl-end},
+so you can write the drawing part in the same way as in C:
+@example
+  (gl-begin GL_POLYGON)
+    (gl-vertex 0.25 0.25 0.0)
+    (gl-vertex 0.75 0.25 0.0)
+    (gl-vertex 0.75 0.75 0.0)
+    (gl-vertex 0.25 0.75 0.0)
+  (gl-end)
+@end example
+
+Actually @code{gl-begin*} macro expands into the above calls.
+It's a matter of taste, but the macro version guarantees
+begin/end pair, and the syntax-aware editor can indent 
+internal calls accordingly.
+
+You might have noticed that the type suffix in C API
+is not in Gauche binding.  The Scheme function figures out the
+type of passed arguments and calls appropriate C API.
+SRFI-4 uniform numeric vectors are used to represent
+arrays of numbers.
+
+@example
+  (gl-vertex 1.0 2.0 3.0)    @result{} glVertex3d
+  (gl-vertex '#f32(1.0 2.0)) @result{} glVertex2fv
+  (gl-vertex '#s32(3 2 5))   @result{} glVertex3iv
+@end example
+
+Generally, passing uniform vectors is much more efficient than
+giving individual numbers, for the former can eliminate
+the cost of type checking and unboxing.
+
+Some GL calls can also take @code{gl.math3d} primitive objects
+such as @code{vector4f}, @code{point4f} or @code{matrix4f}
+(@xref{Vectors and matrices}).   For example, you can pass
+@code{point4f} object to @code{gl-vertex}, @code{vector4f} to
+@code{gl-normal}, and @code{matrix4f} to @code{gl-mult-matrix}.
+They are efficient since calculations on those types are
+defined natively in @code{gl.math3d}, and passing it to GL call
+doesn't cost unboxing.
+
+Variables @code{GL_VERSION_1_1}, @code{GL_VERSION_1_2} and
+@code{GL_VERSION_1_3}
+may be defined and bound to #t if the platform on which
+Gauche-gl is compiled supports OpenGL version 1.1, 1.2 or
+1.3, respectively.  You can use @code{symbol-bound?} to check these
+variables are bound.   You can also use @code{symbol-bound?} to
+check the existence of extensions, such as @code{GL_ARB_multitexture}.
+
+@node Using GLUT,  , GL calls in Scheme, Getting Started
+@section Using GLUT
+
+In order to make a runnable script, you need to use some
+windowing system interface.  GLUT binding provides a simple
+means for it.
+
+Here is a complete runnable Scheme script, ported from
+Example 1-2 in "OpenGL Programming Guide":
+
+@example
+(use gl)
+(use gl.glut)
+
+(define (disp)
+  (gl-clear GL_COLOR_BUFFER_BIT)
+  (gl-color '#f32(1.0 1.0 1.0))
+  (gl-begin* GL_POLYGON
+    (gl-vertex '#f32(0.25 0.25 0.0))
+    (gl-vertex '#f32(0.75 0.25 0.0))
+    (gl-vertex '#f32(0.75 0.75 0.0))
+    (gl-vertex '#f32(0.25 0.75 0.0))
+    )
+  (gl-flush)
+  )
+
+(define (init)
+  (gl-clear-color 0.0 0.0 0.0 0.0)
+  (gl-matrix-mode GL_PROJECTION)
+  (gl-load-identity)
+  (gl-ortho 0.0 1.0 0.0 1.0 -1.0 1.0)
+  )
+
+(define (keyboard key x y)
+  (cond
+   ((= key 27) (exit 0))
+   ))
+
+(define (main args)
+  (glut-init args)
+  (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB))
+  (glut-init-window-size 250 250)
+  (glut-init-window-position 100 100)
+  (glut-create-window "hello")
+  (init)
+  (glut-display-func disp)
+  (glut-keyboard-func keyboard)
+  (glut-main-loop)
+  0)
+@end example
+
+The @code{(use gl.glut)} form loads GLUT binding.
+The name mapping is the same as GL's: mixed case names to 
+hyphenated names.
+
+In order to handle various events, you can pass a closure
+to @code{glut-display-func} etc.  In the keyboard and mouse
+event callback, all arguments are integers.
+
+There are more examples under the @file{examples/} directory
+which uses GLUT.
 
 @c ======================================================================
 @node OpenGL API, GLU API, Getting Started, Top
@@ -108,7 +309,7 @@ The functions are descrbied in @ref{3D vectors and matrices}.
 @chapter GLU API
 
 @c ======================================================================
-@node GLUT API, 3D vectors and matrices, GLU API, Top
+@node GLUT API, Vectors and matrices, GLU API, Top
 @chapter GLUT API
 
 @c ----------------------------------------------------------------------
@@ -595,8 +796,8 @@ The functions are descrbied in @ref{3D vectors and matrices}.
 
 
 @c ======================================================================
-@node 3D vectors and matrices, GL-Scheme utility, GLUT API, Top
-@chapter 3D vectors and matrices
+@node Vectors and matrices, Indices, GLUT API, Top
+@chapter Vectors and matrices
 
 @deftp {Module} gl.math3d
 @mdindex gl.math3d
@@ -631,7 +832,7 @@ overhead of conversion.
 * Quaternions::                 
 @end menu
 
-@node Vectors and points, Vector arrays and point arrays, 3D vectors and matrices, 3D vectors and matrices
+@node Vectors and points, Vector arrays and point arrays, Vectors and matrices, Vectors and matrices
 @section Vectors and points
 
 @deftp {Class} <vector4f>
@@ -824,7 +1025,7 @@ a vector4f from point @var{y} to point @var{x}.
 @end defun
 
 @c ----------------------------------------------------------------------
-@node Vector arrays and point arrays, Matrices, Vectors and points, 3D vectors and matrices
+@node Vector arrays and point arrays, Matrices, Vectors and points, Vectors and matrices
 @section Vector arrays and point arrays
 
 @deftp {Class} <vector4f-array>
@@ -956,7 +1157,7 @@ vector or point will be visible from @var{array}, and vice versa.
 @end defun
 
 @c ----------------------------------------------------------------------
-@node Matrices, Quaternions, Vector arrays and point arrays, 3D vectors and matrices
+@node Matrices, Quaternions, Vector arrays and point arrays, Vectors and matrices
 @section Matrices
 
 @deftp {Class} <matrix4f>
@@ -1037,7 +1238,7 @@ index @code{m(@var{i},@var{j})} corresponds as follows:
   m(0,0) = m@{0@}   m(0,1) = m@{4@}   m(0,2) = m@{8@}   m(0,3) = m@{12@}
   m(1,0) = m@{1@}   m(1,1) = m@{5@}   m(1,2) = m@{9@}   m(1,3) = m@{13@}
   m(2,0) = m@{2@}   m(2,1) = m@{6@}   m(2,2) = m@{10@}  m(2,3) = m@{14@}
-  m(3,0) = m@{3@}   m(3,1) = m@{6@}   m(3,2) = m@{11@}  m(3,3) = m@{15@}
+  m(3,0) = m@{3@}   m(3,1) = m@{7@}   m(3,2) = m@{11@}  m(3,3) = m@{15@}
 @end example
 @end defun
 
@@ -1214,7 +1415,7 @@ to store the result axis.
 @end defun
 
 @c ----------------------------------------------------------------------
-@node Quaternions,  , Matrices, 3D vectors and matrices
+@node Quaternions,  , Matrices, Vectors and matrices
 @section Quaternions
 
 @deftp {Class} <quatf>
@@ -1348,14 +1549,13 @@ The destructive version modifies @var{t}.
 
 
 @c ======================================================================
-@node GL-Scheme utility, Indices, 3D vectors and matrices, Top
-@chapter GL-Scheme utility
-
+@c @node GL-Scheme utility, Indices, 3D vectors and matrices, Top
+@c @chapter GL-Scheme utility
 
 
 
 @c ======================================================================
-@node Indices,  , GL-Scheme utility, Top
+@node Indices,  , Vectors and matrices, Top
 @appendix Indices
 @c NODE º÷°ú
 

@@ -1,3 +1,8 @@
+2002-09-01  Shiro Kawai  <shiro@acm.org>
+
+	* src/gl-syms.stub : applied a patch for MacOS X contributed by
+	  KIMURA Shigenobu.
+
 2002-08-30  Shiro Kawai  <shiro@acm.org>
 
 	* configure.in, src/Makefile.in, src/gauche-gl.h, src/gauche-glut.c,

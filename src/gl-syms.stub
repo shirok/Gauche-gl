@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-syms.stub,v 1.5 2002-08-29 08:39:54 shirok Exp $
+;;;  $Id: gl-syms.stub,v 1.6 2002-09-01 19:51:32 shirok Exp $
 ;;;
 
 "
@@ -689,15 +689,18 @@
 (if "defined(GL_EXT_paletted_texture)"
     (begin
       (define-constant GL_EXT_paletted_texture #t)
-      (define-enum GL_TABLE_TOO_LARGE_EXT)
-      (define-enum GL_COLOR_TABLE_FORMAT_EXT)
-      (define-enum GL_COLOR_TABLE_WIDTH_EXT)
-      (define-enum GL_COLOR_TABLE_RED_SIZE_EXT)
-      (define-enum GL_COLOR_TABLE_GREEN_SIZE_EXT)
-      (define-enum GL_COLOR_TABLE_BLUE_SIZE_EXT)
-      (define-enum GL_COLOR_TABLE_ALPHA_SIZE_EXT)
-      (define-enum GL_COLOR_TABLE_LUMINANCE_SIZE_EXT)
-      (define-enum GL_COLOR_TABLE_INTENSITY_SIZE_EXT)
+      (if "defined(GL_TABLE_TOO_LARGE_EXT)"
+	  (define-enum GL_TABLE_TOO_LARGE_EXT))
+      (if "defined(GL_COLOR_TABLE_FORMAT_EXT)"
+	  (begin 
+            (define-enum GL_COLOR_TABLE_FORMAT_EXT)
+            (define-enum GL_COLOR_TABLE_WIDTH_EXT)
+            (define-enum GL_COLOR_TABLE_RED_SIZE_EXT)
+            (define-enum GL_COLOR_TABLE_GREEN_SIZE_EXT)
+            (define-enum GL_COLOR_TABLE_BLUE_SIZE_EXT)
+            (define-enum GL_COLOR_TABLE_ALPHA_SIZE_EXT)
+            (define-enum GL_COLOR_TABLE_LUMINANCE_SIZE_EXT)
+            (define-enum GL_COLOR_TABLE_INTENSITY_SIZE_EXT)))
       (define-enum GL_TEXTURE_INDEX_SIZE_EXT)
       (define-enum GL_COLOR_INDEX1_EXT)
       (define-enum GL_COLOR_INDEX2_EXT)
@@ -870,7 +873,8 @@
       (define-enum GL_COMPRESSED_RGB)
       (define-enum GL_COMPRESSED_RGBA)
       (define-enum GL_TEXTURE_COMPRESSION_HINT)
-      (define-enum GL_TEXTURE_COMPRESSED_IMAGE_SIZE)
+      (if "defined(GL_TEXTURE_COMPRESSED_IMAGE_SIZE)"
+	  (define-enum GL_TEXTURE_COMPRESSED_IMAGE_SIZE))
       (define-enum GL_TEXTURE_COMPRESSED)
       (define-enum GL_NUM_COMPRESSED_TEXTURE_FORMATS)
       (define-enum GL_COMPRESSED_TEXTURE_FORMATS)

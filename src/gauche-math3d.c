@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.12 2002-09-29 11:37:49 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.13 2002-09-29 11:47:19 shirok Exp $
  */
 
 #include <gauche.h>
@@ -726,7 +726,7 @@ void Scm_TranslationToMatrix4fv(float *m, const float *t)
     m[0] = 1.0;  m[4] = 0.0;  m[8] = 0.0;  m[12] = t[0];
     m[1] = 0.0;  m[5] = 1.0;  m[9] = 0.0;  m[13] = t[1];
     m[2] = 0.0;  m[6] = 0.0;  m[10] = 1.0; m[14] = t[2];
-    m[3] = 0.0;  m[7] = 1.0;  m[11] = 0.0; m[15] = 1.0;
+    m[3] = 0.0;  m[7] = 0.0;  m[11] = 0.0; m[15] = 1.0;
 }
 
 void Scm_RotationToMatrix4fv(float *m, const float *v, float phi)

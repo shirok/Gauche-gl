@@ -1,5 +1,11 @@
+2002-07-21  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-gl.h : use SCM_CLASS_DECL macro instead of direct
+	  declaration of "extern ScmClass".  Preparation for cygwin port.
+
 2002-07-18  Shiro Kawai  <shiro@acm.org>
 
+	* release 0.1.3
 	* src/gl-syms.stub, src/glu-lib.stub: #ifdef-ed out
 	  GL_ALL_CLIENT_ATTIB_BITS and GLU_INCOMPATIBLE_GL_VERSION for
 	  they are not supported on nVidia linux driver (thanks to

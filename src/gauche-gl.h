@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.7 2002-07-19 02:42:51 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.8 2002-07-22 14:29:46 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -59,7 +59,7 @@ typedef struct ScmGluQuadricRec {
     GLUquadricObj* quadric;
 } ScmGluQuadric;
 
-extern ScmClass Scm_GluQuadricClass;
+SCM_CLASS_DECL(Scm_GluQuadricClass);
 #define SCM_CLASS_GLU_QUADRIC    (&Scm_GluQuadricClass)
 #define SCM_GLU_QUADRIC(obj)     ((ScmGluQuadric*)(obj))
 #define SCM_GLU_QUADRIC_P(obj)   SCM_XTYPEP(obj, SCM_CLASS_GLU_QUADRIC)
@@ -70,7 +70,7 @@ typedef struct ScmGluNurbsRec {
     GLUnurbsObj* nurbs;
 } ScmGluNurbs;
 
-extern ScmClass Scm_GluNurbsClass;
+SCM_CLASS_DECL(Scm_GluNurbsClass);
 #define SCM_CLASS_GLU_NURBS    (&Scm_GluNurbsClass)
 #define SCM_GLU_NURBS(obj)     ((ScmGluNurbs*)(obj))
 #define SCM_GLU_NURBS_P(obj)   SCM_XTYPEP(obj, SCM_CLASS_GLU_NURBS)
@@ -84,7 +84,7 @@ typedef struct ScmGluTesselatorRec {
     GLUtriangulatorObj* tesselator;
 } ScmGluTesselator;
 
-extern ScmClass Scm_GluTesselatorClass;
+SCM_CLASS_DECL(Scm_GluTesselatorClass);
 #define SCM_CLASS_GLU_TESSELATOR    (&Scm_GluTesselatorClass)
 #define SCM_GLU_TESSELATOR(obj)     ((ScmGluTesselator*)(obj))
 #define SCM_GLU_TESSELATOR_P(obj)   SCM_XTYPEP(obj, SCM_CLASS_GLU_TESSELATOR)

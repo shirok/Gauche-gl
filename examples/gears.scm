@@ -13,8 +13,8 @@
 (use gl)
 (use gl.glut)
 
-(use slib)
-(require 'printf)
+;(use slib)
+;(require 'printf)
 
 ;; Draw a gear wheel.  You'll probably want to call this function when
 ;; building a display list since we do a lot of trig here.
@@ -202,8 +202,8 @@
   (let1 t (glut-get GLUT_ELAPSED_TIME)
 	(when (>= (- t *t0*) 5000)
 	      (let1 seconds (/ (- t *t0*) 1000)
-		    ;(print #`",*frames* in ,seconds seconds = ,(/ *frames* seconds) FPS")
-		    (printf "%d frames in %6.3f seconds = %6.3f FPS\n" *frames* seconds (/ *frames* seconds))
+		    (print #`",*frames* in ,seconds seconds = ,(/ *frames* seconds) FPS")
+		    ;(printf "%d frames in %6.3f seconds = %6.3f FPS\n" *frames* seconds (/ *frames* seconds))
 		    (set! *t0*	   t)
 		    (set! *frames* 0)))))
 

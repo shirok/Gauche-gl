@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.3 2001-09-30 03:38:37 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.4 2001-09-30 04:48:49 shirok Exp $
 ;;;
 
 "
@@ -263,7 +263,7 @@
 
 (define-cproc gl-matrix-mode (mode)
   (assert (small-integer? mode))
-  "glMatrixMode(SCM_INT_VALUE(mode));
+  "glMatrixMode(mode);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-ortho (left right bottom top nearv farv)
@@ -633,6 +633,7 @@
      Scm_GLGetDoubles(v1, Scm_Cons(v2, args), val, 4, 4);
      glRectd(val[0], val[1], val[2], val[3]);
   }
+  SCM_RETURN(SCM_UNDEFINED);
  badarg1:
   Scm_Error(\"bad argument for v1: %S, must be one of f32, f64, s32 or s16 vector of length 2\", v1);
   SCM_RETURN(SCM_UNDEFINED);

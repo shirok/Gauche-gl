@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.16 2002-09-30 10:08:51 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.17 2003-01-05 23:40:18 shirok Exp $
 ;;;
 
 "
@@ -369,6 +369,32 @@
 (define-cproc matrix4f-column/shared (m::<matrix4f> i::<fixnum>)
   "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
   SCM_RETURN(Scm_MakeVector4fvShared(SCM_MATRIX4F_COLVEC(m, i)));")
+
+;; determinant and inverse
+(define-cproc matrix4f-determinant (m::<matrix4f>)
+  "SCM_RETURN(Scm_MakeFlonum((double)Scm_Matrix4fDeterminantv(SCM_MATRIX4F_D(m))));")
+
+(define-cproc matrix4f-inverse (m::<matrix4f> &optional (error-on-singular #t))
+  "int code;  ScmObj r = Scm_MakeMatrix4fv(NULL);
+  code = Scm_Matrix4fInversev(SCM_MATRIX4F_D(r), SCM_MATRIX4F_D(m));
+  if (!SCM_FALSEP(error_on_singular) && !code) {
+    Scm_Error(\"attempt to inverse singular matrix: %S\", m);
+  }
+  if (code) SCM_RETURN(r);
+  else      SCM_RETURN(SCM_FALSE);")
+
+(define-cproc matrix4f-inverse! (m::<matrix4f> &optional (error-on-singular #t))
+  "int code, i;  float r[16];
+  code = Scm_Matrix4fInversev(r, SCM_MATRIX4F_D(m));
+  if (!SCM_FALSEP(error_on_singular) && !code) {
+    Scm_Error(\"attempt to inverse singular matrix: %S\", m);
+  }
+  if (code) { 
+    for (i=0; i<16; i++) SCM_MATRIX4F_D(m)[i] = r[i];
+    SCM_RETURN(SCM_OBJ(m));
+  } else { 
+    SCM_RETURN(SCM_FALSE);
+  }")
 
 ;; basic transformation
 

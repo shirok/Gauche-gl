@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.15 2002-09-30 10:29:12 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.16 2003-01-05 23:40:17 shirok Exp $
  */
 
 #include <gauche.h>
@@ -657,6 +657,66 @@ void   Scm_Matrix4fTransposev(float *r, const float *m)
     r[1] = m[4];  r[5] = m[5];  r[9] = m[6];  r[13]= m[7];
     r[2] = m[8];  r[6] = m[9];  r[10]= m[10]; r[14]= m[11];
     r[3] = m[12]; r[7] = m[13]; r[11]= m[14]; r[15]= m[15];
+}
+
+/*
+ * Determinant and inverse
+ */
+#define DET3(m00, m01, m02, m10, m11, m12, m20, m21, m22)        \
+  ((m00)*(m11)*(m22) + (m10)*(m21)*(m02) + (m20)*(m01)*(m12)     \
+   - (m00)*(m21)*(m12) - (m10)*(m01)*(m22) - (m20)*(m11)*(m02))
+#define M00 m[0]
+#define M01 m[4]
+#define M02 m[8]
+#define M03 m[12]
+#define M10 m[1]
+#define M11 m[5]
+#define M12 m[9]
+#define M13 m[13]
+#define M20 m[2]
+#define M21 m[6]
+#define M22 m[10]
+#define M23 m[14]
+#define M30 m[3]
+#define M31 m[7]
+#define M32 m[11]
+#define M33 m[15]
+
+float Scm_Matrix4fDeterminantv(const float *m)
+{
+    float d00, d10, d20, d30;
+    d00 = M00 * DET3(M11, M12, M13, M21, M22, M23, M31, M32, M33);
+    d10 = M10 * DET3(M01, M02, M03, M21, M22, M23, M31, M32, M33);
+    d20 = M20 * DET3(M01, M02, M03, M11, M12, M13, M31, M32, M33);
+    d30 = M30 * DET3(M01, M02, M03, M11, M12, M13, M21, M22, M23);
+    return d00 - d10 + d20 - d30;
+}
+
+/* Returns FALSE if M is singular */
+int   Scm_Matrix4fInversev(float *r, const float *m)
+{
+    float det = Scm_Matrix4fDeterminantv(m);
+    if (det == 0.0) return FALSE;
+    r[0]  =  DET3(M11, M12, M13, M21, M22, M23, M31, M32, M33)/det; /*d00*/
+    r[1]  = -DET3(M10, M12, M13, M20, M22, M23, M30, M32, M33)/det; /*d01*/
+    r[2]  =  DET3(M10, M11, M13, M20, M21, M23, M30, M31, M33)/det; /*d02*/
+    r[3]  = -DET3(M10, M11, M12, M20, M21, M22, M30, M31, M32)/det; /*d03*/
+
+    r[4]  = -DET3(M01, M02, M03, M21, M22, M23, M31, M32, M33)/det; /*d10*/
+    r[5]  =  DET3(M00, M02, M03, M20, M22, M23, M30, M32, M33)/det; /*d11*/
+    r[6]  = -DET3(M00, M01, M03, M20, M21, M23, M30, M31, M33)/det; /*d12*/
+    r[7]  =  DET3(M00, M01, M02, M20, M21, M22, M30, M31, M32)/det; /*d13*/
+
+    r[8]  =  DET3(M01, M02, M03, M11, M12, M13, M31, M32, M33)/det; /*d20*/
+    r[9]  = -DET3(M00, M02, M03, M10, M12, M13, M30, M32, M33)/det; /*d21*/
+    r[10] =  DET3(M00, M01, M03, M10, M11, M13, M30, M31, M33)/det; /*d22*/
+    r[11] = -DET3(M00, M01, M02, M10, M11, M12, M30, M31, M32)/det; /*d23*/
+
+    r[12] = -DET3(M01, M02, M03, M11, M12, M13, M21, M22, M23)/det; /*d30*/
+    r[13] =  DET3(M00, M02, M03, M10, M12, M13, M20, M22, M23)/det; /*d31*/
+    r[14] = -DET3(M00, M01, M03, M10, M11, M13, M20, M21, M23)/det; /*d32*/
+    r[15] =  DET3(M00, M01, M02, M10, M11, M12, M20, M21, M22)/det; /*d33*/
+    return TRUE;
 }
 
 /*

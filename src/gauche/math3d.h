@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.14 2002-09-30 05:56:50 shirok Exp $
+ *  $Id: math3d.h,v 1.15 2003-01-05 23:40:18 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -334,6 +334,9 @@ extern ScmObj Scm_Matrix4fMulPoint4f(const ScmMatrix4f *, const ScmPoint4f *);
 extern void   Scm_Matrix4fScalev(float *, double f);
 extern ScmObj Scm_Matrix4fScale(const ScmMatrix4f *, double f);
 extern void   Scm_Matrix4fTransposev(float *r, const float *m);
+
+extern float  Scm_Matrix4fDeterminantv(const float *m);
+extern int    Scm_Matrix4fInversev(float *r, const float *m);
 
 extern void   Scm_TranslationToMatrix4fv(float *m, const float *t);
 extern void   Scm_RotationToMatrix4fv(float *m, const float *v, float phi);

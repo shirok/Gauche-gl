@@ -207,6 +207,71 @@
           (matrix4f-transpose! m)
           m)))
 
+(test "matrix4f determinant" 1.0
+      (lambda ()
+        (matrix4f-determinant (matrix4f 1 0 0 0 0 2 4 9 0 3 2 6 0 2 3 7))))
+
+(test "matrix4f determinant" -1.0
+      (lambda ()
+        (matrix4f-determinant (matrix4f 0 1 0 0 2 0 3 9 3 0 2 5 5 0 3 7))))
+
+(test "matrix4f determinant" 1.0
+      (lambda ()
+        (matrix4f-determinant (matrix4f 0 0 1 0 2 3 0 17 3 2 0 11 6 3 0 16))))
+
+(test "matrix4f determinant" -1.0
+      (lambda ()
+        (matrix4f-determinant (matrix4f 0 0 0 1 2 3 17 0 3 2 11 0 6 3 16 0))))
+
+(test "matrix4f determinant" -1.0
+      (lambda ()
+        (matrix4f-determinant (matrix4f 0 2 4 9 1 0 0 0 0 3 2 6 0 2 3 7))))
+
+(test "matrix4f determinant" 1.0
+      (lambda ()
+        (matrix4f-determinant (matrix4f 0 2 4 9 0 3 2 6 1 0 0 0 0 2 3 7))))
+
+(test "matrix4f inverse"
+      (matrix4f 1 0 0 0 0 -4 -1 6 0 -9 -4 15 0 5 2 -8)
+      (lambda ()
+        (matrix4f-inverse (matrix4f 1 0 0 0 0 2 4 9 0 3 2 6 0 2 3 7)))
+      nearly=?)
+
+(test "matrix4f inverse, mul"
+      (matrix4f 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1)
+      (lambda ()
+        (let ((m (matrix4f 0 2 4 9 0 3 2 6 1 0 0 0 0 2 3 7)))
+          (matrix4f-mul m (matrix4f-inverse m))))
+      nearly=?)
+      
+(test "matrix4f inverse, mul 2"
+      (matrix4f 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1)
+      (lambda ()
+        (let* ((m (matrix4f 0 2 4 9 0 3 2 6 1 0 0 0 0 2 3 7))
+               (n (matrix4f 0 0 0 1 2 3 17 0 3 2 11 0 6 3 16 0))
+               (1/m (matrix4f-inverse m))
+               (1/n (matrix4f-inverse n)))
+          (matrix4f-mul (matrix4f-mul m n)
+                        (matrix4f-mul 1/n 1/m))))
+      nearly=?)
+
+(test "matrix4f inverse!"
+      (matrix4f 0 -1 6 -3 1 0 0 0 0 4 -31 17 0 -1 9 -5)
+      (lambda ()
+        (let ((m (matrix4f 0 1 0 0 2 0 3 9 3 0 2 5 5 0 3 7)))
+          (matrix4f-inverse! m)
+          m))
+      nearly=?)
+
+(test "matrix4f inverse (singular)"
+      #f
+      (lambda ()
+        (matrix4f-inverse (matrix4f 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) #f)))
+
+(test-error "matrix4f inverse (singular)"
+            (lambda ()
+              (matrix4f-inverse (matrix4f 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))))
+
 (test "matrix4 and transform"
       (let* ((phi (* 60 pi/180))
              (cosphi   (cos phi))

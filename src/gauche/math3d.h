@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.13 2002-09-29 21:14:24 shirok Exp $
+ *  $Id: math3d.h,v 1.14 2002-09-30 05:56:50 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -67,6 +67,19 @@
         (ptr) = SCM_F32VECTOR_ELEMENTS(val);                            \
       else {                                                            \
         Scm_Error("vector4f, point4f, quatf or f32vector required,"     \
+                  " but got %S", val);                                  \
+        (ptr) = NULL;                                                   \
+      }                                                                 \
+    } while (0)
+
+#define SCM_MATH3D_X16FP(ptr, val)                                      \
+    do {                                                                \
+      if (SCM_MATRIX4FP(val))                                           \
+        (ptr) = SCM_MATRIX4F_D(val);                                    \
+      else if (SCM_F64VECTORP(val) && SCM_F64VECTOR_SIZE(val) >= 16)    \
+        (ptr) = SCM_F64VECTOR_ELEMENTS(val);                            \
+      else {                                                            \
+        Scm_Error("matrix4f or f32vector of length 16 required,"        \
                   " but got %S", val);                                  \
         (ptr) = NULL;                                                   \
       }                                                                 \

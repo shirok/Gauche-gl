@@ -1,0 +1,46 @@
+;; Example 3-5  Wireframe Sphere with Two Clipping Planes
+
+(use gl)
+(use gl.glut)
+
+(define (init)
+  (gl-clear-color 0.0 0.0 0.0 0.0)
+  (gl-shade-model |GL_FLAT|)
+  )
+
+(define (disp)
+  (gl-clear |GL_COLOR_BUFFER_BIT|)
+  (gl-color '#f32(1.0 1.0 1.0))
+  (gl-push-matrix)
+  (gl-translate 0.0 0.0 -5.0)
+
+  (gl-clip-plane |GL_CLIP_PLANE0| '#f64(0.0 1.0 0.0 0.0))
+  (gl-enable |GL_CLIP_PLANE0|)
+  (gl-clip-plane |GL_CLIP_PLANE1| '#f64(1.0 0.0 0.0 0.0))
+  (gl-enable |GL_CLIP_PLANE1|)
+
+  (gl-rotate 90.0 1.0 0.0 0.0)
+  (glut-wire-sphere 1.0 20 16)
+  (gl-pop-matrix)
+  (gl-flush)
+  )
+
+(define (reshape w h)
+  (gl-viewport 0 0 w h)
+  (gl-matrix-mode |GL_PROJECTION|)
+  (gl-load-identity)
+  (glu-perspective 60.0 (/ w h) 1.0 20.0)
+  (gl-matrix-mode |GL_MODELVIEW|)
+  )
+
+(define (main args)
+  (glut-init args)
+  (glut-init-display-mode (logior |GLUT_SINGLE| |GLUT_RGB|))
+  (glut-init-window-size 500 500)
+  (glut-init-window-position 100 100)
+  (glut-create-window *program-name*)
+  (init)
+  (glut-display-func disp)
+  (glut-reshape-func reshape)
+  (glut-main-loop)
+  0)

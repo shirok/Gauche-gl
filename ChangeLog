@@ -1,3 +1,8 @@
+2003-02-10  Shiro Kawai  <shiro@acm.org>
+
+	* doc/extract : use the newest extract so that the monolingual docs
+	  can be genarated by gosh with any internal encodings.
+
 2003-02-07  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-math3d.c (Scm_TRSToMatrix4fv): The order of

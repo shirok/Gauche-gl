@@ -12,14 +12,20 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.8 2002-08-26 10:50:33 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.9 2002-08-31 07:49:43 shirok Exp $
 ;;;
 
 "
+#if MacOSX
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glx.h>
 #include <GL/glut.h>
+#endif
 #include \"gauche-glut.h\"
 "
 

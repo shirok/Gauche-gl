@@ -12,19 +12,26 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.9 2002-08-29 10:40:54 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.10 2002-08-31 07:49:43 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
 #define GAUCHE_GL_H
 
+
+#if MacOSX
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <OpenGL/glext.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glx.h>
+#endif
+
 #ifdef HAVE_GL_GLEXT_H
 #include <GL/glext.h>
 #endif
-
 #include <gauche/uvector.h>
 
 /* GL auxiliary routines */

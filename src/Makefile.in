@@ -2,7 +2,7 @@ CC = @CC@
 OPTFLAGS = @OPTFLAGS@
 CFLAGS = @DEFS@ @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@ $(OPTFLAGS)
 LDFLAGS = @LDFLAGS@
-LIBS = -lGLU -lGL @LIBS@ @X_LIBS@ @X_PRE_LIBS@ -lXext -lX11
+LIBS = @GL_LIBS@ @LIBS@ @X_LIBS@ @X_PRE_LIBS@ @X_EXTRA_LIBS@ @X_LIBS@ 
 GOSH = @GOSH@
 GAUCHE_CONFIG = @GAUCHE_CONFIG@
 GAUCHE_TOP = @GAUCHE_TOP@
@@ -47,7 +47,7 @@ gettype-sizes.c : glstate.scm
 $(GLOBJS) : gauche-gl.h
 
 gauche-glut.so : $(GLUTOBJS)
-	$(CC) $(LDFLAGS) gauche-glut.so $(GLUTOBJS) @GLUT_LIBDIR@ @GLUT_LIB@ -lXmu -lXi $(LIBS)
+	$(CC) $(LDFLAGS) gauche-glut.so $(GLUTOBJS) @GLUT_LIBDIR@ @GLUT_LIB@  $(LIBS)
 
 glut-lib.c : glut-lib.stub
 	$(GOSH) genstub glut-lib.stub

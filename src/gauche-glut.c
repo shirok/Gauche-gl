@@ -12,12 +12,17 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-glut.c,v 1.4 2002-08-17 11:58:55 shirok Exp $
+ *  $Id: gauche-glut.c,v 1.5 2002-08-31 07:49:43 shirok Exp $
  */
 
 #include <gauche.h>
 #include <gauche/extend.h>
+
+#if MacOSX
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif
 #include "gauche-glut.h"
 
 extern void Scm_Init_glut_lib(ScmModule *mod);

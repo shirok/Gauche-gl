@@ -2,10 +2,12 @@ dnl
 dnl Configuring gauche-gl 
 dnl  process this file with "autoconf -l `gauche-config --ac`" to
 dnl  generate 'configure'.
-dnl $Id: configure.in,v 1.7 2002-07-19 02:42:47 shirok Exp $
+dnl $Id: configure.in,v 1.8 2002-08-31 07:49:40 shirok Exp $
 AC_INIT(src/gl-lib.stub)
 AC_GAUCHE_INIT_EXT
 AC_CANONICAL_SYSTEM
+
+AC_PATH_XTRA
 
 # options for configure scripts
 GLUT_LIB="-lglut"
@@ -22,6 +24,24 @@ AC_ARG_WITH(glut, [  --with-glut[=PATH]:      Use GLUT library installed under P
   esac
 ])
 
+# Check for headers
+AC_CHECK_HEADERS(GL/glext.h, , , GL/gl.h)
+AC_CHECK_HEADERS(GL/glx.h, [   # OpenGL/X11
+     GL_LIBS='-lGLU -lGL'
+     GLUT_LIB="$GLUT_LIB -lXmu -lXi"
+], ,)
+AC_CHECK_HEADERS(GLUT/glut.h, [
+      case $host in
+      powerpc-apple-darwin*)  
+          AC_DEFINE(MacOSX, 1) # darwin which has GLUT/glut.h is MacOSX
+          GL_LIBS='-framework OpenGL'
+          GLUT_LIB='-framework GLUT' ;;
+      *)  # other OSes w/o X11 but have GLUT/glut.h. Possibly MacOS9??
+      ;;
+      esac  
+], ,)
+
+AC_SUBST(GL_LIBS)
 AC_SUBST(GLUT_LIB)
 AC_SUBST(GLUT_INCDIR)
 AC_SUBST(GLUT_LIBDIR)
@@ -33,14 +53,12 @@ AC_GAUCHE_INSTALL_TYPE(sys)
 AC_GAUCHE_CC
 AC_GAUCHE_FLAGS
 
-# Check for headers
-AC_CHECK_HEADERS(GL/glext.h, , , GL/gl.h)
+
 
 # Check for other programs.
 AC_PROG_INSTALL
 
 # Check for libraries
-AC_PATH_XTRA
 
 # Set LDFLAGS to generate shared library.
 AC_GAUCHE_FIX_LIBS

@@ -1,5 +1,7 @@
 2002-09-22  Shiro Kawai  <shiro@acm.org>
 
+	* release 0.1.6
+	
 	* src/gl-lib.stub : added gl-select-buffer and gl-feedback-buffer.
 	* examples/glbook/ : more examples are added.  added code to
 	  terminate the demo by ESC key to all the examples.  added 'run'

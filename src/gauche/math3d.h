@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.4 2002-09-27 21:11:30 shirok Exp $
+ *  $Id: math3d.h,v 1.5 2002-09-28 03:50:01 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -125,8 +125,8 @@ extern ScmObj Scm_Make3DVectorArrayV(ScmF32Vector *src);
 #define SCM_3DVECTOR_ARRAY_SET(obj, n, x, y, z, w)  \
    (SCM_3DVECTOR_ARRAY_D(obj)[(n)*4] = (x),         \
     SCM_3DVECTOR_ARRAY_D(obj)[(n)*4+1] = (y),       \
-    SCM_3DVECTOR_ARRAY_D(obj)[(n)*4+1] = (z),       \
-    SCM_3DVECTOR_ARRAY_D(obj)[(n)*4+1] = (w))
+    SCM_3DVECTOR_ARRAY_D(obj)[(n)*4+2] = (z),       \
+    SCM_3DVECTOR_ARRAY_D(obj)[(n)*4+3] = (w))
 
 extern ScmObj Scm_3DVectorArrayRef(const Scm3DVectorArray *obj, int n, ScmObj fallback);
 extern float *Scm_3DVectorArrayRefv(Scm3DVectorArray *obj, int n);
@@ -174,8 +174,8 @@ extern ScmObj Scm_Make3DPointArrayV(ScmF32Vector *src);
 #define SCM_3DPOINT_ARRAY_SET(obj, n, x, y, z, w)        \
    (SCM_3DPOINT_ARRAY_D(obj)[(n)*4] = (x),               \
     SCM_3DPOINT_ARRAY_D(obj)[(n)*4+1] = (y),             \
-    SCM_3DPOINT_ARRAY_D(obj)[(n)*4+1] = (z),             \
-    SCM_3DPOINT_ARRAY_D(obj)[(n)*4+1] = (w))
+    SCM_3DPOINT_ARRAY_D(obj)[(n)*4+2] = (z),             \
+    SCM_3DPOINT_ARRAY_D(obj)[(n)*4+3] = (w))
 
 extern ScmObj Scm_3DPointArrayRef(const Scm3DPointArray *obj, int n, ScmObj fallback);
 extern float *Scm_3DPointArrayRefv(Scm3DPointArray *obj, int n);

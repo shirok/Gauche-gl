@@ -13,7 +13,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glstate.scm,v 1.2 2001-10-03 10:18:15 shirok Exp $
+;;;  $Id: glstate.scm,v 1.3 2002-02-15 10:16:04 shirok Exp $
 ;;;
 
 ;;
@@ -420,13 +420,14 @@
   (exit 1))
 
 (define (main args)
-  (let ((arg (parse-options args
+  (let ((arg (parse-options (cdr args)
                (("o=s" (file) (set! *outfile* file))
                 (else _ (usage))))))
     (unless (= (length arg) 1) (usage))
     (if *outfile*
         (with-output-to-file *outfile* (lambda () (dispatch (car arg))))
-        (dispatch (car arg)))))
+        (dispatch (car arg))))
+  0)
 
 (define (dispatch function)
   (cond ((equal? function "gettype") (gen-getTYPEv-size-table))

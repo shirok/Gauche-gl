@@ -2,7 +2,7 @@ dnl
 dnl Configuring gauche-gl 
 dnl  process this file with "autoconf -l `gauche-config --ac`" to
 dnl  generate 'configure'.
-dnl $Id: configure.in,v 1.5 2002-02-11 09:32:09 shirok Exp $
+dnl $Id: configure.in,v 1.6 2002-02-15 10:16:04 shirok Exp $
 AC_INIT(src/gl-lib.stub)
 AC_GAUCHE_INIT_EXT
 
@@ -26,7 +26,7 @@ AC_SUBST(GLUT_INCDIR)
 AC_SUBST(GLUT_LIBDIR)
 
 # Sets the default value of INSTALL_TYPE macro.
-AC_GAUCHE_INSTALL_TYPE(site)
+AC_GAUCHE_INSTALL_TYPE(sys)
 
 # Get compiler parameters which Gauche has been compiled with.
 AC_GAUCHE_CC

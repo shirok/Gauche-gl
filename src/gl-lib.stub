@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.23 2002-09-13 05:03:26 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.24 2002-09-13 05:56:15 shirok Exp $
 ;;;
 
 "
@@ -1464,6 +1464,44 @@
                                             x::<fixnum> y::<fixnum>
                                             width::<fixnum> height::<fixnum>)
       (return <void> "glCopyTexSubImage2D")))
+
+;; 3D textures
+(if "defined(GL_VERSION_1_2)&&defined(GL_TEXTURE_3D)"
+    (begin
+      (define-cproc gl-tex-image-3d (target::<fixnum> level::<fixnum>
+                                     internal-format::<fixnum>
+                                     width::<fixnum> height::<fixnum>
+                                     depth::<fixnum> border::<fixnum>
+                                     format::<fixnum> type::<fixnum>
+                                     texels)
+        "int elttype, size; void *texelptr;
+         size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
+         texelptr = Scm_GLPixelDataCheck(texels, elttype, size*depth);
+         if (texelptr) {
+           glTexImage3D(target, level, internal_format, width, height, depth, border, format, type, texelptr);
+         }
+         SCM_RETURN(SCM_UNDEFINED);")
+      (define-cproc gl-tex-sub-image-3d (target::<fixnum> level::<fixnum>
+                                         xoffset::<fixnum> yoffset::<fixnum>
+                                         zoffset::<fixnum>
+                                         width::<fixnum> height::<fixnum>
+                                         depth::<fixnum>
+                                         format::<fixnum> type::<fixnum>
+                                         texels)
+        "int elttype, size; void *texelptr;
+         size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
+         texelptr = Scm_GLPixelDataCheck(texels, elttype, size*depth);
+         if (texelptr) {
+           glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, texelptr);
+         }
+         SCM_RETURN(SCM_UNDEFINED);")
+      (define-cproc gl-copy-tex-sub-image-3d (target::<fixnum> level::<fixnum>
+                                              xoffset::<fixnum> yoffset::<fixnum>
+                                              zoffset::<fixnum>
+                                              x::<fixnum> y::<fixnum>
+                                              width::<fixnum> height::<fixnum>)
+        (return <void> "glCopyTexSubImage3D"))
+      ))
 
 ;;=============================================================
 ;; Evaluators

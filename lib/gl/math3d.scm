@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.3 2002-09-27 21:51:38 shirok Exp $
+;;;  $Id: math3d.scm,v 1.4 2002-09-28 03:25:09 shirok Exp $
 ;;;
 
 (define-module gl.math3d
@@ -33,16 +33,33 @@
 ;; collection framework
 (define-method ref ((x <3dvector>) (i <integer>))
   (3dvector-ref x i))
+(define-method (setter ref) ((x <3dvector>) (i <integer>) v)
+  (set! (3dvector-ref x i) v))
+
 (define-method ref ((x <3dpoint>) (i <integer>))
   (3dpoint-ref x i))
+(define-method (setter ref) ((x <3dpoint>) (i <integer>) v)
+  (set! (3dpoint-ref x i) v))
+
 (define-method ref ((x <3dmatrix>) (i <integer>))
   (3dmatrix-ref x i))
+(define-method (setter ref) ((x <3dmatrix>) (i <integer>) v)
+  (set! (3dmatrix-ref x i) v))
+
 (define-method ref ((x <quat>) (i <integer>))
   (quat-ref x i))
+(define-method (setter ref) ((x <quat>) (i <integer>) v)
+  (set! (quat-ref x i) v))
+
 (define-method ref ((x <3dvector-array>) (i <integer>))
   (3dvector-array-ref x i))
+(define-method (setter ref) ((x <3dvector-array>) (i <integer>) v)
+  (3dvector-array-set! x i v))
+
 (define-method ref ((x <3dpoint-array>) (i <integer>))
   (3dpoint-array-ref x i))
+(define-method (setter ref) ((x <3dpoint-array>) (i <integer>) v)
+  (3dpoint-array-set! x i v))
 
 
 (define-method coerce-to ((c <list-meta>) (v <3dvector>))

@@ -1,0 +1,298 @@
+;;;
+;;; math3d-lib.stub - 3d vector arithmetics
+;;;
+;;;  Copyright(C) 2002 by Shiro Kawai (shiro@acm.org)
+;;;
+;;;  Permission to use, copy, modify, distribute this software and
+;;;  accompanying documentation for any purpose is hereby granted,
+;;;  provided that existing copyright notices are retained in all
+;;;  copies and that this notice is included verbatim in all
+;;;  distributions.
+;;;  This software is provided as is, without express or implied
+;;;  warranty.  In no circumstances the author(s) shall be liable
+;;;  for any damages arising out of the use of this software.
+;;;
+;;;  $Id: math3d-lib.stub,v 1.1 2002-09-27 21:11:30 shirok Exp $
+;;;
+
+"
+#include <gauche/uvector.h>
+#include \"gauche/math3d.h\"
+"
+
+(define-type <3dvector> "Scm3DVector*" #f "SCM_3DVECTORP" "SCM_3DVECTOR")
+(define-type <3dvector-array> "Scm3DVectorArray*" #f
+  "SCM_3DVECTOR_ARRAY_P" "SCM_3DVECTOR_ARRAY")
+(define-type <3dpoint> "Scm3DPoint*" #f "SCM_3DPOINTP" "SCM_3DPOINT")
+(define-type <3dpoint-array> "Scm3DPointArray*" #f
+  "SCM_3DPOINT_ARRAY_P" "SCM_3DPOINT_ARRAY")
+
+(define-type <3dmatrix> "Scm3DMatrix*" #f "SCM_3DMATRIXP" "SCM_3DMATRIX")
+
+(define-type <quat> "ScmQuat*" #f "SCM_QUATP" "SCM_QUAT")
+
+(define-type <f32vector> "ScmF32Vector*")
+
+;;================================================================
+;; 3DVector
+;;
+
+(define-cproc 3dvector
+  (x::<real> y::<real> z::<real> &optional (w::<real> 0.0))
+  (return "Scm_Make3DVector"))
+
+(define-cproc 3dvector? (obj)
+  (return <boolean> "SCM_3DVECTORP"))
+
+(define-cproc list->3dvector (l::<list>)
+  (return "Scm_ListTo3DVector"))
+
+(define-cproc 3dvector->list (v::<3dvector>)
+  (return "Scm_3DVectorToList"))
+
+;(define-cproc f32vector->vector (v::<f32vector>)
+;  (return "Scm_F32VectorToVector"))
+
+;(define-cproc 3dvector->f32vector (v::<3dvector>)
+;  (return "Scm_3DVectorToF32Vector"))
+
+(define-cproc 3dvector-ref (x::<3dvector> i::<fixnum> &optional fallback)
+  "if (i < 0 || i > 3) {
+     if (SCM_UNBOUNDP(fallback)) {
+         Scm_Error(\"vector index out of range: %d\", i);
+     }
+     SCM_RETURN(fallback);
+  }
+  SCM_RETURN(Scm_MakeFlonum(SCM_3DVECTOR_REF(x, i)));"
+  (setter (x::<3dvector> i::<fixnum> v::<real>)
+   "if (i < 0 || i > 3) Scm_Error(\"vector index out of range: %d\", i);
+    SCM_3DVECTOR_D(x)[i] = v;
+    SCM_RETURN(SCM_UNDEFINED);"))
+
+(define-cproc 3dvector-dot (x::<3dvector> y::<3dvector>)
+  (return <float> "Scm_3DVectorDot"))
+
+(define-cproc 3dvector-cross (x::<3dvector> y::<3dvector>)
+  (return "Scm_3DVectorCross"))
+
+(define-cproc 3dvector-normalize (x::<3dvector>)
+  (return "Scm_3DVectorNormalize"))
+
+(define-cproc 3dvector-normalize! (x::<3dvector>)
+  (return "Scm_3DVectorNormalizeX"))
+
+(define-cproc 3dvector-add (x::<3dvector> y::<3dvector>)
+  (return "Scm_3DVectorAdd"))
+
+(define-cproc 3dvector-sub (x::<3dvector> y::<3dvector>)
+  (return "Scm_3DVectorSub"))
+
+;; VectorArray --------------------------------------------------
+
+(define-cproc make-3dvector-array (len::<fixnum> &optional init)
+  "ScmObj va = SCM_FALSE;
+  if (len < 0) Scm_Error(\"3dvector-array length must be positive: %d\", len);
+  if (SCM_3DVECTORP(init)) {
+    va = Scm_Make3DVectorArrayv(len, SCM_3DVECTOR_D(init));
+  } else if (SCM_UNBOUNDP(init)) {
+    va = Scm_Make3DVectorArrayv(len, NULL);
+  } else {
+    Scm_Error(\"bad initializer for vector array: must be <3dvector>, but got %S\", init);
+  }
+  SCM_RETURN(va);")
+
+(define-cproc 3dvector-array? (obj)
+  (return <boolean> "SCM_3DVECTOR_ARRAY_P"))
+
+(define-cproc 3dvector-array-length (v::<3dvector-array>)
+  (return <fixnum> "SCM_3DVECTOR_ARRAY_SIZE"))
+
+;(define-cproc f32vector->3dvector-array (v::<f32vector>)
+;  (return "Scm_F32VectorToVectorArray"))
+
+;(define-cproc 3dvector-array->f32vector (a::<3dvector-array>)
+;  (return "Scm_3DVectorArrayToF32Vector"))
+
+(define-cproc 3dvector-array-ref (a::<3dvector-array> i::<fixnum> &optional fallback)
+  (return "Scm_3DVectorArrayRef"))
+
+(define-cproc 3dvector-array-set! (a::<3dvector-array>
+                                   i::<fixnum>
+                                   x::<3dvector>)
+  (return <void> "Scm_3DVectorArraySet"))
+
+;; 3dpoint ------------------------------------------------------
+
+(define-cproc 3dpoint (x::<real> y::<real> z::<real> &optional (w::<real> 1.0))
+  (return "Scm_Make3DPoint"))
+
+(define-cproc 3dpoint? (obj)
+  (return <boolean> "SCM_3DPOINTP"))
+
+(define-cproc list->3dpoint (l::<list>)
+  (return "Scm_ListTo3DPoint"))
+
+(define-cproc 3dpoint->list (x::<3dpoint>)
+  (return "Scm_3DPointToList"))
+
+;(define-cproc f32vector->3dpoint (v::<f32vector>)
+;  (return "Scm_F32VectorTo3DPoint"))
+
+;(define-cproc 3dpoint->f32vector (x::<3dpoint>)
+;  (return "Scm_3DPointToF32Vector"))
+
+(define-cproc 3dpoint-ref (x::<3dpoint> i::<fixnum>)
+  "if (i < 0 || i > 3) Scm_Error(\"vpoint index out of range: %d\", i);
+  SCM_RETURN(Scm_MakeFlonum(SCM_3DPOINT_REF(x, i)));"
+  (setter (x::<3dpoint> i::<fixnum> v::<real>)
+   "if (i < 0 || i > 3) Scm_Error(\"point index out of range: %d\", i);
+    SCM_3DPOINT_D(x)[i] = v;
+    SCM_RETURN(SCM_UNDEFINED);"))
+
+(define-cproc 3dpoint-add (x::<3dpoint> y::<3dvector>)
+  (return "Scm_3DPointAdd"))
+
+(define-cproc 3dpoint-sub (x::<3dpoint> y)
+  (return "Scm_3DPointSub"))
+
+;; 3DPointArray ---------------------------------------------------
+
+(define-cproc make-3dpoint-array (len::<fixnum> &optional init)
+  "ScmObj va = SCM_FALSE;
+  if (len < 0) Scm_Error(\"3dpoint-array length must be positive: %d\", len);
+  if (SCM_3DPOINTP(init)) {
+    va = Scm_Make3DPointArrayv(len, SCM_3DPOINT_D(init));
+  } else if (SCM_UNBOUNDP(init)) {
+    va = Scm_Make3DPointArrayv(len, NULL);
+  } else {
+    Scm_Error(\"bad initializer for point array: must be <3dpoint>, but got %S\", init);
+  }
+  SCM_RETURN(va);")
+
+(define-cproc 3dpoint-array? (obj)
+  (return <boolean> "SCM_3DPOINT_ARRAY_P"))
+
+(define-cproc 3dpoint-array-length (v::<3dpoint-array>)
+  (return <fixnum> "SCM_3DPOINT_ARRAY_SIZE"))
+
+;(define-cproc f32vector->3dpoint-array (v::<f32vector>)
+;  (return "Scm_F32VectorTo3DPointArray"))
+
+;(define-cproc 3dpoint-array->f32vector (a::<3dpoint-array>)
+;  (return "Scm_3DPointArrayToF32Vector"))
+
+(define-cproc 3dpoint-array-ref (a::<3dpoint-array> i::<fixnum> &optional fallback)
+  (return "Scm_3DPointArrayRef"))
+
+(define-cproc 3dpoint-array-set! (a::<3dpoint-array>
+                                  i::<fixnum>
+                                  x::<3dvector>)
+  (return <void> "Scm_3DPointArraySet"))
+
+;; 3DMatrix -------------------------------------------------------
+
+(define-cproc make-3dmatrix (&optional init)
+  "if (SCM_UNBOUNDP(init)) {
+    static float unit[] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
+    SCM_RETURN(Scm_Make3DMatrixv(unit));
+  } else if (!SCM_F32VECTORP(init)) {
+    Scm_Error(\"f32vector required, but got %S\", init);
+  }
+  SCM_RETURN(Scm_Make3DMatrixV(SCM_F32VECTOR(init)));")
+
+(define-cproc 3dmatrix (&rest args)
+  (return "Scm_ListTo3DMatrix"))
+
+(define-cproc 3dmatrix? (obj)
+  (return <boolean> "SCM_3DMATRIXP"))
+
+(define-cproc list->3dmatrix (l::<list>)
+  (return "Scm_ListTo3DMatrix"))
+
+(define-cproc 3dmatrix-mul (p::<3dmatrix> q)
+  "if (SCM_3DMATRIXP(q)) SCM_RETURN(Scm_3DMatrixMul3DMatrix(p, SCM_3DMATRIX(q)));
+  if (SCM_3DVECTORP(q)) SCM_RETURN(Scm_3DMatrixMul3DVector(p, SCM_3DVECTOR(q)));
+  if (SCM_3DPOINTP(q)) SCM_RETURN(Scm_3DMatrixMul3DPoint(p, SCM_3DPOINT(q)));
+  if (SCM_REALP(q)) SCM_RETURN(Scm_3DMatrixScale(p, Scm_GetDouble(q)));
+  Scm_Error(\"bad object, 3dmatrix, 3dvector, 3dpoint or real number required, but got %S\", q);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc 3dmatrix-ref (m::<3dmatrix> i::<fixnum> j::<fixnum>)
+  "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+  if (j < 0 || j > 3) Scm_Error(\"index j out of range: %d\", j);
+  SCM_RETURN(Scm_MakeFlonum(SCM_3DMATRIX_REF(m, i, j)));"
+  (setter 3dmatrix-set!))
+
+(define-cproc 3dmatrix-set! (m::<3dmatrix> i::<fixnum> j::<fixnum> v::<real>)
+  "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+  if (j < 0 || j > 3) Scm_Error(\"index j out of range: %d\", j);
+  SCM_3DMATRIX_SET(m, i, j, v);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc 3dmatrix-row (m::<3dmatrix> i::<fixnum>)
+  "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+  SCM_RETURN(Scm_Make3DVector(SCM_3DMATRIX_REF(m, i, 0),
+                              SCM_3DMATRIX_REF(m, i, 1), 
+                              SCM_3DMATRIX_REF(m, i, 2),
+                              SCM_3DMATRIX_REF(m, i, 3)));"
+  (setter (m::<3dmatrix> i::<fixnum> v::<3dvector>)
+    "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+    SCM_3DMATRIX_SET(m, i, 0, SCM_3DVECTOR_REF(v, 0));
+    SCM_3DMATRIX_SET(m, i, 1, SCM_3DVECTOR_REF(v, 1));
+    SCM_3DMATRIX_SET(m, i, 2, SCM_3DVECTOR_REF(v, 2));
+    SCM_3DMATRIX_SET(m, i, 3, SCM_3DVECTOR_REF(v, 3));
+    SCM_RETURN(SCM_UNDEFINED);")
+  )
+
+(define-cproc 3dmatrix-column (m::<3dmatrix> i::<fixnum>)
+  "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+  SCM_RETURN(Scm_Make3DVectorv(SCM_3DMATRIX_COLVEC(m, i)));"
+  (setter (m::<3dmatrix> i::<fixnum> v::<3dvector>)
+    "if (i < 0 || i > 3) Scm_Error(\"index i out of range: %d\", i);
+    SCM_3DMATRIX_SET(m, 0, i, SCM_3DVECTOR_REF(v, 0));
+    SCM_3DMATRIX_SET(m, 1, i, SCM_3DVECTOR_REF(v, 1));
+    SCM_3DMATRIX_SET(m, 2, i, SCM_3DVECTOR_REF(v, 2));
+    SCM_3DMATRIX_SET(m, 3, i, SCM_3DVECTOR_REF(v, 3));
+    SCM_RETURN(SCM_UNDEFINED);")
+  )
+
+;; Quat ----------------------------------------------------
+
+(define-cproc quat (x::<real> y::<real> z::<real> w::<real>)
+  (return "Scm_MakeQuat"))
+
+(define-cproc quat? (obj)
+  (return <boolean> "SCM_QUATP"))
+
+(define-cproc make-quat (&optional init)
+  "if (SCM_UNBOUNDP(init)) {
+    SCM_RETURN(Scm_MakeQuat(0.0, 0.0, 0.0, 1.0));
+  } else if (!SCM_F32VECTORP(init)) {
+    Scm_Error(\"f32vector required, but got %S\", init);
+  }
+  SCM_RETURN(Scm_MakeQuatV(SCM_F32VECTOR(init)));")
+
+(define-cproc list->quat (x)
+  (return "Scm_ListToQuat"))
+(define-cproc quat->list (q::<quat>)
+  (return "Scm_QuatToList"))
+;(define-cproc f32vector->quat (x::<f32vector>)
+;  (return "Scm_F32VectorToQuat"))
+;(define-cproc quat->f32vector (q::<quat>)
+;  (return "Scm_QuatToF32Vector"))
+
+(define-cproc quat-add (p::<quat> q::<quat>)
+  (return "Scm_QuatAdd"))
+(define-cproc quat-sub (p::<quat> q::<quat>)
+  (return "Scm_QuatSub"))
+(define-cproc quat-mul (p::<quat> q::<quat>)
+  (return "Scm_QuatMul"))
+(define-cproc quat-normalize (q::<quat>)
+  (return "Scm_QuatNormalize"))
+(define-cproc quat-normalize! (q::<quat>)
+  (return "Scm_QuatNormalizeX"))
+
+
+;; Local variables:
+;; mode: scheme
+;; end:

@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.3 2002-09-27 10:48:50 shirok Exp $
+ *  $Id: math3d.h,v 1.4 2002-09-27 21:11:30 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -28,7 +28,7 @@
  */
 
 /* vector operation */
-#define SCM_VEC4_OP(var, expr)                 \
+#define SCM_3DVECTOR_OP(var, expr)              \
     do {                                        \
        int var;                                 \
        var = 0; { expr; }                       \
@@ -41,146 +41,146 @@
  * 3D Vector (homogeneous coordinates)
  */
 
-typedef struct ScmVec4Rec {
+typedef struct Scm3DVectorRec {
     SCM_HEADER;
     float *v;
-} ScmVec4;
+} Scm3DVector;
 
-SCM_CLASS_DECL(Scm_Vec4Class);
-#define SCM_CLASS_VEC4        (&Scm_Vec4Class)
-#define SCM_VEC4P(obj)       SCM_XTYPEP(obj, SCM_CLASS_VEC4)
-#define SCM_VEC4(obj)        ((ScmVec4*)(obj))
-#define SCM_VEC4_D(obj)      (SCM_VEC4(obj)->v)
-#define SCM_VEC4_REF(obj, i) (SCM_VEC4_D(obj)[i])
+SCM_CLASS_DECL(Scm_3DVectorClass);
+#define SCM_CLASS_3DVECTOR       (&Scm_3DVectorClass)
+#define SCM_3DVECTORP(obj)       SCM_XTYPEP(obj, SCM_CLASS_3DVECTOR)
+#define SCM_3DVECTOR(obj)        ((Scm3DVector*)(obj))
+#define SCM_3DVECTOR_D(obj)      (SCM_3DVECTOR(obj)->v)
+#define SCM_3DVECTOR_REF(obj, i) (SCM_3DVECTOR_D(obj)[i])
 
-extern ScmObj Scm_MakeVec4v(const float d[]);
-extern ScmObj Scm_MakeVec4(float x, float y, float z, float w);
-extern ScmObj Scm_MakeVec4V(ScmF32Vector *v);
-extern ScmObj Scm_ListToVec4(ScmObj l);
-extern ScmObj Scm_Vec4ToList(const ScmVec4 *v);
+extern ScmObj Scm_Make3DVectorv(const float d[]);
+extern ScmObj Scm_Make3DVector(float x, float y, float z, float w);
+extern ScmObj Scm_Make3DVectorV(ScmF32Vector *v);
+extern ScmObj Scm_ListTo3DVector(ScmObj l);
+extern ScmObj Scm_3DVectorToList(const Scm3DVector *v);
 
-/* SCM_VEC4_DOT(float p[4], float q[4]) */
-#define SCM_VEC4_DOTV(p, q)  (p[0]*q[0]+p[1]*q[1]+p[2]*q[2]+p[3]*q[3])
+/* SCM_3DVECTOR_DOT(float p[4], float q[4]) */
+#define SCM_3DVECTOR_DOTV(p, q)  (p[0]*q[0]+p[1]*q[1]+p[2]*q[2]+p[3]*q[3])
 
-/* SCM_VEC4_CROSS(float r[4], float p[4], float q[4]); r <- p x q */
-#define SCM_VEC4_CROSSV(r, p, q)                \
+/* SCM_3DVECTOR_CROSS(float r[4], float p[4], float q[4]); r <- p x q */
+#define SCM_3DVECTOR_CROSSV(r, p, q)                \
     (r[0] = p[1]*q[2]-p[2]*q[1],                \
      r[1] = p[2]*q[0]-p[0]*q[2],                \
      r[2] = p[0]*q[1]-p[1]*q[0],                \
      r[3] = 0.0)
 
-/* SCM_VEC4_NORMV(float p[4]) */
-#define SCM_VEC4_NORMV(p)   sqrt(SCM_VEC4_DOTV(p, p))
+/* SCM_3DVECTOR_NORMV(float p[4]) */
+#define SCM_3DVECTOR_NORMV(p)   sqrt(SCM_3DVECTOR_DOTV(p, p))
 
-/* SCM_VEC4_NORMALIZE(float p[4]) */
-#define SCM_VEC4_NORMALIZEV(p)                  \
-    do {                                        \
-        float siz__ = SCM_VEC4_NORMV(p);        \
-        if (siz__ != 0.0) {                     \
-            SCM_VEC4_OP(i__, p[i__] /= siz__);  \
-        }                                       \
+/* SCM_3DVECTOR_NORMALIZE(float p[4]) */
+#define SCM_3DVECTOR_NORMALIZEV(p)                      \
+    do {                                                \
+        float siz__ = SCM_3DVECTOR_NORMV(p);            \
+        if (siz__ != 0.0) {                             \
+            SCM_3DVECTOR_OP(i__, p[i__] /= siz__);      \
+        }                                               \
     } while (0)
 
-/* SCM_VEC4_ADD(float r[4], p[4], q[4]) */
-#define SCM_VEC4_ADDV(r, p, q)                \
-    SCM_VEC4_OP(i__, r[i__] = p[i__] + q[i__])
+/* SCM_3DVECTOR_ADD(float r[4], p[4], q[4]) */
+#define SCM_3DVECTOR_ADDV(r, p, q)                \
+    SCM_3DVECTOR_OP(i__, r[i__] = p[i__] + q[i__])
 
-/* SCM_VEC4_SUB(float r[4], p[4], q[4]) */
-#define SCM_VEC4_SUBV(r, p, q)                \
-    SCM_VEC4_OP(i__, r[i__] = p[i__] - q[i__])
+/* SCM_3DVECTOR_SUB(float r[4], p[4], q[4]) */
+#define SCM_3DVECTOR_SUBV(r, p, q)                \
+    SCM_3DVECTOR_OP(i__, r[i__] = p[i__] - q[i__])
 
-extern float  Scm_Vec4Dot(const ScmVec4 *p, const ScmVec4 *q);
-extern float  Scm_Vec4Dotv(const float *p, const float *q);
-extern ScmObj Scm_Vec4Cross(const ScmVec4 *p, const ScmVec4 *q);
-extern void   Scm_Vec4Crossv(float *r, const float *p, const float *q);
-extern ScmObj Scm_Vec4Normalize(const ScmVec4 *p);
-extern void   Scm_Vec4Normalizev(float *p);
-extern ScmObj Scm_Vec4NormalizeX(ScmVec4 *p);
-extern ScmObj Scm_Vec4Add(const ScmVec4 *p, const ScmVec4 *q);
-extern void   Scm_Vec4Addv(float *r, const float *p, const float *q);
-extern ScmObj Scm_Vec4Sub(const ScmVec4 *p, const ScmVec4 *q);
-extern void   Scm_Vec4Subv(float *r, const float *p, const float *q);
+extern float  Scm_3DVectorDot(const Scm3DVector *p, const Scm3DVector *q);
+extern float  Scm_3DVectorDotv(const float *p, const float *q);
+extern ScmObj Scm_3DVectorCross(const Scm3DVector *p, const Scm3DVector *q);
+extern void   Scm_3DVectorCrossv(float *r, const float *p, const float *q);
+extern ScmObj Scm_3DVectorNormalize(const Scm3DVector *p);
+extern void   Scm_3DVectorNormalizev(float *p);
+extern ScmObj Scm_3DVectorNormalizeX(Scm3DVector *p);
+extern ScmObj Scm_3DVectorAdd(const Scm3DVector *p, const Scm3DVector *q);
+extern void   Scm_3DVectorAddv(float *r, const float *p, const float *q);
+extern ScmObj Scm_3DVectorSub(const Scm3DVector *p, const Scm3DVector *q);
+extern void   Scm_3DVectorSubv(float *r, const float *p, const float *q);
 
 /*=============================================================
  * VectorArray
  */
 
-typedef struct ScmVec4ArrayRec {
+typedef struct Scm3DVectorArrayRec {
     SCM_HEADER;
     int size;                 /* # of vectors */
     float *v;
-} ScmVec4Array;
+} Scm3DVectorArray;
 
-SCM_CLASS_DECL(Scm_Vec4ArrayClass);
-#define SCM_CLASS_VEC4_ARRAY       (&Scm_Vec4ArrayClass)
-#define SCM_VEC4_ARRAY_P(obj)      SCM_XTYPEP(obj, SCM_CLASS_VEC4_ARRAY)
-#define SCM_VEC4_ARRAY(obj)        ((ScmVec4Array*)(obj))
-#define SCM_VEC4_ARRAY_SIZE(obj)   (SCM_VEC4_ARRAY(obj)->size)
-#define SCM_VEC4_ARRAY_D(obj)      (SCM_VEC4_ARRAY(obj)->v)
+SCM_CLASS_DECL(Scm_3DVectorArrayClass);
+#define SCM_CLASS_3DVECTOR_ARRAY       (&Scm_3DVectorArrayClass)
+#define SCM_3DVECTOR_ARRAY_P(obj)      SCM_XTYPEP(obj, SCM_CLASS_3DVECTOR_ARRAY)
+#define SCM_3DVECTOR_ARRAY(obj)        ((Scm3DVectorArray*)(obj))
+#define SCM_3DVECTOR_ARRAY_SIZE(obj)   (SCM_3DVECTOR_ARRAY(obj)->size)
+#define SCM_3DVECTOR_ARRAY_D(obj)      (SCM_3DVECTOR_ARRAY(obj)->v)
 
-extern ScmObj Scm_MakeVec4Arrayv(int nvecs, const float *init);
-extern ScmObj Scm_MakeVec4ArrayV(ScmF32Vector *src);
+extern ScmObj Scm_Make3DVectorArrayv(int nvecs, const float *init);
+extern ScmObj Scm_Make3DVectorArrayV(ScmF32Vector *src);
 
-#define SCM_VEC4_ARRAY_REFV(obj, n)  (&(SCM_VEC4_ARRAY_D(obj)[(n)*4]))
-#define SCM_VEC4_ARRAY_SET(obj, n, x, y, z, w)  \
-   (SCM_VEC4_ARRAY_D(obj)[(n)*4] = (x),         \
-    SCM_VEC4_ARRAY_D(obj)[(n)*4+1] = (y),       \
-    SCM_VEC4_ARRAY_D(obj)[(n)*4+1] = (z),       \
-    SCM_VEC4_ARRAY_D(obj)[(n)*4+1] = (w))
+#define SCM_3DVECTOR_ARRAY_REFV(obj, n)  (&(SCM_3DVECTOR_ARRAY_D(obj)[(n)*4]))
+#define SCM_3DVECTOR_ARRAY_SET(obj, n, x, y, z, w)  \
+   (SCM_3DVECTOR_ARRAY_D(obj)[(n)*4] = (x),         \
+    SCM_3DVECTOR_ARRAY_D(obj)[(n)*4+1] = (y),       \
+    SCM_3DVECTOR_ARRAY_D(obj)[(n)*4+1] = (z),       \
+    SCM_3DVECTOR_ARRAY_D(obj)[(n)*4+1] = (w))
 
-extern ScmObj Scm_Vec4ArrayRef(const ScmVec4Array *obj, int n, ScmObj fallback);
-extern float *Scm_Vec4ArrayRefv(ScmVec4Array *obj, int n);
-extern void   Scm_Vec4ArraySet(ScmVec4Array *obj, int n, ScmVec4 *v);
-extern void   Scm_Vec4ArraySetv(ScmVec4Array *obj, int n, float d[]);
+extern ScmObj Scm_3DVectorArrayRef(const Scm3DVectorArray *obj, int n, ScmObj fallback);
+extern float *Scm_3DVectorArrayRefv(Scm3DVectorArray *obj, int n);
+extern void   Scm_3DVectorArraySet(Scm3DVectorArray *obj, int n, Scm3DVector *v);
+extern void   Scm_3DVectorArraySetv(Scm3DVectorArray *obj, int n, float d[]);
 
 /*=============================================================
  * Point is really a vector, with w = 1.0 by default
  */
 
-typedef ScmVec4 ScmPoint4;
+typedef Scm3DVector Scm3DPoint;
 
-SCM_CLASS_DECL(Scm_Point4Class);
-#define SCM_CLASS_POINT4       (&Scm_Point4Class)
-#define SCM_POINT4P(obj)       SCM_XTYPEP(obj, SCM_CLASS_POINT4)
-#define SCM_POINT4(obj)        ((ScmPoint4*)(obj))
-#define SCM_POINT4_D(obj)      (SCM_POINT4(obj)->v)
-#define SCM_POINT4_REF(obj, i) (SCM_POINT4_D(obj)[i])
+SCM_CLASS_DECL(Scm_3DPointClass);
+#define SCM_CLASS_3DPOINT       (&Scm_3DPointClass)
+#define SCM_3DPOINTP(obj)       SCM_XTYPEP(obj, SCM_CLASS_3DPOINT)
+#define SCM_3DPOINT(obj)        ((Scm3DPoint*)(obj))
+#define SCM_3DPOINT_D(obj)      (SCM_3DPOINT(obj)->v)
+#define SCM_3DPOINT_REF(obj, i) (SCM_3DPOINT_D(obj)[i])
 
-extern ScmObj Scm_MakePoint4(float x, float y, float z, float w);
-extern ScmObj Scm_MakePoint4v(const float d[]);
-extern ScmObj Scm_MakePoint4V(ScmF32Vector *v);
-extern ScmObj Scm_ListToPoint4(ScmObj l);
-extern ScmObj Scm_Point4ToList(const ScmPoint4 *p);
-extern ScmObj Scm_Point4Add(const ScmPoint4 *p, const ScmVec4 *q);
-extern ScmObj Scm_Point4Sub(const ScmPoint4 *p, const ScmObj q);
+extern ScmObj Scm_Make3DPoint(float x, float y, float z, float w);
+extern ScmObj Scm_Make3DPointv(const float d[]);
+extern ScmObj Scm_Make3DPointV(ScmF32Vector *v);
+extern ScmObj Scm_ListTo3DPoint(ScmObj l);
+extern ScmObj Scm_3DPointToList(const Scm3DPoint *p);
+extern ScmObj Scm_3DPointAdd(const Scm3DPoint *p, const Scm3DVector *q);
+extern ScmObj Scm_3DPointSub(const Scm3DPoint *p, const ScmObj q);
 
 /*=============================================================
  * PointArray
  */
 
-typedef ScmVec4Array ScmPoint4Array;
+typedef Scm3DVectorArray Scm3DPointArray;
 
-SCM_CLASS_DECL(Scm_Point4ArrayClass);
-#define SCM_CLASS_POINT4_ARRAY     (&Scm_Point4ArrayClass)
-#define SCM_POINT4_ARRAY_P(obj)    SCM_XTYPEP(obj, SCM_CLASS_POINT4_ARRAY)
-#define SCM_POINT4_ARRAY(obj)      ((ScmPoint4Array*)(obj))
-#define SCM_POINT4_ARRAY_SIZE(obj) (SCM_POINT4_ARRAY(obj)->size)
-#define SCM_POINT4_ARRAY_D(obj)    (SCM_POINT4_ARRAY(obj)->v)
+SCM_CLASS_DECL(Scm_3DPointArrayClass);
+#define SCM_CLASS_3DPOINT_ARRAY     (&Scm_3DPointArrayClass)
+#define SCM_3DPOINT_ARRAY_P(obj)    SCM_XTYPEP(obj, SCM_CLASS_3DPOINT_ARRAY)
+#define SCM_3DPOINT_ARRAY(obj)      ((Scm3DPointArray*)(obj))
+#define SCM_3DPOINT_ARRAY_SIZE(obj) (SCM_3DPOINT_ARRAY(obj)->size)
+#define SCM_3DPOINT_ARRAY_D(obj)    (SCM_3DPOINT_ARRAY(obj)->v)
 
-extern ScmObj Scm_MakePoint4Arrayv(int nvecs, const float *init);
-extern ScmObj Scm_MakePoint4ArrayV(ScmF32Vector *src);
+extern ScmObj Scm_Make3DPointArrayv(int nvecs, const float *init);
+extern ScmObj Scm_Make3DPointArrayV(ScmF32Vector *src);
 
-#define SCM_POINT4_ARRAY_REFV(obj, n)  (&(SCM_POINT4_ARRAY_D(obj)[(n)*4]))
-#define SCM_POINT4_ARRAY_SET(obj, n, x, y, z, w)        \
-   (SCM_POINT4_ARRAY_D(obj)[(n)*4] = (x),               \
-    SCM_POINT4_ARRAY_D(obj)[(n)*4+1] = (y),             \
-    SCM_POINT4_ARRAY_D(obj)[(n)*4+1] = (z),             \
-    SCM_POINT4_ARRAY_D(obj)[(n)*4+1] = (w))
+#define SCM_3DPOINT_ARRAY_REFV(obj, n)  (&(SCM_3DPOINT_ARRAY_D(obj)[(n)*4]))
+#define SCM_3DPOINT_ARRAY_SET(obj, n, x, y, z, w)        \
+   (SCM_3DPOINT_ARRAY_D(obj)[(n)*4] = (x),               \
+    SCM_3DPOINT_ARRAY_D(obj)[(n)*4+1] = (y),             \
+    SCM_3DPOINT_ARRAY_D(obj)[(n)*4+1] = (z),             \
+    SCM_3DPOINT_ARRAY_D(obj)[(n)*4+1] = (w))
 
-extern ScmObj Scm_Point4ArrayRef(const ScmPoint4Array *obj, int n, ScmObj fallback);
-extern float *Scm_Point4ArrayRefv(ScmPoint4Array *obj, int n);
-extern void   Scm_Point4ArraySet(ScmPoint4Array *obj, int n, ScmPoint4 *v);
-extern void   Scm_Point4ArraySetv(ScmPoint4Array *obj, int n, float d[]);
+extern ScmObj Scm_3DPointArrayRef(const Scm3DPointArray *obj, int n, ScmObj fallback);
+extern float *Scm_3DPointArrayRefv(Scm3DPointArray *obj, int n);
+extern void   Scm_3DPointArraySet(Scm3DPointArray *obj, int n, Scm3DPoint *v);
+extern void   Scm_3DPointArraySetv(Scm3DPointArray *obj, int n, float d[]);
 
 /*=============================================================
  * Quaternions
@@ -197,14 +197,14 @@ SCM_CLASS_DECL(Scm_QuatClass);
 #define SCM_QUAT(obj)         ((ScmQuat*)(obj))
 #define SCM_QUAT_D(obj)       (SCM_QUAT(obj)->v)
 
-#define SCM_QUAT_NORMV(p)     SCM_VEC4_NORMV(p)
+#define SCM_QUAT_NORMV(p)     SCM_3DVECTOR_NORMV(p)
 
 /* SCM_QUAT_NORMALIZE(float p[4]) */
 #define SCM_QUAT_NORMALIZEV(p)                  \
     do {                                        \
         float siz__ = SCM_QUAT_NORMV(p);        \
         if (siz__ != 0.0) {                     \
-            SCM_VEC4_OP(i__, p[i__] /= siz__);  \
+            SCM_3DVECTOR_OP(i__, p[i__] /= siz__);  \
         } else {                                \
             p[0]=p[1]=p[2]=0.0;                 \
             p[3]=1.0;                           \
@@ -243,32 +243,33 @@ extern ScmObj Scm_QuatToMatrix(const ScmQuat *q);
  *  M(3,0) = d[3] M(3,1) = d[7] M(3,2) = d[11] M(3,3) = d[15]
  */
 
-typedef struct ScmMat4Rec {
+typedef struct Scm3DMatrixRec {
     SCM_HEADER;
     float *v;
-} ScmMat4;
+} Scm3DMatrix;
 
-SCM_CLASS_DECL(Scm_Mat4Class);
-#define SCM_CLASS_MAT4     (&Scm_Mat4Class)
-#define SCM_MAT4P(obj)     SCM_XTYPEP(obj, SCM_CLASS_MAT4)
-#define SCM_MAT4(obj)      ((ScmMat4*)(obj))
-#define SCM_MAT4_D(obj)    (SCM_MAT4(obj)->v)
+SCM_CLASS_DECL(Scm_3DMatrixClass);
+#define SCM_CLASS_3DMATRIX     (&Scm_3DMatrixClass)
+#define SCM_3DMATRIXP(obj)     SCM_XTYPEP(obj, SCM_CLASS_3DMATRIX)
+#define SCM_3DMATRIX(obj)      ((Scm3DMatrix*)(obj))
+#define SCM_3DMATRIX_D(obj)    (SCM_3DMATRIX(obj)->v)
 
-#define SCM_MAT4_REF(obj, i, j)    (SCM_MAT4_D(obj)[(i)+(j)*4])
-#define SCM_MAT4_SET(obj, i, j, v) (SCM_MAT4_D(obj)[(i)+(j)*4] = (v))
-#define SCM_MAT4_COLVEC(obj, i)    (SCM_MAT4_D(obj) + (i)*4)
+#define SCM_3DMATRIX_REF(obj, i, j)    (SCM_3DMATRIX_D(obj)[(i)+(j)*4])
+#define SCM_3DMATRIX_SET(obj, i, j, v) (SCM_3DMATRIX_D(obj)[(i)+(j)*4] = (v))
+#define SCM_3DMATRIX_COLVEC(obj, i)    (SCM_3DMATRIX_D(obj) + (i)*4)
 
-extern ScmObj Scm_MakeMat4v(const float d[]);
-extern ScmObj Scm_ListToMat4(ScmObj l);
+extern ScmObj Scm_Make3DMatrixv(const float d[]);
+extern ScmObj Scm_Make3DMatrixV(ScmF32Vector *fv);
+extern ScmObj Scm_ListTo3DMatrix(ScmObj l);
 
-extern void   Scm_Mat4MulMat4v(float *, const float *, const float*);
-extern ScmObj Scm_Mat4MulMat4(const ScmMat4 *, const ScmMat4 *);
+extern void   Scm_3DMatrixMul3DMatrixv(float *, const float *, const float*);
+extern ScmObj Scm_3DMatrixMul3DMatrix(const Scm3DMatrix *, const Scm3DMatrix *);
 
-extern void   Scm_Mat4MulVec4v(float *, const float *m, const float *v);
-extern ScmObj Scm_Mat4MulVec4(const ScmMat4 *, const ScmVec4 *);
-extern ScmObj Scm_Mat4MulPoint4(const ScmMat4 *, const ScmPoint4 *);
+extern void   Scm_3DMatrixMul3DVectorv(float *, const float *m, const float *v);
+extern ScmObj Scm_3DMatrixMul3DVector(const Scm3DMatrix *, const Scm3DVector *);
+extern ScmObj Scm_3DMatrixMul3DPoint(const Scm3DMatrix *, const Scm3DPoint *);
 
-extern void   Scm_Mat4Scalev(float *, double f);
-extern ScmObj Scm_Mat4Scale(const ScmMat4 *, double f);
+extern void   Scm_3DMatrixScalev(float *, double f);
+extern ScmObj Scm_3DMatrixScale(const Scm3DMatrix *, double f);
 
 #endif /* GAUCHE_MATH3D_H */

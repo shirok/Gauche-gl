@@ -16,12 +16,12 @@ HEADERS = gauche/math3d.h
 TARGET = gauche-math3d.so gauche-gl.so gauche-glut.so
 GLOBJS = gl_head.o gauche-gl.o gl-lib.o gl-syms.o glu-lib.o gl_tail.o
 GLUTOBJS = glut_head.o gauche-glut.o glut-lib.o glut_tail.o
-MATHOBJS = math3d_head.o gauche-math3d.o math3d_tail.o
+MATHOBJS = math3d_head.o gauche-math3d.o math3d-lib.o math3d_tail.o
 OBJS = $(GLOBJS) $(GLUTOBJS) $(MATHOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status \
                    gl_head.c gl_tail.c glut_head.c glut_tail.c \
 		   math3d_head.c math3d_tail.c
-GENERATED = gl-lib.c gl-syms.c glu-lib.c glut-lib.c gettype-sizes.c 
+GENERATED = gl-lib.c gl-syms.c glu-lib.c glut-lib.c math3d-lib.c gettype-sizes.c 
 
 INSTALL_TYPE = @INSTALL_TYPE@
 HEADER_INSTALL_DIR  = `$(GAUCHE_CONFIG) --$(INSTALL_TYPE)incdir`
@@ -34,6 +34,9 @@ gauche-math3d.so : $(MATHOBJS)
 	$(CC) $(LDFLAGS) gauche-math3d.so $(MATHOBJS) $(OLIBS)
 
 gauche-math3d.o : gauche/math3d.h
+
+math3d-lib.c : math3d-lib.stub
+	$(GOSH) genstub math3d-lib.stub
 
 gauche-gl.so : $(GLOBJS)
 	$(CC) $(LDFLAGS) gauche-gl.so $(GLOBJS) $(LIBS)

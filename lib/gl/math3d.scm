@@ -12,10 +12,11 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.1 2002-09-27 10:29:10 shirok Exp $
+;;;  $Id: math3d.scm,v 1.2 2002-09-27 21:11:30 shirok Exp $
 ;;;
 
 (define-module gl.math3d
+  (use gauche.uvector)
   (export-all)
   )
 

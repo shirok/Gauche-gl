@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.28 2002-09-28 03:09:17 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.29 2002-09-29 00:29:11 shirok Exp $
 ;;;
 
 "
@@ -324,8 +324,8 @@
   (return <void> "glLoadIdentity"))
 
 (define-cproc gl-load-matrix (m)
-  "if (SCM_3DMATRIXP(m)) {
-     glLoadMatrixf(SCM_3DMATRIX_D(m));
+  "if (SCM_MATRIX4FP(m)) {
+     glLoadMatrixf(SCM_MATRIX4F_D(m));
   } else if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
      glLoadMatrixf(SCM_F32VECTOR_ELEMENTS(m));
   } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
@@ -454,8 +454,8 @@
   (return <void> "glEnd"))
 
 (define-cproc gl-vertex (v &rest args)
-  "if (SCM_3DPOINTP(v) || SCM_3DVECTORP(v)) {
-     glVertex3fv(SCM_3DVECTOR_D(v));
+  "if (SCM_POINT4FP(v) || SCM_VECTOR4FP(v)) {
+     glVertex3fv(SCM_VECTOR4F_D(v));
   } else if (SCM_F32VECTORP(v)) {
      switch (SCM_F32VECTOR_SIZE(v)) {
        case 3: glVertex3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
@@ -499,8 +499,8 @@
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-normal (v &rest args)
-  "if (SCM_3DVECTORP(v)) {
-     glNormal3fv(SCM_3DVECTOR_D(v));
+  "if (SCM_VECTOR4FP(v)) {
+     glNormal3fv(SCM_VECTOR4F_D(v));
   } else if (SCM_F32VECTORP(v) && SCM_F32VECTOR_SIZE(v) == 3) {
      glNormal3fv(SCM_F32VECTOR_ELEMENTS(v));
   } else if (SCM_F64VECTORP(v) && SCM_F64VECTOR_SIZE(v) == 3) {
@@ -672,9 +672,9 @@
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-rect (v1 v2 &rest args)
-  "if (SCM_3DPOINTP(v1)) {
-     if (!SCM_3DPOINTP(v2)) goto badarg2;
-     glRectfv(SCM_3DPOINT_D(v1), SCM_3DPOINT_D(v2));
+  "if (SCM_POINT4FP(v1)) {
+     if (!SCM_POINT4FP(v2)) goto badarg2;
+     glRectfv(SCM_POINT4F_D(v1), SCM_POINT4F_D(v2));
   } else if (SCM_F32VECTORP(v1)) {
      if (SCM_F32VECTOR_SIZE(v1) != 2) goto badarg1;
      if (!SCM_F32VECTORP(v2) || SCM_F32VECTOR_SIZE(v2) != 2) goto badarg2;
@@ -727,9 +727,9 @@
   if (offset < 0) {
     Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
   }
-  if (SCM_3DPOINT_ARRAY_P(vec)) {
+  if (SCM_POINT4F_ARRAY_P(vec)) {
     glVertexPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
-                    (void*)(SCM_3DPOINT_ARRAY_D(vec)+offset));
+                    (void*)(SCM_POINT4F_ARRAY_D(vec)+offset));
   } else if (SCM_F32VECTORP(vec)) {
     glVertexPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
                     (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
@@ -756,9 +756,9 @@
   if (offset < 0) {
     Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
   }
-  if (SCM_3DVECTOR_ARRAY_P(vec)) {
+  if (SCM_VECTOR4F_ARRAY_P(vec)) {
     glNormalPointer(GL_FLOAT, stride*sizeof(GLfloat),
-                    (void*)(SCM_3DVECTOR_ARRAY_D(vec)+offset));
+                    (void*)(SCM_VECTOR4F_ARRAY_D(vec)+offset));
   } else if (SCM_F32VECTORP(vec)) {
     glNormalPointer(GL_FLOAT, stride*sizeof(GLfloat),
                     (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));

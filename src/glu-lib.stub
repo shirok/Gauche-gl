@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.4 2001-11-22 09:47:02 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.5 2002-07-19 03:12:48 shirok Exp $
 ;;;
 
 "
@@ -423,7 +423,9 @@
 (define-symbol |GLU_INVALID_ENUM| "sym_GLU_INVALID_ENUM" "Scm_MakeInteger(GLU_INVALID_ENUM)")
 (define-symbol |GLU_INVALID_VALUE| "sym_GLU_INVALID_VALUE" "Scm_MakeInteger(GLU_INVALID_VALUE)")
 (define-symbol |GLU_OUT_OF_MEMORY| "sym_GLU_OUT_OF_MEMORY" "Scm_MakeInteger(GLU_OUT_OF_MEMORY)")
-(define-symbol |GLU_INCOMPATIBLE_GL_VERSION| "sym_GLU_INCOMPATIBLE_GL_VERSION" "Scm_MakeInteger(GLU_INCOMPATIBLE_GL_VERSION)")
+(if "defined(GLU_INCOMPATIBLE_GL_VERSION)"
+    (define-symbol |GLU_INCOMPATIBLE_GL_VERSION| "sym_GLU_INCOMPATIBLE_GL_VERSION" "Scm_MakeInteger(GLU_INCOMPATIBLE_GL_VERSION)")
+    )
 
 ;; New in GLU 1.1 
 (define-symbol |GLU_VERSION| "sym_GLU_VERSION" "Scm_MakeInteger(GLU_VERSION)")

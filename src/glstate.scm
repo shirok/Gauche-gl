@@ -13,7 +13,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glstate.scm,v 1.3 2002-02-15 10:16:04 shirok Exp $
+;;;  $Id: glstate.scm,v 1.4 2002-07-19 03:12:48 shirok Exp $
 ;;;
 
 ;;
@@ -134,7 +134,7 @@
     (gl_polygon_mode                      1   geti)
     (gl_polygon_offset_factor             1   getf)
     ;(gl_polygon_offset_bias               1   getf)
-    (gl_polygon_offset_bias_ext           1   getf)
+    ;(gl_polygon_offset_bias_ext           1   getf)
     (gl_polygon_offset_point              1   getb)
     (gl_polygon_offset_line               1   getb)
     ;(gl_polygon_offset_full               1   getb)

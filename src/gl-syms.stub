@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-syms.stub,v 1.1 2002-07-19 02:33:27 shirok Exp $
+;;;  $Id: gl-syms.stub,v 1.2 2002-07-19 03:12:48 shirok Exp $
 ;;;
 
 "
@@ -1276,8 +1276,10 @@
   "Scm_MakeInteger(GL_CLIENT_PIXEL_STORE_BIT)")
 (define-symbol |GL_CLIENT_VERTEX_ARRAY_BIT| "sym_GL_CLIENT_VERTEX_ARRAY_BIT"
   "Scm_MakeInteger(GL_CLIENT_VERTEX_ARRAY_BIT)")
-(define-symbol |GL_ALL_CLIENT_ATTRIB_BITS| "sym_GL_ALL_CLIENT_ATTRIB_BITS"
-  "Scm_MakeInteger(GL_ALL_CLIENT_ATTRIB_BITS)")
+(if "defined(GL_ALL_CLIENT_ATTRIB_BITS)"
+  (define-symbol |GL_ALL_CLIENT_ATTRIB_BITS| "sym_GL_ALL_CLIENT_ATTRIB_BITS"
+    "Scm_MakeInteger(GL_ALL_CLIENT_ATTRIB_BITS)")
+  )
 
 ;; Local variables:
 ;; mode: scheme

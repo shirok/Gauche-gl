@@ -1,6 +1,14 @@
 2002-07-18  Shiro Kawai  <shiro@acm.org>
 
-	* configure.in : added check of GL/glext.h
+	* src/gl-syms.stub, src/glu-lib.stub: #ifdef-ed out
+	  GL_ALL_CLIENT_ATTIB_BITS and GLU_INCOMPATIBLE_GL_VERSION for
+	  they are not supported on nVidia linux driver (thanks to
+	  Karl Trygve Kalleberg for pointing this out).
+	* src/glstate.scm : commented out gl_polygon_offset_bias_ext
+	  for it nost on nVidia linux driver (thanks to Karl Trygve
+	  Kalleberg for pointing this out).
+	* configure.in : added check of GL/glext.h (thanks to Karl Trygve
+	  Kalleberg for pointing this out).
 	* src/gauche-gl.h : include GL/glext.h if available.
 	* example/* : removed escapes of uppercase symbols; they're ugly,
 	  and it's been some time since Gauche became case-sensitive.

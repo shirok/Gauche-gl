@@ -1,0 +1,98 @@
+;; Example 13-3  Picking example
+
+(use gl)
+(use gl.glut)
+(use gauche.uvector)
+(use gauche.array)
+
+(define *board* (make-array (shape 0 3 0 3) 0))
+
+(define (init)
+  (gl-clear-color 0.0 0.0 0.0 0.0))
+
+(define (draw-squares mode)
+  (dotimes (i 3)
+    (when (= mode GL_SELECT) (gl-load-name i))
+    (dotimes (j 3)
+      (when (= mode GL_SELECT) (gl-push-name j))
+      (gl-color (/ i 3.0) (/ j 3.0) (/ (array-ref *board* i j) 3.0))
+      (gl-rect i j (+ i 1) (+ j 1))
+      (when (= mode GL_SELECT) (gl-pop-name)))))
+
+(define (process-hits hits vec)
+  (print #`"hits = ,hits")
+  (let ((ptr 0)
+        (ii 0)
+        (jj 0))
+    (dotimes (i hits)
+      (let1 names (ref vec ptr)
+        (print #`" number of names for hit = ,names")
+        (inc! ptr)
+        (print #`"  z1 is ,(/ (ref vec ptr) #x7fffffff);"
+               #`" z2 is ,(/ (ref vec (+ ptr 1)) #x7fffffff)")
+        (inc! ptr 2)
+        (display "   the name is ")
+        (dotimes (j names)
+          (display #`",(ref vec ptr) ")
+          (cond ((= j 0) (set! ii (ref vec ptr)))
+                ((= j 1) (set! jj (ref vec ptr))))
+          (inc! ptr))
+        (print)
+        (array-set! *board* ii jj
+                    (modulo (+ (array-ref *board* ii jj) 1) 3))))))
+
+(define-constant BUFSIZE 512)
+
+(define (pick-squares button state x y)
+  (let1 select-buf (make-u32vector BUFSIZE 0)
+    (when (and (= button GLUT_LEFT_BUTTON) (= state GLUT_DOWN))
+      (let1 viewport (gl-get-integer GL_VIEWPORT)
+        (gl-select-buffer select-buf)
+        (gl-render-mode GL_SELECT)
+        (gl-init-names)
+        (gl-push-name 0)
+
+        (gl-matrix-mode GL_PROJECTION)
+        (gl-push-matrix)
+        (gl-load-identity)
+        (glu-pick-matrix x (- (ref viewport 3) y) 5.0 5.0 viewport)
+        (glu-ortho-2d 0.0 3.0 0.0 3.0)
+        (draw-squares GL_SELECT)
+
+        (gl-matrix-mode GL_PROJECTION)
+        (gl-pop-matrix)
+        (gl-flush)
+
+        (process-hits (gl-render-mode GL_RENDER) select-buf)
+        (glut-post-redisplay)))))
+
+(define (disp)
+  (gl-clear GL_COLOR_BUFFER_BIT)
+  (draw-squares GL_RENDER)
+  (gl-flush))
+
+(define (reshape w h)
+  (gl-viewport 0 0 w h)
+  (gl-matrix-mode GL_PROJECTION)
+  (gl-load-identity)
+  (glu-ortho-2d 0.0 3.0 0.0 3.0)
+  (gl-matrix-mode GL_MODELVIEW)
+  (gl-load-identity))
+
+(define (keyboard key x y)
+  (when (= key 27) (exit 0)))
+
+(define (main args)
+  (glut-init args)
+  (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB))
+  (glut-init-window-size 100 100)
+  (glut-init-window-position 100 100)
+  (glut-create-window (car args))
+  (init)
+  (glut-mouse-func pick-squares)
+  (glut-reshape-func reshape)
+  (glut-display-func disp)
+  (glut-keyboard-func keyboard)
+  (glut-main-loop)
+  0)
+

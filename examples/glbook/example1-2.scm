@@ -6,12 +6,12 @@
 (define (disp)
   (gl-clear GL_COLOR_BUFFER_BIT)
   (gl-color '#f32(1.0 1.0 1.0))
-  (gl-begin GL_POLYGON)
-  (gl-vertex '#f32(0.25 0.25 0.0))
-  (gl-vertex '#f32(0.75 0.25 0.0))
-  (gl-vertex '#f32(0.75 0.75 0.0))
-  (gl-vertex '#f32(0.25 0.75 0.0))
-  (gl-end)
+  (gl-begin* GL_POLYGON
+    (gl-vertex '#f32(0.25 0.25 0.0))
+    (gl-vertex '#f32(0.75 0.25 0.0))
+    (gl-vertex '#f32(0.75 0.75 0.0))
+    (gl-vertex '#f32(0.25 0.75 0.0))
+    )
   (gl-flush)
   )
 

@@ -1,0 +1,88 @@
+;; Example 9-4  Three-Dimensional Texturing
+
+(use gl)
+(use gl.glut)
+(use gauche.uvector)
+
+;; Create checkerboard image
+(define-constant *iwidth* 16)
+(define-constant *iheight* 16)
+(define-constant *idepth* 16)
+(define *image* (make-u8vector (* *iwidth* *iheight* *idepth* 3)))
+(define *texname* 0)
+
+(define (make-image)
+  ;; NB: this must be easier once uniform array is implemented.
+  (dotimes (s 16)
+    (dotimes (t 16)
+      (dotimes (r 16)
+        (let ((rts (* 3 (+ (* r *iwidth* *iheight*)
+                           (* t *iwidth*)
+                           s))))
+          (set! (ref *image* rts)       (* s 17))
+          (set! (ref *image* (+ rts 1)) (* t 17))
+          (set! (ref *image* (+ rts 2)) (* r 17)))))))
+
+(define (init)
+  (gl-clear-color 0 0 0 0)
+  (gl-shade-model GL_FLAT)
+  (gl-enable GL_DEPTH_TEST)
+
+  (make-image)
+  (gl-pixel-store GL_UNPACK_ALIGNMENT 1)
+
+  (let1 texnames (gl-gen-textures 1)
+    (set! *texname* (ref texnames 0))
+    (gl-bind-texture GL_TEXTURE_3D *texname*))
+  (gl-tex-parameter GL_TEXTURE_3D GL_TEXTURE_WRAP_S GL_CLAMP)
+  (gl-tex-parameter GL_TEXTURE_3D GL_TEXTURE_WRAP_T GL_CLAMP)
+  (gl-tex-parameter GL_TEXTURE_3D GL_TEXTURE_WRAP_R GL_CLAMP)
+  (gl-tex-parameter GL_TEXTURE_3D GL_TEXTURE_MAG_FILTER GL_NEAREST)
+  (gl-tex-parameter GL_TEXTURE_3D GL_TEXTURE_MIN_FILTER GL_NEAREST)
+  (gl-tex-image-3d GL_TEXTURE_3D 0 GL_RGB *iwidth* *iheight* *idepth*
+                   0 GL_RGB GL_UNSIGNED_BYTE *image*)
+  (gl-enable GL_TEXTURE_3D)
+  )
+
+(define (display)
+  (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+  (gl-begin GL_QUADS)
+  (gl-tex-coord 0.0 0.0 0.0) (gl-vertex -2.25 -1.0 0.0)
+  (gl-tex-coord 0.0 1.0 0.0) (gl-vertex -2.25 1.0 0.0)
+  (gl-tex-coord 1.0 1.0 1.0) (gl-vertex -0.25 1.0 0.0)
+  (gl-tex-coord 1.0 0.0 1.0) (gl-vertex -0.25 -1.0 0.0)
+
+  (gl-tex-coord 0.0 0.0 1.0) (gl-vertex 0.25 -1.0 0.0)
+  (gl-tex-coord 0.0 1.0 1.0) (gl-vertex 0.25 1.0 0.0)
+  (gl-tex-coord 1.0 1.0 0.0) (gl-vertex 2.25 1.0 0.0)
+  (gl-tex-coord 1.0 0.0 0.0) (gl-vertex 2.25 -1.0 0.0)
+  (gl-end)
+  (gl-flush)
+  )
+
+(define (reshape w h)
+  (gl-viewport 0 0 w h)
+  (gl-matrix-mode GL_PROJECTION)
+  (gl-load-identity)
+  (glu-perspective 60.0 (/ w h) 1.0 30.0)
+  (gl-matrix-mode GL_MODELVIEW)
+  (gl-load-identity)
+  (gl-translate 0.0 0.0 -4.0))
+
+(define (keyboard key x y)
+  (cond
+   ((= key 27) (exit 0))
+   ))
+
+(define (main args)
+  (glut-init args)
+  (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB GLUT_DEPTH))
+  (glut-init-window-size 250 250)
+  (glut-init-window-position 100 100)
+  (glut-create-window (car args))
+  (init)
+  (glut-display-func display)
+  (glut-reshape-func reshape)
+  (glut-keyboard-func keyboard)
+  (glut-main-loop)
+  0)

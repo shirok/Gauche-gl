@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.9 2003-01-10 10:01:50 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.10 2003-02-11 13:44:33 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -139,6 +139,7 @@ don't call make-thread in your program.
 @menu
 * GL calls in Scheme::          
 * Using GLUT::                  
+* Performance tips::            
 @end menu
 
 @node GL calls in Scheme, Using GLUT, Getting Started, Getting Started
@@ -202,7 +203,7 @@ so you can write the drawing part in the same way as in C:
 
 Actually @code{gl-begin*} macro expands into the above calls.
 It's a matter of taste, but the macro version guarantees
-begin/end pair, and the syntax-aware editor can indent 
+begin and end match, and the syntax-aware editor can indent 
 internal calls accordingly.
 
 You might have noticed that the type suffix in C API
@@ -238,12 +239,12 @@ Gauche-gl is compiled supports OpenGL version 1.1, 1.2 or
 variables are bound.   You can also use @code{symbol-bound?} to
 check the existence of extensions, such as @code{GL_ARB_multitexture}.
 
-@node Using GLUT,  , GL calls in Scheme, Getting Started
+@node Using GLUT, Performance tips, GL calls in Scheme, Getting Started
 @section Using GLUT
 
 In order to make a runnable script, you need to use some
 windowing system interface.  GLUT binding provides a simple
-means for it.
+way for it.
 
 Here is a complete runnable Scheme script, ported from
 Example 1-2 in "OpenGL Programming Guide":
@@ -299,6 +300,52 @@ event callback, all arguments are integers.
 
 There are more examples under the @file{examples/} directory
 which uses GLUT.
+
+@node Performance tips,  , Using GLUT, Getting Started
+@section Performance tips
+
+If you want to display millions of polygons in 30 fps, 
+Gauche-gl is not for you.   Consider using implementations
+that compiles into native code.   The purpose of Gauche-gl
+is to provide reasonable performance for interactive development
+and experiment.
+
+However, if you know some tips, actually you can go quite far,
+especially with recent processors and graphics chips.
+
+@table @emph
+@item Avoid alocation within the inner loop.
+The functional (non-destructive) operations tend to return 
+newly-allocated objects.
+Use linear-update (destructive) versions instead,
+such as @code{matrix-mul!}, @code{u8vector-add!}, etc,
+whenever possible.
+Pre-allocating temporary vectors is also effective.
+
+@item Reduce the number of calls within the inner loop.
+Vertex arrays are much better than calling @code{gl-vertex}
+over and over.   Also consider using display lists if
+you're displaying rigid objects.
+
+@item Keep numbers within a uniform vector.
+Every time you take a number out of a uniform vector
+(or @code{<vector4f>} etc.), Gauche has to wrap the
+number by a tag (boxing).  Also when you store a number
+into a uniform vector, Gauche has to check the type
+of the object, then strip a tag (unboxing).
+Those are all overhead you wouldn't have if
+you operate directly on uniform vectors (or @code{<vector4f>} etc).
+
+@item Write extensions to accelerate.
+If the above strategies are not enough, consider writing
+computation-intensive part in C as an extension.
+The easier way is to make C routines operate on uniform vectors,
+which is essentially a pointer to an array of numbers from C,
+and let Scheme handle higher-level data structures.
+(It could be viewed like relations between a coprocessor and
+a processor; the former does simple, iterative calculations
+fast, and the latter handles complicated logic).
+@end table
 
 @c ======================================================================
 @node OpenGL API, GLU API, Getting Started, Top

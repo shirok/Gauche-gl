@@ -1,8 +1,8 @@
 dnl
-dnl Configuring gauche-gl 
-dnl  process this file with "autoconf -l `gauche-config --ac`" to
+dnl Configuring gauche-gl
+dnl  process this file with "autoconf -I `gauche-config --ac`" to
 dnl  generate 'configure'.
-dnl $Id: configure.in,v 1.17 2003-10-14 04:01:45 fuyuki Exp $
+dnl $Id: configure.in,v 1.18 2003-10-15 01:55:16 fuyuki Exp $
 AC_PREREQ(2.54)
 AC_INIT(Gauche-gl, 0.3, shiro@acm.org)
 AC_GAUCHE_INIT_EXT

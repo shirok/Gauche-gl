@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.18 2003-01-06 06:02:54 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.19 2003-01-06 09:23:51 shirok Exp $
 ;;;
 
 "
@@ -460,6 +460,39 @@
   SCM_MATH3D_X3FP(ps, s);
   Scm_TQSToMatrix4fv(SCM_MATRIX4F_D(m), pt, pq, ps);
   SCM_RETURN(SCM_OBJ(m));")
+
+(define-symbol xyz "sym_xyz")
+(define-symbol xzy "sym_xzy")
+(define-symbol yzx "sym_yzx")
+(define-symbol yxz "sym_yxz")
+(define-symbol zxy "sym_zxy")
+(define-symbol zyx "sym_zyx")
+
+"static int rotation_order(ScmObj sym)
+ {
+   if (SCM_UNBOUNDP(sym)) return SCM_MATH3D_ROTATE_XYZ; /* default */
+   if (SCM_EQ(sym, sym_xyz)) return SCM_MATH3D_ROTATE_XYZ;
+   if (SCM_EQ(sym, sym_xzy)) return SCM_MATH3D_ROTATE_XZY;
+   if (SCM_EQ(sym, sym_yzx)) return SCM_MATH3D_ROTATE_YZX;
+   if (SCM_EQ(sym, sym_yxz)) return SCM_MATH3D_ROTATE_YXZ;
+   if (SCM_EQ(sym, sym_zxy)) return SCM_MATH3D_ROTATE_ZXY;
+   if (SCM_EQ(sym, sym_zyx)) return SCM_MATH3D_ROTATE_ZYX;
+   Scm_Error(\"bad rotation order: must be either one of xyz, xzy, yzx, yxz, zxy, or zyx, but got %S\", sym);
+   return 0; /* dummy */
+ }"
+
+(define-cproc euler-angle->matrix4f (x::<real> y::<real> z::<real>
+                                     &optional order)
+  "float m[16];
+  Scm_EulerToMatrix4fv(m, (float)x, (float)y, (float)z,
+                       rotation_order(order));
+  SCM_RETURN(Scm_MakeMatrix4fv(m));")
+
+(define-cproc euler-angle->matrix4f! (m::<matrix4f>
+                                      x::<real> y::<real> z::<real>
+                                     &optional order)
+  "Scm_EulerToMatrix4fv(SCM_MATRIX4F_D(m), (float)x, (float)y, (float)z,
+                       rotation_order(order));")
 
 ;; Quatf ----------------------------------------------------
 

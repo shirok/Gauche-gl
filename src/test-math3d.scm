@@ -324,6 +324,25 @@
                        #,(vector4f 1.1 1.2 1.3)))
       nearly=?)
 
+;; tests euler angles
+(let* ((rotx (* 23 pi/180))
+       (roty (* -66 pi/180))
+       (rotz (* 171 pi/180))
+       (Rx (rotation->matrix4f (vector4f 1 0 0) rotx))
+       (Ry (rotation->matrix4f (vector4f 0 1 0) roty))
+       (Rz (rotation->matrix4f (vector4f 0 0 1) rotz)))
+  (define (euler-tester sig a b c)
+    (test #`"euler->mat (,sig)" (matrix4f-mul c (matrix4f-mul b a))
+          (lambda () (euler-angle->matrix4f rotx roty rotz sig))
+          nearly=?))
+  (euler-tester 'xyz Rx Ry Rz)
+  (euler-tester 'xzy Rx Rz Ry)
+  (euler-tester 'yzx Ry Rz Rx)
+  (euler-tester 'yxz Ry Rx Rz)
+  (euler-tester 'zxy Rz Rx Ry)
+  (euler-tester 'zyx Rz Ry Rx)
+  )
+
 ;; sequence access
 (test "sequence"
       '(1.0 2.0 3.0 4.0 -1.0 -2.0 -3.0 -4.0 4.0 3.0 2.0 1.0 -4.0 -3.0 -2.0 -1.0)
@@ -426,6 +445,23 @@
                                                        (/ -1 (sqrt 66))
                                                        (/ 4 (sqrt 66)))
                                              (* -13 pi/180))))
+      nearly=?)
+
+;; test case for small trace case
+(test "matrix->quatf (small trace)"
+      (make-quatf (vector4f 1 0 0) (- pi 0.1))
+      (lambda ()
+        (matrix4f->quatf (rotation->matrix4f (vector4f 1 0 0) (- pi 0.1))))
+      nearly=?)
+(test "matrix->quatf (small trace)"
+      (make-quatf (vector4f 0 1 0) (- pi 0.1))
+      (lambda ()
+        (matrix4f->quatf (rotation->matrix4f (vector4f 0 1 0) (- pi 0.1))))
+      nearly=?)
+(test "matrix->quatf (small trace)"
+      (make-quatf (vector4f 0 0 1) (- pi 0.1))
+      (lambda ()
+        (matrix4f->quatf (rotation->matrix4f (vector4f 0 0 1) (- pi 0.1))))
       nearly=?)
 
 ;; sequence access

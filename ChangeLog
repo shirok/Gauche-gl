@@ -1,7 +1,8 @@
 2003-01-05  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-math3d.c, src/math3d-lib.stub : added more matrix ops:
-	  determinant, inverse.  added matrix->quaternion conv.
+	  determinant, inverse, euler angle conversion.
+	  added matrix->quaternion/quaternion->matrix conv.
 
 2002-12-15  Shiro Kawai  <shiro@acm.org>
 

@@ -1,7 +1,7 @@
 /*
  * gauche/math3d.h - 3D vector and matrix arithmetic 
  *
- *  Copyright(C) 2002 by Shiro Kawai (shiro@acm.org)
+ *  Copyright(C) 2002-2003 by Shiro Kawai (shiro@acm.org)
  *
  *  Permission to use, copy, modify, distribute this software and
  *  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.16 2003-01-06 06:02:54 shirok Exp $
+ *  $Id: math3d.h,v 1.17 2003-01-06 09:23:51 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -84,6 +84,17 @@
         (ptr) = NULL;                                                   \
       }                                                                 \
     } while (0)
+
+
+/* Rotation order, used in Euler->rotation conversion */
+enum {
+    SCM_MATH3D_ROTATE_XYZ,
+    SCM_MATH3D_ROTATE_XZY,
+    SCM_MATH3D_ROTATE_YZX,
+    SCM_MATH3D_ROTATE_YXZ,
+    SCM_MATH3D_ROTATE_ZXY,
+    SCM_MATH3D_ROTATE_ZYX
+};
 
 /*=============================================================
  * 3D Vector (homogeneous coordinates)
@@ -320,6 +331,7 @@ SCM_CLASS_DECL(Scm_Matrix4fClass);
 extern ScmObj Scm_MakeMatrix4fv(const float *d);
 extern ScmObj Scm_MakeMatrix4fvShared(float *d);
 extern ScmObj Scm_Matrix4fSetv(ScmMatrix4f *m, float *d);
+extern void   Scm_Matrix4fSetIdentityv(float *p);
 
 extern ScmObj Scm_ListToMatrix4f(ScmObj l);
 extern ScmObj Scm_Matrix4fToList(const ScmMatrix4f *m);
@@ -348,5 +360,8 @@ extern void   Scm_TRSToMatrix4fv(float *m, const float *t,
 extern void   Scm_TQSToMatrix4fv(float *m, const float *t,
                                  const float *q,
                                  const float *s);
+
+extern void   Scm_EulerToMatrix4fv(float m[], float x, float y, float z,
+                                   int order);
 
 #endif /* GAUCHE_MATH3D_H */

@@ -1,3 +1,8 @@
+2002-09-22  Shiro Kawai  <shiro@acm.org>
+
+	* src/gl-lib.stub : added gl-select-buffer and gl-feedback-buffer.
+	* examples/glbook/example13-2.scm : added.
+
 2002-09-12  Shiro Kawai  <shiro@acm.org>
 
 	* src/gl-lib.stub : allow gl-call-lists to take a string as either

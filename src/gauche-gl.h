@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.12 2003-10-05 05:05:25 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.13 2005-05-23 01:41:04 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -39,6 +39,9 @@
 #include "gauche/math3d.h"
 
 /* GL auxiliary routines */
+
+/* get extension function pointer */
+void *Scm_GLGetProcAddress(const char *name);
 
 /* acceptable data type */
 enum {

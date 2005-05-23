@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.20 2004-08-22 10:33:49 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.21 2005-05-23 01:41:04 shirok Exp $
  */
 
 #include <gauche.h>
@@ -20,6 +20,21 @@
 #include "gauche-gl.h"
 
 /* Utility functions */
+
+/* Get extention procedure address.
+   The way to get procedure address differs by platforms:
+     wglGetProcAddress()
+     glxGetProcAddress()
+   This function will hide the difference, though it only
+   supports GLX for the time being. */
+void *Scm_GLGetProcAddress(const char *name)
+{
+    if (glXGetProcAddress != NULL) {
+        return glXGetProcAddress(name);
+    } else {
+        return NULL;
+    }
+}
 
 /* List of numbers -> array of doubles.  Returns # of elements. */
 int Scm_GLGetDoubles(ScmObj val1, ScmObj list, double *result,
@@ -301,6 +316,7 @@ void Scm_Init_libgauche_gl(void)
                          NULL, 0, mod);
     Scm_InitBuiltinClass(&Scm_GluTesselatorClass, "<glu-tesselator>",
                          NULL, 0, mod);
+
     Scm_Init_gl_lib(mod);
     Scm_Init_gl_syms(mod);
     Scm_Init_glext_lib(mod);

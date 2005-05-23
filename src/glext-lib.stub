@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.3 2004-08-22 12:27:18 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.4 2005-05-23 01:41:04 shirok Exp $
 ;;;
 
 "
@@ -31,6 +31,8 @@
 #define SCM_GL_HANDLE_P(obj)  SCM_INTEGERP(obj)
 #define SCM_MAKE_GL_HANDLE(handle)  Scm_MakeIntegerU(handle)
 #define SCM_GL_HANDLE_VALUE(shandle) Scm_GetIntegerU(shandle)
+
+
 "
 
 ;; NB: this should be taken care of by genstub.
@@ -416,7 +418,7 @@
     ss[i] = (GLcharARB*)SCM_STRING_START(SCM_CAR(sp));
     i++;
   }
-  glShaderSourceARB(shader, nstrings, ss, lengths);
+  glShaderSourceARB(shader, nstrings, (const GLcharARB**)ss, lengths);
   SCM_RETURN(SCM_UNDEFINED);
  einval:
   Scm_Error(\"list of strings required, but got %S\", strings);
@@ -627,7 +629,7 @@
                             &maxlen);
    CHECK_ERROR(\"glGetObjectParameterivARB\");
    namebuf = SCM_NEW_ATOMIC2(GLcharARB*, (maxlen+1)*sizeof(GLcharARB*));
-   glGetActiveUniformARB(program, index, maxlen, &len, &type, namebuf);
+   glGetActiveUniformARB(program, index, maxlen, &len, &size, &type, namebuf);
    CHECK_ERROR(\"glGetActiveUniformARB\");
    SCM_RETURN(Scm_Values3(Scm_MakeInteger(size),
                           Scm_MakeInteger(type),
@@ -921,7 +923,7 @@
    glGenBuffersARB(n, SCM_U32VECTOR_ELEMENTS(v));
    SCM_RETURN(v);")
 
-(define-cproc gl-is-buffer-arb (buffer)
+(define-cproc gl-is-buffer-arb (buffer::<uint>)
   (return <boolean> "glIsBufferARB"))
 
 ; gl-buffer-data-arb
@@ -1224,6 +1226,49 @@
 
 (define-constant GL_ARB_window_pos #t)
 
+(define-cproc gl-window-pos-arb (arg0 &rest args)
+  "if (SCM_F32VECTORP(arg0)) {
+    switch (SCM_F32VECTOR_SIZE(arg0)) {
+     case 2: glWindowPos2fvARB(SCM_F32VECTOR_ELEMENTS(arg0)); break;
+     case 3: glWindowPos3fvARB(SCM_F32VECTOR_ELEMENTS(arg0)); break;
+     default: goto err;
+    }
+  } else if (SCM_S32VECTORP(arg0)) {
+    switch (SCM_S32VECTOR_SIZE(arg0)) {
+     case 2: glWindowPos2ivARB(SCM_S32VECTOR_ELEMENTS(arg0)); break;
+     case 3: glWindowPos3ivARB(SCM_S32VECTOR_ELEMENTS(arg0)); break;
+     default: goto err;
+    }
+  } else if (SCM_S16VECTORP(arg0)) {
+    switch (SCM_S16VECTOR_SIZE(arg0)) {
+     case 2: glWindowPos2svARB(SCM_S16VECTOR_ELEMENTS(arg0)); break;
+     case 3: glWindowPos3svARB(SCM_S16VECTOR_ELEMENTS(arg0)); break;
+     default: goto err;
+    }
+  } else if (SCM_F64VECTORP(arg0)) {
+    switch (SCM_F64VECTOR_SIZE(arg0)) {
+     case 2: glWindowPos2dvARB(SCM_F64VECTOR_ELEMENTS(arg0)); break;
+     case 3: glWindowPos3dvARB(SCM_F64VECTOR_ELEMENTS(arg0)); break;
+     default: goto err;
+    }
+  } else {
+    int len = Scm_Length(args) + 1;
+    switch (len) {
+     case 2: glWindowPos2dARB(Scm_GetDouble(arg0), 
+                              Scm_GetDouble(SCM_CAR(args)));
+             break;
+     case 3: glWindowPos3dARB(Scm_GetDouble(arg0), 
+                              Scm_GetDouble(SCM_CAR(args)),
+                              Scm_GetDouble(SCM_CADR(args)));
+             break;
+     default: arg0 = Scm_Cons(arg0, args); goto err;
+    }
+  }
+  SCM_RETURN(SCM_UNDEFINED);
+ err:
+  Scm_Error(\"bad arguments for gl-window-pos: %S\", arg0);
+  SCM_RETURN(SCM_UNDEFINED);")
+
 )) ;; GL_ARB_window_pos
 
 ;;=============================================================
@@ -1274,6 +1319,11 @@
 (define-enum GL_DRAW_BUFFER13_ATI)
 (define-enum GL_DRAW_BUFFER14_ATI)
 (define-enum GL_DRAW_BUFFER15_ATI)
+
+(define-cproc gl-draw-buffers-ati (bufs::<s32vector>)
+  "glDrawBuffersATI(SCM_S32VECTOR_SIZE(bufs), 
+                    (const GLenum *)SCM_S32VECTOR_ELEMENTS(bufs));
+   SCM_RETURN(SCM_UNDEFINED);")
 
 )) ;; GL_ATI_draw_buffers
 
@@ -1331,6 +1381,10 @@
 (define-enum GL_ONE_MINUS_CONSTANT_ALPHA_EXT)
 (define-enum GL_BLEND_COLOR_EXT)
 
+(define-cproc gl-blend-color-ext (red::<float> green::<float>
+                                  blue::<float> alpha::<float>)
+  (return <void> "glBlendColorEXT"))
+
 )) ;; GL_EXT_blend_color
 
 ;;=============================================================
@@ -1343,6 +1397,10 @@
 
 (define-enum GL_BLEND_EQUATION_RGB_EXT)
 (define-enum GL_BLEND_EQUATION_ALPHA_EXT)
+
+;(define-cproc gl-blend-equation-separate-ext (mode-rgb::<int>
+;                                              mode-alpha::<int>)
+;  (return <void> "glBlendEquationSeparateEXT"))
 
 )) ;; GL_EXT_blend_equation_separate
 
@@ -1358,6 +1416,12 @@
 (define-enum GL_BLEND_SRC_RGB_EXT)
 (define-enum GL_BLEND_DST_ALPHA_EXT)
 (define-enum GL_BLEND_SRC_ALPHA_EXT)
+
+(define-cproc gl-blend-func-separate-ext (sfactor-rgb::<int>
+                                          dfactor-rgb::<int>
+                                          sfactor-alpha::<int>
+                                          dfactor-alpha::<int>)
+  (return <void> "glBlendFuncSeparateEXT"))
 
 )) ;; GL_EXT_blend_func_separate
 
@@ -1383,6 +1447,9 @@
 (define-enum GL_MIN_EXT)
 (define-enum GL_MAX_EXT)
 (define-enum GL_BLEND_EQUATION_EXT)
+
+(define-cproc gl-blend-equation-ext (mode::<int>)
+  (return <void> "glBlendEquationEXT"))
 
 )) ;; GL_EXT_blend_minmax
 
@@ -1474,6 +1541,11 @@
 (define-enum GL_ARRAY_ELEMENT_LOCK_FIRST_EXT)
 (define-enum GL_ARRAY_ELEMENT_LOCK_COUNT_EXT)
 
+(define-cproc gl-lock-arrays-ext (first::<int> count::<uint>)
+  (return <void> "glLockArraysEXT"))
+(define-cproc gl-unlock-arrays-ext ()
+  (return <void> "glUnlockArraysEXT"))
+
 )) ;; GL_EXT_compiled_vertex_array
 
 ;;=============================================================
@@ -1542,6 +1614,9 @@
 (define-enum GL_DEPTH_BOUNDS_TEST_EXT)
 (define-enum GL_DEPTH_BOUNDS_EXT)
 
+(define-cproc gl-depth-bounds-ext (zmin::<double> zmax::<double>)
+  (return <void> "glDepthBoundsEXT"))
+
 )) ;; GL_EXT_depth_bounds_test
 
 ;;=============================================================
@@ -1554,6 +1629,8 @@
 
 (define-enum GL_MAX_ELEMENTS_VERTICES_EXT)
 (define-enum GL_MAX_ELEMENTS_INDICES_EXT)
+
+; gl-draw-range-eleemnts-ext
 
 )) ;; GL_EXT_draw_range_elements
 
@@ -1573,6 +1650,9 @@
 (define-enum GL_FOG_COORDINATE_ARRAY_STRIDE_EXT)
 (define-enum GL_FOG_COORDINATE_ARRAY_POINTER_EXT)
 (define-enum GL_FOG_COORDINATE_ARRAY_EXT)
+
+; gl-fog-coord-ext
+; gl-fog-coord-pointer-ext
 
 )) ;; GL_EXT_fog_coord
 
@@ -1696,6 +1776,9 @@
 
 (define-constant GL_EXT_multi_draw_arrays #t)
 
+; gl-multi-draw-arrays-ext
+; gl-multi-draw-elements-ext
+
 )) ;; GL_EXT_multi_draw_arrays
 
 ;;=============================================================
@@ -1729,6 +1812,12 @@
 (define-enum GL_COLOR_INDEX12_EXT)
 (define-enum GL_COLOR_INDEX16_EXT)
 (define-enum GL_TEXTURE_INDEX_SIZE_EXT)
+
+; gl-color-table-ext
+; gl-color-sub-table-ext
+; gl-get-color-table-ext
+; gl-get-color-table-parameter-ext
+
 
 )) ;; GL_EXT_paletted_texture
 
@@ -1789,6 +1878,8 @@
 (define-enum GL_POINT_SIZE_MAX_EXT)
 (define-enum GL_POINT_FADE_THRESHOLD_SIZE_EXT)
 (define-enum GL_DISTANCE_ATTENUATION_EXT)
+
+; gl-point-parameter-ext
 
 )) ;; GL_EXT_point_parameters
 

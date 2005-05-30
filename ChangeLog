@@ -1,3 +1,8 @@
+2005-05-30  Shiro Kawai  <shiro@acm.org>
+
+	* src/glu-lib.stub (glu-build-2D-mipmaps): added (provided by
+	  Issac Trotts)
+
 2004-08-21  Shiro Kawai  <shiro@acm.org>
 
 	* lib/gl/util.scm : added

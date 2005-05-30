@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.10 2003-10-05 05:05:25 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.11 2005-05-30 21:46:23 shirok Exp $
 ;;;
 
 "
@@ -295,6 +295,25 @@
 (define-type <glu-tesselator> "ScmGluTesselator*" #f
   "SCM_GLU_TESSELATOR_P" "SCM_GLU_TESSELATOR")
 
+;;=============================================================
+;; Mipmapping and image scaling
+;;
+
+;; caller must ensure vector has enough length
+(define-cproc glu-build-2d-mipmaps (target::<fixnum>
+                                    internalformat::<fixnum>
+                                    width::<fixnum> height::<fixnum>
+                                    format::<fixnum>
+                                    type::<fixnum> texels)
+  "int elttype, size; void *texelptr;
+  size = Scm_GLPixelDataSize(width, height, format, type, &elttype,
+NULL);
+  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
+  if (texelptr) {
+     gluBuild2DMipmaps(target, internalformat, width, height, format,
+type, texelptr);
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
 
 ;;================================================================
 ;; New function in GLU 1.1

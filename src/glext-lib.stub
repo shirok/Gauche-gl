@@ -1,7 +1,7 @@
 ;;;
 ;;; glext-lib.stub - glue functions for GL extensions
 ;;;
-;;;  Copyright(C) 2004 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2004-2005 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.4 2005-05-23 01:41:04 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.5 2005-06-01 10:34:36 shirok Exp $
 ;;;
 
 "
@@ -224,8 +224,8 @@
 
 (define-constant GL_ARB_multisample #t)
 
-(define-enum WGL_SAMPLE_BUFFERS_ARB)
-(define-enum WGL_SAMPLES_ARB)
+;(define-enum WGL_SAMPLE_BUFFERS_ARB)
+;(define-enum WGL_SAMPLES_ARB)
 (define-enum GL_MULTISAMPLE_ARB)
 (define-enum GL_SAMPLE_ALPHA_TO_COVERAGE_ARB)
 (define-enum GL_SAMPLE_ALPHA_TO_ONE_ARB)
@@ -553,7 +553,11 @@
 ;;  a similar mechanism of the gl-get-integer and gl-get-integer! pair
 ;;  later.
 
-"static int get_object_parameter_num_values(GLenum pname)
+;; NB: the #if guard shouldn't be necessary since we're already in the
+;; 'if' construct of stub.  But it is needed, due to the bug of genstub.
+"
+#if defined(GL_ARB_shader_objects)
+ static int get_object_parameter_num_values(GLenum pname)
  {
    switch (pname) {
      case GL_OBJECT_TYPE_ARB:;
@@ -573,7 +577,8 @@
      default:
       return 0;
    }
- }"
+ }
+#endif /*defined(GL_ARB_shader_objects)*/"
 
 
 (define-cproc gl-get-object-parameter-f-arb (object::<gl-handle>
@@ -712,7 +717,7 @@
 (define-enum GL_COMPRESSED_RGB_ARB)
 (define-enum GL_COMPRESSED_RGBA_ARB)
 (define-enum GL_TEXTURE_COMPRESSION_HINT_ARB)
-(define-enum GL_TEXTURE_IMAGE_SIZE_ARB)
+;(define-enum GL_TEXTURE_IMAGE_SIZE_ARB)
 (define-enum GL_TEXTURE_COMPRESSED_ARB)
 (define-enum GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB)
 (define-enum GL_COMPRESSED_TEXTURE_FORMATS_ARB)

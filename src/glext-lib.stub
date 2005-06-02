@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.5 2005-06-01 10:34:36 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.6 2005-06-02 01:06:59 shirok Exp $
 ;;;
 
 "
@@ -224,8 +224,10 @@
 
 (define-constant GL_ARB_multisample #t)
 
-;(define-enum WGL_SAMPLE_BUFFERS_ARB)
-;(define-enum WGL_SAMPLES_ARB)
+(if "defined(WGL_SAMPLE_BUFFERS_ARB)" 
+    (define-enum WGL_SAMPLE_BUFFERS_ARB))
+(if "defined(WGL_SAMPLES_ARB)"
+    (define-enum WGL_SAMPLES_ARB))
 (define-enum GL_MULTISAMPLE_ARB)
 (define-enum GL_SAMPLE_ALPHA_TO_COVERAGE_ARB)
 (define-enum GL_SAMPLE_ALPHA_TO_ONE_ARB)
@@ -717,7 +719,8 @@
 (define-enum GL_COMPRESSED_RGB_ARB)
 (define-enum GL_COMPRESSED_RGBA_ARB)
 (define-enum GL_TEXTURE_COMPRESSION_HINT_ARB)
-;(define-enum GL_TEXTURE_IMAGE_SIZE_ARB)
+(if "defined(GL_TEXTURE_IMAGE_SIZE_ARB)" 
+    (define-enum GL_TEXTURE_IMAGE_SIZE_ARB))
 (define-enum GL_TEXTURE_COMPRESSED_ARB)
 (define-enum GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB)
 (define-enum GL_COMPRESSED_TEXTURE_FORMATS_ARB)
@@ -1185,17 +1188,97 @@
 
 ; gl-vertex-attrib-pointer-arb
 
+(define-cproc gl-is-program-arb (prog-id::<int>)
+  (return <boolean> "glIsProgramARB"))
+
 (define-cproc gl-enable-vertex-attrib-array-arb (index::<uint>)
   (return <void> "glEnableVertexAttribArrayARB"))
 (define-cproc gl-disable-vertex-attrib-array-arb (index::<uint>)
   (return <void> "glDisableVertexAttribArrayARB"))
 
-; gl-program-string-arb
-; gl-bind-program-arb
-; gl-delete-programs-arb
-; gl-gen-programs-arb
-; gl-program-env-parameter-arb
-; gl-program-local-parameter-arb
+(define-cproc gl-program-string-arb (target::<int> format::<int> text::<string>)
+   "GLint errorPos;
+    char* str=(char*)SCM_STRING_START(text); 
+    glProgramStringARB(target, format, strlen(str), str);
+    glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorPos);
+    if(errorPos!=-1) {
+        Scm_Error(\"Error in shader: %s\", glGetString(GL_PROGRAM_ERROR_STRING_ARB));
+    }
+    SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-bind-program-arb (target::<int> id::<int>)
+  (return <void> "glBindProgramARB"))
+
+(define-cproc gl-delete-programs-arb (arg0)
+"
+if(SCM_INTEGERP(arg0)) {
+  GLuint prog = Scm_GetInteger(arg0);
+  glDeleteProgramsARB(1,&prog);
+}
+else if(SCM_U32VECTORP(arg0)) {
+  glDeleteProgramsARB(SCM_S32VECTOR_SIZE(arg0), SCM_U32VECTOR_ELEMENTS(arg0));
+}
+SCM_RETURN(SCM_UNDEFINED);
+")
+
+(define-cproc gl-gen-programs-arb (n::<int>)
+  "ScmS32Vector *v = SCM_U32VECTOR(Scm_MakeU32Vector(n, 0));
+  glGenProgramsARB(n, SCM_U32VECTOR_ELEMENTS(v));
+  SCM_RETURN(SCM_OBJ(v));")
+
+; target should be GL_FRAGMENT_PROGRAM_ARB or GL_VERTEX_PROGRAM_ARB
+(define-cproc gl-program-env-parameter-arb 
+  (target::<int> param-id::<int> arg0 &rest args)
+  "if(SCM_VECTOR4FP(arg0)) {
+    glProgramEnvParameter4fvARB(target, param_id, SCM_VECTOR4F_D(arg0));
+  }
+  else if(SCM_F32VECTORP(arg0)) {
+    if(SCM_F32VECTOR_SIZE(arg0)!=4) { goto err; }
+    glProgramEnvParameter4fvARB(target, param_id, SCM_F32VECTOR_ELEMENTS(arg0));
+  }
+  else if(SCM_F64VECTORP(arg0)) {
+    if(SCM_F64VECTOR_SIZE(arg0)!=4) { goto err; }
+    glProgramEnvParameter4dvARB(target, param_id, SCM_F64VECTOR_ELEMENTS(arg0));
+  } 
+  else {
+    if(1+Scm_Length(args)!=4) { goto err; }
+    glProgramEnvParameter4dARB(target, param_id, 
+      Scm_GetDouble(arg0),
+      Scm_GetDouble(SCM_CAR(args)),
+      Scm_GetDouble(SCM_CADR(args)),
+      Scm_GetDouble(SCM_CAR(SCM_CDDR(args))));
+  }
+  SCM_RETURN(SCM_UNDEFINED);
+ err:
+  Scm_Error(\"bad arguments for gl-program-env-parameter-arb: %S\", arg0);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+; target should be GL_FRAGMENT_PROGRAM_ARB or GL_VERTEX_PROGRAM_ARB
+(define-cproc gl-program-local-parameter-arb
+  (target::<int> param-id::<int> arg0 &rest args)
+  "if(SCM_VECTOR4FP(arg0)) {
+    glProgramLocalParameter4fvARB(target, param_id, SCM_VECTOR4F_D(arg0));
+  }
+  else if(SCM_F32VECTORP(arg0)) {
+    if(SCM_F32VECTOR_SIZE(arg0)!=4) { goto err; }
+    glProgramLocalParameter4fvARB(target, param_id, SCM_F32VECTOR_ELEMENTS(arg0));
+  }
+  else if(SCM_F64VECTORP(arg0)) {
+    if(SCM_F64VECTOR_SIZE(arg0)!=4) { goto err; }
+    glProgramLocalParameter4dvARB(target, param_id, SCM_F64VECTOR_ELEMENTS(arg0));
+  } else {
+    if(1+Scm_Length(args)!=4) { goto err; }
+    glProgramLocalParameter4dARB(target, param_id, 
+      Scm_GetDouble(arg0),
+      Scm_GetDouble(SCM_CAR(args)),
+      Scm_GetDouble(SCM_CADR(args)),
+      Scm_GetDouble(SCM_CAR(SCM_CDDR(args))));
+  }
+  SCM_RETURN(SCM_UNDEFINED);
+ err:
+  Scm_Error(\"bad arguments for gl-program-local-parameter-arb: %S\", arg0);
+  SCM_RETURN(SCM_UNDEFINED);")
+
 ; gl-get-program-env-parameter-arb
 ; gl-get-program-local-parameter-arb
 ; gl-get-program-arb

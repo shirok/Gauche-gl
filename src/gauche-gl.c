@@ -1,7 +1,7 @@
 /*
  * gauche-gl.c - Gauche GL binding
  *
- *  Copyright(C) 2001-2004 by Shiro Kawai (shiro@acm.org)
+ *  Copyright(C) 2001-2005 by Shiro Kawai (shiro@acm.org)
  *
  *  Permission to use, copy, modify, distribute this software and
  *  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.21 2005-05-23 01:41:04 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.22 2005-06-02 00:55:49 shirok Exp $
  */
 
 #include <gauche.h>
@@ -24,16 +24,22 @@
 /* Get extention procedure address.
    The way to get procedure address differs by platforms:
      wglGetProcAddress()
-     glxGetProcAddress()
+     glXGetProcAddress() / glXGetProcAddressARB()
    This function will hide the difference, though it only
    supports GLX for the time being. */
 void *Scm_GLGetProcAddress(const char *name)
 {
+#if defined(GLX_VERSION_1_4)
     if (glXGetProcAddress != NULL) {
         return glXGetProcAddress(name);
-    } else {
-        return NULL;
     }
+#elif defined(GLX_ARB_get_proc_address)
+    if (glXGetProcAddressARB != NULL) {
+        return glXGetProcAddressARB(name);
+    }
+#endif /* !defined(GLX_VERSION_1_4) && !defined(GLX_ARB_get_proc_address) */
+    return NULL;
+
 }
 
 /* List of numbers -> array of doubles.  Returns # of elements. */

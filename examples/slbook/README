@@ -1,0 +1,10 @@
+This directory containts example scripts that are described in the book
+"OpenGL Shading Language" by Randi J. Rost, Addison Wesley, and
+available at the 3DLabs website 
+http://developer.3dlabs.com/openGL2/downloads/index.htm
+
+The code is copyrighted by 3Dlabs and redistributable under the revised 
+BSD-license.  See 3Dlabs-License.txt in each example directories for
+the details.
+
+

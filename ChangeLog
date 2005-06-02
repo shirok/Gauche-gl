@@ -1,3 +1,14 @@
+2005-06-01  Shiro Kawai  <shiro@acm.org>
+
+	* examples/slbook : added OpenGL shading language book examples.
+	
+	* src/gauche-gl.h : define GL_GLEXT_PROTOTYPES to include gl
+	  extension procedure declarations properly.  (In futuer, we should
+	  use function-pointer-finding way instead of relying on compile-time
+	  availability of extensions).
+	* src/gauche-gl.c (Scm_GLGetProcAddress): added #ifdefs to compile
+	  properly.
+
 2005-05-30  Shiro Kawai  <shiro@acm.org>
 
 	* src/glu-lib.stub (glu-build-2D-mipmaps): added (provided by

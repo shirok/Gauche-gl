@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.6 2005-06-02 01:06:59 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.7 2005-06-02 09:47:56 shirok Exp $
 ;;;
 
 "
@@ -1222,7 +1222,7 @@ SCM_RETURN(SCM_UNDEFINED);
 ")
 
 (define-cproc gl-gen-programs-arb (n::<int>)
-  "ScmS32Vector *v = SCM_U32VECTOR(Scm_MakeU32Vector(n, 0));
+  "ScmU32Vector *v = SCM_U32VECTOR(Scm_MakeU32Vector(n, 0));
   glGenProgramsARB(n, SCM_U32VECTOR_ELEMENTS(v));
   SCM_RETURN(SCM_OBJ(v));")
 

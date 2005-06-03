@@ -1,3 +1,7 @@
+2005-06-02  Shiro Kawai  <shiro@acm.org>
+
+	* src/glext-lib.stub : added more bindings on vertex attributes.
+
 2005-06-01  Shiro Kawai  <shiro@acm.org>
 
 	* examples/slbook : added OpenGL shading language book examples.
@@ -8,6 +12,8 @@
 	  availability of extensions).
 	* src/gauche-gl.c (Scm_GLGetProcAddress): added #ifdefs to compile
 	  properly.
+
+	* src/glext-lib.stub : more bindings (patch provided by Issac Trotts).
 
 2005-05-30  Shiro Kawai  <shiro@acm.org>
 

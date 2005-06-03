@@ -7,4 +7,9 @@ The code is copyrighted by 3Dlabs and redistributable under the revised
 BSD-license.  See 3Dlabs-License.txt in each example directories for
 the details.
 
+Each subdirectory contains a shell script run.sh to run the example
+without installing Gauche-gl.
+
+
+
 

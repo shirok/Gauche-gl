@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.7 2005-06-02 09:47:56 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.8 2005-06-03 06:50:50 shirok Exp $
 ;;;
 
 "
@@ -1186,7 +1186,50 @@
   Scm_Error(\"bad argument(s) for gl-vertex-attrib-4n-arb: %S\", arg0);
   SCM_RETURN(SCM_UNDEFINED);")
 
-; gl-vertex-attrib-pointer-arb
+(define-cproc gl-vertex-attrib-pointer-arb (index::<uint>
+                                            size::<int>
+                                            vec
+                                            &optional
+                                            (normalized::<boolean> #f)
+                                            (stride::<fixnum> 0)
+                                            (offset::<fixnum> 0))
+  "if (size < 1 || size > 4) {
+     Scm_Error(\"bad argument for size: %d, must be 1, 2, 3 or 4\", size);
+   }
+   if (SCM_POINT4F_ARRAY_P(vec)) {
+     glVertexAttribPointerARB(index, size, GL_FLOAT, normalized, stride,
+                              (const GLvoid*)(SCM_POINT4F_ARRAY_D(vec)+offset));
+   } else if (SCM_VECTOR4F_ARRAY_P(vec)) {
+     glVertexAttribPointerARB(index, size, GL_FLOAT, normalized, stride,
+                              (const GLvoid*)(SCM_VECTOR4F_ARRAY_D(vec)+offset));
+   } else if (SCM_F32VECTORP(vec)) {
+     glVertexAttribPointerARB(index, size, GL_FLOAT, normalized, stride,
+                              (const GLvoid*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
+   } else if (SCM_F64VECTORP(vec)) {
+     glVertexAttribPointerARB(index, size, GL_DOUBLE, normalized, stride,
+                              (const GLvoid*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
+   } else if (SCM_S32VECTORP(vec)) {
+     glVertexAttribPointerARB(index, size, GL_INT, normalized, stride,
+                              (const GLvoid*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
+   } else if (SCM_U32VECTORP(vec)) {
+     glVertexAttribPointerARB(index, size, GL_UNSIGNED_INT, normalized, stride,
+                              (const GLvoid*)(SCM_U32VECTOR_ELEMENTS(vec)+offset));
+   } else if (SCM_S16VECTORP(vec)) {
+     glVertexAttribPointerARB(index, size, GL_SHORT, normalized, stride,
+                              (const GLvoid*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
+   } else if (SCM_U16VECTORP(vec)) {
+     glVertexAttribPointerARB(index, size, GL_UNSIGNED_SHORT, normalized, stride,
+                              (const GLvoid*)(SCM_U16VECTOR_ELEMENTS(vec)+offset));
+   } else if (SCM_S8VECTORP(vec)) {
+     glVertexAttribPointerARB(index, size, GL_BYTE, normalized, stride,
+                              (const GLvoid*)(SCM_S8VECTOR_ELEMENTS(vec)+offset));
+   } else if (SCM_U8VECTORP(vec)) {
+     glVertexAttribPointerARB(index, size, GL_UNSIGNED_BYTE, normalized, stride,
+                              (const GLvoid*)(SCM_U8VECTOR_ELEMENTS(vec)+offset));
+   } else {
+     Scm_Error(\"bad argument for vec: %S, must be an uniform vector, <pointer4f-array> or <vector4f-array>\", vec);
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-is-program-arb (prog-id::<int>)
   (return <boolean> "glIsProgramARB"))
@@ -1303,6 +1346,33 @@ SCM_RETURN(SCM_UNDEFINED);
 (define-enum GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB)
 (define-enum GL_OBJECT_ACTIVE_ATTRIBUTES_ARB)
 (define-enum GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB)
+
+(define-cproc gl-bind-attrib-location-arb (program::<gl-handle>
+                                           index::<uint>
+                                           name::<string>)
+  "Scm_Printf(SCM_CURERR, \"quint %d\\n\", index);
+   glBindAttribLocationARB(program, index, Scm_GetStringConst(name));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+;; returns three values: size, type and name
+(define-cproc gl-get-active-attrib-arb (program::<gl-handle>
+                                        index::<uint>)
+  "
+#define MAXNAMEBUFLEN 1024 /* NB: should be dynamically adjusted, using GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB */
+  GLcharARB namebuf[MAXNAMEBUFLEN];
+  GLint attrsize = 0; GLenum attrtype = 0;
+  glGetActiveAttribARB(program, index, MAXNAMEBUFLEN-1, NULL,
+                       &attrsize, &attrtype, namebuf);
+  SCM_RETURN(Scm_Values3(Scm_MakeInteger(attrsize), Scm_MakeInteger(attrtype),
+                         SCM_MAKE_STR_COPYING(namebuf)));
+#undef MAXNAMEBUFLEN
+   ")
+
+(define-cproc gl-get-attrib-location-arb (program::<gl-handle>
+                                          name::<string>)
+  "GLint r;
+   r = glGetAttribLocationARB(program, Scm_GetStringConst(name));
+   SCM_RETURN(Scm_MakeInteger(r));")
 
 )) ;; GL_ARB_vertex_shader
 

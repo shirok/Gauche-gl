@@ -30,7 +30,7 @@
 ;;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
-;;;  $Id: extract-abi.scm,v 1.1 2005-06-03 18:33:54 shirok Exp $
+;;;  $Id: extract-abi.scm,v 1.2 2005-06-04 08:45:02 shirok Exp $
 ;;;
 
 ;; We no longer count on glext.h on the target platform, since
@@ -717,8 +717,7 @@
         (let1 p (assq val constants)
           (if p
             (loop (cdr p))
-            ;; assume VAL is defined in gl.h
-            (format #t "(define-constant ~a ~a)\n" (car c) val))))))
+            (error "huh? " val))))))
   (print)
   (print ";; API entry points")
   (dolist (e entry-points)

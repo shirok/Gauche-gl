@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl.scm,v 1.6 2005-06-04 11:49:14 shirok Exp $
+;;;  $Id: gl.scm,v 1.7 2005-06-04 11:55:13 shirok Exp $
 ;;;
 
 (define-module gl
@@ -38,7 +38,7 @@
 ;; Check GL version and extensions
 
 (define-values
-  (gl-extension-supported?
+  (gl-extension-available?
    gl-version<? gl-version<=? gl-version>? gl-version>=? gl-version=?)
   (let ((gl-vers #f)
         (gl-exts #f))
@@ -55,7 +55,7 @@
                        (string-split extstr #[\s]))
             (set! gl-exts exts)
             exts)))
-    (define (gl-extension-supported? . required)
+    (define (gl-extension-available? . required)
       (and-let* ((exts (ensure-extensions)))
         (every (cut member <> exts)
                (map x->string required))))
@@ -71,7 +71,7 @@
       (and-let* ((vers (ensure-version))) (version=? vers v)))
     
     
-    (values gl-extension-supported?
+    (values gl-extension-available?
             gl-version<? gl-version<=?
             gl-version>? gl-version>=?
             gl-version=?)

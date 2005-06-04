@@ -43,7 +43,7 @@
  *                                                                      *
 /************************************************************************/
 |#
-;;; $Id: ogl2particle.scm,v 1.2 2005-06-04 11:54:18 shirok Exp $
+;;; $Id: ogl2particle.scm,v 1.3 2005-06-04 11:56:10 shirok Exp $
 
 (use srfi-1)
 (use srfi-27)
@@ -408,7 +408,7 @@
   (let* ((window (glut-create-window
                   "3Dlabs OpenGL Shading Language Particle System Demo")))
 
-    (unless (gl-extension-supported? 'GL_ARB_shader_objects
+    (unless (gl-extension-available? 'GL_ARB_shader_objects
                                      'GL_ARB_fragment_shader
                                      'GL_ARB_vertex_shader
                                      'GL_ARB_shading_language_100)

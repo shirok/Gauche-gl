@@ -43,13 +43,12 @@
  *                                                                      *
 /************************************************************************/
 |#
-;;; $Id: ogl2brick.scm,v 1.1 2005-06-02 00:56:59 shirok Exp $
+;;; $Id: ogl2brick.scm,v 1.2 2005-06-04 11:54:18 shirok Exp $
 
 (use srfi-1)
 (use gauche.uvector)
 (use gl)
 (use gl.glut)
-(use gl.util)
 (use math.const)
 (use util.match)
 (use file.util)
@@ -382,10 +381,10 @@
   (glut-init-window-size 500 500)
   (let* ((window (glut-create-window "3Dlabs Brick Shader")))
 
-    (unless (gl-extensions-supported? '(GL_ARB_shader_objects
-                                        GL_ARB_fragment_shader
-                                        GL_ARB_vertex_shader
-                                        GL_ARB_shading_language_100))
+    (unless (gl-extension-supported? 'GL_ARB_shader_objects
+                                     'GL_ARB_fragment_shader
+                                     'GL_ARB_vertex_shader
+                                     'GL_ARB_shading_language_100)
       (error "OpenGL Shading Language extensions not available"))
     
     (glut-idle-func play-proc)

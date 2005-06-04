@@ -43,14 +43,13 @@
  *                                                                      *
 /************************************************************************/
 |#
-;;; $Id: ogl2particle.scm,v 1.1 2005-06-03 06:51:21 shirok Exp $
+;;; $Id: ogl2particle.scm,v 1.2 2005-06-04 11:54:18 shirok Exp $
 
 (use srfi-1)
 (use srfi-27)
 (use gauche.uvector)
 (use gl)
 (use gl.glut)
-(use gl.util)
 (use file.util)
 (use math.const)
 
@@ -409,10 +408,10 @@
   (let* ((window (glut-create-window
                   "3Dlabs OpenGL Shading Language Particle System Demo")))
 
-    (unless (gl-extensions-supported? '(GL_ARB_shader_objects
-                                        GL_ARB_fragment_shader
-                                        GL_ARB_vertex_shader
-                                        GL_ARB_shading_language_100))
+    (unless (gl-extension-supported? 'GL_ARB_shader_objects
+                                     'GL_ARB_fragment_shader
+                                     'GL_ARB_vertex_shader
+                                     'GL_ARB_shading_language_100)
       (error "OpenGL Shading Language extensions not available"))
     
     (glut-idle-func play-proc)

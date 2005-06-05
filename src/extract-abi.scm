@@ -30,7 +30,7 @@
 ;;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
-;;;  $Id: extract-abi.scm,v 1.2 2005-06-04 08:45:02 shirok Exp $
+;;;  $Id: extract-abi.scm,v 1.3 2005-06-05 02:25:56 shirok Exp $
 ;;;
 
 ;; We no longer count on glext.h on the target platform, since
@@ -59,7 +59,7 @@
 ;;
 ;;  * Entry points
 ;;
-;;      (define-entry-point PFNGLBINDPROGRAMNVPROC glBindProgramNV)
+;;      (define-entry-point glBindProgramNV "... typedef ...")
 ;;
 
 (use srfi-1)
@@ -674,9 +674,9 @@
     ))
 
 (define (scan)
-  (let loop ((x '()) ;; extensions
-             (c (reverse *gl-syms*)) ;; constants
-             (p '())) ;; entry points
+  (let loop ((x '()) ;; extensions name
+             (c (reverse *gl-syms*)) ;; constants [(name . value)]
+             (p '())) ;; entry points [(name PFNNAMEPROC . typedef)]
     (rxmatch-case (read-line)
       (test eof-object?
             (values (reverse x) (reverse c) (reverse p)))
@@ -695,8 +695,15 @@
                                    (dval (string->number dval))
                                    (else (string->symbol ref))))
              (loop x (cons const c) p)))))
-      (#/^extern\s+[\w*]+\s+(?:APIENTRY\s+)?(gl\w+)/ (#f fname)
-       (loop x c (cons fname p)))
+      (#/^(?:extern|GLAPI)\s+[\w*]+\s+(?:APIENTRY\s+)?(gl\w+)/ (#f fname)
+       (loop x c
+             (cons (list fname (format "PFN~aPROC" (string-upcase fname)))
+                   p)))
+      (#/^typedef.*(PFN.*PROC).*/ (typedef name)
+       (let1 apientry (find (lambda (e) (string=? name (cadr e))) p)
+         (when apientry
+           (set-cdr! (cdr apientry) typedef))
+         (loop x c p)))
       (else (loop x c p)))))
 
 (define (emit extensions constants entry-points)
@@ -721,8 +728,7 @@
   (print)
   (print ";; API entry points")
   (dolist (e entry-points)
-    (format #t "(define-entry-point PFN~aPROC ~a)\n"
-            (string-upcase e) e))
+    (format #t "(define-entry-point ~a ~a ~s)\n" (car e) (cadr e) (cddr e)))
   (print)
   )
 

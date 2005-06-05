@@ -1,7 +1,7 @@
 /*
  * gauche-gl.h - Gauche GL extension
  *
- *  Copyright(C) 2001-2002 by Shiro Kawai (shiro@acm.org)
+ *  Copyright(C) 2001-2005 by Shiro Kawai (shiro@acm.org)
  *
  *  Permission to use, copy, modify, distribute this software and
  *  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.14 2005-06-02 00:56:00 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.15 2005-06-05 11:53:40 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -66,6 +66,33 @@ extern int Scm_GLPixelDataSize(GLsizei w, GLsizei h,
                                GLenum format, GLenum type,
                                int *elttype, int *packed);
 extern void *Scm_GLPixelDataCheck(ScmObj pixels, int elttype, int size);
+
+/* GLBoolean vector */
+
+typedef struct ScmGLBooleanVectorRec {
+    SCM_HEADER;
+    int size;
+    GLboolean *elements;
+} ScmGLBooleanVector;
+
+SCM_CLASS_DECL(Scm_GLBooleanVectorClass);
+#define SCM_CLASS_GL_BOOLEAN_VECTOR     (&Scm_GLBooleanVectorClass)
+#define SCM_GL_BOOLEAN_VECTOR(obj)      ((ScmGLBooleanVector*)(obj))
+#define SCM_GL_BOOLEAN_VECTOR_P(obj)    SCM_XTYPEP(obj, SCM_CLASS_GL_BOOLEAN_VECTOR)
+#define SCM_GL_BOOLEAN_VECTOR_SIZE(obj) (SCM_GL_BOOLEAN_VECTOR(obj)->size)
+#define SCM_GL_BOOLEAN_VECTOR_ELEMENTS(obj) (SCM_GL_BOOLEAN_VECTOR(obj)->elements)
+
+extern ScmObj Scm_MakeGLBooleanVector(int size, GLboolean fill);
+extern ScmObj Scm_MakeGLBooleanVectorFromArray(int size,
+                                               const GLboolean arr[]);
+extern ScmObj Scm_MakeGLBooleanVectorFromArrayShared(int size,
+                                                     GLboolean arr[]);
+extern ScmObj Scm_ListToGLBooleanVector(ScmObj lis);
+
+extern ScmObj Scm_GLBooleanVectorToUVector(ScmObj klass,
+                                           ScmGLBooleanVector *src);
+extern ScmObj Scm_UVectorToGLBooleanVector(ScmObj src);
+
 
 /* GLU objects */
 

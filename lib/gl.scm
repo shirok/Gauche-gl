@@ -12,13 +12,14 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl.scm,v 1.7 2005-06-04 11:55:13 shirok Exp $
+;;;  $Id: gl.scm,v 1.8 2005-06-05 11:53:40 shirok Exp $
 ;;;
 
 (define-module gl
   (use srfi-1)
   (use gauche.uvector)
   (use gauche.version)
+  (use gauche.sequence)
   (extend gl.math3d)
   (export-all)
   )
@@ -26,7 +27,44 @@
 
 (dynamic-load "libgauche-gl")
 
-;; utilities
+;;-------------------------------------------------------------------
+;; <gl-boolean-vector> stuff
+;;
+
+(define-method ref ((vec <gl-boolean-vector>) k . maybe-default)
+  (apply gl-boolean-vector-ref vec k maybe-default))
+
+(define-method (setter ref) ((vec <gl-boolean-vector>) k value)
+  (gl-boolean-vector-set! vec k value))
+
+(define-method call-with-iterator ((vec <gl-boolean-vector>) proc . args)
+  (let ((len (gl-boolean-vector-length vec))
+        (i   (get-keyword :start args 0)))
+    (proc (cut >= i len)
+          (lambda () (begin0 (gl-boolean-vector-ref vec i) (inc! i))))))
+
+(define-method call-with-builder ((vec <gl-boolean-vector-meta>) proc . args)
+  (let ((size (get-keyword :size args #f)))
+    (if size
+      (let ((v (make-gl-boolean-vector size))
+            (i 0))
+        (proc (lambda (item)
+                (when (< i size)
+                  (gl-boolean-vector-set! v i item)
+                  (inc! i)))
+              (lambda () v)))
+      (let ((q (make-queue)))
+        (proc (cut enqueue! q <>)
+              (cut list->gl-boolean-vector (dequeue-all! q)))))))
+
+(define-method size-of ((vec <gl-boolean-vector>))
+  (gl-boolean-vector-length vec))
+
+(define-reader-ctor '<gl-boolean-vector> gl-boolean-vector)
+
+;;-------------------------------------------------------------------
+;; Utilities
+;;
 
 (define-syntax gl-begin*
   (syntax-rules ()

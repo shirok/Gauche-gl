@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.34 2004-08-22 10:33:50 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.35 2005-06-05 11:53:40 shirok Exp $
 ;;;
 
 "
@@ -35,6 +35,62 @@
   "SCM_U32VECTORP" "SCM_U32VECTOR")
 (define-type <f32vector> "ScmF32Vector*" "f32vector"
   "SCM_F32VECTORP" "SCM_F32VECTOR")
+(define-type <gl-boolean-vector> "ScmGLBooleanVector*" "GL boolean vector"
+  "SCM_GL_BOOLEAN_VECTOR_P" "SCM_GL_BOOLEAN_VECTOR")
+
+;;=============================================================
+;; <gl-boolean-vector> stuff
+;;
+
+(define-cproc list->gl-boolean-vector (lis)
+  (return "Scm_ListToGLBooleanVector"))
+
+(define-cproc gl-boolean-vector (&rest lis)
+  (return "Scm_ListToGLBooleanVector"))
+
+(define-cproc gl-boolean-vector? (obj)
+  (return <boolean> "SCM_GL_BOOLEAN_VECTOR_P"))
+
+(define-cproc make-gl-boolean-vector (size::<uint>
+                                      &optional (init::<boolean> #f))
+  (return "Scm_MakeGLBooleanVector"))
+
+(define-cproc gl-boolean-vector-copy (bv::<gl-boolean-vector>)
+  "SCM_RETURN(Scm_MakeGLBooleanVectorFromArray(bv->size, bv->elements));")
+
+(define-cproc gl-boolean-vector-ref (bv::<gl-boolean-vector>
+                                     k::<int>
+                                     &optional fallback)
+  "if (k < 0 || k >= bv->size) {
+    if (SCM_UNBOUNDP(fallback)) {
+      Scm_Error(\"argument out of bound: %d\", k);
+    } else {
+      SCM_RETURN(fallback);
+    }
+  } else {
+    SCM_RETURN(SCM_MAKE_BOOL(bv->elements[k]));
+  }")
+
+(define-cproc gl-boolean-vector-set! (bv::<gl-boolean-vector>
+                                      k::<int>
+                                      value)
+  "if (k < 0 || k >= bv->size) {
+    Scm_Error(\"argument out of bound: %d\", k);
+  } else {
+    bv->elements[k] = SCM_FALSEP(value)? GL_FALSE : GL_TRUE;
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-boolean-vector-length (bv::<gl-boolean-vector>)
+  "SCM_RETURN(SCM_MAKE_INT(bv->size));")
+
+(define-cproc gl-boolean-vector-fill! (bv::<gl-boolean-vector> fill)
+  "int i;
+  GLboolean val = SCM_FALSEP(fill)? GL_FALSE : GL_TRUE;
+  for (i=0; i<bv->size; i++) {
+    bv->elements[i] = val;
+  }
+  SCM_RETURN(SCM_OBJ(bv));")
 
 ;;=============================================================
 ;; Miscellaneous
@@ -94,10 +150,13 @@
   glPolygonStipple(SCM_U8VECTOR_ELEMENTS(mask));
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-edge-flag (flag::<boolean>)
-  (return <void> "glEdgeFlag"))
-
-;; glEdgeFlagv
+(define-cproc gl-edge-flag (flag)
+  "if (SCM_GL_BOOLEAN_VECTOR_P(flag)) {
+     glEdgeFlagv(SCM_GL_BOOLEAN_VECTOR(flag)->elements);
+   } else {
+     glEdgeFlag(!SCM_FALSEP(flag));
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-scissor (x::<int> y::<int> width::<int> height::<int>)
   (return <void> "glScissor"))
@@ -146,21 +205,22 @@
   if (vsize == 1) {
     GLboolean b;
     glGetBooleanv((GLenum)state, &b);
-    SCM_RETURN(SCM_MAKE_INT(b));
+    SCM_RETURN(SCM_MAKE_BOOL(b));
   } else {
-    ScmU8Vector *v = SCM_U8VECTOR(Scm_MakeU8Vector(vsize, 0));
-    glGetBooleanv((GLenum)state, SCM_U8VECTOR_ELEMENTS(v));
-    SCM_RETURN(SCM_OBJ(v));
+    ScmObj v = Scm_MakeGLBooleanVector(vsize, GL_FALSE);
+    glGetBooleanv((GLenum)state, SCM_GL_BOOLEAN_VECTOR(v)->elements);
+    SCM_RETURN(v);
   }")
 
 (define-cproc gl-get-boolean! (vec state::<fixnum>)
   "int vsize;
-  if (!SCM_U8VECTORP(vec)) Scm_Error(\"u8vector required, but got %S\", vec);
+  if (!SCM_GL_BOOLEAN_VECTOR_P(vec))
+     Scm_Error(\"gl-boolean-vector required, but got %S\", vec);
   vsize = Scm_GLStateInfoSize(state);
-  if (vsize != SCM_U8VECTOR_SIZE(vec))
+  if (vsize != SCM_GL_BOOLEAN_VECTOR_SIZE(vec))
     Scm_Error(\"state %x needs a vector of size %d, but got %S\",
                state, vsize, vec);
-  glGetBooleanv((GLenum)state, SCM_U8VECTOR_ELEMENTS(vec));
+  glGetBooleanv((GLenum)state, SCM_GL_BOOLEAN_VECTOR(vec)->elements);
   SCM_RETURN(SCM_OBJ(vec));")
 
 (define-cproc gl-get-integer (state::<fixnum>)

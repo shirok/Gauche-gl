@@ -1,3 +1,18 @@
+2005-06-05  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-gl.h, src/gauche-gl.c, src/gl-lib.stub, lib/gl.scm:
+	  Added <gl-boolean-vector> type to represent GLboolean[].
+	  Changed gl-get-boolean(!) to deal with <gl-boolean-vector>
+	  rather than <u8vector>.  THIS IS AN INCOMPATIBLE CHANGE.
+	  Note that a single value return of gl-get-boolean also changed
+	  to return a boolean value rather than an integer.
+	* doc/gauche-gl-ref.texi: adding more stuff.
+
+2005-06-04  Shiro Kawai  <shiro@acm.org>
+
+	* lib/gl.scm : added gl-extension-supported?, gl-version<?, etc.
+	* lib/gl/util.scm : removed.
+
 2005-06-02  Shiro Kawai  <shiro@acm.org>
 
 	* src/glext-lib.stub : added more bindings on vertex attributes.

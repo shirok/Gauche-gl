@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.13 2004-08-21 10:32:45 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.14 2005-06-05 11:53:40 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -73,10 +73,9 @@ It provides the following modules:
 @table @code
 @item gl
 The module that provides bindings to OpenGL API.
-It covers almost all functions in OpenGL 1.2,
-and most functions in GLU.
-The functions are described in @ref{OpenGL API} and
-@ref{GLU API}.
+It covers almost all functions in OpenGL 1.0 through 1.5 and 2.0,
+registered vendor extensions, and most functions in GLU.
+The functions are described in @ref{OpenGL API} and @ref{GLU API}.
 @item gl.glut
 The module that provides bindings to most functions in GLUT.
 The functions are described in @ref{GLUT API}.
@@ -97,7 +96,7 @@ Installing Gauche-gl is usually straightforward on Unix variants.
 You have to have the following programs installed on your machine.
 @itemize @bullet
 @item
-Gauche 0.7.3 or later
+Gauche 0.8.4 or later
 @item
 OpenGL 1.1 equivalent library; the auther checked with Mesa 3.4
 and NVidia's GLX driver.
@@ -136,11 +135,12 @@ don't call make-thread in your program.
 
 @menu
 * GL calls in Scheme::          
+* Advanced GL features::        
 * Using GLUT::                  
 * Performance tips::            
 @end menu
 
-@node GL calls in Scheme, Using GLUT, Getting Started, Getting Started
+@node GL calls in Scheme, Advanced GL features, Getting Started, Getting Started
 @section GL calls in Scheme
 
 I assume you have basic knowledge of OpenGL API.
@@ -229,15 +229,43 @@ They are efficient since calculations on those types are
 defined natively in @code{gl.math3d}, and passing it to GL call
 doesn't cost unboxing.
 
-Variables @code{GL_VERSION_1_1}, @code{GL_VERSION_1_2} and
-@code{GL_VERSION_1_3}
-may be defined and bound to #t if the platform on which
-Gauche-gl is compiled supports OpenGL version 1.1, 1.2 or
-1.3, respectively.  You can use @code{symbol-bound?} to check these
-variables are bound.   You can also use @code{symbol-bound?} to
-check the existence of extensions, such as @code{GL_ARB_multitexture}.
+@node Advanced GL features, Using GLUT, GL calls in Scheme, Getting Started
+@section Advanced GL features
 
-@node Using GLUT, Performance tips, GL calls in Scheme, Getting Started
+Although Gauche-gl supports up to OpenGL 2.0, all functionalities
+may not be available on the target machine's driver/hardware.
+The application needs to check the availability of the extension
+and/or GL version before using the features that are only supported
+by the extension/version.
+
+Gauche-gl provides a couple of utility procedures to check the
+feature sets at runtime.
+For example, you can switch behavior depending on OpenGL 1.3 feature
+availability:
+
+@example
+(if (gl-version>=? "1.3")
+  (code-using-features-available-in-OpenGL-1.3-and-later ...)
+  (alternative-code ...))
+@end example
+
+Or you can check the availability of extensions:
+
+@example
+(unless (gl-extension-supported? 'GL_ARB_shader_objects
+                                 'GL_ARB_fragment_shader
+                                 'GL_ARB_vertex_shader
+                                 'GL_ARB_shading_language_100)
+   (error "OpenGL Shading Language extensions not available"))
+@end example
+
+See @ref{GL feature checking} for the details.
+
+If the client program calls a GL API that are not supported on
+the platform, an error is signalled.
+
+
+@node Using GLUT, Performance tips, Advanced GL features, Getting Started
 @section Using GLUT
 
 In order to make a runnable script, you need to use some
@@ -349,22 +377,21 @@ fast, and the latter handles complicated logic).
 @node OpenGL API, GLU API, Getting Started, Top
 @chapter OpenGL API
 
-In this chapter we list a OpenGL procedures accessible from
+In this chapter we list a GL and GLU procedures accessible from
 Gauche-gl, with brief descriptions to help programmers
 to remind what the functions are.  We don't intend to make
 this an OpenGL reference, though; you should look at the OpenGL book
 for the details of what each API do.
 
-The following sections follow the structure of
-the gl.h header file.
-
 @menu
-* Miscellaneous functions::     
+* GL data types::               
+* GL feature checking::         
+* Drawing functions::           
+* GL state control::            
 * GL states::                   
 * Depth buffer and accumulation buffer::  
 * Transformation::              
 * Display lists::               
-* Drawing functions::           
 * Vertex arrays::               
 * Lighting::                    
 * Raster functions::            
@@ -375,11 +402,169 @@ the gl.h header file.
 * Color operations::            
 @end menu
 
-@node Miscellaneous functions, GL states, OpenGL API, OpenGL API
-@section Miscellaneous functions
+@node GL data types, GL feature checking, OpenGL API, OpenGL API
+@section GL data types
 
-@defun gl-clear-index c
-@var{c} must be a real number.
+GL doesn't define many data structures: some scalar primitives (e.g.
+@code{GLint}) and arrays of them.
+
+For scalar values, Gauche-gl has natural mappings:
+@table @code
+@item GLboolean
+Scheme booleans.
+@item GLbyte, GLubyte, GLshort, GLushort, GLint, GLuint, GLenum, GLbitfield
+Scheme exact integers.
+@item GLfloat, GLdouble, GLclampf, GLclampd
+Scheme real numbers.
+@end table
+
+
+For arrays, Gauche-gl uses uniform (srfi-4) vector whenever possible.
+For float arrays, however, Gauche-gl allows more structured types,
+such as points or matrices, when they are relevant.  Such types are provided
+in @code{gl.math3d} module (see @ref{Vectors and matrices}),
+which also provides common arithmetics between those types.
+Another exception is an array of GLboolean---it doesn't have corresponding
+uniform vector representation.  Gauche-gl defines a new type,
+@code{<gl-boolean-vector>}, to represent an array of GLboolean.
+See below for operations provided on it.
+
+@table @code
+@item GLbyte[]
+@code{<s8vector>}
+@item GLubyte[]
+@code{<u8vector>}
+@item GLshort[]
+@code{<s16vector>}
+@item GLushort[]
+@code{<u16vector>}
+@item GLint[]
+@code{<s32vector>}
+@item GLuint[]
+@code{<u32vector>}
+@item GLfloat[], GLclampf[]
+@code{<f32vector>}, @code{<point4f>}, @code{<vector-4f>},
+@code{<point4f-array>}, @code{<vector4f-array>},
+@code{<matrix4f>}, @code{<quatf>}.
+@item GLdouble[], GLclampd[]
+@code{<f64vector>}
+@item GLboolean[]
+@code{<gl-boolean-vector>}
+@end table
+
+@subheading GL boolean vectors
+
+@deftp {Class} <gl-boolean-vector>
+@end deftp
+
+@defun make-gl-boolean-vector size &optional init
+@end defun
+
+@defun gl-boolean-vector bool @dots{}
+@end defun
+
+@defun gl-boolean-vector? obj
+@end defun
+
+@defun gl-boolean-vector-length v
+@end defun
+
+@defun gl-boolean-vector-fill! v bool
+@end defun
+
+@defun list->gl-boolean-vector bools
+@end defun
+
+@defun gl-boolean-vector-ref v k &optional fallback
+@end defun
+
+@defun gl-boolean-vector-set! v k bool
+@end defun
+
+@defun gl-boolean-vector-copy v
+@end defun
+
+@deftp {Reader syntax} #,(<gl-boolean-vector> bool @dots{})
+@end deftp
+
+
+@node GL feature checking, Drawing functions, GL data types, OpenGL API
+@section GL feature checking
+
+If you want to use a feature that are in OpenGL 1.2 or later, or
+in a GL extension, you have to check its availability before
+actually calling the API function.  You can use the following
+utility procedures.
+
+Note that those functions may return @code{#f} if the connection
+to the display subsystem isn't established yet.  Usually you have
+to initialize and open an window before checking the features.
+
+@defun gl-extension-available? extension-name @dots{}
+Returns @code{#t} if GL extensions listed in @var{extension-name} @dots{}
+are all available.  @var{Extension-name} can be a symbol or
+a string (e.g. @code{GL_ARB_multisample}).
+@end defun
+
+@defun gl-version<? version
+@defunx gl-version<=? version
+@defunx gl-version>? version
+@defunx gl-version>=? version
+@defunx gl-version=? version
+Returns @code{#t} if the runtime OpenGL version is less than,
+less thanor equal to, greater than, greater than or equal to,
+and equal to, the given @var{version}, respectively.
+
+Give @var{version} in a string, e.g. @code{"1.3"}.
+@end defun
+
+@node Drawing functions, GL state control, GL feature checking, OpenGL API
+@section Drawing functions
+
+@defmac gl-begin* mode gl-commands @dots{}
+@vrindex GL_POINTS
+@vrindex GL_LINES
+@vrindex GL_LINE_STRIP
+@vrindex GL_LINE_LOOP
+@vrindex GL_TRIANGLES
+@vrindex GL_TRIANGLE_STRIP
+@vrindex GL_TRIANGLE_FAN
+@vrindex GL_QUADS
+@vrindex GL_QUAD_STRIP
+@vrindex GL_POLYGON
+
+Executes @var{gl-commands} between @code{(gl-begin @var{mode})} and
+@code{(gl-end)}.  @var{Mode} can be one of the following constants.
+
+@table @code
+@item GL_POINTS
+Individual points.
+@item GL_LINES
+Pairs of vertices interpreted as individual line segments.
+@item GL_LINE_STRIP
+Series of connected line segments.
+@item GL_LINE_LOOP
+Same as above, with a segment added between last and first vertices.
+@item GL_TRIANGLES
+Triples of vertices interpreted as triangles.
+@item GL_TRIANGLE_STRIP
+Linked trip of triangles.
+@item GL_TRIANGLE_FAN
+Linked fan of triangles.
+@item GL_QUADS
+Quadruples of vertices interpreted as four-sided polygons.
+@item GL_QUAD_STRIP
+Linked strip of quadrilaterals.
+@item GL_POLYGON
+Boundary of a simple, convex polygon.
+@end table
+
+@end defmac
+
+@defun gl-begin mode
+@defunx gl-end
+Corresponds to @code{glBegin} and @code{glEnd}.
+Use of @code{gl-begin*} macro is recommended, though.
 @end defun
 
 @defun gl-clear-color r g b a
@@ -392,12 +577,330 @@ Each color value sould be a real number, and is clamped to
 Clears the specified buffer.   @var{Mask} is a logical-or of
 the following constants.
 
-@defvr {Constant} GL_COLOR_BUFFER_BIT
-@defvrx {Constant} GL_DEPTH_BUFFER_BIT
-@defvrx {Constant} GL_ACCUM_BUFFER_BIT
-@defvrx {Constant} GL_STENCIL_BUFFER_BIT
-@end defvr
+@table @code
+@item GL_COLOR_BUFFER_BIT
+@item GL_DEPTH_BUFFER_BIT
+@item GL_ACCUM_BUFFER_BIT
+@item GL_STENCIL_BUFFER_BIT
+@end table
 
+@end defun
+
+@defun gl-flush
+Flush the GL command buffer.
+@end defun
+
+@defun gl-finish
+Make sure all previously issued GL commands are completed.
+@end defun
+
+@defun gl-rect point1 point2
+@defunx gl-rect x1 y1 x2 y2
+Draws a rectangle.  In the first form,
+@var{point1} and @var{point2} can be either
+@code{<point4f>}, or f32, f64, s32, or s16vector of
+length 2.   Types of both args should match.  
+In the second form, all args should be a real numbers (@code{glRectd} is used).
+@end defun
+
+@defun gl-vertex point
+@defunx gl-vertex x y &optional z w
+Specify vertices.  In the first form, @var{point} can be
+either @code{<point4f>}, or f32, f64, s32 or s16vector
+of length 2, 3 or 4.
+In the second form, all args should be a real numbers.
+@end defun
+
+@defun gl-normal vector
+@defunx gl-normal x y z
+Sets vertex normal vector.  In the first form, @var{vector} can be
+either @code{<vector4f>} (the fourth element is ignored),
+or f32, f64, s32 ro s16vector of length 3.
+In the second form, all args should be a real numbers.
+@end defun
+
+@defun gl-color color
+@defunx gl-color r g b &optional a
+Sets the current color.  In the first form, @var{color} can be
+either f32, f64, u8, u16, u32, s8, s16, or s32vector of length 3 or 4.
+In the second form, all args should be a real numbers.
+@end defun
+
+@defun gl-tex-coord coord
+@defunx gl-tex-coord u v &optional s t
+Sets the current texture coordinates.  In the first form,
+@var{coord} can be either f32, f64, s32 or s16vector of length
+1, 2, 3, or 4.  In the second form, all args should be a real numbers.
+@end defun
+
+@defun gl-raster-pos pos
+@defunx gl-raster-pos x y &optional z w
+Sets the current raster position.  In the first form,
+@var{pos} can be eitehr f32, f64, s32 or s16vector.  In the
+second form, all args should be a real numbers.
+@end defun
+
+@node GL state control, GL states, Drawing functions, OpenGL API
+@section GL state control
+
+@subsubheading Capabilities
+
+@defun gl-enable cap
+@defunx gl-disable cap
+Turns on and off a capability @var{cap}.  Check out OpenGL reference
+for the list of capabilities.
+@end defun
+
+@defun gl-is-enabled cap
+Returns @code{#t} of @code{#f} depending on @var{cap} is enabled or not.
+@end defun
+
+@defun gl-enable-client-state array
+@defunx gl-disable-client-state array
+Enable/disable a client-side array (e.g. vertex array) specified by
+@var{array}.   @var{Array} can be one of the following constants.
+
+@table @code
+@item GL_VERTEX_ARRAY
+@item GL_COLOR_ARRAY
+@item GL_INDEX_ARRAY
+@item GL_NORMAL_ARRAY
+@item GL_TEXTURE_COORD_ARRAY
+@item GL_EDGE_FLAG_ARRAY
+@end table
+
+@end defun
+
+@subsubheading State values
+
+Gauche has two variations for each type of OpenGL @code{glGetTYPE} APIs;
+nondestructive version and destructive versions.  Nondestructive versions
+such as @code{gl-get-boolean} allocates and returns the vector of
+appropriate type for the state.  For destructive versions such as
+@code{gl-get-boolean!}, you need to pass a vector to be filled in.
+
+The destructive version is non-allocating operation, so it is suitable
+if you call it within the drawing loop.
+
+If the state has a scalar value, the non-destructive version of
+query function returns a scalar value, but you need to pass a 
+(uniform) vector of length 1 for the destructive version.
+
+@defun gl-state-vector-size state
+[Gauche specific]
+Returns the required size of the vector to retrieve GL state @var{state}.
+It is useful to prepare the vector to pass to the destructive version
+of @code{glGetTYPE} API.
+@end defun
+
+@defun gl-get-boolean state
+@defunx gl-get-boolean! gl-boolean-vector state
+Get (a) boolean state value(s).
+@end defun
+
+@defun gl-get-integer state
+@defunx gl-get-integer! s32vector state
+Get (an) integer state value(s).
+@end defun
+
+@defun gl-get-float state
+@defunx gl-get-float! f32vector state
+Get (a) single-precision floating-point state value(s).
+@end defun
+
+@defun gl-get-double state
+@defunx gl-get-double! f64vector state
+Get (a) double-precision floating-point state value(s).
+@end defun
+
+@subsubheading Push/pop attributes
+
+@defun gl-push-attrib mask
+@defunx gl-pop-attrib
+Push/pop attributes indicated by @var{mask}.
+Valid @var{mask} can be @code{logior} of the following bits
+(GLL_ALL_ATTRIB_BITS is @code{logior} of all the bits).
+
+@table @code
+@item GL_ACCUM_BUFFER_BIT
+@item GL_COLOR_BUFFER_BIT
+@item GL_CURRENT_BIT
+@item GL_DEPTH_BUFFER_BIT
+@item GL_ENABLE_BIT
+@item GL_EVAL_BIT
+@item GL_FOG_BIT
+@item GL_HINT_BIT
+@item GL_LIGHTING_BIT
+@item GL_LINE_BIT
+@item GL_LIST_BIT
+@item GL_PIXEL_MODE_BIT
+@item GL_POINT_BIT
+@item GL_POLYGON_BIT
+@item GL_POLYGON_STIPPLE_BIT
+@item GL_SCISSOR_BIT
+@item GL_STENCIL_BUFFER_BIT
+@item GL_TEXTURE_BIT
+@item GL_TRANSFORM_BIT
+@item GL_VIEWPORT_BIT
+@item GL_ALL_ATTRIB_BITS
+All of the above.
+@end table
+@end defun
+
+@defun gl-push-client-attrib mask
+@defunx gl-pop-client-attrib 
+Push/pop client attributes.  Valid @var{mask} can be
+@code{logior} of the following
+
+@table @code
+@item GL_CLIENT_PIXEL_STORE_BIT
+@item GL_CLIENT_VERTEX_ARRAY_BIT
+@item GL_ALL_CLIENT_ATTRIB_BITS
+All of the above.
+@end table
+@end defun
+
+@subsubheading Other queries
+
+@defun gl-get-error
+Returns the value of the error flag.  Returned an integer value.
+Check out the OpenGL documentation for the possible error values.
+
+This function resets the error flag to @code{GL_NO_ERROR}.
+@end defun
+
+@defun glu-error-string error-code
+Returns a descriptive string for @var{error-code} returned by
+@code{gl-get-error}.
+@end defun
+
+@defun gl-get-string name
+Returns informative string about @var{name} of the GL library.
+@var{Name} can be one of the following.
+
+@table @code
+@item GL_VENDOR
+@item GL_RENDERER
+@item GL_VERSION
+@item GL_EXTENSIONS
+@end table
+
+To check a specific version or extension, you can also use
+the utility procedure @code{gl-version>?} etc.  See
+@ref{GL feature checking}.
+@end defun
+
+@defun glu-get-string name
+Returns informative string about @var{name} of the GLU library.
+@var{Name} can be one of the following.
+
+@table @code
+@item GLU_VERSION
+@item GLU_EXTENSIONS
+@end table
+@end defun
+
+@subsubheading Hints
+
+@defun gl-hint target hint
+Controls quality of @var{target} by @var{hint}.
+@var{Target} can be one of the following:
+
+@table @code
+@item GL_POINT_SMOOTH_HINT
+@item GL_LINE_SMOOTH_HINT
+@item GL_POLYGON_SMOOTH_HINT
+@item GL_FOG_HINT
+@item GL_PERSPECTIVE_CORRECTION_HINT
+@end table
+
+And @var{hint} can be one of the following:
+@table @code
+@item GL_FASTEST
+@item GL_NICEST
+@item GL_DONT_CARE
+@end table
+@end defun
+
+
+@node GL states, Depth buffer and accumulation buffer, GL state control, OpenGL API
+@section GL states
+
+@defun gl-point-size size
+Sets the width in pixels for rendered points.
+The possible range of @var{size} on the running GL implementation
+can be obtained by passing either @code{GL_ALIASED_POINT_SIZE_RANGE} or
+@code{GL_SMOOTH_POINT_SIZE_RANGE} to @code{gl-get-float}.
+@end defun
+
+@defun gl-line-width width
+Sets the width in pixels for rendered lines.
+The possible range of @var{width} on the running GL implementation
+can be obtained by passing either @code{GL_ALIASED_LINE_WIDTH_RANGE} or
+@code{GL_SMOOTH_LINE_WIDTH_RANGE} to @code{gl-get-float}.
+@end defun
+
+@defun gl-line-stipple factor pat
+Sets the current stippling pattern for lines.
+@code{pat} must be an exact integer, and its lower 16 bits are used
+to specify the stipple pattern.  @var{Factor} is an integer factor
+to specify how many pixels corresponds to one bit in @var{pat}.
+
+You have to enable @var{GL_LINE_STIPPLE} to use face culling.
+@end defun
+
+@defun gl-polygon-mode face mode
+Specifies the drawing mode for a polygon's front and back faces.
+@var{Face} can be one of the followings:
+@table @code
+@item GL_FRONT_AND_BACK
+@item GL_FRONT
+@item GL_BACK
+@end table
+
+@var{Mode} can be one of the followings:
+@table @code
+@item GL_POINT
+@item GL_LINE
+@item GL_FILL
+@end table
+@end defun
+
+@defun gl-front-face mode
+Controls how OpenGL determine front face of a polygon
+@var{Mode} can be one of the followings:
+@table @code
+@item GL_CCW
+Front face is where ordered vertices appear in a counterclockwise orientation
+(default).
+@item GL_CW
+Front face is where ordered vertices appear in a clockwise orientation.
+@end table
+@end defun
+
+@defun gl-cull-face mode
+Indicates which face of polygons should be culled.
+@var{Mode} can be one of the followings:
+@table @code
+@item GL_FRONT
+@item GL_BACK
+@item GL_FRONT_AND_BACK
+@end table
+
+You have to enable @var{GL_CULL_FACE} to use face culling.
+@end defun
+
+@defun gl-polygon-stipple mask
+Defines the current stipple pattern for filled polygons.
+@var{Mask} has to be a u8vector of length 128, specifying a 32x32 
+bitmap pattern.
+You have to enable @var{GL_POLYGON_STIPPLE} to use this feature.
+@end defun
+
+
+
+@defun gl-clear-index c
+@var{c} must be a real number.
 @end defun
 
 @defun gl-index-mask mask
@@ -415,32 +918,13 @@ the following constants.
 @defun gl-logic-op opcode
 @end defun
 
-@defun gl-cull-face mode
-@end defun
-
-@defun gl-front-face mode
-@end defun
-
-@defun gl-point-size size
-@end defun
-
-@defun gl-line-width width
-@end defun
-
-@defun gl-line-stipple factor pat
-@end defun
-
-@defun gl-polygon-mode face mode
-@end defun
-
 @defun gl-polygon-offset factor units
 [GL1.1]
 @end defun
 
-@defun gl-polygon-stipple mask
-@end defun
-
 @defun gl-edge-flag flag
+Sets the edge flag of vertices.
+
 @end defun
 
 @defun gl-scissor x y width height
@@ -456,88 +940,6 @@ the following constants.
 @end defun
 
 @defun gl-read-buffer mode
-@end defun
-
-@node GL states, Depth buffer and accumulation buffer, Miscellaneous functions, OpenGL API
-@section GL states
-
-@subsubheading Capabilities
-
-@defun gl-enable cap
-@defunx gl-disable cap
-@end defun
-
-@defun gl-is-enabled cap
-@end defun
-
-@defun gl-enable-client-state cap
-@defunx gl-disable-client-state cap
-@end defun
-
-@subsubheading State values
-
-Gauche has two variations for each type of OpenGL @code{glGetTYPE} APIs;
-nondestructive version and destructive versions.  Nondestructive versions
-such as @code{gl-get-boolean} allocates and returns the vector of
-appropriate type for the state.  For destructive versions such as
-@code{gl-get-boolean!}, you need to pass a vector to be filled in.
-
-The destructive version is non-allocating operation, so it is suitable
-if you call it within the drawing loop.
-
-@defun gl-state-vector-size state
-[Gauche specific]
-Returns the required size of the vector to retrieve GL state @var{state}.
-It is useful to prepare the vector to pass to the destructive version
-of @code{glGetTYPE} API.
-@end defun
-
-@defun gl-get-boolean state
-@defunx gl-get-boolean! vec state
-@end defun
-
-@defun gl-get-integer state
-@defunx gl-get-integer! vec state
-@end defun
-
-@defun gl-get-float state
-@defunx gl-get-float! vec state
-@end defun
-
-@defun gl-get-double state
-@defunx gl-get-double! state
-@end defun
-
-@subsubheading Attributes
-
-@defun gl-push-attrib mask
-@defunx gl-pop-attrib
-@end defun
-
-@defun gl-push-client-attrib mask
-@defunx gl-pop-client-attrib 
-@end defun
-
-@subsubheading Other states
-
-@defun gl-render-mode mode
-@end defun
-
-@defun gl-get-error
-@end defun
-
-@defun gl-get-string name
-@end defun
-
-@defun gl-flush
-Flush the GL command buffer.
-@end defun
-
-@defun gl-finish
-Make sure all previously issued GL commands are completed.
-@end defun
-
-@defun gl-hint target mode
 @end defun
 
 @node Depth buffer and accumulation buffer, Transformation, GL states, OpenGL API
@@ -598,7 +1000,7 @@ Make sure all previously issued GL commands are completed.
 @defun gl-translate x y z
 @end defun
 
-@node Display lists, Drawing functions, Transformation, OpenGL API
+@node Display lists, Vertex arrays, Transformation, OpenGL API
 @section Display lists
 
 @defun gl-is-list list-no
@@ -625,45 +1027,7 @@ Make sure all previously issued GL commands are completed.
 @defun gl-list-base base
 @end defun
 
-@node Drawing functions, Vertex arrays, Display lists, OpenGL API
-@section Drawing functions
-
-@defun gl-begin mode
-@end defun
-
-@defun gl-end
-@end defun
-
-@defun gl-vertex point
-@defunx gl-vertex x y &optional z w
-@end defun
-
-@defun gl-normal vector
-@defunx gl-normal x y z
-@end defun
-
-@defun gl-color color
-@defunx gl-color r g b &optional a
-@end defun
-
-@defun gl-tex-coord coord
-@defunx gl-tex-coord u v &optional s t
-@end defun
-
-@defun gl-raster-pos pos
-@defunx gl-raster-pos x y &optional z w
-@end defun
-
-@defun gl-rect point1 point2
-@defunx gl-rect x1 y1 x2 y2
-Draws a rectangle.  In the first form,
-@var{Point1} and @var{point2} can be either
-@code{<point4f>}, or f32vector, f64vector, s32vector, or s16vector of
-length 2.   Types of both args should match.  
-In the second form, all args should be areal numbers (@code{glRectd} is used).
-@end defun
-
-@node Vertex arrays, Lighting, Drawing functions, OpenGL API
+@node Vertex arrays, Lighting, Display lists, OpenGL API
 @section Vertex arrays
 
 NOTE: it is caller's responsibility to guarantee the passed vector
@@ -852,6 +1216,9 @@ so Gauche can't detect an invalid length vector.
 @end defun
 
 @defun gl-select-buffer buffer
+@end defun
+
+@defun gl-render-mode mode
 @end defun
 
 @defun gl-pass-through token

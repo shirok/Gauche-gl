@@ -12,12 +12,109 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.22 2005-06-02 00:55:49 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.23 2005-06-05 11:53:40 shirok Exp $
  */
 
 #include <gauche.h>
 #include <gauche/extend.h>
 #include "gauche-gl.h"
+
+/*
+ * GLboolean vector
+ */
+
+static void glboolvec_print(ScmObj obj, ScmPort *port, ScmWriteContext *ctx);
+static int  glboolvec_compare(ScmObj x, ScmObj y, int equalp);
+
+SCM_DEFINE_BUILTIN_CLASS(Scm_GLBooleanVectorClass, glboolvec_print,
+                         glboolvec_compare, NULL, NULL,
+                         SCM_CLASS_SEQUENCE_CPL);
+
+static ScmGLBooleanVector *glboolvec_allocate(int size,
+                                              GLboolean *elts)
+{
+    ScmGLBooleanVector *v = SCM_NEW(ScmGLBooleanVector);
+    SCM_SET_CLASS(v, SCM_CLASS_GL_BOOLEAN_VECTOR);
+    if (elts == NULL) {
+        elts = SCM_NEW_ATOMIC2(GLboolean*, size*sizeof(GLboolean));
+    }
+    v->size = size;
+    v->elements = elts;
+    return v;
+}
+
+ScmObj Scm_MakeGLBooleanVector(int size, GLboolean fill)
+{
+    int i;
+    ScmGLBooleanVector *v = glboolvec_allocate(size, NULL);
+    for (i=0; i<size; i++) {
+        v->elements[i] = fill;
+    }
+    return SCM_OBJ(v);
+}
+
+ScmObj Scm_MakeGLBooleanVectorFromArray(int size, const GLboolean arr[])
+{
+    int i;
+    ScmGLBooleanVector *v = glboolvec_allocate(size, NULL);
+    for (i=0; i<size; i++) {
+        v->elements[i] = arr[i];
+    }
+    return SCM_OBJ(v);
+}
+
+ScmObj Scm_MakeGLBooleanVectorFromArrayShared(int size, GLboolean arr[])
+{
+    int i;
+    ScmGLBooleanVector *v = glboolvec_allocate(size, arr);
+    return SCM_OBJ(v);
+}
+
+ScmObj Scm_ListToGLBooleanVector(ScmObj lis)
+{
+    int len = Scm_Length(lis), i;
+    ScmObj lp;
+    ScmGLBooleanVector *v;
+    
+    if (len < 0) Scm_Error("proper list required, but got %S", lis);
+    v = glboolvec_allocate(len, NULL);
+    i = 0;
+    SCM_FOR_EACH(lp, lis) {
+        v->elements[i++] = SCM_FALSEP(SCM_CAR(lp))? GL_FALSE : GL_TRUE;
+    }
+    return SCM_OBJ(v);
+}
+
+static void glboolvec_print(ScmObj obj, ScmPort *port, ScmWriteContext *ctx)
+{
+    ScmGLBooleanVector *v = SCM_GL_BOOLEAN_VECTOR(obj);
+    int i, size = v->size;
+    Scm_Printf(port, "#,(<gl-boolean-vector>");
+    for (i=0; i<size; i++) {
+        Scm_Printf(port, (v->elements[i]? " #t" : " #f"));
+    }
+    Scm_Printf(port, ")");
+}
+
+static int glboolvec_compare(ScmObj x, ScmObj y, int equalp)
+{
+    int i, xsize, ysize;
+    if (!equalp) {
+        Scm_Error("cannot compare <gl-boolean-vector>s: %S, %S", x, y);
+    }
+    xsize = SCM_GL_BOOLEAN_VECTOR(x)->size;
+    ysize = SCM_GL_BOOLEAN_VECTOR(y)->size;
+    if (xsize != ysize) return 1;
+    for (i=0; i<xsize; i++) {
+        if ((!SCM_GL_BOOLEAN_VECTOR(x)->elements[i])
+            !=
+            (!SCM_GL_BOOLEAN_VECTOR(y)->elements[i])) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 
 /* Utility functions */
 
@@ -316,12 +413,15 @@ void Scm_Init_libgauche_gl(void)
     ScmModule *mod;
     SCM_INIT_EXTENSION(gauche_gl);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl", TRUE));
-    Scm_InitBuiltinClass(&Scm_GluQuadricClass, "<glu-quadric>",
-                         NULL, 0, mod);
-    Scm_InitBuiltinClass(&Scm_GluNurbsClass, "<glu-nurbs>",
-                         NULL, 0, mod);
-    Scm_InitBuiltinClass(&Scm_GluTesselatorClass, "<glu-tesselator>",
-                         NULL, 0, mod);
+    Scm_InitStaticClassWithMeta(&Scm_GLBooleanVectorClass,
+                                "<gl-boolean-vector>",
+                                mod, NULL, SCM_NIL, NULL, 0);
+    Scm_InitStaticClass(&Scm_GluQuadricClass, "<glu-quadric>",
+                        mod, NULL, 0);
+    Scm_InitStaticClass(&Scm_GluNurbsClass, "<glu-nurbs>",
+                        mod, NULL, 0);
+    Scm_InitStaticClass(&Scm_GluTesselatorClass, "<glu-tesselator>",
+                        mod, NULL, 0);
 
     Scm_Init_gl_lib(mod);
     Scm_Init_gl_syms(mod);

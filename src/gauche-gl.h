@@ -12,18 +12,15 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.15 2005-06-05 11:53:40 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.16 2005-06-06 08:10:09 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
 #define GAUCHE_GL_H
 
-#define GL_GLEXT_PROTOTYPES
-
 #if MacOSX
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include <OpenGL/glext.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -33,13 +30,12 @@
 #include <GL/glx.h>
 #endif
 
-#ifdef HAVE_GL_GLEXT_H
-#include <GL/glext.h>
-#endif
 #include <gauche/uvector.h>
 #include "gauche/math3d.h"
 
-/* GL auxiliary routines */
+/*
+ * GL auxiliary routines
+ */
 
 /* get extension function pointer */
 void *Scm_GLGetProcAddress(const char *name);

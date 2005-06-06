@@ -1,5 +1,24 @@
 2005-06-05  Shiro Kawai  <shiro@acm.org>
 
+	* src/glext-api.scm: API definition of GL extension.  We no longer
+	  rely on glext.h and generate various files from this file, since
+	  we cannot count on the client's glext.h which may likely be out of
+	  date and cause so much headache.
+	
+	* src/gen-syms.scm, src/gen-ptrs.scm : from glext-api.scm, these
+	  scripts generates gl-syms.h, gl-ptrs.h and gl-syms.c, which 
+	  define all GL extension enums and function pointers.
+
+	* src/gl-syms.stub : removed, for the info is now generated
+	  from glext-api.scm.
+
+	* src/gauche-gl.c (Scm_GLGetProcAddress): wrapper of glXGetProcAddress
+	  or wglGetProcAddress.
+
+	* src/glext-lib.stub : all calls to GL extensions are now through
+	  function pointers, and ENSURE macro sets the pointer by
+	  Scm_GLGetProcAddress.
+
 	* src/gauche-gl.h, src/gauche-gl.c, src/gl-lib.stub, lib/gl.scm:
 	  Added <gl-boolean-vector> type to represent GLboolean[].
 	  Changed gl-get-boolean(!) to deal with <gl-boolean-vector>

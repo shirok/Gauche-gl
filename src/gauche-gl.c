@@ -12,12 +12,13 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.23 2005-06-05 11:53:40 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.24 2005-06-06 08:10:09 shirok Exp $
  */
 
 #include <gauche.h>
 #include <gauche/extend.h>
 #include "gauche-gl.h"
+#include "gl-syms.h"
 
 /*
  * GLboolean vector
@@ -135,8 +136,7 @@ void *Scm_GLGetProcAddress(const char *name)
         return glXGetProcAddressARB(name);
     }
 #endif /* !defined(GLX_VERSION_1_4) && !defined(GLX_ARB_get_proc_address) */
-    return NULL;
-
+    Scm_Error("GL extension %s is not supported on this platform", name);
 }
 
 /* List of numbers -> array of doubles.  Returns # of elements. */

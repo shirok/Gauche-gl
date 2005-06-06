@@ -1,6 +1,6 @@
 #
 # Makefile.in for Gauche-gl/src
-#  $Id: Makefile.in,v 1.30 2004-08-21 10:32:45 shirok Exp $
+#  $Id: Makefile.in,v 1.31 2005-06-06 08:10:09 shirok Exp $
 #
 
 # prelude ---------------------------------------------
@@ -57,7 +57,8 @@ MATHOBJS = math3d_head.$(OBJEXT) gauche-math3d.$(OBJEXT) \
            math3d-lib.$(OBJEXT) math3d_tail.$(OBJEXT)
 OBJS = $(GLOBJS) $(GLUTOBJS) $(MATHOBJS)
 CONFIG_GENERATED = Makefile config.cache config.log config.status
-GENERATED = gl-lib.c gl-syms.c glext-lib.c glu-lib.c glut-lib.c \
+GENERATED = gl-lib.c gl-syms.c gl-syms.h gl-ptrs.h \
+	    glext-lib.c glu-lib.c glut-lib.c \
             math3d-lib.c gettype-sizes.c \
             gl_head.c gl_tail.c glut_head.c glut_tail.c \
             math3d_head.c math3d_tail.c
@@ -74,13 +75,20 @@ libgauche-gl.$(SOEXT) : $(GLOBJS)
 
 math3d-lib.c : math3d-lib.stub
 gl-lib.c : gl-lib.stub
-gl-syms.c : gl-syms.stub
-glext-lib.c : glext-lib.stub
+glext-lib.c : glext-lib.stub gl-syms.h gl-ptrs.h
 glu-lib.c : glu-lib.stub
-gauche-gl.c : gettype-sizes.c
+gauche-gl.c : gettype-sizes.c gl-syms.h
+
+gl-syms.c gl-syms.h : gen-syms.scm glext-abi.scm
+	$(GOSH) ./gen-syms.scm
+
+gl-ptrs.h : gen-ptrs.scm glext-abi.scm
+	$(GOSH) ./gen-ptrs.scm
 
 gettype-sizes.c : glstate.scm
 	$(GOSH) ./glstate.scm -o gettype-sizes.c gettype
+
+
 
 $(GLOBJS) : gauche-gl.h gauche/math3d.h
 

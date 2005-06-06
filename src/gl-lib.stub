@@ -1,7 +1,7 @@
 ;;;
 ;;; gl-lib.stub - glue functions for GL
 ;;;
-;;;  Copyright(C) 2001-2004 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2001-2005 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.35 2005-06-05 11:53:40 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.36 2005-06-06 08:10:09 shirok Exp $
 ;;;
 
 "
@@ -138,10 +138,8 @@
 (define-cproc gl-polygon-mode (face::<fixnum> mode::<fixnum>)
   (return <void> "glPolygonMode"))
 
-(if "defined(GL_VERSION_1_1)"
-    (define-cproc gl-polygon-offset (factor::<float> units::<float>)
-      (return <void> "glPolygonOffset"))
-    )
+(define-cproc gl-polygon-offset (factor::<float> units::<float>)
+  (return <void> "glPolygonOffset"))
 
 (define-cproc gl-polygon-stipple (mask)
   "  if (!SCM_U8VECTORP(mask) || SCM_U8VECTOR_SIZE(mask) != 128) {
@@ -1484,32 +1482,30 @@
 (define-cproc gl-is-texture (name::<int>)
   "SCM_RETURN(SCM_MAKE_INT(glIsTexture(name)));")
 
-(if "defined(GL_VERSION_1_1)"
-    (define-cproc gl-tex-sub-image-1d (target::<fixnum> level::<fixnum>
-                                       xoffset::<fixnum> width::<fixnum>
-                                       format::<fixnum> type::<fixnum>
-                                       texels)
-      "int elttype, size; void *texelptr;
-       size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, NULL);
-       texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-       if (texelptr) {
-         glTexSubImage1D(target, level, xoffset, width, format, type, texelptr);
-       }
-       SCM_RETURN(SCM_UNDEFINED);"))
+(define-cproc gl-tex-sub-image-1d (target::<fixnum> level::<fixnum>
+                                   xoffset::<fixnum> width::<fixnum>
+                                   format::<fixnum> type::<fixnum>
+                                   texels)
+  "int elttype, size; void *texelptr;
+   size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, NULL);
+   texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
+   if (texelptr) {
+     glTexSubImage1D(target, level, xoffset, width, format, type, texelptr);
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
 
-(if "defined(GL_VERSION_1_1)"
-    (define-cproc gl-tex-sub-image-2d (target::<fixnum> level::<fixnum>
-                                       xoffset::<fixnum> yoffset::<fixnum>
-                                       width::<fixnum> height::<fixnum>
-                                       format::<fixnum> type::<fixnum>
-                                       texels)
-      "int elttype, size; void *texelptr;
-       size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
-       texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-       if (texelptr) {
-         glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, texelptr);
-       }
-       SCM_RETURN(SCM_UNDEFINED);"))
+(define-cproc gl-tex-sub-image-2d (target::<fixnum> level::<fixnum>
+                                   xoffset::<fixnum> yoffset::<fixnum>
+                                   width::<fixnum> height::<fixnum>
+                                   format::<fixnum> type::<fixnum>
+                                   texels)
+  "int elttype, size; void *texelptr;
+   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
+   texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
+   if (texelptr) {
+     glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, texelptr);
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-copy-tex-image-1d (target::<fixnum> level::<fixnum>
                                     internal-format::<fixnum>
@@ -1524,56 +1520,16 @@
                                     border::<fixnum>)
   (return <void> "glCopyTexImage2D"))
 
-(if "defined(GL_VERSION_1_1)"
-    (define-cproc gl-copy-tex-sub-image-1d (target::<fixnum> level::<fixnum>
-                                            xoffset::<fixnum> x::<fixnum>
-                                            y::<fixnum> width::<fixnum>)
-      (return <void> "glCopyTexSubImage1D")))
+(define-cproc gl-copy-tex-sub-image-1d (target::<fixnum> level::<fixnum>
+                                        xoffset::<fixnum> x::<fixnum>
+                                        y::<fixnum> width::<fixnum>)
+  (return <void> "glCopyTexSubImage1D"))
 
-(if "defined(GL_VERSION_1_1)"
-    (define-cproc gl-copy-tex-sub-image-2d (target::<fixnum> level::<fixnum>
-                                            xoffset::<fixnum> yoffset::<fixnum>
-                                            x::<fixnum> y::<fixnum>
-                                            width::<fixnum> height::<fixnum>)
-      (return <void> "glCopyTexSubImage2D")))
-
-;; 3D textures
-(if "defined(GL_VERSION_1_2)&&defined(GL_TEXTURE_3D)"
-    (begin
-      (define-cproc gl-tex-image-3d (target::<fixnum> level::<fixnum>
-                                     internal-format::<fixnum>
-                                     width::<fixnum> height::<fixnum>
-                                     depth::<fixnum> border::<fixnum>
-                                     format::<fixnum> type::<fixnum>
-                                     texels)
-        "int elttype, size; void *texelptr;
-         size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
-         texelptr = Scm_GLPixelDataCheck(texels, elttype, size*depth);
-         if (texelptr) {
-           glTexImage3D(target, level, internal_format, width, height, depth, border, format, type, texelptr);
-         }
-         SCM_RETURN(SCM_UNDEFINED);")
-      (define-cproc gl-tex-sub-image-3d (target::<fixnum> level::<fixnum>
-                                         xoffset::<fixnum> yoffset::<fixnum>
-                                         zoffset::<fixnum>
-                                         width::<fixnum> height::<fixnum>
-                                         depth::<fixnum>
-                                         format::<fixnum> type::<fixnum>
-                                         texels)
-        "int elttype, size; void *texelptr;
-         size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
-         texelptr = Scm_GLPixelDataCheck(texels, elttype, size*depth);
-         if (texelptr) {
-           glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, texelptr);
-         }
-         SCM_RETURN(SCM_UNDEFINED);")
-      (define-cproc gl-copy-tex-sub-image-3d (target::<fixnum> level::<fixnum>
-                                              xoffset::<fixnum> yoffset::<fixnum>
-                                              zoffset::<fixnum>
-                                              x::<fixnum> y::<fixnum>
-                                              width::<fixnum> height::<fixnum>)
-        (return <void> "glCopyTexSubImage3D"))
-      ))
+(define-cproc gl-copy-tex-sub-image-2d (target::<fixnum> level::<fixnum>
+                                        xoffset::<fixnum> yoffset::<fixnum>
+                                        x::<fixnum> y::<fixnum>
+                                        width::<fixnum> height::<fixnum>)
+  (return <void> "glCopyTexSubImage2D"))
 
 ;;=============================================================
 ;; Evaluators
@@ -1653,96 +1609,6 @@
 
 (define-cproc gl-pop-name ()
   (return <void> "glPopName"))
-
-;;=============================================================
-;; GL 1.2 functions
-;;
-
-(if "defined(GL_VERSION_1_2)" (begin
-
-; gl-draw-range-elements
-; gl-tex-image-3d
-; gl-tex-sub-image-3d
-; gl-copy-tex-sub-image-3d
-
-(define-cproc gl-color-table (target::<fixnum> internal-format::<fixnum>
-                              width::<int> format::<int> type::<int>
-                              data)
-  "int elttype, size, packed;
-   size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, &packed);
-   glColorTable(target, internal_format, width, format, type,
-                Scm_GLPixelDataCheck(data, elttype, size));
-  SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc gl-color-sub-table (target::<fixnum> start::<int> count::<int>
-                                  format::<int> type::<int>
-                                  data)
-  "int elttype, size, packed;
-   size = Scm_GLPixelDataSize(count, 1, format, type, &elttype, &packed);
-   glColorSubTable(target, start, count, format, type,
-                   Scm_GLPixelDataCheck(data, elttype, size));
-  SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc gl-color-table-parameter (target::<fixnum> pname::<fixnum>
-                                        param)
-  "if (SCM_F32VECTORP(param)) {
-    if (SCM_F32VECTOR_SIZE(param) != 4) goto err;
-    glColorTableParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
-  } else if (SCM_S32VECTORP(param)) {
-    if (SCM_S32VECTOR_SIZE(param) != 4) goto err;
-    glColorTableParameteriv(target, pname, SCM_S32VECTOR_ELEMENTS(param));
-  } else goto err;
-  SCM_RETURN(SCM_UNDEFINED);
- err:
-  Scm_Error(\"f32 or s32 vector of size 4 required, but got %S\", param);
-  SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc gl-copy-color-sub-table (target::<fixnum> start::<fixnum>
-                                       x::<int> y::<int> width::<int>)
-  (return <void> "glCopyColorSubTable"))
-
-(define-cproc gl-copy-color-table (target::<fixnum> internal-format::<fixnum>
-                                   x::<int> y::<int> width::<int>)
-  (return <void> "glCopyColorTable"))
-
-; gl-get-color-table
-; gl-get-color-table-parameter
-
-(define-cproc gl-blend-equation (mode::<fixnum>)
-  (return <void> "glBlendEquation"))
-
-(define-cproc gl-blend-color (red::<float> green::<float> blue::<float> alpha::<float>)
-  (return <void> "glBlendColor"))
-
-(define-cproc gl-histogram (target::<fixnum> width::<int> internal-format::<fixnum> sink::<boolean>)
-  (return <void> "glHistogram"))
-
-(define-cproc gl-reset-histogram (target::<fixnum>)
-  (return <void> "glResetHistogram"))
-
-; gl-get-histogram
-
-; gl-get-histogram-parameter
-
-(define-cproc gl-minmax (target::<fixnum> internal-format::<fixnum> sink::<boolean>)
-  (return <void> "glMinmax"))
-
-(define-cproc gl-reset-minmax (target::<fixnum>)
-  (return <void> "glResetMinmax"))
-
-; gl-get-minmax
-; gl-get-minmax-parameter
-; gl-convolution-filter-1d
-; gl-convolution-filter-2d
-; gl-convolution-parameter
-; gl-copy-convolution-filter-1d
-; gl-copy-convolution-filter-2d
-; gl-get-convolution-filter
-; gl-get-convolution-parameter
-; gl-separable-filter-2d
-; gl-get-separable-filter
-
-)) ;; end defined(GL_VERSION_1_2)
 
 ;; Local variables:
 ;; mode: scheme

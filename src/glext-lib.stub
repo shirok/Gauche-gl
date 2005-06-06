@@ -12,11 +12,13 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.8 2005-06-03 06:50:50 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.9 2005-06-06 08:10:10 shirok Exp $
 ;;;
 
 "
 #include \"gauche-gl.h\"
+#include \"gl-syms.h\"
+#include \"gl-ptrs.h\"
 "
 
 "#define CHECK_ERROR(msg__)                            \\
@@ -44,369 +46,257 @@
   "SCM_F32VECTORP" "SCM_F32VECTOR")
 
 ;;=============================================================
-;; GL_ARB_imaging
+;; GL 1.2
 ;;
 
-(if "defined(GL_ARB_imaging)" (begin
+(define-cproc gl-tex-image-3d (target::<fixnum> level::<fixnum>
+                               internal-format::<fixnum>
+                               width::<fixnum> height::<fixnum>
+                               depth::<fixnum> border::<fixnum>
+                               format::<fixnum> type::<fixnum>
+                               texels)
+  "int elttype, size; void *texelptr;
+   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
+   texelptr = Scm_GLPixelDataCheck(texels, elttype, size*depth);
+   if (texelptr) {
+     ENSURE(glTexImage3D);
+     glTexImage3D(target, level, internal_format, width, height, depth, border, format, type, texelptr);
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-constant GL_ARB_imaging #t)
+(define-cproc gl-tex-sub-image-3d (target::<fixnum> level::<fixnum>
+                                   xoffset::<fixnum> yoffset::<fixnum>
+                                   zoffset::<fixnum>
+                                   width::<fixnum> height::<fixnum>
+                                   depth::<fixnum>
+                                   format::<fixnum> type::<fixnum>
+                                   texels)
+  "int elttype, size; void *texelptr;
+   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
+   texelptr = Scm_GLPixelDataCheck(texels, elttype, size*depth);
+   if (texelptr) {
+     ENSURE(glTexSubImage3D);
+     glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, texelptr);
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-enum GL_CONSTANT_COLOR)
-(define-enum GL_ONE_MINUS_CONSTANT_COLOR)
-(define-enum GL_CONSTANT_ALPHA)
-(define-enum GL_ONE_MINUS_CONSTANT_ALPHA)
-(define-enum GL_BLEND_COLOR)
-(define-enum GL_FUNC_ADD)
-(define-enum GL_MIN)
-(define-enum GL_MAX)
-(define-enum GL_BLEND_EQUATION)
-(define-enum GL_FUNC_SUBTRACT)
-(define-enum GL_FUNC_REVERSE_SUBTRACT)
-(define-enum GL_CONVOLUTION_1D)
-(define-enum GL_CONVOLUTION_2D)
-(define-enum GL_SEPARABLE_2D)
-(define-enum GL_CONVOLUTION_BORDER_MODE)
-(define-enum GL_CONVOLUTION_FILTER_SCALE)
-(define-enum GL_CONVOLUTION_FILTER_BIAS)
-(define-enum GL_REDUCE)
-(define-enum GL_CONVOLUTION_FORMAT)
-(define-enum GL_CONVOLUTION_WIDTH)
-(define-enum GL_CONVOLUTION_HEIGHT)
-(define-enum GL_MAX_CONVOLUTION_WIDTH)
-(define-enum GL_MAX_CONVOLUTION_HEIGHT)
-(define-enum GL_POST_CONVOLUTION_RED_SCALE)
-(define-enum GL_POST_CONVOLUTION_GREEN_SCALE)
-(define-enum GL_POST_CONVOLUTION_BLUE_SCALE)
-(define-enum GL_POST_CONVOLUTION_ALPHA_SCALE)
-(define-enum GL_POST_CONVOLUTION_RED_BIAS)
-(define-enum GL_POST_CONVOLUTION_GREEN_BIAS)
-(define-enum GL_POST_CONVOLUTION_BLUE_BIAS)
-(define-enum GL_POST_CONVOLUTION_ALPHA_BIAS)
-(define-enum GL_HISTOGRAM)
-(define-enum GL_PROXY_HISTOGRAM)
-(define-enum GL_HISTOGRAM_WIDTH)
-(define-enum GL_HISTOGRAM_FORMAT)
-(define-enum GL_HISTOGRAM_RED_SIZE)
-(define-enum GL_HISTOGRAM_GREEN_SIZE)
-(define-enum GL_HISTOGRAM_BLUE_SIZE)
-(define-enum GL_HISTOGRAM_ALPHA_SIZE)
-(define-enum GL_HISTOGRAM_LUMINANCE_SIZE)
-(define-enum GL_HISTOGRAM_SINK)
-(define-enum GL_MINMAX)
-(define-enum GL_MINMAX_FORMAT)
-(define-enum GL_MINMAX_SINK)
-(define-enum GL_TABLE_TOO_LARGE)
-(define-enum GL_COLOR_MATRIX)
-(define-enum GL_COLOR_MATRIX_STACK_DEPTH)
-(define-enum GL_MAX_COLOR_MATRIX_STACK_DEPTH)
-(define-enum GL_POST_COLOR_MATRIX_RED_SCALE)
-(define-enum GL_POST_COLOR_MATRIX_GREEN_SCALE)
-(define-enum GL_POST_COLOR_MATRIX_BLUE_SCALE)
-(define-enum GL_POST_COLOR_MATRIX_ALPHA_SCALE)
-(define-enum GL_POST_COLOR_MATRIX_RED_BIAS)
-(define-enum GL_POST_COLOR_MATRIX_GREEN_BIAS)
-(define-enum GL_POST_COLOR_MATRIX_BLUE_BIAS)
-(define-enum GL_POST_COLOR_MATRIX_ALPHA_BIAS)
-(define-enum GL_COLOR_TABLE)
-(define-enum GL_POST_CONVOLUTION_COLOR_TABLE)
-(define-enum GL_POST_COLOR_MATRIX_COLOR_TABLE)
-(define-enum GL_PROXY_COLOR_TABLE)
-(define-enum GL_PROXY_POST_CONVOLUTION_COLOR_TABLE)
-(define-enum GL_PROXY_POST_COLOR_MATRIX_COLOR_TABLE)
-(define-enum GL_COLOR_TABLE_SCALE)
-(define-enum GL_COLOR_TABLE_BIAS)
-(define-enum GL_COLOR_TABLE_FORMAT)
-(define-enum GL_COLOR_TABLE_WIDTH)
-(define-enum GL_COLOR_TABLE_RED_SIZE)
-(define-enum GL_COLOR_TABLE_GREEN_SIZE)
-(define-enum GL_COLOR_TABLE_BLUE_SIZE)
-(define-enum GL_COLOR_TABLE_ALPHA_SIZE)
-(define-enum GL_COLOR_TABLE_LUMINANCE_SIZE)
-(define-enum GL_COLOR_TABLE_INTENSITY_SIZE)
-(define-enum GL_CONSTANT_BORDER)
-(define-enum GL_REPLICATE_BORDER)
-(define-enum GL_CONVOLUTION_BORDER_COLOR)
+(define-cproc gl-copy-tex-sub-image-3d (target::<fixnum> level::<fixnum>
+                                        xoffset::<fixnum> yoffset::<fixnum>
+                                        zoffset::<fixnum>
+                                        x::<fixnum> y::<fixnum>
+                                        width::<fixnum> height::<fixnum>)
+  "ENSURE(glCopyTexSubImage3D);
+   glCopyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+   SCM_RETURN(SCM_UNDEFINED);")
 
-)) ;; GL_ARB_imaging
+; gl-draw-range-elements
+
+(define-cproc gl-color-table (target::<fixnum> internal-format::<fixnum>
+                              width::<int> format::<int> type::<int>
+                              data)
+  "int elttype, size, packed;
+   size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, &packed);
+   ENSURE(glColorTable);
+   glColorTable(target, internal_format, width, format, type,
+                Scm_GLPixelDataCheck(data, elttype, size));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-color-sub-table (target::<fixnum> start::<int> count::<int>
+                                  format::<int> type::<int>
+                                  data)
+  "int elttype, size, packed;
+   size = Scm_GLPixelDataSize(count, 1, format, type, &elttype, &packed);
+   ENSURE(glColorSubTable);
+   glColorSubTable(target, start, count, format, type,
+                   Scm_GLPixelDataCheck(data, elttype, size));
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-color-table-parameter (target::<fixnum> pname::<fixnum>
+                                        param)
+  "if (SCM_F32VECTORP(param)) {
+    if (SCM_F32VECTOR_SIZE(param) != 4) goto err;
+    ENSURE(glColorTableParameterfv);
+    glColorTableParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
+  } else if (SCM_S32VECTORP(param)) {
+    if (SCM_S32VECTOR_SIZE(param) != 4) goto err;
+    ENSURE(glColorTableParameteriv);
+    glColorTableParameteriv(target, pname, SCM_S32VECTOR_ELEMENTS(param));
+  } else goto err;
+  SCM_RETURN(SCM_UNDEFINED);
+ err:
+  Scm_Error(\"f32 or s32 vector of size 4 required, but got %S\", param);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-copy-color-sub-table (target::<fixnum> start::<fixnum>
+                                       x::<int> y::<int> width::<int>)
+  "ENSURE(glCopyColorSubTable);
+   glCopyColorSubTable(target, start, x, y, width);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-copy-color-table (target::<fixnum> internal-format::<fixnum>
+                                   x::<int> y::<int> width::<int>)
+  "ENSURE(glCopyColorTable);
+   glCopyColorTable(target, internal_format, x, y, width);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+; gl-get-color-table
+; gl-get-color-table-parameter
+
+(define-cproc gl-blend-equation (mode::<fixnum>)
+  "ENSURE(glBlendEquation);
+   glBlendEquation(mode);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-blend-color (red::<float> green::<float> blue::<float> alpha::<float>)
+  "ENSURE(glBlendColor);
+   glBlendColor(red, green, blue, alpha);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-histogram (target::<fixnum> width::<int> internal-format::<fixnum> sink::<boolean>)
+  "ENSURE(glHistogram);
+   glHistogram(target, width, internal_format, sink);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-reset-histogram (target::<fixnum>)
+  "ENSURE(glResetHistogram);
+   glResetHistogram(target);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+; gl-get-histogram
+
+; gl-get-histogram-parameter
+
+(define-cproc gl-minmax (target::<fixnum> internal-format::<fixnum> sink::<boolean>)
+  "ENSURE(glMinmax);
+   glMinmax(target, internal_format, sink);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-reset-minmax (target::<fixnum>)
+  "ENSURE(glResetMinmax);
+   glResetMinmax(target);
+   SCM_RETURN(SCM_UNDEFINED);")
+
+; gl-get-minmax
+; gl-get-minmax-parameter
+; gl-convolution-filter-1d
+; gl-convolution-filter-2d
+; gl-convolution-parameter
+; gl-copy-convolution-filter-1d
+; gl-copy-convolution-filter-2d
+; gl-get-convolution-filter
+; gl-get-convolution-parameter
+; gl-separable-filter-2d
+; gl-get-separable-filter
+
+;;=============================================================
+;; GL_ARB_imaging
+;;
 
 ;;=============================================================
 ;; GL_ARB_depth_texture
 ;;
 
-(if "defined(GL_ARB_depth_texture)" (begin
-
-(define-constant GL_ARB_depth_texture #t)
-
-(define-enum GL_DEPTH_COMPONENT16_ARB)
-(define-enum GL_DEPTH_COMPONENT24_ARB)
-(define-enum GL_DEPTH_COMPONENT32_ARB)
-(define-enum GL_TEXTURE_DEPTH_SIZE_ARB)
-(define-enum GL_DEPTH_TEXTURE_MODE_ARB)
-
-)) ;; GL_ARB_depth_texture
-
 ;;=============================================================
 ;; GL_ARB_fragment_program
 ;;
-
-(if "defined(GL_ARB_fragment_program)" (begin
-
-(define-constant GL_ARB_fragment_program #t)
-
-(define-enum GL_FRAGMENT_PROGRAM_ARB)
-(define-enum GL_PROGRAM_ALU_INSTRUCTIONS_ARB)
-(define-enum GL_PROGRAM_TEX_INSTRUCTIONS_ARB)
-(define-enum GL_PROGRAM_TEX_INDIRECTIONS_ARB)
-(define-enum GL_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB)
-(define-enum GL_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB)
-(define-enum GL_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB)
-(define-enum GL_MAX_PROGRAM_ALU_INSTRUCTIONS_ARB)
-(define-enum GL_MAX_PROGRAM_TEX_INSTRUCTIONS_ARB)
-(define-enum GL_MAX_PROGRAM_TEX_INDIRECTIONS_ARB)
-(define-enum GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB)
-(define-enum GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB)
-(define-enum GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB)
-(define-enum GL_MAX_TEXTURE_COORDS_ARB)
-(define-enum GL_MAX_TEXTURE_IMAGE_UNITS_ARB)
-
-)) ;; GL_ARB_fragment_program
 
 ;;=============================================================
 ;; GL_ARB_fragment_program_shadow
 ;;
 
-(if "defined(GL_ARB_fragment_program_shadow)" (begin
-
-(define-constant GL_ARB_fragment_program_shadow #t)
-
-)) ;; GL_ARB_fragment_program_shadow
-
 ;;=============================================================
 ;; GL_ARB_fragment_shader
 ;;
-
-(if "defined(GL_ARB_fragment_shader)" (begin
-
-(define-constant GL_ARB_fragment_shader #t)
-
-(define-enum GL_FRAGMENT_SHADER_ARB)
-(define-enum GL_MAX_FRAGMENT_UNIFORM_COMPONENTS_ARB)
-
-
-)) ;; GL_ARB_fragment_shader
 
 ;;=============================================================
 ;; GL_ARB_matrix_palette
 ;;
 
-(if "defined(GL_ARB_matrix_palette)" (begin
-
-(define-constant GL_ARB_matrix_palette #t)
-
-(define-enum GL_MATRIX_PALETTE_ARB)
-(define-enum GL_MAX_MATRIX_PALETTE_STACK_DEPTH_ARB)
-(define-enum GL_MAX_PALETTE_MATRICES_ARB)
-(define-enum GL_CURRENT_PALETTE_MATRIX_ARB)
-(define-enum GL_MATRIX_INDEX_ARRAY_ARB)
-(define-enum GL_CURRENT_MATRIX_INDEX_ARB)
-(define-enum GL_MATRIX_INDEX_ARRAY_SIZE_ARB)
-(define-enum GL_MATRIX_INDEX_ARRAY_TYPE_ARB)
-(define-enum GL_MATRIX_INDEX_ARRAY_STRIDE_ARB)
-(define-enum GL_MATRIX_INDEX_ARRAY_POINTER_ARB)
-
-)) ;; GL_ARB_matrix_palette
-
 ;;=============================================================
 ;; GL_ARB_multisample
 ;;
 
-(if "defined(GL_ARB_multisample)" (begin
-
-(define-constant GL_ARB_multisample #t)
-
-(if "defined(WGL_SAMPLE_BUFFERS_ARB)" 
-    (define-enum WGL_SAMPLE_BUFFERS_ARB))
-(if "defined(WGL_SAMPLES_ARB)"
-    (define-enum WGL_SAMPLES_ARB))
-(define-enum GL_MULTISAMPLE_ARB)
-(define-enum GL_SAMPLE_ALPHA_TO_COVERAGE_ARB)
-(define-enum GL_SAMPLE_ALPHA_TO_ONE_ARB)
-(define-enum GL_SAMPLE_COVERAGE_ARB)
-(define-enum GL_SAMPLE_BUFFERS_ARB)
-(define-enum GL_SAMPLES_ARB)
-(define-enum GL_SAMPLE_COVERAGE_VALUE_ARB)
-(define-enum GL_SAMPLE_COVERAGE_INVERT_ARB)
-(define-enum GL_MULTISAMPLE_BIT_ARB)
-
 (define-cproc gl-sample-coverage-arb (value::<float> invert::<boolean>)
-  (return <void> "glSampleCoverageARB"))
-
-)) ;; GL_ARB_multisample
+  "ENSURE(glSampleCoverageARB);
+   glSampleCoverageARB(value, invert);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; GL_ARB_multitexture
 ;;
 
-(if "defined(GL_ARB_multitexture)" (begin
-
-(define-constant GL_ARB_multitexture #t)
-
-(define-enum GL_TEXTURE0_ARB)
-(define-enum GL_TEXTURE1_ARB)
-(define-enum GL_TEXTURE2_ARB)
-(define-enum GL_TEXTURE3_ARB)
-(define-enum GL_TEXTURE4_ARB)
-(define-enum GL_TEXTURE5_ARB)
-(define-enum GL_TEXTURE6_ARB)
-(define-enum GL_TEXTURE7_ARB)
-(define-enum GL_TEXTURE8_ARB)
-(define-enum GL_TEXTURE9_ARB)
-(define-enum GL_TEXTURE10_ARB)
-(define-enum GL_TEXTURE11_ARB)
-(define-enum GL_TEXTURE12_ARB)
-(define-enum GL_TEXTURE13_ARB)
-(define-enum GL_TEXTURE14_ARB)
-(define-enum GL_TEXTURE15_ARB)
-(define-enum GL_TEXTURE16_ARB)
-(define-enum GL_TEXTURE17_ARB)
-(define-enum GL_TEXTURE18_ARB)
-(define-enum GL_TEXTURE19_ARB)
-(define-enum GL_TEXTURE20_ARB)
-(define-enum GL_TEXTURE21_ARB)
-(define-enum GL_TEXTURE22_ARB)
-(define-enum GL_TEXTURE23_ARB)
-(define-enum GL_TEXTURE24_ARB)
-(define-enum GL_TEXTURE25_ARB)
-(define-enum GL_TEXTURE26_ARB)
-(define-enum GL_TEXTURE27_ARB)
-(define-enum GL_TEXTURE28_ARB)
-(define-enum GL_TEXTURE29_ARB)
-(define-enum GL_TEXTURE30_ARB)
-(define-enum GL_TEXTURE31_ARB)
-(define-enum GL_ACTIVE_TEXTURE_ARB)
-(define-enum GL_CLIENT_ACTIVE_TEXTURE_ARB)
-(define-enum GL_MAX_TEXTURE_UNITS_ARB)
-
-
 (define-cproc gl-active-texture-arb (texture::<int>)
-  (return <void> "glActiveTextureARB"))
+  "ENSURE(glActiveTextureARB);
+   glActiveTextureARB(texture);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 (define-cproc gl-client-active-texture-arb (texture::<int>)
-  (return <void> "glClientActiveTextureARB"))
+  "ENSURE(glClientActiveTextureARB);
+   glClientActiveTextureARB(texture);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 ; gl-multi-tex-coord1
 ; gl-multi-tex-coord2
 ; gl-multi-tex-coord3
 ; gl-multi-tex-coord4
 
-)) ;; end defined(GL_ARB_multitexture)
-    
 ;;=============================================================
 ;; GL_ARB_occlusion_query
 ;;
-
-(if "defined(GL_ARB_occlusion_query)" (begin
-
-(define-constant GL_ARB_occlusion_query #t)
-
-(define-enum GL_QUERY_COUNTER_BITS_ARB)
-(define-enum GL_CURRENT_QUERY_ARB)
-(define-enum GL_QUERY_RESULT_ARB)
-(define-enum GL_QUERY_RESULT_AVAILABLE_ARB)
-(define-enum GL_SAMPLES_PASSED_ARB)
 
 ;; gl-genqueries-arb
 ;; gl-delete-queries-arb
 
 (define-cproc gl-is-query-arb (query::<uint>)
-  (return <boolean> "glIsQueryARB"))
+  "ENSURE(glIsQueryARB);
+   SCM_RETURN(SCM_MAKE_BOOL(glIsQueryARB(query)));")
 
 (define-cproc gl-begin-query-arb (op::<uint> query::<uint>)
-  (return <void> "glBeginQueryARB"))
+  "ENSURE(glBeginQueryARB);
+   glBeginQueryARB(op, query);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-end-query-arb (op::<uint>)
-  (return <void> "glEndQueryARB"))
+  "ENSURE(glEndQueryARB);
+   glEndQueryARB(op);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;; gl-get-query-rab
 ;; gl-get-query-object-arb
-
-)) ;; GL_ARB_occlusion_query
 
 ;;=============================================================
 ;; GL_ARB_point_parameters
 ;;
 
-(if "defined(GL_ARB_point_parameters)" (begin
-
-(define-constant GL_ARB_point_parameters #t)
-
-(define-enum GL_POINT_SIZE_MIN_ARB)
-(define-enum GL_POINT_SIZE_MAX_ARB)
-(define-enum GL_POINT_FADE_THRESHOLD_SIZE_ARB)
-(define-enum GL_POINT_DISTANCE_ATTENUATION_ARB)
-
-)) ;; GL_ARB_point_parameters
-
 ;;=============================================================
 ;; GL_ARB_point_sprite
 ;;
-
-(if "defined(GL_ARB_point_sprite)" (begin
-
-(define-constant GL_ARB_point_sprite #t)
-
-(define-enum GL_POINT_SPRITE_ARB)
-(define-enum GL_COORD_REPLACE_ARB)
-
-)) ;; GL_ARB_point_sprite
 
 ;;=============================================================
 ;; GL_ARB_shader_objects
 ;;
 
-(if "defined(GL_ARB_shader_objects)" (begin
-
-(define-constant GL_ARB_shader_objects #t)
-
-(define-enum GL_PROGRAM_OBJECT_ARB)
-(define-enum GL_OBJECT_TYPE_ARB)
-(define-enum GL_OBJECT_SUBTYPE_ARB)
-(define-enum GL_SHADER_OBJECT_ARB)
-(define-enum GL_FLOAT_VEC2_ARB)
-(define-enum GL_FLOAT_VEC3_ARB)
-(define-enum GL_FLOAT_VEC4_ARB)
-(define-enum GL_INT_VEC2_ARB)
-(define-enum GL_INT_VEC3_ARB)
-(define-enum GL_INT_VEC4_ARB)
-(define-enum GL_BOOL_ARB)
-(define-enum GL_BOOL_VEC2_ARB)
-(define-enum GL_BOOL_VEC3_ARB)
-(define-enum GL_BOOL_VEC4_ARB)
-(define-enum GL_FLOAT_MAT2_ARB)
-(define-enum GL_FLOAT_MAT3_ARB)
-(define-enum GL_FLOAT_MAT4_ARB)
-(define-enum GL_OBJECT_DELETE_STATUS_ARB)
-(define-enum GL_OBJECT_COMPILE_STATUS_ARB)
-(define-enum GL_OBJECT_LINK_STATUS_ARB)
-(define-enum GL_OBJECT_VALIDATE_STATUS_ARB)
-(define-enum GL_OBJECT_INFO_LOG_LENGTH_ARB)
-(define-enum GL_OBJECT_ATTACHED_OBJECTS_ARB)
-(define-enum GL_OBJECT_ACTIVE_UNIFORMS_ARB)
-(define-enum GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB)
-(define-enum GL_OBJECT_SHADER_SOURCE_LENGTH_ARB)
-
 (define-type <gl-handle> "GLhandleARB" "glhandle"
   "SCM_GL_HANDLE_P" "SCM_GL_HANDLE_VALUE" "SCM_MAKE_GL_HANDLE")
 
 (define-cproc gl-delete-object-arb (h::<gl-handle>)
-  (return <void> "glDeleteObjectARB"))
+  "ENSURE(glDeleteObjectARB);
+   glDeleteObjectARB(h);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 (define-cproc gl-get-handle-arb (type::<uint>)
-  (return <gl-handle> "glGetHandleARB"))
+  "ENSURE(glGetHandleARB);
+   SCM_RETURN(SCM_MAKE_GL_HANDLE(glGetHandleARB(type)));")
+
 (define-cproc gl-create-shader-object-arb (type::<uint>)
-  (return <gl-handle> "glCreateShaderObjectARB"))
+  "ENSURE(glCreateShaderObjectARB);
+   SCM_RETURN(SCM_MAKE_GL_HANDLE(glCreateShaderObjectARB(type)));")
 
 (define-cproc gl-shader-source-arb (shader::<gl-handle> strings)
   "GLint nstrings = Scm_Length(strings); int i = 0;
   GLint *lengths;
   GLcharARB **ss;
+  ENSURE(glShaderSourceARB);
   if (nstrings < 0) goto einval;
   lengths = SCM_NEW_ATOMIC2(GLint*, nstrings*sizeof(GLint));
   /* NB: we can use atomic here, since all strings are pointed by the
@@ -428,95 +318,130 @@
  ")
 
 (define-cproc gl-compile-shader-arb (shader::<gl-handle>)
-  (return <void> "glCompileShaderARB"))
+  "ENSURE(glCompileShaderARB);
+   glCompileShaderARB(shader);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 (define-cproc gl-create-program-object-arb ()
-  (return <gl-handle> "glCreateProgramObjectARB"))
+  "ENSURE(glCreateProgramObjectARB);
+   SCM_RETURN(SCM_MAKE_GL_HANDLE(glCreateProgramObjectARB()));")
+
 (define-cproc gl-attach-object-arb (program::<gl-handle> shader::<gl-handle>)
-  (return <void> "glAttachObjectARB"))
+  "ENSURE(glAttachObjectARB);
+   glAttachObjectARB(program, shader);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 (define-cproc gl-detach-object-arb (program::<gl-handle> shader::<gl-handle>)
-  (return <void> "glDetachObjectARB"))
+  "ENSURE(glDetachObjectARB);
+   glDetachObjectARB(program, shader);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 (define-cproc gl-link-program-arb (program::<gl-handle>)
-  (return <void> "glLinkProgramARB"))
+  "ENSURE(glLinkProgramARB);
+   glLinkProgramARB(program);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 (define-cproc gl-use-program-object-arb (program::<gl-handle>)
-  (return <void> "glUseProgramObjectARB"))
+  "ENSURE(glUseProgramObjectARB);
+   glUseProgramObjectARB(program);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 (define-cproc gl-validate-program-arb (program::<gl-handle>)
-  (return <void> "glValidateProgramARB"))
+  "ENSURE(glValidateProgramARB);
+   glValidateProgramARB(program);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-uniform-1f-arb (location::<int> v0)
-  "glUniform1fARB(location, (GLfloat)Scm_GetDouble(v0));
+  "ENSURE(glUniform1fARB);
+   glUniform1fARB(location, (GLfloat)Scm_GetDouble(v0));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-2f-arb (location::<int> v0 v1)
-  "glUniform2fARB(location, (GLfloat)Scm_GetDouble(v0),
+  "ENSURE(glUniform2fARB);
+   glUniform2fARB(location, (GLfloat)Scm_GetDouble(v0),
                   (GLfloat)Scm_GetDouble(v1));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-3f-arb (location::<int> v0 v1 v2)
-  "glUniform3fARB(location, (GLfloat)Scm_GetDouble(v0),
+  "ENSURE(glUniform3fARB);
+   glUniform3fARB(location, (GLfloat)Scm_GetDouble(v0),
                   (GLfloat)Scm_GetDouble(v1),
                   (GLfloat)Scm_GetDouble(v2));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-4f-arb (location::<int> v0 v1 v2 v3)
-  "glUniform4fARB(location, (GLfloat)Scm_GetDouble(v0),
+  "ENSURE(glUniform4fARB);
+   glUniform4fARB(location, (GLfloat)Scm_GetDouble(v0),
                   (GLfloat)Scm_GetDouble(v1),
                   (GLfloat)Scm_GetDouble(v2),
                   (GLfloat)Scm_GetDouble(v3));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-1i-arb (location::<int> v0)
-  "glUniform1iARB(location, Scm_GetInteger(v0));
+  "ENSURE(glUniform1iARB);
+   glUniform1iARB(location, Scm_GetInteger(v0));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-2i-arb (location::<int> v0 v1)
-  "glUniform2iARB(location, Scm_GetInteger(v0),
+  "ENSURE(glUniform2iARB);
+   glUniform2iARB(location, Scm_GetInteger(v0),
                   Scm_GetInteger(v1));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-3i-arb (location::<int> v0 v1 v2)
-  "glUniform3iARB(location, Scm_GetInteger(v0),
+  "ENSURE(glUniform3iARB);
+   glUniform3iARB(location, Scm_GetInteger(v0),
                   Scm_GetInteger(v1),
                   Scm_GetInteger(v2));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-4i-arb (location::<int> v0 v1 v2 v3)
-  "glUniform4iARB(location, Scm_GetInteger(v0),
+  "ENSURE(glUniform4iARB);
+   glUniform4iARB(location, Scm_GetInteger(v0),
                   Scm_GetInteger(v1),
                   Scm_GetInteger(v2),
                   Scm_GetInteger(v3));
    SCM_RETURN(SCM_UNDEFINED);")
   
 (define-cproc gl-uniform-1fv-arb (location::<int> count::<uint> v::<f32vector>)
-  "if (SCM_F32VECTOR_SIZE(v) < 1*count)
+  "ENSURE(glUniform1fvARB);
+   if (SCM_F32VECTOR_SIZE(v) < 1*count)
      Scm_Error(\"not enough value for gl-uniform-1fv-arb: %S\", v);
    glUniform1fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-2fv-arb (location::<int> count::<uint> v::<f32vector>)
-  "if (SCM_F32VECTOR_SIZE(v) < 2*count) 
+  "ENSURE(glUniform2fvARB);
+   if (SCM_F32VECTOR_SIZE(v) < 2*count) 
      Scm_Error(\"not enough value for gl-uniform-2fv-arb: %S\", v);
    glUniform2fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-3fv-arb (location::<int> count::<uint> v::<f32vector>)
-  "if (SCM_F32VECTOR_SIZE(v) < 3*count) 
+  "ENSURE(glUniform3fvARB);
+   if (SCM_F32VECTOR_SIZE(v) < 3*count) 
      Scm_Error(\"not enough value for gl-uniform-3fv-arb: %S\", v);
    glUniform3fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-4fv-arb (location::<int> count::<uint> v::<f32vector>)
-  "if (SCM_F32VECTOR_SIZE(v) < 4*count) 
+  "ENSURE(glUniform4fvARB);
+   if (SCM_F32VECTOR_SIZE(v) < 4*count) 
      Scm_Error(\"not enough value for gl-uniform-4fv-arb: %S\", v);
    glUniform4fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-uniform-1iv-arb (location::<int> count::<uint> v::<s32vector>)
-  "if (SCM_S32VECTOR_SIZE(v) < 1*count) 
+  "ENSURE(glUniform1ivARB);
+   if (SCM_S32VECTOR_SIZE(v) < 1*count) 
      Scm_Error(\"not enough value for gl-uniform-1iv-arb: %S\", v);
    glUniform1ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-2iv-arb (location::<int> count::<uint> v::<s32vector>)
-  "if (SCM_S32VECTOR_SIZE(v) < 2*count) 
+  "ENSURE(glUniform2ivARB);
+   if (SCM_S32VECTOR_SIZE(v) < 2*count) 
      Scm_Error(\"not enough value for gl-uniform-2iv-arb: %S\", v);
    glUniform2ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-3iv-arb (location::<int> count::<uint> v::<s32vector>)
-  "if (SCM_S32VECTOR_SIZE(v) < 3*count) 
+  "ENSURE(glUniform3ivARB);
+   if (SCM_S32VECTOR_SIZE(v) < 3*count) 
      Scm_Error(\"not enough value for gl-uniform-3iv-arb: %S\", v);
    glUniform3ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
 (define-cproc gl-uniform-4iv-arb (location::<int> count::<uint> v::<s32vector>)
-  "if (SCM_S32VECTOR_SIZE(v) < 4*count) 
+  "ENSURE(glUniform4ivARB);
+   if (SCM_S32VECTOR_SIZE(v) < 4*count) 
      Scm_Error(\"not enough value for gl-uniform-4iv-arb: %S\", v);
    glUniform4ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
@@ -525,7 +450,8 @@
                                          count::<uint>
                                          transpose::<boolean>
                                          v::<f32vector>)
-  "if (SCM_F32VECTOR_SIZE(v) < 4*count)
+  "ENSURE(glUniformMatrix2fvARB);
+   if (SCM_F32VECTOR_SIZE(v) < 4*count)
      Scm_Error(\"not enough value for gl-uniform-matrix-2fv-arb: %S\", v);
    glUniformMatrix2fvARB(location, count, transpose, 
                          SCM_F32VECTOR_ELEMENTS(v));
@@ -534,7 +460,8 @@
                                          count::<uint>
                                          transpose::<boolean>
                                          v::<f32vector>)
-  "if (SCM_F32VECTOR_SIZE(v) < 9*count)
+  "ENSURE(glUniformMatrix3fvARB);
+   if (SCM_F32VECTOR_SIZE(v) < 9*count)
      Scm_Error(\"not enough value for gl-uniform-matrix-3fv-arb: %S\", v);
    glUniformMatrix3fvARB(location, count, transpose, 
                          SCM_F32VECTOR_ELEMENTS(v));
@@ -543,7 +470,8 @@
                                          count::<uint>
                                          transpose::<boolean>
                                          v::<f32vector>)
-  "if (SCM_F32VECTOR_SIZE(v) < 16*count)
+  "ENSURE(glUniformMatrix4fvARB);
+   if (SCM_F32VECTOR_SIZE(v) < 16*count)
      Scm_Error(\"not enough value for gl-uniform-matrix-4fv-arb: %S\", v);
    glUniformMatrix4fvARB(location, count, transpose, 
                          SCM_F32VECTOR_ELEMENTS(v));
@@ -555,10 +483,7 @@
 ;;  a similar mechanism of the gl-get-integer and gl-get-integer! pair
 ;;  later.
 
-;; NB: the #if guard shouldn't be necessary since we're already in the
-;; 'if' construct of stub.  But it is needed, due to the bug of genstub.
 "
-#if defined(GL_ARB_shader_objects)
  static int get_object_parameter_num_values(GLenum pname)
  {
    switch (pname) {
@@ -580,12 +505,12 @@
       return 0;
    }
  }
-#endif /*defined(GL_ARB_shader_objects)*/"
-
+"
 
 (define-cproc gl-get-object-parameter-f-arb (object::<gl-handle>
                                              pname::<uint>)
   "GLfloat r;
+  ENSURE(glGetObjectParameterfvARB);
   if (get_object_parameter_num_values(pname) != 1) {
     Scm_Error(\"invalid pname for gl-get-object-parameter-f-arb: %d\", pname);
   }
@@ -595,6 +520,7 @@
 (define-cproc gl-get-object-parameter-i-arb (object::<gl-handle>
                                              pname::<uint>)
   "GLint r;
+  ENSURE(glGetObjectParameterivARB);
   if (get_object_parameter_num_values(pname) != 1) {
     Scm_Error(\"invalid pname for gl-get-object-parameter-i-arb: %d\", pname);
   }
@@ -603,6 +529,8 @@
 
 (define-cproc gl-get-info-log-arb (object::<gl-handle>)
   "GLint loglen = 0; GLcharARB *logstr;
+   ENSURE(glGetObjectParameterivARB);
+   ENSURE(glGetInfoLogARB);
    glGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &loglen);
    logstr = SCM_NEW_ATOMIC2(char*, (loglen+1)*sizeof(GLcharARB));
    glGetInfoLogARB(object, loglen, NULL, logstr);
@@ -611,6 +539,8 @@
 
 (define-cproc gl-get-attached-objects-arb (program::<gl-handle>)
   "GLint numobjs = 0; GLhandleARB *objs; ScmObj r; int i;
+   ENSURE(glGetObjectParameterivARB);
+   ENSURE(glGetAttachedObjectsARB);
    glGetObjectParameterivARB(program, GL_OBJECT_ATTACHED_OBJECTS_ARB, &numobjs);
    CHECK_ERROR(\"glGetObjectParameterivARB\");
    objs = SCM_NEW_ATOMIC2(GLhandleARB*, numobjs * sizeof(GLhandleARB));
@@ -624,7 +554,9 @@
 
 (define-cproc gl-get-uniform-location-arb (program::<gl-handle>
                                            expr::<string>)
-  "GLint r = glGetUniformLocationARB(program, (const GLcharARB*)Scm_GetStringConst(expr));
+  "GLint r;
+   ENSURE(glGetUniformLocationARB);
+   r  = glGetUniformLocationARB(program, (const GLcharARB*)Scm_GetStringConst(expr));
    CHECK_ERROR(\"glGetUniformLocationARB\");
    SCM_RETURN(Scm_MakeInteger(r));")
 
@@ -632,6 +564,8 @@
 (define-cproc gl-get-active-uniform-arb (program::<gl-handle>
                                          index::<uint>)
   "GLint maxlen, size; GLsizei len; GLenum type; GLcharARB *namebuf;
+   ENSURE(glGetObjectParameterivARB);
+   ENSURE(glGetActiveUniformARB);
    glGetObjectParameterivARB(program, GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB,
                             &maxlen);
    CHECK_ERROR(\"glGetObjectParameterivARB\");
@@ -647,83 +581,33 @@
 
 (define-cproc gl-get-shader-source-arb (object::<gl-handle>)
   "GLint srclen = 0; GLcharARB *srcstr;
+   ENSURE(glGetObjectParameterivARB);
+   ENSURE(glGetShaderSourceARB);
    glGetObjectParameterivARB(object, GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &srclen);
    srcstr = SCM_NEW_ATOMIC2(char*, (srclen+1)*sizeof(GLcharARB));
    glGetShaderSourceARB(object, srclen, NULL, srcstr);
    CHECK_ERROR(\"glGetShaderSourceARB\");
    SCM_RETURN(Scm_MakeString((const char*)srcstr, srclen-1, -1, 0));")
 
-)) ;; GL_ARB_shader_objects
-
 ;;=============================================================
 ;; GL_ARB_shading_language_100
 ;;
-
-(if "defined(GL_ARB_shading_language_100)" (begin
-
-(define-constant GL_ARB_shading_language_100 #t)
-
-)) ;; GL_ARB_shading_language_100
-
 
 ;;=============================================================
 ;; GL_ARB_shadow
 ;;
 
-(if "defined(GL_ARB_shadow)" (begin
-
-(define-constant GL_ARB_shadow #t)
-
-(define-enum GL_TEXTURE_COMPARE_MODE_ARB)
-(define-enum GL_TEXTURE_COMPARE_FUNC_ARB)
-(define-enum GL_COMPARE_R_TO_TEXTURE_ARB)
-
-)) ;; GL_ARB_shadow
-
 ;;=============================================================
 ;; GL_ARB_shadow_ambient
 ;;
-
-(if "defined(GL_ARB_shadow_ambient)" (begin
-
-(define-constant GL_ARB_shadow_ambient #t)
-
-(define-enum GL_TEXTURE_COMPARE_FAIL_VALUE_ARB)
-
-)) ;; GL_ARB_shadow_ambient
 
 ;;=============================================================
 ;; GL_ARB_texture_border_clamp
 ;;
 
-(if "defined(GL_ARB_texture_border_clamp)" (begin
-
-(define-constant GL_ARB_texture_border_clamp #t)
-
-(define-enum GL_CLAMP_TO_BORDER_ARB)
-
-)) ;; GL_ARB_texture_border_clamp
-
 ;;=============================================================
 ;; GL_ARB_texture_compression
 ;;
-
-(if "defined(GL_ARB_texture_compression)" (begin
-
-(define-constant GL_ARB_texture_compression #t)
-
-(define-enum GL_COMPRESSED_ALPHA_ARB)
-(define-enum GL_COMPRESSED_LUMINANCE_ARB)
-(define-enum GL_COMPRESSED_LUMINANCE_ALPHA_ARB)
-(define-enum GL_COMPRESSED_INTENSITY_ARB)
-(define-enum GL_COMPRESSED_RGB_ARB)
-(define-enum GL_COMPRESSED_RGBA_ARB)
-(define-enum GL_TEXTURE_COMPRESSION_HINT_ARB)
-(if "defined(GL_TEXTURE_IMAGE_SIZE_ARB)" 
-    (define-enum GL_TEXTURE_IMAGE_SIZE_ARB))
-(define-enum GL_TEXTURE_COMPRESSED_ARB)
-(define-enum GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB)
-(define-enum GL_COMPRESSED_TEXTURE_FORMATS_ARB)
 
 ; gl-compressed-tex-image-3d-arb
 ; gl-compressed-tex-image-2d-arb
@@ -733,131 +617,43 @@
 ; gl-compressed-tex-subimage-1d-arb
 ; gl-get-compressed-tex-image-arb
 
-
-)) ;; GL_ARB_texture_compression
-
 ;;=============================================================
 ;; GL_ARB_texture_cube_map
 ;;
-
-(if "defined(GL_ARB_texture_cube_map)" (begin
-
-(define-constant GL_ARB_texture_cube_map #t)
-
-(define-enum GL_NORMAL_MAP_ARB)
-(define-enum GL_REFLECTION_MAP_ARB)
-(define-enum GL_TEXTURE_CUBE_MAP_ARB)
-(define-enum GL_TEXTURE_BINDING_CUBE_MAP_ARB)
-(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB)
-(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB)
-(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB)
-(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB)
-(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB)
-(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB)
-(define-enum GL_PROXY_TEXTURE_CUBE_MAP_ARB)
-(define-enum GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB)
-
-)) ;; GL_ARB_texture_cube_map
 
 ;;=============================================================
 ;; GL_ARB_texture_env_add
 ;;
 
-(if "defined(GL_ARB_texture_env_add)" (begin
-
-(define-constant GL_ARB_texture_env_add #t)
-
-)) ;; GL_ARB_texture_env_add
-
 ;;=============================================================
 ;; GL_ARB_texture_env_combine
 ;;
-
-(if "defined(GL_ARB_texture_env_combine)" (begin
-
-(define-constant GL_ARB_texture_env_combine #t)
-
-(define-enum GL_COMBINE_ARB)
-(define-enum GL_COMBINE_RGB_ARB)
-(define-enum GL_COMBINE_ALPHA_ARB)
-(define-enum GL_RGB_SCALE_ARB)
-(define-enum GL_ADD_SIGNED_ARB)
-(define-enum GL_INTERPOLATE_ARB)
-(define-enum GL_CONSTANT_ARB)
-(define-enum GL_PRIMARY_COLOR_ARB)
-(define-enum GL_PREVIOUS_ARB)
-(define-enum GL_SOURCE0_RGB_ARB)
-(define-enum GL_SOURCE1_RGB_ARB)
-(define-enum GL_SOURCE2_RGB_ARB)
-(define-enum GL_SOURCE0_ALPHA_ARB)
-(define-enum GL_SOURCE1_ALPHA_ARB)
-(define-enum GL_SOURCE2_ALPHA_ARB)
-(define-enum GL_OPERAND0_RGB_ARB)
-(define-enum GL_OPERAND1_RGB_ARB)
-(define-enum GL_OPERAND2_RGB_ARB)
-(define-enum GL_OPERAND0_ALPHA_ARB)
-(define-enum GL_OPERAND1_ALPHA_ARB)
-(define-enum GL_OPERAND2_ALPHA_ARB)
-(define-enum GL_SUBTRACT_ARB)
-
-)) ;; GL_ARB_texture_env_combine
 
 ;;=============================================================
 ;; GL_ARB_texture_env_dot3
 ;;
 
-(if "defined(GL_ARB_texture_env_dot3)" (begin
-
-(define-constant GL_ARB_texture_env_dot3 #t)
-
-;(define-enum GL_CLAMP_TO_BORDER_ARB)
-
-(define-enum GL_DOT3_RGB_ARB)
-(define-enum GL_DOT3_RGBA_ARB)
-
-)) ;; GL_ARB_texture_env_dot3
-
 ;;=============================================================
 ;; GL_ARB_texture_mirrored_repeat
 ;;
-
-(if "defined(GL_ARB_texture_mirrored_repeat)" (begin
-
-(define-constant GL_ARB_texture_mirrored_repeat #t)
-
-(define-enum GL_MIRRORED_REPEAT_ARB)
-
-)) ;; GL_ARB_texture_mirrored_repeat
 
 ;;=============================================================
 ;; GL_ARB_texture_non_power_of_two
 ;;
 
-(if "defined(GL_ARB_texture_non_power_of_two)" (begin
-
-(define-constant GL_ARB_texture_non_power_of_two #t)
-
-)) ;; GL_ARB_texture_non_power_of_two
-
 ;;=============================================================
 ;; GL_ARB_transpose_matrix
 ;;
 
-(if "defined(GL_ARB_transpose_matrix)" (begin
-
-(define-constant GL_ARB_transpose_matrix #t)
-
-(define-enum GL_TRANSPOSE_MODELVIEW_MATRIX_ARB)
-(define-enum GL_TRANSPOSE_PROJECTION_MATRIX_ARB)
-(define-enum GL_TRANSPOSE_TEXTURE_MATRIX_ARB)
-(define-enum GL_TRANSPOSE_COLOR_MATRIX_ARB)
-
 (define-cproc gl-load-transpose-matrix-arb (m)
   "if (SCM_MATRIX4FP(m)) {
+    ENSURE(glLoadTransposeMatrixfARB);
     glLoadTransposeMatrixfARB(SCM_MATRIX4F_D(m));
   } else if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
+    ENSURE(glLoadTransposeMatrixfARB);
     glLoadTransposeMatrixfARB(SCM_F32VECTOR_ELEMENTS(m));
   } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
+    ENSURE(glLoadTransposeMatrixdARB);
     glLoadTransposeMatrixdARB(SCM_F64VECTOR_ELEMENTS(m));
   } else {
      Scm_Error(\"3dmatrix, f32vector or f64vector of length 16 is required, but got %S\", m);
@@ -866,73 +662,43 @@
 
 (define-cproc gl-mult-transpose-matrix-arb (m)
   "if (SCM_MATRIX4FP(m)) {
+    ENSURE(glMultTransposeMatrixfARB);
     glMultTransposeMatrixfARB(SCM_MATRIX4F_D(m));
   } else if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
+    ENSURE(glMultTransposeMatrixfARB);
     glMultTransposeMatrixfARB(SCM_F32VECTOR_ELEMENTS(m));
   } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
+    ENSURE(glMultTransposeMatrixdARB);
     glMultTransposeMatrixdARB(SCM_F64VECTOR_ELEMENTS(m));
   } else {
      Scm_Error(\"3dmatrix, f32vector or f64vector of length 16 is required, but got %S\", m);
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-)) ;; GL_ARB_transpose_matrix
-
 ;;=============================================================
 ;; GL_ARB_vertex_buffer_object
 ;;
 
-(if "defined(GL_ARB_vertex_buffer_object)" (begin
-
-(define-constant GL_ARB_vertex_buffer_object #t)
-
-(define-enum GL_ARRAY_BUFFER_ARB)
-(define-enum GL_ELEMENT_ARRAY_BUFFER_ARB)
-(define-enum GL_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_VERTEX_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_NORMAL_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_COLOR_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_INDEX_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_TEXTURE_COORD_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_EDGE_FLAG_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_SECONDARY_COLOR_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_FOG_COORDINATE_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_WEIGHT_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING_ARB)
-(define-enum GL_STREAM_DRAW_ARB)
-(define-enum GL_STREAM_READ_ARB)
-(define-enum GL_STREAM_COPY_ARB)
-(define-enum GL_STATIC_DRAW_ARB)
-(define-enum GL_STATIC_READ_ARB)
-(define-enum GL_STATIC_COPY_ARB)
-(define-enum GL_DYNAMIC_DRAW_ARB)
-(define-enum GL_DYNAMIC_READ_ARB)
-(define-enum GL_DYNAMIC_COPY_ARB)
-(define-enum GL_READ_ONLY_ARB)
-(define-enum GL_WRITE_ONLY_ARB)
-(define-enum GL_READ_WRITE_ARB)
-(define-enum GL_BUFFER_SIZE_ARB)
-(define-enum GL_BUFFER_USAGE_ARB)
-(define-enum GL_BUFFER_ACCESS_ARB)
-(define-enum GL_BUFFER_MAPPED_ARB)
-(define-enum GL_BUFFER_MAP_POINTER_ARB)
-
 (define-cproc gl-bind-buffer-arb (target::<int> buffer::<uint>)
-  (return <void> "glBindBufferARB"))
+  "ENSURE(glBindBufferARB);
+   glBindBufferARB(target, buffer);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-delete-buffers-arb (buffers::<u32vector>)
-  "glDeleteBuffersARB(SCM_U32VECTOR_SIZE(buffers),
+  "ENSURE(glDeleteBuffersARB);
+   glDeleteBuffersARB(SCM_U32VECTOR_SIZE(buffers),
                       SCM_U32VECTOR_ELEMENTS(buffers));
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-gen-buffers-arb (n::<uint>)
   "ScmObj v = Scm_MakeU32Vector(n, 0);
+   ENSURE(glGenBuffersARB);
    glGenBuffersARB(n, SCM_U32VECTOR_ELEMENTS(v));
    SCM_RETURN(v);")
 
 (define-cproc gl-is-buffer-arb (buffer::<uint>)
-  (return <boolean> "glIsBufferARB"))
+  "ENSURE(glIsBufferARB);
+   SCM_RETURN(SCM_MAKE_BOOL(glIsBufferARB(buffer)));")
 
 ; gl-buffer-data-arb
 ; gl-buffer-sub-data-arb
@@ -940,184 +706,120 @@
 ; gl-map-buffer-arb
 
 (define-cproc gl-unmap-buffer-arb (target::<int>)
-  (return <boolean> "glUnmapBufferARB"))
+  "ENSURE(glUnmapBufferARB);
+   SCM_RETURN(SCM_MAKE_BOOL(glUnmapBufferARB(target)));")
 
 ; glGetBufferParameterivARB
 ; glGetBufferPointervARB
-
-
-)) ;; GL_ARB_vertex_buffer_object
 
 ;;=============================================================
 ;; GL_ARB_vertex_program
 ;;
 
-(if "defined(GL_ARB_vertex_program)" (begin
-
-(define-constant GL_ARB_vertex_program #t)
-
-(define-enum GL_VERTEX_PROGRAM_ARB)
-(define-enum GL_VERTEX_PROGRAM_POINT_SIZE_ARB)
-(define-enum GL_VERTEX_PROGRAM_TWO_SIDE_ARB)
-(define-enum GL_COLOR_SUM_ARB)
-(define-enum GL_PROGRAM_FORMAT_ASCII_ARB)
-(define-enum GL_VERTEX_ATTRIB_ARRAY_ENABLED_ARB)
-(define-enum GL_VERTEX_ATTRIB_ARRAY_SIZE_ARB)
-(define-enum GL_VERTEX_ATTRIB_ARRAY_STRIDE_ARB)
-(define-enum GL_VERTEX_ATTRIB_ARRAY_TYPE_ARB)
-(define-enum GL_VERTEX_ATTRIB_ARRAY_NORMALIZED_ARB)
-(define-enum GL_CURRENT_VERTEX_ATTRIB_ARB)
-(define-enum GL_VERTEX_ATTRIB_ARRAY_POINTER_ARB)
-(define-enum GL_PROGRAM_LENGTH_ARB)
-(define-enum GL_PROGRAM_FORMAT_ARB)
-(define-enum GL_PROGRAM_BINDING_ARB)
-(define-enum GL_PROGRAM_INSTRUCTIONS_ARB)
-(define-enum GL_MAX_PROGRAM_INSTRUCTIONS_ARB)
-(define-enum GL_PROGRAM_NATIVE_INSTRUCTIONS_ARB)
-(define-enum GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB)
-(define-enum GL_PROGRAM_TEMPORARIES_ARB)
-(define-enum GL_MAX_PROGRAM_TEMPORARIES_ARB)
-(define-enum GL_PROGRAM_NATIVE_TEMPORARIES_ARB)
-(define-enum GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB)
-(define-enum GL_PROGRAM_PARAMETERS_ARB)
-(define-enum GL_MAX_PROGRAM_PARAMETERS_ARB)
-(define-enum GL_PROGRAM_NATIVE_PARAMETERS_ARB)
-(define-enum GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB)
-(define-enum GL_PROGRAM_ATTRIBS_ARB)
-(define-enum GL_MAX_PROGRAM_ATTRIBS_ARB)
-(define-enum GL_PROGRAM_NATIVE_ATTRIBS_ARB)
-(define-enum GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB)
-(define-enum GL_PROGRAM_ADDRESS_REGISTERS_ARB)
-(define-enum GL_MAX_PROGRAM_ADDRESS_REGISTERS_ARB)
-(define-enum GL_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB)
-(define-enum GL_MAX_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB)
-(define-enum GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB)
-(define-enum GL_MAX_PROGRAM_ENV_PARAMETERS_ARB)
-(define-enum GL_PROGRAM_UNDER_NATIVE_LIMITS_ARB)
-(define-enum GL_PROGRAM_STRING_ARB)
-(define-enum GL_PROGRAM_ERROR_POSITION_ARB)
-(define-enum GL_CURRENT_MATRIX_ARB)
-(define-enum GL_TRANSPOSE_CURRENT_MATRIX_ARB)
-(define-enum GL_CURRENT_MATRIX_STACK_DEPTH_ARB)
-(define-enum GL_MAX_VERTEX_ATTRIBS_ARB)
-(define-enum GL_MAX_PROGRAM_MATRICES_ARB)
-(define-enum GL_MAX_PROGRAM_MATRIX_STACK_DEPTH_ARB)
-(define-enum GL_PROGRAM_ERROR_STRING_ARB)
-(define-enum GL_MATRIX0_ARB)
-(define-enum GL_MATRIX1_ARB)
-(define-enum GL_MATRIX2_ARB)
-(define-enum GL_MATRIX3_ARB)
-(define-enum GL_MATRIX4_ARB)
-(define-enum GL_MATRIX5_ARB)
-(define-enum GL_MATRIX6_ARB)
-(define-enum GL_MATRIX7_ARB)
-(define-enum GL_MATRIX8_ARB)
-(define-enum GL_MATRIX9_ARB)
-(define-enum GL_MATRIX10_ARB)
-(define-enum GL_MATRIX11_ARB)
-(define-enum GL_MATRIX12_ARB)
-(define-enum GL_MATRIX13_ARB)
-(define-enum GL_MATRIX14_ARB)
-(define-enum GL_MATRIX15_ARB)
-(define-enum GL_MATRIX16_ARB)
-(define-enum GL_MATRIX17_ARB)
-(define-enum GL_MATRIX18_ARB)
-(define-enum GL_MATRIX19_ARB)
-(define-enum GL_MATRIX20_ARB)
-(define-enum GL_MATRIX21_ARB)
-(define-enum GL_MATRIX22_ARB)
-(define-enum GL_MATRIX23_ARB)
-(define-enum GL_MATRIX24_ARB)
-(define-enum GL_MATRIX25_ARB)
-(define-enum GL_MATRIX26_ARB)
-(define-enum GL_MATRIX27_ARB)
-(define-enum GL_MATRIX28_ARB)
-(define-enum GL_MATRIX29_ARB)
-(define-enum GL_MATRIX30_ARB)
-(define-enum GL_MATRIX31_ARB)
-
 (define-cproc gl-vertex-attrib-arb (index::<uint> arg0 &rest args)
   "if (SCM_POINT4FP(arg0) || SCM_VECTOR4FP(arg0)) {
+    ENSURE(glVertexAttrib4fvARB);
     glVertexAttrib4fvARB(index, SCM_VECTOR4F_D(arg0));
   } else if (SCM_F32VECTORP(arg0)) {
     switch (SCM_F32VECTOR_SIZE(arg0)) {
-      case 1: glVertexAttrib1fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
+      case 1: ENSURE(glVertexAttrib1fvARB);
+              glVertexAttrib1fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
               break;
-      case 2: glVertexAttrib2fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
+      case 2: ENSURE(glVertexAttrib2fvARB);
+              glVertexAttrib2fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
               break;
-      case 3: glVertexAttrib3fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
+      case 3: ENSURE(glVertexAttrib3fvARB);
+              glVertexAttrib3fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
               break;
-      case 4: glVertexAttrib4fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4fvARB);
+              glVertexAttrib4fvARB(index, SCM_F32VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_S16VECTORP(arg0)) {
     switch (SCM_S16VECTOR_SIZE(arg0)) {
-      case 1: glVertexAttrib1svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+      case 1: ENSURE(glVertexAttrib1svARB);
+              glVertexAttrib1svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
               break;
-      case 2: glVertexAttrib2svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+      case 2: ENSURE(glVertexAttrib2svARB);
+              glVertexAttrib2svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
               break;
-      case 3: glVertexAttrib3svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+      case 3: ENSURE(glVertexAttrib3svARB);
+              glVertexAttrib3svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
               break;
-      case 4: glVertexAttrib4svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4svARB);
+              glVertexAttrib4svARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_F64VECTORP(arg0)) {
     switch (SCM_F64VECTOR_SIZE(arg0)) {
-      case 1: glVertexAttrib1dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
+      case 1: ENSURE(glVertexAttrib1dvARB);
+              glVertexAttrib1dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
               break;
-      case 2: glVertexAttrib2dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
+      case 2: ENSURE(glVertexAttrib2dvARB);
+              glVertexAttrib2dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
               break;
-      case 3: glVertexAttrib3dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
+      case 3: ENSURE(glVertexAttrib3dvARB);
+              glVertexAttrib3dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
               break;
-      case 4: glVertexAttrib4dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4dvARB);
+              glVertexAttrib4dvARB(index, SCM_F64VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_S8VECTORP(arg0)) {
     switch (SCM_S8VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4bvARB(index, SCM_S8VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4bvARB);
+              glVertexAttrib4bvARB(index, SCM_S8VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_U8VECTORP(arg0)) {
     switch (SCM_U8VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4ubvARB(index, SCM_U8VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4ubvARB);
+              glVertexAttrib4ubvARB(index, SCM_U8VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_U16VECTORP(arg0)) {
     switch (SCM_U16VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4usvARB(index, SCM_U16VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4usvARB);
+              glVertexAttrib4usvARB(index, SCM_U16VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_S32VECTORP(arg0)) {
     switch (SCM_S32VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4ivARB(index, SCM_S32VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4ivARB);
+              glVertexAttrib4ivARB(index, SCM_S32VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_U32VECTORP(arg0)) {
     switch (SCM_U32VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4uivARB(index, SCM_U32VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4uivARB);
+              glVertexAttrib4uivARB(index, SCM_U32VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else {
     int count = Scm_Length(args) + 1;
     switch (count) {
-      case 1: glVertexAttrib1dARB(index, Scm_GetDouble(arg0));
+      case 1: ENSURE(glVertexAttrib1dARB);
+              glVertexAttrib1dARB(index, Scm_GetDouble(arg0));
               break;
-      case 2: glVertexAttrib2dARB(index, Scm_GetDouble(arg0),
+      case 2: ENSURE(glVertexAttrib2dARB);
+              glVertexAttrib2dARB(index, Scm_GetDouble(arg0),
                                   Scm_GetDouble(SCM_CAR(args)));
               break;
-      case 3: glVertexAttrib3dARB(index, Scm_GetDouble(arg0),
+      case 3: ENSURE(glVertexAttrib3dARB);
+              glVertexAttrib3dARB(index, Scm_GetDouble(arg0),
                                   Scm_GetDouble(SCM_CAR(args)),
                                   Scm_GetDouble(SCM_CADR(args)));
               break;
-      case 4: glVertexAttrib4dARB(index, Scm_GetDouble(arg0),
+      case 4: ENSURE(glVertexAttrib4dARB);
+              glVertexAttrib4dARB(index, Scm_GetDouble(arg0),
                                   Scm_GetDouble(SCM_CAR(args)),
                                   Scm_GetDouble(SCM_CADR(args)),
                                   Scm_GetDouble(SCM_CAR(SCM_CDDR(args))));
@@ -1132,47 +834,55 @@
 
 (define-cproc gl-vertex-attrib-4n-arb (index::<uint> arg0 &rest args)
   "if (SCM_POINT4FP(arg0) || SCM_VECTOR4FP(arg0)) {
+    ENSURE(glVertexAttrib4fvARB);
     glVertexAttrib4fvARB(index, SCM_VECTOR4F_D(arg0));
   } else if (SCM_S16VECTORP(arg0)) {
     switch (SCM_S16VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4NsvARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4NsvARB);
+              glVertexAttrib4NsvARB(index, SCM_S16VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_S8VECTORP(arg0)) {
     switch (SCM_S8VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4NbvARB(index, SCM_S8VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4NbvARB);
+              glVertexAttrib4NbvARB(index, SCM_S8VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_U8VECTORP(arg0)) {
     switch (SCM_U8VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4NubvARB(index, SCM_U8VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4NubvARB);
+              glVertexAttrib4NubvARB(index, SCM_U8VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_U16VECTORP(arg0)) {
     switch (SCM_U16VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4NusvARB(index, SCM_U16VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4NusvARB);
+              glVertexAttrib4NusvARB(index, SCM_U16VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_S32VECTORP(arg0)) {
     switch (SCM_S32VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4NivARB(index, SCM_S32VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4NivARB);
+              glVertexAttrib4NivARB(index, SCM_S32VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else if (SCM_U32VECTORP(arg0)) {
     switch (SCM_U32VECTOR_SIZE(arg0)) {
-      case 4: glVertexAttrib4NuivARB(index, SCM_U32VECTOR_ELEMENTS(arg0));
+      case 4: ENSURE(glVertexAttrib4NuivARB);
+              glVertexAttrib4NuivARB(index, SCM_U32VECTOR_ELEMENTS(arg0));
               break;
       default: goto err;
     }
   } else {
     int count = Scm_Length(args) + 1;
     switch (count) {
-      case 4: glVertexAttrib4NubARB(index, 
+      case 4: ENSURE(glVertexAttrib4NubARB);
+              glVertexAttrib4NubARB(index, 
                                     (GLubyte)Scm_GetIntegerU(arg0),
                                     (GLubyte)Scm_GetIntegerU(SCM_CAR(args)),
                                     (GLubyte)Scm_GetIntegerU(SCM_CADR(args)),
@@ -1197,33 +907,43 @@
      Scm_Error(\"bad argument for size: %d, must be 1, 2, 3 or 4\", size);
    }
    if (SCM_POINT4F_ARRAY_P(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_FLOAT, normalized, stride,
                               (const GLvoid*)(SCM_POINT4F_ARRAY_D(vec)+offset));
    } else if (SCM_VECTOR4F_ARRAY_P(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_FLOAT, normalized, stride,
                               (const GLvoid*)(SCM_VECTOR4F_ARRAY_D(vec)+offset));
    } else if (SCM_F32VECTORP(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_FLOAT, normalized, stride,
                               (const GLvoid*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
    } else if (SCM_F64VECTORP(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_DOUBLE, normalized, stride,
                               (const GLvoid*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
    } else if (SCM_S32VECTORP(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_INT, normalized, stride,
                               (const GLvoid*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
    } else if (SCM_U32VECTORP(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_UNSIGNED_INT, normalized, stride,
                               (const GLvoid*)(SCM_U32VECTOR_ELEMENTS(vec)+offset));
    } else if (SCM_S16VECTORP(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_SHORT, normalized, stride,
                               (const GLvoid*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
    } else if (SCM_U16VECTORP(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_UNSIGNED_SHORT, normalized, stride,
                               (const GLvoid*)(SCM_U16VECTOR_ELEMENTS(vec)+offset));
    } else if (SCM_S8VECTORP(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_BYTE, normalized, stride,
                               (const GLvoid*)(SCM_S8VECTOR_ELEMENTS(vec)+offset));
    } else if (SCM_U8VECTORP(vec)) {
+     ENSURE(glVertexAttribPointerARB);
      glVertexAttribPointerARB(index, size, GL_UNSIGNED_BYTE, normalized, stride,
                               (const GLvoid*)(SCM_U8VECTOR_ELEMENTS(vec)+offset));
    } else {
@@ -1232,16 +952,23 @@
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-is-program-arb (prog-id::<int>)
-  (return <boolean> "glIsProgramARB"))
+  "ENSURE(glIsProgramARB);
+  SCM_RETURN(SCM_MAKE_BOOL(glIsProgramARB(prog_id)));")
 
 (define-cproc gl-enable-vertex-attrib-array-arb (index::<uint>)
-  (return <void> "glEnableVertexAttribArrayARB"))
+  "ENSURE(glEnableVertexAttribArrayARB);
+   glEnableVertexAttribArrayARB(index);
+   SCM_RETURN(SCM_UNDEFINED);")
+
 (define-cproc gl-disable-vertex-attrib-array-arb (index::<uint>)
-  (return <void> "glDisableVertexAttribArrayARB"))
+  "ENSURE(glDisableVertexAttribArrayARB);
+   glDisableVertexAttribArrayARB(index);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-program-string-arb (target::<int> format::<int> text::<string>)
    "GLint errorPos;
-    char* str=(char*)SCM_STRING_START(text); 
+    char* str=(char*)SCM_STRING_START(text);
+    ENSURE(glProgramStringARB);
     glProgramStringARB(target, format, strlen(str), str);
     glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorPos);
     if(errorPos!=-1) {
@@ -1250,22 +977,24 @@
     SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-bind-program-arb (target::<int> id::<int>)
-  (return <void> "glBindProgramARB"))
+  "ENSURE(glBindProgramARB);
+   glBindProgramARB(target, id);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-delete-programs-arb (arg0)
-"
-if(SCM_INTEGERP(arg0)) {
-  GLuint prog = Scm_GetInteger(arg0);
-  glDeleteProgramsARB(1,&prog);
-}
-else if(SCM_U32VECTORP(arg0)) {
-  glDeleteProgramsARB(SCM_S32VECTOR_SIZE(arg0), SCM_U32VECTOR_ELEMENTS(arg0));
-}
-SCM_RETURN(SCM_UNDEFINED);
-")
+  "if(SCM_INTEGERP(arg0)) {
+     GLuint prog = Scm_GetInteger(arg0);
+     ENSURE(glDeleteProgramsARB);
+     glDeleteProgramsARB(1,&prog);
+   } else if(SCM_U32VECTORP(arg0)) {
+     ENSURE(glDeleteProgramsARB);
+     glDeleteProgramsARB(SCM_S32VECTOR_SIZE(arg0), SCM_U32VECTOR_ELEMENTS(arg0));
+   }
+   SCM_RETURN(SCM_UNDEFINED); ")
 
 (define-cproc gl-gen-programs-arb (n::<int>)
   "ScmU32Vector *v = SCM_U32VECTOR(Scm_MakeU32Vector(n, 0));
+  ENSURE(glGenProgramsARB);
   glGenProgramsARB(n, SCM_U32VECTOR_ELEMENTS(v));
   SCM_RETURN(SCM_OBJ(v));")
 
@@ -1273,18 +1002,22 @@ SCM_RETURN(SCM_UNDEFINED);
 (define-cproc gl-program-env-parameter-arb 
   (target::<int> param-id::<int> arg0 &rest args)
   "if(SCM_VECTOR4FP(arg0)) {
+    ENSURE(glProgramEnvParameter4fvARB);
     glProgramEnvParameter4fvARB(target, param_id, SCM_VECTOR4F_D(arg0));
   }
   else if(SCM_F32VECTORP(arg0)) {
     if(SCM_F32VECTOR_SIZE(arg0)!=4) { goto err; }
+    ENSURE(glProgramEnvParameter4fvARB);
     glProgramEnvParameter4fvARB(target, param_id, SCM_F32VECTOR_ELEMENTS(arg0));
   }
   else if(SCM_F64VECTORP(arg0)) {
     if(SCM_F64VECTOR_SIZE(arg0)!=4) { goto err; }
+    ENSURE(glProgramEnvParameter4dvARB);
     glProgramEnvParameter4dvARB(target, param_id, SCM_F64VECTOR_ELEMENTS(arg0));
   } 
   else {
     if(1+Scm_Length(args)!=4) { goto err; }
+    ENSURE(glProgramEnvParameter4dARB);
     glProgramEnvParameter4dARB(target, param_id, 
       Scm_GetDouble(arg0),
       Scm_GetDouble(SCM_CAR(args)),
@@ -1300,17 +1033,21 @@ SCM_RETURN(SCM_UNDEFINED);
 (define-cproc gl-program-local-parameter-arb
   (target::<int> param-id::<int> arg0 &rest args)
   "if(SCM_VECTOR4FP(arg0)) {
+    ENSURE(glProgramLocalParameter4fvARB);
     glProgramLocalParameter4fvARB(target, param_id, SCM_VECTOR4F_D(arg0));
   }
   else if(SCM_F32VECTORP(arg0)) {
     if(SCM_F32VECTOR_SIZE(arg0)!=4) { goto err; }
+    ENSURE(glProgramLocalParameter4fvARB);
     glProgramLocalParameter4fvARB(target, param_id, SCM_F32VECTOR_ELEMENTS(arg0));
   }
   else if(SCM_F64VECTORP(arg0)) {
     if(SCM_F64VECTOR_SIZE(arg0)!=4) { goto err; }
+    ENSURE(glProgramLocalParameter4dvARB);
     glProgramLocalParameter4dvARB(target, param_id, SCM_F64VECTOR_ELEMENTS(arg0));
   } else {
     if(1+Scm_Length(args)!=4) { goto err; }
+    ENSURE(glProgramLocalParameter4dARB);
     glProgramLocalParameter4dARB(target, param_id, 
       Scm_GetDouble(arg0),
       Scm_GetDouble(SCM_CAR(args)),
@@ -1329,28 +1066,14 @@ SCM_RETURN(SCM_UNDEFINED);
 ; gl-get-vertex-attrib-arb
 ; gl-get-vertex-attrib-pointer-arb
 
-)) ;; GL_ARB_vertex_program
-
 ;;=============================================================
 ;; GL_ARB_vertex_shader
 ;;
 
-(if "defined(GL_ARB_vertex_shader)" (begin
-
-(define-constant GL_ARB_vertex_shader #t)
-
-(define-enum GL_VERTEX_SHADER_ARB)
-(define-enum GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB)
-(define-enum GL_MAX_VARYING_FLOATS_ARB)
-(define-enum GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB)
-(define-enum GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB)
-(define-enum GL_OBJECT_ACTIVE_ATTRIBUTES_ARB)
-(define-enum GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB)
-
 (define-cproc gl-bind-attrib-location-arb (program::<gl-handle>
                                            index::<uint>
                                            name::<string>)
-  "Scm_Printf(SCM_CURERR, \"quint %d\\n\", index);
+  "ENSURE(glBindAttribLocationARB);
    glBindAttribLocationARB(program, index, Scm_GetStringConst(name));
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -1361,6 +1084,7 @@ SCM_RETURN(SCM_UNDEFINED);
 #define MAXNAMEBUFLEN 1024 /* NB: should be dynamically adjusted, using GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB */
   GLcharARB namebuf[MAXNAMEBUFLEN];
   GLint attrsize = 0; GLenum attrtype = 0;
+  ENSURE(glGetActiveAttribARB);
   glGetActiveAttribARB(program, index, MAXNAMEBUFLEN-1, NULL,
                        &attrsize, &attrtype, namebuf);
   SCM_RETURN(Scm_Values3(Scm_MakeInteger(attrsize), Scm_MakeInteger(attrtype),
@@ -1371,51 +1095,56 @@ SCM_RETURN(SCM_UNDEFINED);
 (define-cproc gl-get-attrib-location-arb (program::<gl-handle>
                                           name::<string>)
   "GLint r;
+   ENSURE(glGetAttribLocationARB);
    r = glGetAttribLocationARB(program, Scm_GetStringConst(name));
    SCM_RETURN(Scm_MakeInteger(r));")
-
-)) ;; GL_ARB_vertex_shader
 
 ;;=============================================================
 ;; GL_ARB_window_pos
 ;;
 
-(if "defined(GL_ARB_window_pos)" (begin
-
-(define-constant GL_ARB_window_pos #t)
-
 (define-cproc gl-window-pos-arb (arg0 &rest args)
   "if (SCM_F32VECTORP(arg0)) {
     switch (SCM_F32VECTOR_SIZE(arg0)) {
-     case 2: glWindowPos2fvARB(SCM_F32VECTOR_ELEMENTS(arg0)); break;
-     case 3: glWindowPos3fvARB(SCM_F32VECTOR_ELEMENTS(arg0)); break;
+     case 2: ENSURE(glWindowPos2fvARB);
+             glWindowPos2fvARB(SCM_F32VECTOR_ELEMENTS(arg0)); break;
+     case 3: ENSURE(glWindowPos3fvARB); 
+             glWindowPos3fvARB(SCM_F32VECTOR_ELEMENTS(arg0)); break;
      default: goto err;
     }
   } else if (SCM_S32VECTORP(arg0)) {
     switch (SCM_S32VECTOR_SIZE(arg0)) {
-     case 2: glWindowPos2ivARB(SCM_S32VECTOR_ELEMENTS(arg0)); break;
-     case 3: glWindowPos3ivARB(SCM_S32VECTOR_ELEMENTS(arg0)); break;
+     case 2: ENSURE(glWindowPos2ivARB);
+             glWindowPos2ivARB(SCM_S32VECTOR_ELEMENTS(arg0)); break;
+     case 3: ENSURE(glWindowPos3ivARB);
+             glWindowPos3ivARB(SCM_S32VECTOR_ELEMENTS(arg0)); break;
      default: goto err;
     }
   } else if (SCM_S16VECTORP(arg0)) {
     switch (SCM_S16VECTOR_SIZE(arg0)) {
-     case 2: glWindowPos2svARB(SCM_S16VECTOR_ELEMENTS(arg0)); break;
-     case 3: glWindowPos3svARB(SCM_S16VECTOR_ELEMENTS(arg0)); break;
+     case 2: ENSURE(glWindowPos2svARB);
+             glWindowPos2svARB(SCM_S16VECTOR_ELEMENTS(arg0)); break;
+     case 3: ENSURE(glWindowPos3svARB);
+             glWindowPos3svARB(SCM_S16VECTOR_ELEMENTS(arg0)); break;
      default: goto err;
     }
   } else if (SCM_F64VECTORP(arg0)) {
     switch (SCM_F64VECTOR_SIZE(arg0)) {
-     case 2: glWindowPos2dvARB(SCM_F64VECTOR_ELEMENTS(arg0)); break;
-     case 3: glWindowPos3dvARB(SCM_F64VECTOR_ELEMENTS(arg0)); break;
+     case 2: ENSURE(glWindowPos2dvARB);
+             glWindowPos2dvARB(SCM_F64VECTOR_ELEMENTS(arg0)); break;
+     case 3: ENSURE(glWindowPos3dvARB);
+             glWindowPos3dvARB(SCM_F64VECTOR_ELEMENTS(arg0)); break;
      default: goto err;
     }
   } else {
     int len = Scm_Length(args) + 1;
     switch (len) {
-     case 2: glWindowPos2dARB(Scm_GetDouble(arg0), 
+     case 2: ENSURE(glWindowPos2dARB);
+             glWindowPos2dARB(Scm_GetDouble(arg0), 
                               Scm_GetDouble(SCM_CAR(args)));
              break;
-     case 3: glWindowPos3dARB(Scm_GetDouble(arg0), 
+     case 3: ENSURE(glWindowPos3dARB);
+             glWindowPos3dARB(Scm_GetDouble(arg0), 
                               Scm_GetDouble(SCM_CAR(args)),
                               Scm_GetDouble(SCM_CADR(args)));
              break;
@@ -1427,1807 +1156,458 @@ SCM_RETURN(SCM_UNDEFINED);
   Scm_Error(\"bad arguments for gl-window-pos: %S\", arg0);
   SCM_RETURN(SCM_UNDEFINED);")
 
-)) ;; GL_ARB_window_pos
-
 ;;=============================================================
 ;; GL_ATI_texture_float
 ;;
-
-(if "defined(GL_ATI_texture_float)" (begin
-
-(define-constant GL_ATI_texture_float #t)
-
-(define-enum GL_RGBA_FLOAT32_ATI)
-(define-enum GL_RGB_FLOAT32_ATI)
-(define-enum GL_ALPHA_FLOAT32_ATI)
-(define-enum GL_INTENSITY_FLOAT32_ATI)
-(define-enum GL_LUMINANCE_FLOAT32_ATI)
-(define-enum GL_LUMINANCE_ALPHA_FLOAT32_ATI)
-(define-enum GL_RGBA_FLOAT16_ATI)
-(define-enum GL_RGB_FLOAT16_ATI)
-(define-enum GL_ALPHA_FLOAT16_ATI)
-(define-enum GL_INTENSITY_FLOAT16_ATI)
-(define-enum GL_LUMINANCE_FLOAT16_ATI)
-(define-enum GL_LUMINANCE_ALPHA_FLOAT16_ATI)
-
-)) ;; GL_ATI_texture_float
 
 ;;=============================================================
 ;; GL_ATI_draw_buffers
 ;;
 
-(if "defined(GL_ATI_draw_buffers)" (begin
-
-(define-constant GL_ATI_draw_buffers #t)
-
-(define-enum GL_MAX_DRAW_BUFFERS_ATI)
-(define-enum GL_DRAW_BUFFER0_ATI)
-(define-enum GL_DRAW_BUFFER1_ATI)
-(define-enum GL_DRAW_BUFFER2_ATI)
-(define-enum GL_DRAW_BUFFER3_ATI)
-(define-enum GL_DRAW_BUFFER4_ATI)
-(define-enum GL_DRAW_BUFFER5_ATI)
-(define-enum GL_DRAW_BUFFER6_ATI)
-(define-enum GL_DRAW_BUFFER7_ATI)
-(define-enum GL_DRAW_BUFFER8_ATI)
-(define-enum GL_DRAW_BUFFER9_ATI)
-(define-enum GL_DRAW_BUFFER10_ATI)
-(define-enum GL_DRAW_BUFFER11_ATI)
-(define-enum GL_DRAW_BUFFER12_ATI)
-(define-enum GL_DRAW_BUFFER13_ATI)
-(define-enum GL_DRAW_BUFFER14_ATI)
-(define-enum GL_DRAW_BUFFER15_ATI)
-
 (define-cproc gl-draw-buffers-ati (bufs::<s32vector>)
-  "glDrawBuffersATI(SCM_S32VECTOR_SIZE(bufs), 
+  "ENSURE(glDrawBuffersATI);
+   glDrawBuffersATI(SCM_S32VECTOR_SIZE(bufs), 
                     (const GLenum *)SCM_S32VECTOR_ELEMENTS(bufs));
    SCM_RETURN(SCM_UNDEFINED);")
-
-)) ;; GL_ATI_draw_buffers
 
 ;;=============================================================
 ;; GL_EXT_422_pixels
 ;;
 
-(if "defined(GL_EXT_422_pixels)" (begin
-
-(define-constant GL_EXT_422_pixels #t)
-
-(define-enum GL_422_EXT)
-(define-enum GL_422_REV_EXT)
-(define-enum GL_422_AVERAGE_EXT)
-(define-enum GL_422_REV_AVERAGE_EXT)
-
-)) ;; GL_EXT_422_pixels
-
 ;;=============================================================
 ;; GL_EXT_abgr
 ;;
-
-(if "defined(GL_EXT_abgr)" (begin
-
-(define-constant GL_EXT_abgr #t)
-
-(define-enum GL_ABGR_EXT)
-
-)) ;; GL_EXT_abgr
 
 ;;=============================================================
 ;; GL_EXT_bgra
 ;;
 
-(if "defined(GL_EXT_bgra)" (begin
-
-(define-constant GL_EXT_bgra #t)
-
-(define-enum GL_BGR_EXT)
-(define-enum GL_BGRA_EXT)
-
-)) ;; GL_EXT_bgra
-
 ;;=============================================================
 ;; GL_EXT_blend_color
 ;;
 
-(if "defined(GL_EXT_blend_color)" (begin
-
-(define-constant GL_EXT_blend_color #t)
-
-(define-enum GL_CONSTANT_COLOR_EXT)
-(define-enum GL_ONE_MINUS_CONSTANT_COLOR_EXT)
-(define-enum GL_CONSTANT_ALPHA_EXT)
-(define-enum GL_ONE_MINUS_CONSTANT_ALPHA_EXT)
-(define-enum GL_BLEND_COLOR_EXT)
-
 (define-cproc gl-blend-color-ext (red::<float> green::<float>
                                   blue::<float> alpha::<float>)
-  (return <void> "glBlendColorEXT"))
-
-)) ;; GL_EXT_blend_color
+  "ENSURE(glBlendColorEXT);
+   glBlendColorEXT(red, green, blue, alpha);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; GL_EXT_blend_equation_separate
 ;;
 
-(if "defined(GL_EXT_blend_equation_separate)" (begin
-
-(define-constant GL_EXT_blend_equation_separate #t)
-
-(define-enum GL_BLEND_EQUATION_RGB_EXT)
-(define-enum GL_BLEND_EQUATION_ALPHA_EXT)
-
-;(define-cproc gl-blend-equation-separate-ext (mode-rgb::<int>
-;                                              mode-alpha::<int>)
-;  (return <void> "glBlendEquationSeparateEXT"))
-
-)) ;; GL_EXT_blend_equation_separate
+(define-cproc gl-blend-equation-separate-ext (mode-rgb::<int>
+                                              mode-alpha::<int>)
+  "ENSURE(glBlendEquationSeparateEXT);
+   glBlendEquationSeparateEXT(mode_rgb, mode_alpha);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; GL_EXT_blend_func_separate
 ;;
 
-(if "defined(GL_EXT_blend_func_separate)" (begin
-
-(define-constant GL_EXT_blend_func_separate #t)
-
-(define-enum GL_BLEND_DST_RGB_EXT)
-(define-enum GL_BLEND_SRC_RGB_EXT)
-(define-enum GL_BLEND_DST_ALPHA_EXT)
-(define-enum GL_BLEND_SRC_ALPHA_EXT)
-
 (define-cproc gl-blend-func-separate-ext (sfactor-rgb::<int>
                                           dfactor-rgb::<int>
                                           sfactor-alpha::<int>
                                           dfactor-alpha::<int>)
-  (return <void> "glBlendFuncSeparateEXT"))
-
-)) ;; GL_EXT_blend_func_separate
+  "ENSURE(glBlendFuncSeparateEXT);
+   glBlendFuncSeparateEXT(sfactor_rgb, dfactor_rgb, sfactor_alpha, dfactor_alpha);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; GL_EXT_blend_logic_op
 ;;
 
-(if "defined(GL_EXT_blend_logic_op)" (begin
-
-(define-constant GL_EXT_blend_logic_op #t)
-
-)) ;; GL_EXT_blend_logic_op
-
 ;;=============================================================
 ;; GL_EXT_blend_minmax
 ;;
 
-(if "defined(GL_EXT_blend_minmax)" (begin
-
-(define-constant GL_EXT_blend_minmax #t)
-
-(define-enum GL_FUNC_ADD_EXT)
-(define-enum GL_MIN_EXT)
-(define-enum GL_MAX_EXT)
-(define-enum GL_BLEND_EQUATION_EXT)
-
 (define-cproc gl-blend-equation-ext (mode::<int>)
-  (return <void> "glBlendEquationEXT"))
-
-)) ;; GL_EXT_blend_minmax
+  "ENSURE(glBlendEquationEXT);
+   glBlendEquationEXT(mode);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; GL_EXT_blend_subtract
 ;;
 
-(if "defined(GL_EXT_blend_subtract)" (begin
-
-(define-constant GL_EXT_blend_subtract #t)
-
-(define-enum GL_FUNC_SUBTRACT_EXT)
-(define-enum GL_FUNC_REVERSE_SUBTRACT_EXT)
-
-)) ;; GL_EXT_blend_subtract
-
 ;;=============================================================
 ;; GL_EXT_Cg_shader
 ;;
-
-(if "defined(GL_EXT_Cg_shader)" (begin
-
-(define-constant GL_EXT_Cg_shader #t)
-
-(define-enum GL_CG_VERTEX_SHADER_EXT)
-(define-enum GL_CG_FRAGMENT_SHADER_EXT)
-
-)) ;; GL_EXT_Cg_shader
 
 ;;=============================================================
 ;; GL_EXT_polygon_offset
 ;;
 
-(if "defined(GL_EXT_polygon_offset)" (begin
-
-(define-constant GL_EXT_polygon_offset #t)
-
-(define-enum GL_POLYGON_OFFSET_EXT)
-(define-enum GL_POLYGON_OFFSET_FACTOR_EXT)
-(define-enum GL_POLYGON_OFFSET_BIAS_EXT)
-
-)) ;; GL_EXT_polygon_offset
-
 ;;=============================================================
 ;; GL_EXT_clip_volume_hint
 ;;
-
-(if "defined(GL_EXT_clip_volume_hint)" (begin
-
-(define-constant GL_EXT_clip_volume_hint #t)
-
-(define-enum GL_CLIP_VOLUME_CLIPPING_HINT_EXT)
-
-)) ;; GL_EXT_clip_volume_hint
 
 ;;=============================================================
 ;; GL_EXT_cmyka
 ;;
 
-(if "defined(GL_EXT_cmyka)" (begin
-
-(define-constant GL_EXT_cmyka #t)
-
-(define-enum GL_CMYK_EXT)
-(define-enum GL_CMYKA_EXT)
-(define-enum GL_PACK_CMYK_HINT_EXT)
-(define-enum GL_UNPACK_CMYK_HINT_EXT)
-
-)) ;; GL_EXT_cmyka
-
 ;;=============================================================
 ;; GL_EXT_color_subtable
 ;;
-
-(if "defined(GL_EXT_color_subtable)" (begin
-
-(define-constant GL_EXT_color_subtable #t)
-
-)) ;; GL_EXT_color_subtable
 
 ;;=============================================================
 ;; GL_EXT_compiled_vertex_array
 ;;
 
-(if "defined(GL_EXT_compiled_vertex_array)" (begin
-
-(define-constant GL_EXT_compiled_vertex_array #t)
-
-(define-enum GL_ARRAY_ELEMENT_LOCK_FIRST_EXT)
-(define-enum GL_ARRAY_ELEMENT_LOCK_COUNT_EXT)
-
 (define-cproc gl-lock-arrays-ext (first::<int> count::<uint>)
-  (return <void> "glLockArraysEXT"))
-(define-cproc gl-unlock-arrays-ext ()
-  (return <void> "glUnlockArraysEXT"))
+  "ENSURE(glLockArraysEXT);
+   glLockArraysEXT(first, count);
+   SCM_RETURN(SCM_UNDEFINED);")
 
-)) ;; GL_EXT_compiled_vertex_array
+(define-cproc gl-unlock-arrays-ext ()
+  "ENSURE(glUnlockArraysEXT);
+   glUnlockArraysEXT();
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; GL_EXT_convolution
 ;;
 
-(if "defined(GL_EXT_convolution)" (begin
-
-(define-constant GL_EXT_convolution #t)
-
-(define-enum GL_CONVOLUTION_1D_EXT)
-(define-enum GL_CONVOLUTION_2D_EXT)
-(define-enum GL_SEPARABLE_2D_EXT)
-(define-enum GL_CONVOLUTION_BORDER_MODE_EXT)
-(define-enum GL_CONVOLUTION_FILTER_SCALE_EXT)
-(define-enum GL_CONVOLUTION_FILTER_BIAS_EXT)
-(define-enum GL_REDUCE_EXT)
-(define-enum GL_CONVOLUTION_FORMAT_EXT)
-(define-enum GL_CONVOLUTION_WIDTH_EXT)
-(define-enum GL_CONVOLUTION_HEIGHT_EXT)
-(define-enum GL_MAX_CONVOLUTION_WIDTH_EXT)
-(define-enum GL_MAX_CONVOLUTION_HEIGHT_EXT)
-(define-enum GL_POST_CONVOLUTION_RED_SCALE_EXT)
-(define-enum GL_POST_CONVOLUTION_GREEN_SCALE_EXT)
-(define-enum GL_POST_CONVOLUTION_BLUE_SCALE_EXT)
-(define-enum GL_POST_CONVOLUTION_ALPHA_SCALE_EXT)
-(define-enum GL_POST_CONVOLUTION_RED_BIAS_EXT)
-(define-enum GL_POST_CONVOLUTION_GREEN_BIAS_EXT)
-(define-enum GL_POST_CONVOLUTION_BLUE_BIAS_EXT)
-(define-enum GL_POST_CONVOLUTION_ALPHA_BIAS_EXT)
-
-)) ;; GL_EXT_convolution
-
 ;;=============================================================
 ;; GL_EXT_copy_texture
 ;;
-
-(if "defined(GL_EXT_copy_texture)" (begin
-
-(define-constant GL_EXT_copy_texture #t)
-
-)) ;; GL_EXT_copy_texture
 
 ;;=============================================================
 ;; GL_EXT_cull_vertex
 ;;
 
-(if "defined(GL_EXT_cull_vertex)" (begin
-
-(define-constant GL_EXT_cull_vertex #t)
-
-(define-enum GL_CULL_VERTEX_EXT)
-(define-enum GL_CULL_VERTEX_EYE_POSITION_EXT)
-(define-enum GL_CULL_VERTEX_OBJECT_POSITION_EXT)
-
-)) ;; GL_EXT_cull_vertex
-
 ;;=============================================================
 ;; GL_EXT_depth_bounds_test
 ;;
 
-(if "defined(GL_EXT_depth_bounds_test)" (begin
-
-(define-constant GL_EXT_depth_bounds_test #t)
-
-(define-enum GL_DEPTH_BOUNDS_TEST_EXT)
-(define-enum GL_DEPTH_BOUNDS_EXT)
-
 (define-cproc gl-depth-bounds-ext (zmin::<double> zmax::<double>)
-  (return <void> "glDepthBoundsEXT"))
-
-)) ;; GL_EXT_depth_bounds_test
+  "ENSURE(glDepthBoundsEXT);
+   glDepthBoundsEXT(zmin, zmax);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 ;;=============================================================
 ;; GL_EXT_draw_range_elements
 ;;
 
-(if "defined(GL_EXT_draw_range_elements)" (begin
-
-(define-constant GL_EXT_draw_range_elements #t)
-
-(define-enum GL_MAX_ELEMENTS_VERTICES_EXT)
-(define-enum GL_MAX_ELEMENTS_INDICES_EXT)
-
 ; gl-draw-range-eleemnts-ext
-
-)) ;; GL_EXT_draw_range_elements
 
 ;;=============================================================
 ;; GL_EXT_fog_coord
 ;;
 
-(if "defined(GL_EXT_fog_coord)" (begin
-
-(define-constant GL_EXT_fog_coord #t)
-
-(define-enum GL_FOG_COORDINATE_SOURCE_EXT)
-(define-enum GL_FOG_COORDINATE_EXT)
-(define-enum GL_FRAGMENT_DEPTH_EXT)
-(define-enum GL_CURRENT_FOG_COORDINATE_EXT)
-(define-enum GL_FOG_COORDINATE_ARRAY_TYPE_EXT)
-(define-enum GL_FOG_COORDINATE_ARRAY_STRIDE_EXT)
-(define-enum GL_FOG_COORDINATE_ARRAY_POINTER_EXT)
-(define-enum GL_FOG_COORDINATE_ARRAY_EXT)
-
 ; gl-fog-coord-ext
 ; gl-fog-coord-pointer-ext
-
-)) ;; GL_EXT_fog_coord
 
 ;;=============================================================
 ;; GL_EXT_histogram
 ;;
 
-(if "defined(GL_EXT_histogram)" (begin
-
-(define-constant GL_EXT_histogram #t)
-
-(define-enum GL_HISTOGRAM_EXT)
-(define-enum GL_PROXY_HISTOGRAM_EXT)
-(define-enum GL_HISTOGRAM_WIDTH_EXT)
-(define-enum GL_HISTOGRAM_FORMAT_EXT)
-(define-enum GL_HISTOGRAM_RED_SIZE_EXT)
-(define-enum GL_HISTOGRAM_GREEN_SIZE_EXT)
-(define-enum GL_HISTOGRAM_BLUE_SIZE_EXT)
-(define-enum GL_HISTOGRAM_ALPHA_SIZE_EXT)
-(define-enum GL_HISTOGRAM_LUMINANCE_SIZE_EXT)
-(define-enum GL_HISTOGRAM_SINK_EXT)
-(define-enum GL_MINMAX_EXT)
-(define-enum GL_MINMAX_FORMAT_EXT)
-(define-enum GL_MINMAX_SINK_EXT)
-(define-enum GL_TABLE_TOO_LARGE_EXT)
-
-)) ;; GL_EXT_histogram
-
 ;;=============================================================
 ;; GL_EXT_misc_attribute
 ;;
-
-(if "defined(GL_EXT_misc_attribute)" (begin
-
-(define-constant GL_EXT_misc_attribute #t)
-
-)) ;; GL_EXT_misc_attribute
 
 ;;=============================================================
 ;; GL_EXT_index_array_formats
 ;;
 
-(if "defined(GL_EXT_index_array_formats)" (begin
-
-(define-constant GL_EXT_index_array_formats #t)
-
-(define-enum GL_IUI_V2F_EXT)
-(define-enum GL_IUI_V3F_EXT)
-(define-enum GL_IUI_N3F_V2F_EXT)
-(define-enum GL_IUI_N3F_V3F_EXT)
-(define-enum GL_T2F_IUI_V2F_EXT)
-(define-enum GL_T2F_IUI_V3F_EXT)
-(define-enum GL_T2F_IUI_N3F_V2F_EXT)
-(define-enum GL_T2F_IUI_N3F_V3F_EXT)
-
-)) ;; GL_EXT_index_array_formats
-
 ;;=============================================================
 ;; GL_EXT_index_func
 ;;
-
-(if "defined(GL_EXT_index_func)" (begin
-
-(define-constant GL_EXT_index_func #t)
-
-(define-enum GL_INDEX_TEST_EXT)
-(define-enum GL_INDEX_TEST_FUNC_EXT)
-(define-enum GL_INDEX_TEST_REF_EXT)
-
-)) ;; GL_EXT_index_func
 
 ;;=============================================================
 ;; GL_EXT_index_material
 ;;
 
-(if "defined(GL_EXT_index_material)" (begin
-
-(define-constant GL_EXT_index_material #t)
-
-(define-enum GL_INDEX_MATERIAL_EXT)
-(define-enum GL_INDEX_MATERIAL_PARAMETER_EXT)
-(define-enum GL_INDEX_MATERIAL_FACE_EXT)
-
-)) ;; GL_EXT_index_material
-
 ;;=============================================================
 ;; GL_EXT_index_texture
 ;;
-
-(if "defined(GL_EXT_index_texture)" (begin
-
-(define-constant GL_EXT_index_texture #t)
-
-)) ;; GL_EXT_index_texture
 
 ;;=============================================================
 ;; GL_EXT_light_texture
 ;;
 
-(if "defined(GL_EXT_light_texture)" (begin
-
-(define-constant GL_EXT_light_texture #t)
-
-(define-enum GL_FRAGMENT_MATERIAL_EXT)
-(define-enum GL_FRAGMENT_NORMAL_EXT)
-(define-enum GL_FRAGMENT_COLOR_EXT)
-(define-enum GL_ATTENUATION_EXT)
-(define-enum GL_SHADOW_ATTENUATION_EXT)
-(define-enum GL_TEXTURE_APPLICATION_MODE_EXT)
-(define-enum GL_TEXTURE_LIGHT_EXT)
-(define-enum GL_TEXTURE_MATERIAL_FACE_EXT)
-(define-enum GL_TEXTURE_MATERIAL_PARAMETER_EXT)
-
-)) ;; GL_EXT_light_texture
-
 ;;=============================================================
 ;; GL_EXT_multi_draw_arrays
 ;;
 
-(if "defined(GL_EXT_multi_draw_arrays)" (begin
-
-(define-constant GL_EXT_multi_draw_arrays #t)
-
 ; gl-multi-draw-arrays-ext
 ; gl-multi-draw-elements-ext
-
-)) ;; GL_EXT_multi_draw_arrays
 
 ;;=============================================================
 ;; GL_EXT_packed_pixels
 ;;
 
-(if "defined(GL_EXT_packed_pixels)" (begin
-
-(define-constant GL_EXT_packed_pixels #t)
-
-(define-enum GL_UNSIGNED_BYTE_3_3_2_EXT)
-(define-enum GL_UNSIGNED_SHORT_4_4_4_4_EXT)
-(define-enum GL_UNSIGNED_SHORT_5_5_5_1_EXT)
-(define-enum GL_UNSIGNED_INT_8_8_8_8_EXT)
-(define-enum GL_UNSIGNED_INT_10_10_10_2_EXT)
-
-)) ;; GL_EXT_packed_pixels
-
 ;;=============================================================
 ;; GL_EXT_paletted_texture
 ;;
-
-(if "defined(GL_EXT_paletted_texture)" (begin
-
-(define-constant GL_EXT_paletted_texture #t)
-
-(define-enum GL_COLOR_INDEX1_EXT)
-(define-enum GL_COLOR_INDEX2_EXT)
-(define-enum GL_COLOR_INDEX4_EXT)
-(define-enum GL_COLOR_INDEX8_EXT)
-(define-enum GL_COLOR_INDEX12_EXT)
-(define-enum GL_COLOR_INDEX16_EXT)
-(define-enum GL_TEXTURE_INDEX_SIZE_EXT)
 
 ; gl-color-table-ext
 ; gl-color-sub-table-ext
 ; gl-get-color-table-ext
 ; gl-get-color-table-parameter-ext
 
-
-)) ;; GL_EXT_paletted_texture
-
 ;;=============================================================
 ;; GL_EXT_pixel_buffer_object
 ;;
-
-(if "defined(GL_EXT_pixel_buffer_object)" (begin
-
-(define-constant GL_EXT_pixel_buffer_object #t)
-
-(define-enum GL_PIXEL_PACK_BUFFER_EXT)
-(define-enum GL_PIXEL_UNPACK_BUFFER_EXT)
-(define-enum GL_PIXEL_PACK_BUFFER_BINDING_EXT)
-(define-enum GL_PIXEL_UNPACK_BUFFER_BINDING_EXT)
-
-)) ;; GL_EXT_pixel_buffer_object
 
 ;;=============================================================
 ;; GL_EXT_pixel_transform
 ;;
 
-(if "defined(GL_EXT_pixel_transform)" (begin
-
-(define-constant GL_EXT_pixel_transform #t)
-
-(define-enum GL_PIXEL_TRANSFORM_2D_EXT)
-(define-enum GL_PIXEL_MAG_FILTER_EXT)
-(define-enum GL_PIXEL_MIN_FILTER_EXT)
-(define-enum GL_PIXEL_CUBIC_WEIGHT_EXT)
-(define-enum GL_CUBIC_EXT)
-(define-enum GL_AVERAGE_EXT)
-(define-enum GL_PIXEL_TRANSFORM_2D_STACK_DEPTH_EXT)
-(define-enum GL_MAX_PIXEL_TRANSFORM_2D_STACK_DEPTH_EXT)
-(define-enum GL_PIXEL_TRANSFORM_2D_MATRIX_EXT)
-
-)) ;; GL_EXT_pixel_transform
-
 ;;=============================================================
 ;; GL_EXT_pixel_transform_color_table
 ;;
-
-(if "defined(GL_EXT_pixel_transform_color_table)" (begin
-
-(define-constant GL_EXT_pixel_transform_color_table #t)
-
-)) ;; GL_EXT_pixel_transform_color_table
 
 ;;=============================================================
 ;; GL_EXT_point_parameters
 ;;
 
-(if "defined(GL_EXT_point_parameters)" (begin
-
-(define-constant GL_EXT_point_parameters #t)
-
-(define-enum GL_POINT_SIZE_MIN_EXT)
-(define-enum GL_POINT_SIZE_MAX_EXT)
-(define-enum GL_POINT_FADE_THRESHOLD_SIZE_EXT)
-(define-enum GL_DISTANCE_ATTENUATION_EXT)
-
 ; gl-point-parameter-ext
-
-)) ;; GL_EXT_point_parameters
 
 ;;=============================================================
 ;; GL_EXT_rescale_normal
 ;;
 
-(if "defined(GL_EXT_rescale_normal)" (begin
-
-(define-constant GL_EXT_rescale_normal #t)
-
-(define-enum GL_RESCALE_NORMAL_EXT)
-
-)) ;; GL_EXT_rescale_normal
-
 ;;=============================================================
 ;; GL_EXT_secondary_color
 ;;
-
-(if "defined(GL_EXT_secondary_color)" (begin
-
-(define-constant GL_EXT_secondary_color #t)
-
-(define-enum GL_COLOR_SUM_EXT)
-(define-enum GL_CURRENT_SECONDARY_COLOR_EXT)
-(define-enum GL_SECONDARY_COLOR_ARRAY_SIZE_EXT)
-(define-enum GL_SECONDARY_COLOR_ARRAY_TYPE_EXT)
-(define-enum GL_SECONDARY_COLOR_ARRAY_STRIDE_EXT)
-(define-enum GL_SECONDARY_COLOR_ARRAY_POINTER_EXT)
-(define-enum GL_SECONDARY_COLOR_ARRAY_EXT)
-
-)) ;; GL_EXT_secondary_color
 
 ;;=============================================================
 ;; GL_EXT_separate_specular_color
 ;;
 
-(if "defined(GL_EXT_separate_specular_color)" (begin
-
-(define-constant GL_EXT_separate_specular_color #t)
-
-(define-enum GL_LIGHT_MODEL_COLOR_CONTROL_EXT)
-(define-enum GL_SINGLE_COLOR_EXT)
-(define-enum GL_SEPARATE_SPECULAR_COLOR_EXT)
-
-)) ;; GL_EXT_separate_specular_color
-
 ;;=============================================================
 ;; GL_EXT_shadow_funcs
 ;;
-
-(if "defined(GL_EXT_shadow_funcs)" (begin
-
-(define-constant GL_EXT_shadow_funcs #t)
-
-)) ;; GL_EXT_shadow_funcs
 
 ;;=============================================================
 ;; GL_EXT_shared_texture_palette
 ;;
 
-(if "defined(GL_EXT_shared_texture_palette)" (begin
-
-(define-constant GL_EXT_shared_texture_palette #t)
-
-(define-enum GL_SHARED_TEXTURE_PALETTE_EXT)
-
-)) ;; GL_EXT_shared_texture_palette
-
 ;;=============================================================
 ;; GL_EXT_stencil_two_side
 ;;
-
-(if "defined(GL_EXT_stencil_two_side)" (begin
-
-(define-constant GL_EXT_stencil_two_side #t)
-
-(define-enum GL_STENCIL_TEST_TWO_SIDE_EXT)
-(define-enum GL_ACTIVE_STENCIL_FACE_EXT)
-
-)) ;; GL_EXT_stencil_two_side
 
 ;;=============================================================
 ;; GL_EXT_stencil_wrap
 ;;
 
-(if "defined(GL_EXT_stencil_wrap)" (begin
-
-(define-constant GL_EXT_stencil_wrap #t)
-
-(define-enum GL_INCR_WRAP_EXT)
-(define-enum GL_DECR_WRAP_EXT)
-
-)) ;; GL_EXT_stencil_wrap
-
 ;;=============================================================
 ;; GL_EXT_subtexture
 ;;
-
-(if "defined(GL_EXT_subtexture)" (begin
-
-(define-constant GL_EXT_subtexture #t)
-
-)) ;; GL_EXT_subtexture
 
 ;;=============================================================
 ;; GL_EXT_texture
 ;;
 
-(if "defined(GL_EXT_texture)" (begin
-
-(define-constant GL_EXT_texture #t)
-
-(define-enum GL_ALPHA4_EXT)
-(define-enum GL_ALPHA8_EXT)
-(define-enum GL_ALPHA12_EXT)
-(define-enum GL_ALPHA16_EXT)
-(define-enum GL_LUMINANCE4_EXT)
-(define-enum GL_LUMINANCE8_EXT)
-(define-enum GL_LUMINANCE12_EXT)
-(define-enum GL_LUMINANCE16_EXT)
-(define-enum GL_LUMINANCE4_ALPHA4_EXT)
-(define-enum GL_LUMINANCE6_ALPHA2_EXT)
-(define-enum GL_LUMINANCE8_ALPHA8_EXT)
-(define-enum GL_LUMINANCE12_ALPHA4_EXT)
-(define-enum GL_LUMINANCE12_ALPHA12_EXT)
-(define-enum GL_LUMINANCE16_ALPHA16_EXT)
-(define-enum GL_INTENSITY_EXT)
-(define-enum GL_INTENSITY4_EXT)
-(define-enum GL_INTENSITY8_EXT)
-(define-enum GL_INTENSITY12_EXT)
-(define-enum GL_INTENSITY16_EXT)
-(define-enum GL_RGB2_EXT)
-(define-enum GL_RGB4_EXT)
-(define-enum GL_RGB5_EXT)
-(define-enum GL_RGB8_EXT)
-(define-enum GL_RGB10_EXT)
-(define-enum GL_RGB12_EXT)
-(define-enum GL_RGB16_EXT)
-(define-enum GL_RGBA2_EXT)
-(define-enum GL_RGBA4_EXT)
-(define-enum GL_RGB5_A1_EXT)
-(define-enum GL_RGBA8_EXT)
-(define-enum GL_RGB10_A2_EXT)
-(define-enum GL_RGBA12_EXT)
-(define-enum GL_RGBA16_EXT)
-(define-enum GL_TEXTURE_RED_SIZE_EXT)
-(define-enum GL_TEXTURE_GREEN_SIZE_EXT)
-(define-enum GL_TEXTURE_BLUE_SIZE_EXT)
-(define-enum GL_TEXTURE_ALPHA_SIZE_EXT)
-(define-enum GL_TEXTURE_LUMINANCE_SIZE_EXT)
-(define-enum GL_TEXTURE_INTENSITY_SIZE_EXT)
-(define-enum GL_REPLACE_EXT)
-(define-enum GL_PROXY_TEXTURE_1D_EXT)
-(define-enum GL_PROXY_TEXTURE_2D_EXT)
-(define-enum GL_TEXTURE_TOO_LARGE_EXT)
-
-)) ;; GL_EXT_texture
-
 ;;=============================================================
 ;; GL_EXT_texture_compression_s3tc
 ;;
-
-(if "defined(GL_EXT_texture_compression_s3tc)" (begin
-
-(define-constant GL_EXT_texture_compression_s3tc #t)
-
-(define-enum GL_COMPRESSED_RGB_S3TC_DXT1_EXT)
-(define-enum GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)
-(define-enum GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)
-(define-enum GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
-
-)) ;; GL_EXT_texture_compression_s3tc
 
 ;;=============================================================
 ;; GL_EXT_texture_cube_map
 ;;
 
-(if "defined(GL_EXT_texture_cube_map)" (begin
-
-(define-constant GL_EXT_texture_cube_map #t)
-
-(define-enum GL_NORMAL_MAP_EXT)
-(define-enum GL_REFLECTION_MAP_EXT)
-(define-enum GL_TEXTURE_CUBE_MAP_EXT)
-(define-enum GL_TEXTURE_BINDING_CUBE_MAP_EXT)
-(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT)
-(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_X_EXT)
-(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_Y_EXT)
-(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_EXT)
-(define-enum GL_TEXTURE_CUBE_MAP_POSITIVE_Z_EXT)
-(define-enum GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_EXT)
-(define-enum GL_PROXY_TEXTURE_CUBE_MAP_EXT)
-(define-enum GL_MAX_CUBE_MAP_TEXTURE_SIZE_EXT)
-
-)) ;; GL_EXT_texture_cube_map
-
 ;;=============================================================
 ;; GL_EXT_coordinate_frame
 ;;
-
-(if "defined(GL_EXT_coordinate_frame)" (begin
-
-(define-constant GL_EXT_coordinate_frame #t)
-
-(define-enum GL_TANGENT_ARRAY_EXT)
-(define-enum GL_BINORMAL_ARRAY_EXT)
-(define-enum GL_CURRENT_TANGENT_EXT)
-(define-enum GL_CURRENT_BINORMAL_EXT)
-(define-enum GL_TANGENT_ARRAY_TYPE_EXT)
-(define-enum GL_TANGENT_ARRAY_STRIDE_EXT)
-(define-enum GL_BINORMAL_ARRAY_TYPE_EXT)
-(define-enum GL_BINORMAL_ARRAY_STRIDE_EXT)
-(define-enum GL_TANGENT_ARRAY_POINTER_EXT)
-(define-enum GL_BINORMAL_ARRAY_POINTER_EXT)
-(define-enum GL_MAP1_TANGENT_EXT)
-(define-enum GL_MAP2_TANGENT_EXT)
-(define-enum GL_MAP1_BINORMAL_EXT)
-(define-enum GL_MAP2_BINORMAL_EXT)
-
-)) ;; GL_EXT_coordinate_frame
 
 ;;=============================================================
 ;; GL_EXT_texture_edge_clamp
 ;;
 
-(if "defined(GL_EXT_texture_edge_clamp)" (begin
-
-(define-constant GL_EXT_texture_edge_clamp #t)
-
-(define-enum GL_CLAMP_TO_EDGE_EXT)
-
-)) ;; GL_EXT_texture_edge_clamp
-
 ;;=============================================================
 ;; GL_EXT_texture_env_add
 ;;
-
-(if "defined(GL_EXT_texture_env_add)" (begin
-
-(define-constant GL_EXT_texture_env_add #t)
-
-)) ;; GL_EXT_texture_env_add
 
 ;;=============================================================
 ;; GL_EXT_texture_env_combine
 ;;
 
-(if "defined(GL_EXT_texture_env_combine)" (begin
-
-(define-constant GL_EXT_texture_env_combine #t)
-
-(define-enum GL_COMBINE_EXT)
-(define-enum GL_COMBINE_RGB_EXT)
-(define-enum GL_COMBINE_ALPHA_EXT)
-(define-enum GL_RGB_SCALE_EXT)
-(define-enum GL_ADD_SIGNED_EXT)
-(define-enum GL_INTERPOLATE_EXT)
-(define-enum GL_CONSTANT_EXT)
-(define-enum GL_PRIMARY_COLOR_EXT)
-(define-enum GL_PREVIOUS_EXT)
-(define-enum GL_SOURCE0_RGB_EXT)
-(define-enum GL_SOURCE1_RGB_EXT)
-(define-enum GL_SOURCE2_RGB_EXT)
-(define-enum GL_SOURCE3_RGB_EXT)
-(define-enum GL_SOURCE4_RGB_EXT)
-(define-enum GL_SOURCE5_RGB_EXT)
-(define-enum GL_SOURCE6_RGB_EXT)
-(define-enum GL_SOURCE7_RGB_EXT)
-(define-enum GL_SOURCE0_ALPHA_EXT)
-(define-enum GL_SOURCE1_ALPHA_EXT)
-(define-enum GL_SOURCE2_ALPHA_EXT)
-(define-enum GL_SOURCE3_ALPHA_EXT)
-(define-enum GL_SOURCE4_ALPHA_EXT)
-(define-enum GL_SOURCE5_ALPHA_EXT)
-(define-enum GL_SOURCE6_ALPHA_EXT)
-(define-enum GL_SOURCE7_ALPHA_EXT)
-(define-enum GL_OPERAND0_RGB_EXT)
-(define-enum GL_OPERAND1_RGB_EXT)
-(define-enum GL_OPERAND2_RGB_EXT)
-(define-enum GL_OPERAND3_RGB_EXT)
-(define-enum GL_OPERAND4_RGB_EXT)
-(define-enum GL_OPERAND5_RGB_EXT)
-(define-enum GL_OPERAND6_RGB_EXT)
-(define-enum GL_OPERAND7_RGB_EXT)
-(define-enum GL_OPERAND0_ALPHA_EXT)
-(define-enum GL_OPERAND1_ALPHA_EXT)
-(define-enum GL_OPERAND2_ALPHA_EXT)
-(define-enum GL_OPERAND3_ALPHA_EXT)
-(define-enum GL_OPERAND4_ALPHA_EXT)
-(define-enum GL_OPERAND5_ALPHA_EXT)
-(define-enum GL_OPERAND6_ALPHA_EXT)
-(define-enum GL_OPERAND7_ALPHA_EXT)
-
-)) ;; GL_EXT_texture_env_combine
-
 ;;=============================================================
 ;; GL_EXT_texture_env_dot3
 ;;
-
-(if "defined(GL_EXT_texture_env_dot3)" (begin
-
-(define-constant GL_EXT_texture_env_dot3 #t)
-
-(define-enum GL_DOT3_RGB_EXT)
-(define-enum GL_DOT3_RGBA_EXT)
-
-)) ;; GL_EXT_texture_env_dot3
 
 ;;=============================================================
 ;; GL_EXT_texture_filter_anisotropic
 ;;
 
-(if "defined(GL_EXT_texture_filter_anisotropic)" (begin
-
-(define-constant GL_EXT_texture_filter_anisotropic #t)
-
-(define-enum GL_TEXTURE_MAX_ANISOTROPY_EXT)
-(define-enum GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT)
-
-)) ;; GL_EXT_texture_filter_anisotropic
-
 ;;=============================================================
 ;; GL_EXT_texture_lod_bias
 ;;
-
-(if "defined(GL_EXT_texture_lod_bias)" (begin
-
-(define-constant GL_EXT_texture_lod_bias #t)
-
-(define-enum GL_MAX_TEXTURE_LOD_BIAS_EXT)
-(define-enum GL_TEXTURE_FILTER_CONTROL_EXT)
-(define-enum GL_TEXTURE_LOD_BIAS_EXT)
-
-)) ;; GL_EXT_texture_lod_bias
 
 ;;=============================================================
 ;; GL_EXT_texture_object
 ;;
 
-(if "defined(GL_EXT_texture_object)" (begin
-
-(define-constant GL_EXT_texture_object #t)
-
-(if "defined(GL_TEXTURE_PRIORITY_EXT)"
-  (define-enum GL_TEXTURE_PRIORITY_EXT))
-(if "defined(GL_TEXTURE_RESIDENT_EXT)"
-  (define-enum GL_TEXTURE_RESIDENT_EXT))
-(if "defined(GL_TEXTURE_1D_BINDING_EXT)"
-  (define-enum GL_TEXTURE_1D_BINDING_EXT))
-(if "defined(GL_TEXTURE_2D_BINDING_EXT)"
-  (define-enum GL_TEXTURE_2D_BINDING_EXT))
-
-)) ;; GL_EXT_texture_object
-
 ;;=============================================================
 ;; GL_EXT_texture_perturb_normal
 ;;
-
-(if "defined(GL_EXT_texture_perturb_normal)" (begin
-
-(define-constant GL_EXT_texture_perturb_normal #t)
-
-(define-enum GL_PERTURB_EXT)
-(define-enum GL_TEXTURE_NORMAL_EXT)
-
-)) ;; GL_EXT_texture_perturb_normal
 
 ;;=============================================================
 ;; GL_EXT_texture3D
 ;;
 
-(if "defined(GL_EXT_texture3D)" (begin
-
-(define-constant GL_EXT_texture3D #t)
-
-(define-enum GL_PACK_SKIP_IMAGES)
-(define-enum GL_PACK_SKIP_IMAGES_EXT)
-(define-enum GL_PACK_IMAGE_HEIGHT)
-(define-enum GL_PACK_IMAGE_HEIGHT_EXT)
-(define-enum GL_UNPACK_SKIP_IMAGES)
-(define-enum GL_UNPACK_SKIP_IMAGES_EXT)
-(define-enum GL_UNPACK_IMAGE_HEIGHT)
-(define-enum GL_UNPACK_IMAGE_HEIGHT_EXT)
-(define-enum GL_TEXTURE_3D)
-(define-enum GL_TEXTURE_3D_EXT)
-(define-enum GL_PROXY_TEXTURE_3D)
-(define-enum GL_PROXY_TEXTURE_3D_EXT)
-(define-enum GL_TEXTURE_DEPTH)
-(define-enum GL_TEXTURE_DEPTH_EXT)
-(define-enum GL_TEXTURE_WRAP_R)
-(define-enum GL_TEXTURE_WRAP_R_EXT)
-(define-enum GL_MAX_3D_TEXTURE_SIZE)
-(define-enum GL_MAX_3D_TEXTURE_SIZE_EXT)
-
-)) ;; GL_EXT_texture3D
-
 ;;=============================================================
 ;; GL_EXT_texture_rectangle
 ;;
-
-(if "defined(GL_EXT_texture_rectangle)" (begin
-
-(define-constant GL_EXT_texture_rectangle #t)
-
-(define-enum GL_TEXTURE_RECTANGLE_EXT)
-(define-enum GL_TEXTURE_BINDING_RECTANGLE_EXT)
-(define-enum GL_PROXY_TEXTURE_RECTANGLE_EXT)
-(define-enum GL_MAX_RECTANGLE_TEXTURE_SIZE_EXT)
-
-)) ;; GL_EXT_texture_rectangle
 
 ;;=============================================================
 ;; GL_EXT_vertex_array
 ;;
 
-(if "defined(GL_EXT_vertex_array)" (begin
-
-(define-constant GL_EXT_vertex_array #t)
-
-(define-enum GL_VERTEX_ARRAY_EXT)
-(define-enum GL_NORMAL_ARRAY_EXT)
-(define-enum GL_COLOR_ARRAY_EXT)
-(define-enum GL_INDEX_ARRAY_EXT)
-(define-enum GL_TEXTURE_COORD_ARRAY_EXT)
-(define-enum GL_EDGE_FLAG_ARRAY_EXT)
-(define-enum GL_VERTEX_ARRAY_SIZE_EXT)
-(define-enum GL_VERTEX_ARRAY_TYPE_EXT)
-(define-enum GL_VERTEX_ARRAY_STRIDE_EXT)
-(define-enum GL_VERTEX_ARRAY_COUNT_EXT)
-(define-enum GL_NORMAL_ARRAY_TYPE_EXT)
-(define-enum GL_NORMAL_ARRAY_STRIDE_EXT)
-(define-enum GL_NORMAL_ARRAY_COUNT_EXT)
-(define-enum GL_COLOR_ARRAY_SIZE_EXT)
-(define-enum GL_COLOR_ARRAY_TYPE_EXT)
-(define-enum GL_COLOR_ARRAY_STRIDE_EXT)
-(define-enum GL_COLOR_ARRAY_COUNT_EXT)
-(define-enum GL_INDEX_ARRAY_TYPE_EXT)
-(define-enum GL_INDEX_ARRAY_STRIDE_EXT)
-(define-enum GL_INDEX_ARRAY_COUNT_EXT)
-(define-enum GL_TEXTURE_COORD_ARRAY_SIZE_EXT)
-(define-enum GL_TEXTURE_COORD_ARRAY_TYPE_EXT)
-(define-enum GL_TEXTURE_COORD_ARRAY_STRIDE_EXT)
-(define-enum GL_TEXTURE_COORD_ARRAY_COUNT_EXT)
-(define-enum GL_EDGE_FLAG_ARRAY_STRIDE_EXT)
-(define-enum GL_EDGE_FLAG_ARRAY_COUNT_EXT)
-(define-enum GL_VERTEX_ARRAY_POINTER_EXT)
-(define-enum GL_NORMAL_ARRAY_POINTER_EXT)
-(define-enum GL_COLOR_ARRAY_POINTER_EXT)
-(define-enum GL_INDEX_ARRAY_POINTER_EXT)
-(define-enum GL_TEXTURE_COORD_ARRAY_POINTER_EXT)
-(define-enum GL_EDGE_FLAG_ARRAY_POINTER_EXT)
-
-)) ;; GL_EXT_vertex_array
-
 ;;=============================================================
 ;; GL_EXT_vertex_weighting
 ;;
-
-(if "defined(GL_EXT_vertex_weighting)" (begin
-
-(define-constant GL_EXT_vertex_weighting #t)
-
-(define-enum GL_MODELVIEW0_STACK_DEPTH_EXT)
-(define-enum GL_MODELVIEW1_STACK_DEPTH_EXT)
-(define-enum GL_MODELVIEW0_MATRIX_EXT)
-(define-enum GL_MODELVIEW_MATRIX1_EXT)
-(define-enum GL_VERTEX_WEIGHTING_EXT)
-(define-enum GL_MODELVIEW0_EXT)
-(define-enum GL_MODELVIEW1_EXT)
-(define-enum GL_CURRENT_VERTEX_WEIGHT_EXT)
-(define-enum GL_VERTEX_WEIGHT_ARRAY_EXT)
-(define-enum GL_VERTEX_WEIGHT_ARRAY_SIZE_EXT)
-(define-enum GL_VERTEX_WEIGHT_ARRAY_TYPE_EXT)
-(define-enum GL_VERTEX_WEIGHT_ARRAY_STRIDE_EXT)
-(define-enum GL_VERTEX_WEIGHT_ARRAY_POINTER_EXT)
-
-)) ;; GL_EXT_vertex_weighting
 
 ;;=============================================================
 ;; GL_NV_blend_square
 ;;
 
-(if "defined(GL_NV_blend_square)" (begin
-
-(define-constant GL_NV_blend_square #t)
-
-)) ;; GL_NV_blend_square
-
 ;;=============================================================
 ;; GL_NV_copy_depth_to_color
 ;;
-
-(if "defined(GL_NV_copy_depth_to_color)" (begin
-
-(define-constant GL_NV_copy_depth_to_color #t)
-
-(define-enum GL_DEPTH_STENCIL_TO_RGBA_NV)
-(define-enum GL_DEPTH_STENCIL_TO_BGRA_NV)
-
-)) ;; GL_NV_copy_depth_to_color
 
 ;;=============================================================
 ;; GL_NV_depth_clamp
 ;;
 
-(if "defined(GL_NV_depth_clamp)" (begin
-
-(define-constant GL_NV_depth_clamp #t)
-
-(define-enum GL_DEPTH_CLAMP_NV)
-
-)) ;; GL_NV_depth_clamp
-
 ;;=============================================================
 ;; GL_NV_element_array
 ;;
-
-(if "defined(GL_NV_element_array)" (begin
-
-(define-constant GL_NV_element_array #t)
-
-(define-enum GL_ELEMENT_ARRAY_TYPE_NV)
-(define-enum GL_ELEMENT_ARRAY_POINTER_NV)
-
-)) ;; GL_NV_element_array
 
 ;;=============================================================
 ;; GL_NV_fence
 ;;
 
-(if "defined(GL_NV_fence)" (begin
-
-(define-constant GL_NV_fence #t)
-
-(define-enum GL_ALL_COMPLETED_NV)
-(define-enum GL_FENCE_STATUS_NV)
-(define-enum GL_FENCE_CONDITION_NV)
-
-)) ;; GL_NV_fence
-
 ;;=============================================================
 ;; GL_NV_float_buffer
 ;;
-
-(if "defined(GL_NV_float_buffer)" (begin
-
-(define-constant GL_NV_float_buffer #t)
-
-(define-enum GL_FLOAT_R_NV)
-(define-enum GL_FLOAT_RG_NV)
-(define-enum GL_FLOAT_RGB_NV)
-(define-enum GL_FLOAT_RGBA_NV)
-(define-enum GL_FLOAT_R16_NV)
-(define-enum GL_FLOAT_R32_NV)
-(define-enum GL_FLOAT_RG16_NV)
-(define-enum GL_FLOAT_RG32_NV)
-(define-enum GL_FLOAT_RGB16_NV)
-(define-enum GL_FLOAT_RGB32_NV)
-(define-enum GL_FLOAT_RGBA16_NV)
-(define-enum GL_FLOAT_RGBA32_NV)
-(define-enum GL_TEXTURE_FLOAT_COMPONENTS_NV)
-(define-enum GL_FLOAT_CLEAR_COLOR_VALUE_NV)
-(define-enum GL_FLOAT_RGBA_MODE_NV)
-
-)) ;; GL_NV_float_buffer
 
 ;;=============================================================
 ;; GL_NV_fog_distance
 ;;
 
-(if "defined(GL_NV_fog_distance)" (begin
-
-(define-constant GL_NV_fog_distance #t)
-
-(define-enum GL_FOG_DISTANCE_MODE_NV)
-(define-enum GL_EYE_RADIAL_NV)
-(define-enum GL_EYE_PLANE_ABSOLUTE_NV)
-
-)) ;; GL_NV_fog_distance
-
 ;;=============================================================
 ;; GL_NV_fragment_program
 ;;
-
-(if "defined(GL_NV_fragment_program)" (begin
-
-(define-constant GL_NV_fragment_program #t)
-
-(define-enum GL_FRAGMENT_PROGRAM_NV)
-(define-enum GL_MAX_TEXTURE_COORDS_NV)
-(define-enum GL_MAX_TEXTURE_IMAGE_UNITS_NV)
-(define-enum GL_FRAGMENT_PROGRAM_BINDING_NV)
-(define-enum GL_PROGRAM_ERROR_STRING_NV)
-(define-enum GL_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMETERS_NV)
-
-)) ;; GL_NV_fragment_program
 
 ;;=============================================================
 ;; GL_NV_fragment_program2
 ;;
 
-(if "defined(GL_NV_fragment_program2)" (begin
-
-(define-constant GL_NV_fragment_program2 #t)
-
-(define-enum GL_MAX_PROGRAM_IF_DEPTH_NV)
-(define-enum GL_MAX_PROGRAM_LOOP_DEPTH_NV)
-(define-enum GL_MAX_PROGRAM_LOOP_COUNT_NV)
-
-)) ;; GL_NV_fragment_program2
-
 ;;=============================================================
 ;; GL_NV_half_float
 ;;
-
-(if "defined(GL_NV_half_float)" (begin
-
-(define-constant GL_NV_half_float #t)
-
-(define-enum GL_HALF_FLOAT_NV)
-
-)) ;; GL_NV_half_float
 
 ;;=============================================================
 ;; GL_NV_light_max_exponent
 ;;
 
-(if "defined(GL_NV_light_max_exponent)" (begin
-
-(define-constant GL_NV_light_max_exponent #t)
-
-(define-enum GL_MAX_SHININESS_NV)
-(define-enum GL_MAX_SPOT_EXPONENT_NV)
-
-)) ;; GL_NV_light_max_exponent
-
 ;;=============================================================
 ;; GL_NV_multisample_filter_hint
 ;;
-
-(if "defined(GL_NV_multisample_filter_hint)" (begin
-
-(define-constant GL_NV_multisample_filter_hint #t)
-
-(define-enum GL_MULTISAMPLE_FILTER_HINT_NV)
-
-)) ;; GL_NV_multisample_filter_hint
 
 ;;=============================================================
 ;; GL_NV_occlusion_query
 ;;
 
-(if "defined(GL_NV_occlusion_query)" (begin
-
-(define-constant GL_NV_occlusion_query #t)
-
-(define-enum GL_PIXEL_COUNTER_BITS_NV)
-(define-enum GL_CURRENT_OCCLUSION_QUERY_ID_NV)
-(define-enum GL_PIXEL_COUNT_NV)
-(define-enum GL_PIXEL_COUNT_AVAILABLE_NV)
-
-)) ;; GL_NV_occlusion_query
-
 ;;=============================================================
 ;; GL_NV_packed_depth_stencil
 ;;
-
-(if "defined(GL_NV_packed_depth_stencil)" (begin
-
-(define-constant GL_NV_packed_depth_stencil #t)
-
-(define-enum GL_DEPTH_STENCIL_NV)
-(define-enum GL_UNSIGNED_INT_24_8_NV)
-
-)) ;; GL_NV_packed_depth_stencil
 
 ;;=============================================================
 ;; GL_NV_pixel_buffer_object
 ;;
 
-(if "defined(GL_NV_pixel_buffer_object)" (begin
-
-(define-constant GL_NV_pixel_buffer_object #t)
-
-(define-enum GL_PIXEL_PACK_BUFFER_NV)
-(define-enum GL_PIXEL_UNPACK_BUFFER_NV)
-(define-enum GL_PIXEL_PACK_BUFFER_BINDING_NV)
-(define-enum GL_PIXEL_UNPACK_BUFFER_BINDING_NV)
-
-)) ;; GL_NV_pixel_buffer_object
-
 ;;=============================================================
 ;; GL_NV_pixel_data_range
 ;;
-
-(if "defined(GL_NV_pixel_data_range)" (begin
-
-(define-constant GL_NV_pixel_data_range #t)
-
-(define-enum GL_WRITE_PIXEL_DATA_RANGE_NV)
-(define-enum GL_READ_PIXEL_DATA_RANGE_NV)
-(define-enum GL_WRITE_PIXEL_DATA_RANGE_LENGTH_NV)
-(define-enum GL_READ_PIXEL_DATA_RANGE_LENGTH_NV)
-(define-enum GL_WRITE_PIXEL_DATA_RANGE_POINTER_NV)
-(define-enum GL_READ_PIXEL_DATA_RANGE_POINTER_NV)
-
-)) ;; GL_NV_pixel_data_range
 
 ;;=============================================================
 ;; GL_NV_point_sprite
 ;;
 
-(if "defined(GL_NV_point_sprite)" (begin
-
-(define-constant GL_NV_point_sprite #t)
-
-(define-enum GL_POINT_SPRITE_NV)
-(define-enum GL_COORD_REPLACE_NV)
-(define-enum GL_POINT_SPRITE_R_MODE_NV)
-
-)) ;; GL_NV_point_sprite
-
 ;;=============================================================
 ;; GL_NV_primitive_restart
 ;;
-
-(if "defined(GL_NV_primitive_restart)" (begin
-
-(define-constant GL_NV_primitive_restart #t)
-
-(define-enum GL_PRIMITIVE_RESTART_NV)
-(define-enum GL_PRIMITIVE_RESTART_INDEX_NV)
-
-)) ;; GL_NV_primitive_restart
 
 ;;=============================================================
 ;; GL_NV_register_combiners
 ;;
 
-(if "defined(GL_NV_register_combiners)" (begin
-
-(define-constant GL_NV_register_combiners #t)
-
-(define-enum GL_REGISTER_COMBINERS_NV)
-(define-enum GL_VARIABLE_A_NV)
-(define-enum GL_VARIABLE_B_NV)
-(define-enum GL_VARIABLE_C_NV)
-(define-enum GL_VARIABLE_D_NV)
-(define-enum GL_VARIABLE_E_NV)
-(define-enum GL_VARIABLE_F_NV)
-(define-enum GL_VARIABLE_G_NV)
-(define-enum GL_CONSTANT_COLOR0_NV)
-(define-enum GL_CONSTANT_COLOR1_NV)
-(define-enum GL_PRIMARY_COLOR_NV)
-(define-enum GL_SECONDARY_COLOR_NV)
-(define-enum GL_SPARE0_NV)
-(define-enum GL_SPARE1_NV)
-(define-enum GL_DISCARD_NV)
-(define-enum GL_E_TIMES_F_NV)
-(define-enum GL_SPARE0_PLUS_SECONDARY_COLOR_NV)
-(define-enum GL_UNSIGNED_IDENTITY_NV)
-(define-enum GL_UNSIGNED_INVERT_NV)
-(define-enum GL_EXPAND_NORMAL_NV)
-(define-enum GL_EXPAND_NEGATE_NV)
-(define-enum GL_HALF_BIAS_NORMAL_NV)
-(define-enum GL_HALF_BIAS_NEGATE_NV)
-(define-enum GL_SIGNED_IDENTITY_NV)
-(define-enum GL_SIGNED_NEGATE_NV)
-(define-enum GL_SCALE_BY_TWO_NV)
-(define-enum GL_SCALE_BY_FOUR_NV)
-(define-enum GL_SCALE_BY_ONE_HALF_NV)
-(define-enum GL_BIAS_BY_NEGATIVE_ONE_HALF_NV)
-(define-enum GL_COMBINER_INPUT_NV)
-(define-enum GL_COMBINER_MAPPING_NV)
-(define-enum GL_COMBINER_COMPONENT_USAGE_NV)
-(define-enum GL_COMBINER_AB_DOT_PRODUCT_NV)
-(define-enum GL_COMBINER_CD_DOT_PRODUCT_NV)
-(define-enum GL_COMBINER_MUX_SUM_NV)
-(define-enum GL_COMBINER_SCALE_NV)
-(define-enum GL_COMBINER_BIAS_NV)
-(define-enum GL_COMBINER_AB_OUTPUT_NV)
-(define-enum GL_COMBINER_CD_OUTPUT_NV)
-(define-enum GL_COMBINER_SUM_OUTPUT_NV)
-(define-enum GL_MAX_GENERAL_COMBINERS_NV)
-(define-enum GL_NUM_GENERAL_COMBINERS_NV)
-(define-enum GL_COLOR_SUM_CLAMP_NV)
-(define-enum GL_COMBINER0_NV)
-(define-enum GL_COMBINER1_NV)
-(define-enum GL_COMBINER2_NV)
-(define-enum GL_COMBINER3_NV)
-(define-enum GL_COMBINER4_NV)
-(define-enum GL_COMBINER5_NV)
-(define-enum GL_COMBINER6_NV)
-(define-enum GL_COMBINER7_NV)
-
-)) ;; GL_NV_register_combiners
-
 ;;=============================================================
 ;; GL_NV_register_combiners2
 ;;
-
-(if "defined(GL_NV_register_combiners2)" (begin
-
-(define-constant GL_NV_register_combiners2 #t)
-
-(define-enum GL_PER_STAGE_CONSTANTS_NV)
-
-)) ;; GL_NV_register_combiners2
 
 ;;=============================================================
 ;; GL_NV_stencil_two_side
 ;;
 
-(if "defined(GL_NV_stencil_two_side)" (begin
-
-(define-constant GL_NV_stencil_two_side #t)
-
-(define-enum GL_STENCIL_TEST_TWO_SIDE_NV)
-(define-enum GL_ACTIVE_STENCIL_FACE_NV)
-
-)) ;; GL_NV_stencil_two_side
-
 ;;=============================================================
 ;; GL_NV_texgen_emboss
 ;;
-
-(if "defined(GL_NV_texgen_emboss)" (begin
-
-(define-constant GL_NV_texgen_emboss #t)
-
-(define-enum GL_EMBOSS_LIGHT_NV)
-(define-enum GL_EMBOSS_CONSTANT_NV)
-(define-enum GL_EMBOSS_MAP_NV)
-
-)) ;; GL_NV_texgen_emboss
 
 ;;=============================================================
 ;; GL_NV_texgen_reflection
 ;;
 
-(if "defined(GL_NV_texgen_reflection)" (begin
-
-(define-constant GL_NV_texgen_reflection #t)
-
-(define-enum GL_NORMAL_MAP_NV)
-(define-enum GL_REFLECTION_MAP_NV)
-
-)) ;; GL_NV_texgen_reflection
-
 ;;=============================================================
 ;; GL_NV_texture_compression_vtc
 ;;
-
-(if "defined(GL_NV_texture_compression_vtc)" (begin
-
-(define-constant GL_NV_texture_compression_vtc #t)
-
-)) ;; GL_NV_texture_compression_vtc
 
 ;;=============================================================
 ;; GL_NV_texture_env_combine4
 ;;
 
-(if "defined(GL_NV_texture_env_combine4)" (begin
-
-(define-constant GL_NV_texture_env_combine4 #t)
-
-(define-enum GL_COMBINE4_NV)
-(define-enum GL_SOURCE3_RGB_NV)
-(define-enum GL_SOURCE3_ALPHA_NV)
-(define-enum GL_OPERAND3_RGB_NV)
-(define-enum GL_OPERAND3_ALPHA_NV)
-
-)) ;; GL_NV_texture_env_combine4
-
 ;;=============================================================
 ;; GL_NV_texture_expand_normal
 ;;
-
-(if "defined(GL_NV_texture_expand_normal)" (begin
-
-(define-constant GL_NV_texture_expand_normal #t)
-
-(define-enum GL_TEXTURE_UNSIGNED_REMAP_MODE_NV)
-
-)) ;; GL_NV_texture_expand_normal
 
 ;;=============================================================
 ;; GL_NV_texture_rectangle
 ;;
 
-(if "defined(GL_NV_texture_rectangle)" (begin
-
-(define-constant GL_NV_texture_rectangle #t)
-
-(define-enum GL_TEXTURE_RECTANGLE_NV)
-(define-enum GL_TEXTURE_BINDING_RECTANGLE_NV)
-(define-enum GL_PROXY_TEXTURE_RECTANGLE_NV)
-(define-enum GL_MAX_RECTANGLE_TEXTURE_SIZE_NV)
-
-)) ;; GL_NV_texture_rectangle
-
 ;;=============================================================
 ;; GL_NV_texture_shader
 ;;
-
-(if "defined(GL_NV_texture_shader)" (begin
-
-(define-constant GL_NV_texture_shader #t)
-
-(define-enum GL_OFFSET_TEXTURE_RECTANGLE_NV)
-(define-enum GL_OFFSET_TEXTURE_RECTANGLE_SCALE_NV)
-(define-enum GL_DOT_PRODUCT_TEXTURE_RECTANGLE_NV)
-(define-enum GL_RGBA_UNSIGNED_DOT_PRODUCT_MAPPING_NV)
-(define-enum GL_UNSIGNED_INT_S8_S8_8_8_NV)
-(define-enum GL_UNSIGNED_INT_8_8_S8_S8_REV_NV)
-(define-enum GL_DSDT_MAG_INTENSITY_NV)
-(define-enum GL_SHADER_CONSISTENT_NV)
-(define-enum GL_TEXTURE_SHADER_NV)
-(define-enum GL_SHADER_OPERATION_NV)
-(define-enum GL_CULL_MODES_NV)
-(define-enum GL_OFFSET_TEXTURE_MATRIX_NV)
-(define-enum GL_OFFSET_TEXTURE_SCALE_NV)
-(define-enum GL_OFFSET_TEXTURE_BIAS_NV)
-(define-enum GL_OFFSET_TEXTURE_2D_MATRIX_NV)
-(define-enum GL_OFFSET_TEXTURE_2D_SCALE_NV)
-(define-enum GL_OFFSET_TEXTURE_2D_BIAS_NV)
-(define-enum GL_PREVIOUS_TEXTURE_INPUT_NV)
-(define-enum GL_CONST_EYE_NV)
-(define-enum GL_PASS_THROUGH_NV)
-(define-enum GL_CULL_FRAGMENT_NV)
-(define-enum GL_OFFSET_TEXTURE_2D_NV)
-(define-enum GL_DEPENDENT_AR_TEXTURE_2D_NV)
-(define-enum GL_DEPENDENT_GB_TEXTURE_2D_NV)
-(define-enum GL_DOT_PRODUCT_NV)
-(define-enum GL_DOT_PRODUCT_DEPTH_REPLACE_NV)
-(define-enum GL_DOT_PRODUCT_TEXTURE_2D_NV)
-(define-enum GL_DOT_PRODUCT_TEXTURE_3D_NV)
-(define-enum GL_DOT_PRODUCT_TEXTURE_CUBE_MAP_NV)
-(define-enum GL_DOT_PRODUCT_DIFFUSE_CUBE_MAP_NV)
-(define-enum GL_DOT_PRODUCT_REFLECT_CUBE_MAP_NV)
-(define-enum GL_DOT_PRODUCT_CONST_EYE_REFLECT_CUBE_MAP_NV)
-(define-enum GL_HILO_NV)
-(define-enum GL_DSDT_NV)
-(define-enum GL_DSDT_MAG_NV)
-(define-enum GL_DSDT_MAG_VIB_NV)
-(define-enum GL_HILO16_NV)
-(define-enum GL_SIGNED_HILO_NV)
-(define-enum GL_SIGNED_HILO16_NV)
-(define-enum GL_SIGNED_RGBA_NV)
-(define-enum GL_SIGNED_RGBA8_NV)
-(define-enum GL_SIGNED_RGB_NV)
-(define-enum GL_SIGNED_RGB8_NV)
-(define-enum GL_SIGNED_LUMINANCE_NV)
-(define-enum GL_SIGNED_LUMINANCE8_NV)
-(define-enum GL_SIGNED_LUMINANCE_ALPHA_NV)
-(define-enum GL_SIGNED_LUMINANCE8_ALPHA8_NV)
-(define-enum GL_SIGNED_ALPHA_NV)
-(define-enum GL_SIGNED_ALPHA8_NV)
-(define-enum GL_SIGNED_INTENSITY_NV)
-(define-enum GL_SIGNED_INTENSITY8_NV)
-(define-enum GL_DSDT8_NV)
-(define-enum GL_DSDT8_MAG8_NV)
-(define-enum GL_DSDT8_MAG8_INTENSITY8_NV)
-(define-enum GL_SIGNED_RGB_UNSIGNED_ALPHA_NV)
-(define-enum GL_SIGNED_RGB8_UNSIGNED_ALPHA8_NV)
-(define-enum GL_HI_SCALE_NV)
-(define-enum GL_LO_SCALE_NV)
-(define-enum GL_DS_SCALE_NV)
-(define-enum GL_DT_SCALE_NV)
-(define-enum GL_MAGNITUDE_SCALE_NV)
-(define-enum GL_VIBRANCE_SCALE_NV)
-(define-enum GL_HI_BIAS_NV)
-(define-enum GL_LO_BIAS_NV)
-(define-enum GL_DS_BIAS_NV)
-(define-enum GL_DT_BIAS_NV)
-(define-enum GL_MAGNITUDE_BIAS_NV)
-(define-enum GL_VIBRANCE_BIAS_NV)
-(define-enum GL_TEXTURE_BORDER_VALUES_NV)
-(define-enum GL_TEXTURE_HI_SIZE_NV)
-(define-enum GL_TEXTURE_LO_SIZE_NV)
-(define-enum GL_TEXTURE_DS_SIZE_NV)
-(define-enum GL_TEXTURE_DT_SIZE_NV)
-(define-enum GL_TEXTURE_MAG_SIZE_NV)
-
-)) ;; GL_NV_texture_shader
 
 ;;=============================================================
 ;; GL_NV_texture_shader2
 ;;
 
-(if "defined(GL_NV_texture_shader2)" (begin
-
-(define-constant GL_NV_texture_shader2 #t)
-
-)) ;; GL_NV_texture_shader2
-
 ;;=============================================================
 ;; GL_NV_texture_shader3
 ;;
-
-(if "defined(GL_NV_texture_shader3)" (begin
-
-(define-constant GL_NV_texture_shader3 #t)
-
-(define-enum GL_OFFSET_PROJECTIVE_TEXTURE_2D_NV)
-(define-enum GL_OFFSET_PROJECTIVE_TEXTURE_2D_SCALE_NV)
-(define-enum GL_OFFSET_PROJECTIVE_TEXTURE_RECTANGLE_NV)
-(define-enum GL_OFFSET_PROJECTIVE_TEXTURE_RECTANGLE_SCALE_NV)
-(define-enum GL_OFFSET_HILO_TEXTURE_2D_NV)
-(define-enum GL_OFFSET_HILO_TEXTURE_RECTANGLE_NV)
-(define-enum GL_OFFSET_HILO_PROJECTIVE_TEXTURE_2D_NV)
-(define-enum GL_OFFSET_HILO_PROJECTIVE_TEXTURE_RECTANGLE_NV)
-(define-enum GL_DEPENDENT_HILO_TEXTURE_2D_NV)
-(define-enum GL_DEPENDENT_RGB_TEXTURE_3D_NV)
-(define-enum GL_DEPENDENT_RGB_TEXTURE_CUBE_MAP_NV)
-(define-enum GL_DOT_PRODUCT_PASS_THROUGH_NV)
-(define-enum GL_DOT_PRODUCT_TEXTURE_1D_NV)
-(define-enum GL_DOT_PRODUCT_AFFINE_DEPTH_REPLACE_NV)
-(define-enum GL_HILO8_NV)
-(define-enum GL_SIGNED_HILO8_NV)
-(define-enum GL_FORCE_BLUE_TO_ONE_NV)
-
-)) ;; GL_NV_texture_shader3
 
 ;;=============================================================
 ;; GL_NV_vertex_array_range
 ;;
 
-(if "defined(GL_NV_vertex_array_range)" (begin
-
-(define-constant GL_NV_vertex_array_range #t)
-
-(define-enum GL_VERTEX_ARRAY_RANGE_NV)
-(define-enum GL_VERTEX_ARRAY_RANGE_LENGTH_NV)
-(define-enum GL_VERTEX_ARRAY_RANGE_VALID_NV)
-(define-enum GL_MAX_VERTEX_ARRAY_RANGE_ELEMENT_NV)
-(define-enum GL_VERTEX_ARRAY_RANGE_POINTER_NV)
-
-)) ;; GL_NV_vertex_array_range
-
 ;;=============================================================
 ;; GL_NV_vertex_array_range2
 ;;
-
-(if "defined(GL_NV_vertex_array_range2)" (begin
-
-(define-constant GL_NV_vertex_array_range2 #t)
-
-(define-enum GL_VERTEX_ARRAY_RANGE_WITHOUT_FLUSH_NV)
-
-)) ;; GL_NV_vertex_array_range2
 
 ;;=============================================================
 ;; GL_NV_vertex_program
 ;;
 
-(if "defined(GL_NV_vertex_program)" (begin
-
-(define-constant GL_NV_vertex_program #t)
-
-(define-enum GL_VERTEX_PROGRAM_NV)
-(define-enum GL_VERTEX_STATE_PROGRAM_NV)
-(define-enum GL_ATTRIB_ARRAY_SIZE_NV)
-(define-enum GL_ATTRIB_ARRAY_STRIDE_NV)
-(define-enum GL_ATTRIB_ARRAY_TYPE_NV)
-(define-enum GL_CURRENT_ATTRIB_NV)
-(define-enum GL_PROGRAM_LENGTH_NV)
-(define-enum GL_PROGRAM_STRING_NV)
-(define-enum GL_MODELVIEW_PROJECTION_NV)
-(define-enum GL_IDENTITY_NV)
-(define-enum GL_INVERSE_NV)
-(define-enum GL_TRANSPOSE_NV)
-(define-enum GL_INVERSE_TRANSPOSE_NV)
-(define-enum GL_MAX_TRACK_MATRIX_STACK_DEPTH_NV)
-(define-enum GL_MAX_TRACK_MATRICES_NV)
-(define-enum GL_MATRIX0_NV)
-(define-enum GL_MATRIX1_NV)
-(define-enum GL_MATRIX2_NV)
-(define-enum GL_MATRIX3_NV)
-(define-enum GL_MATRIX4_NV)
-(define-enum GL_MATRIX5_NV)
-(define-enum GL_MATRIX6_NV)
-(define-enum GL_MATRIX7_NV)
-(define-enum GL_CURRENT_MATRIX_STACK_DEPTH_NV)
-(define-enum GL_CURRENT_MATRIX_NV)
-(define-enum GL_VERTEX_PROGRAM_POINT_SIZE_NV)
-(define-enum GL_VERTEX_PROGRAM_TWO_SIDE_NV)
-(define-enum GL_PROGRAM_PARAMETER_NV)
-(define-enum GL_ATTRIB_ARRAY_POINTER_NV)
-(define-enum GL_PROGRAM_TARGET_NV)
-(define-enum GL_PROGRAM_RESIDENT_NV)
-(define-enum GL_TRACK_MATRIX_NV)
-(define-enum GL_TRACK_MATRIX_TRANSFORM_NV)
-(define-enum GL_VERTEX_PROGRAM_BINDING_NV)
-(define-enum GL_PROGRAM_ERROR_POSITION_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY0_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY1_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY2_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY3_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY4_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY5_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY6_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY7_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY8_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY9_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY10_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY11_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY12_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY13_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY14_NV)
-(define-enum GL_VERTEX_ATTRIB_ARRAY15_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB0_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB1_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB2_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB3_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB4_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB5_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB6_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB7_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB8_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB9_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB10_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB11_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB12_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB13_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB14_4_NV)
-(define-enum GL_MAP1_VERTEX_ATTRIB15_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB0_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB1_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB2_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB3_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB4_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB5_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB6_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB7_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB8_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB9_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB10_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB11_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB12_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB13_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB14_4_NV)
-(define-enum GL_MAP2_VERTEX_ATTRIB15_4_NV)
-
-)) ;; GL_NV_vertex_program
-
 ;;=============================================================
 ;; GL_NV_vertex_program1_1
 ;;
-
-(if "defined(GL_NV_vertex_program1_1)" (begin
-
-(define-constant GL_NV_vertex_program1_1 #t)
-
-)) ;; GL_NV_vertex_program1_1
 
 ;;=============================================================
 ;; GL_NV_vertex_program2
 ;;
 
-(if "defined(GL_NV_vertex_program2)" (begin
-
-(define-constant GL_NV_vertex_program2 #t)
-
-)) ;; GL_NV_vertex_program2
-
 ;;=============================================================
 ;; GL_NV_vertex_program2_option
 ;;
 
-(if "defined(GL_NV_vertex_program2_option)" (begin
-
-(define-constant GL_NV_vertex_program2_option #t)
-
-(define-enum GL_MAX_PROGRAM_EXEC_INSTRUCTIONS_NV)
-(define-enum GL_MAX_PROGRAM_CALL_DEPTH_NV)
-
-)) ;; GL_NV_vertex_program2_option
-
 ;;=============================================================
 ;; GL_NV_vertex_program3
 ;;
-
-(if "defined(GL_NV_vertex_program3)" (begin
-
-(define-constant GL_NV_vertex_program3 #t)
-
-)) ;; GL_NV_vertex_program3
 
 ;; Local variables:
 ;; mode: scheme

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.9 2005-06-06 08:10:10 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.10 2005-06-06 12:06:59 shirok Exp $
 ;;;
 
 "
@@ -89,7 +89,26 @@
    glCopyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
    SCM_RETURN(SCM_UNDEFINED);")
 
-; gl-draw-range-elements
+(define-cproc gl-draw-range-elements (mode::<fixnum>
+                                      start::<uint> end::<uint>
+                                      indices)
+  "ENSURE(glDrawRangeElements);
+   if (SCM_U8VECTORP(indices)) {
+     glDrawRangeElements(mode, start, end, 
+                         SCM_U8VECTOR_SIZE(indices), GL_UNSIGNED_BYTE,
+                         SCM_U8VECTOR_ELEMENTS(indices));
+   } else if (SCM_U16VECTORP(indices)) {
+     glDrawRangeElements(mode, start, end,
+                         SCM_U16VECTOR_SIZE(indices), GL_UNSIGNED_SHORT,
+                         SCM_U16VECTOR_ELEMENTS(indices));
+   } else if (SCM_U32VECTORP(indices)) {
+     glDrawRangeElements(mode, start, end,
+                         SCM_U32VECTOR_SIZE(indices), GL_UNSIGNED_INT,
+                         SCM_U32VECTOR_ELEMENTS(indices));
+   } else {
+     Scm_Error(\"bad argument for indices: %S, must be u8, u16 or u32vector\", indices);
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-color-table (target::<fixnum> internal-format::<fixnum>
                               width::<int> format::<int> type::<int>
@@ -1290,7 +1309,7 @@
 ;; GL_EXT_draw_range_elements
 ;;
 
-; gl-draw-range-eleemnts-ext
+; gl-draw-range-elements-ext
 
 ;;=============================================================
 ;; GL_EXT_fog_coord

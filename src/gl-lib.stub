@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.36 2005-06-06 08:10:09 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.37 2005-06-06 12:06:59 shirok Exp $
 ;;;
 
 "
@@ -391,7 +391,7 @@
   } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
      glLoadMatrixd(SCM_F64VECTOR_ELEMENTS(m));
   } else {
-     Scm_Error(\"3dmatrix, f32vector or f64vector of length 16 is required, but got %S\", m);
+     Scm_Error(\"matrix4f, or f32vector or f64vector of length 16 is required, but got %S\", m);
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
@@ -403,7 +403,7 @@
   } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
      glMultMatrixd(SCM_F64VECTOR_ELEMENTS(m));
   } else {
-     Scm_Error(\"3dmatrix, f32vector or f64vector of length 16 is required, but got %S\", m);
+     Scm_Error(\"matrix4f, or f32vector or f64vector of length 16 is required, but got %S\", m);
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
@@ -949,14 +949,14 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-;; glEdgeFlagPointer - GLboolean vector maps u8vector
 (define-cproc gl-edge-flag-pointer (vec
                                     &optional (stride::<fixnum> 0)
                                               (offset::<fixnum> 0))
-  "if (!SCM_U8VECTORP(vec)) {
-     Scm_Error(\"u8vector required for vec, but got %S\", vec);
+  "if (SCM_GL_BOOLEAN_VECTOR_P(vec)) {
+     glEdgeFlagPointer(stride, SCM_GL_BOOLEAN_VECTOR_ELEMENTS(vec) + offset);
+   } else {
+     Scm_Error(\"gl-boolean-vector required for vec, but got %S\", vec);
    }
-   glEdgeFlagPointer(stride, SCM_U8VECTOR_ELEMENTS(vec) + offset);
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-array-element (ith::<fixnum>)

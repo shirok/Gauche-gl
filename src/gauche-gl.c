@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.24 2005-06-06 08:10:09 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.25 2005-06-06 10:22:46 shirok Exp $
  */
 
 #include <gauche.h>
@@ -90,7 +90,7 @@ static void glboolvec_print(ScmObj obj, ScmPort *port, ScmWriteContext *ctx)
 {
     ScmGLBooleanVector *v = SCM_GL_BOOLEAN_VECTOR(obj);
     int i, size = v->size;
-    Scm_Printf(port, "#,(<gl-boolean-vector>");
+    Scm_Printf(port, "#,(gl-boolean-vector");
     for (i=0; i<size; i++) {
         Scm_Printf(port, (v->elements[i]? " #t" : " #f"));
     }

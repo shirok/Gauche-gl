@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl.scm,v 1.8 2005-06-05 11:53:40 shirok Exp $
+;;;  $Id: gl.scm,v 1.9 2005-06-06 10:22:46 shirok Exp $
 ;;;
 
 (define-module gl
@@ -60,7 +60,7 @@
 (define-method size-of ((vec <gl-boolean-vector>))
   (gl-boolean-vector-length vec))
 
-(define-reader-ctor '<gl-boolean-vector> gl-boolean-vector)
+(define-reader-ctor 'gl-boolean-vector gl-boolean-vector)
 
 ;;-------------------------------------------------------------------
 ;; Utilities

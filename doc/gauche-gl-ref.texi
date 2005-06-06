@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.14 2005-06-05 11:53:40 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.15 2005-06-06 10:22:19 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -455,12 +455,24 @@ See below for operations provided on it.
 @subheading GL boolean vectors
 
 @deftp {Class} <gl-boolean-vector>
+A class for an array of boolean values.  You can pass its instance
+to the GL APIs that expect an array of GLbooleans.  Its internal
+representation is bitwise compatible to GLbooean array, so passing
+it is quite efficient.
+
+This class inherits @code{<sequence>}, so you can use generic
+sequence operations on it.
+
+Its 
 @end deftp
 
 @defun make-gl-boolean-vector size &optional init
+Returns a GL boolean vector of @var{size} elements.  Elements are
+initialized by either @code{#f} or @code{#t}, according to @var{init}.
 @end defun
 
 @defun gl-boolean-vector bool @dots{}
+
 @end defun
 
 @defun gl-boolean-vector? obj

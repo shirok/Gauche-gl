@@ -37,7 +37,7 @@
          (set! (ref v 2) #f)
          (coerce-to <list> v)))
 
-(test* "coercion & reader" #,(<gl-boolean-vector> #f #t #f #f #t)
+(test* "coercion & reader" #,(gl-boolean-vector #f #t #f #f #t)
        (coerce-to <gl-boolean-vector> '(#f #t #f #f #t)))
 
 (test-end)

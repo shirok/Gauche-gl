@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.15 2005-06-06 10:22:19 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.16 2005-06-06 12:09:27 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -463,41 +463,72 @@ it is quite efficient.
 This class inherits @code{<sequence>}, so you can use generic
 sequence operations on it.
 
-Its 
+The external representation of GL boolean vector uses srfi-10
+notation, and can be read back.  For example, a GL boolean vector
+of length 5 may be written something like this:
+@example
+#,(gl-boolean-vector #t #f #t #f #t)
+@end example
 @end deftp
 
 @defun make-gl-boolean-vector size &optional init
 Returns a GL boolean vector of @var{size} elements.  Elements are
 initialized by either @code{#f} or @code{#t}, according to @var{init}.
+
+@example
+(make-gl-boolean-vector 3 #t) @result{} #,(gl-boolean-vector #t #t #t)
+@end example
 @end defun
 
 @defun gl-boolean-vector bool @dots{}
+Returns a GL boolean vector, whose elements are @var{bool} @dots{}.
 
+@example
+(gl-boolean-vector #f #t #t) @result{} #,(gl-boolean-vector #f #t #t)
+@end example
 @end defun
 
 @defun gl-boolean-vector? obj
+Returns @code{#t} if @var{obj} is a GL boolean vector, @code{#f} otherwise.
 @end defun
 
 @defun gl-boolean-vector-length v
+Returns length of a GL boolean vector @var{v}.
+You can also use the sequence generic function @code{size-of}.
 @end defun
 
 @defun gl-boolean-vector-fill! v bool
+Fills a GL boolean vector @var{v} with a boolean value @var{bool}.
 @end defun
 
 @defun list->gl-boolean-vector bools
+Coerce list of boolean values to a GL boolean vector.
+
+You can also use the @code{coerce-to} generic function to convert
+between GL boolean vectors and other sequences.
 @end defun
 
 @defun gl-boolean-vector-ref v k &optional fallback
+Returns @var{k}-th element of a GL boolean vector @var{v}.
+If @var{k} is out of range and @var{fallback} is provided,
+it is returned.  If @var{k} is out of range and @var{fallback} is
+omitted, an error is signalled.
+
+You can also use generic function @code{ref} to access a
+GL boolean vector.
 @end defun
 
 @defun gl-boolean-vector-set! v k bool
+Sets @var{k}-th element of a GL boolean vector @var{v}
+by a boolean value @var{bool}.
+
+You can also use generic function @code{(setter ref)} to modify a
+GL boolean vector.
 @end defun
 
 @defun gl-boolean-vector-copy v
+Returns a copy of a GL boolean vector @var{v}.
 @end defun
-
-@deftp {Reader syntax} #,(<gl-boolean-vector> bool @dots{})
-@end deftp
 
 
 @node GL feature checking, Drawing functions, GL data types, OpenGL API
@@ -910,6 +941,13 @@ You have to enable @var{GL_POLYGON_STIPPLE} to use this feature.
 @end defun
 
 
+@defun gl-edge-flag flag
+Sets the edge flag(s) of vertices.   When @var{flag} is
+a GL boolean vector, @code{glEdgeFlagv} is called.
+Otherwise @var{flag} is used as a single boolean value
+for @code{glEdgeFlag}.
+@end defun
+
 
 @defun gl-clear-index c
 @var{c} must be a real number.
@@ -932,11 +970,6 @@ You have to enable @var{GL_POLYGON_STIPPLE} to use this feature.
 
 @defun gl-polygon-offset factor units
 [GL1.1]
-@end defun
-
-@defun gl-edge-flag flag
-Sets the edge flag of vertices.
-
 @end defun
 
 @defun gl-scissor x y width height
@@ -967,6 +1000,9 @@ Sets the edge flag of vertices.
 @end defun
 
 @defun gl-depth-range nearv farv
+Defines an encoding for z-coordinates.  @var{Nearv} and @var{farv}
+define the minimum and maximum values that can be stored in the 
+depth buffer.  By default, they're 0.0 and 1.0, respectively.
 @end defun
 
 @defun gl-clear-accum r g b a
@@ -979,37 +1015,85 @@ Sets the edge flag of vertices.
 @section Transformation
 
 @defun gl-matrix-mode mode
+Speficies whether the modelview, projection, or texture matrix
+will be modified.   @var{Mode} can be one of the followings:
+
+@table @code
+@item GL_MODELVIEW
+@item GL_PROJECTION
+@item GL_TEXTURE
+@end table
 @end defun
 
-@defun gl-ortho left right bottom top nearv farv
+@defun gl-load-identity
+Loads an identity matrix to the current modifiable matrix.
+@end defun
+
+@defun gl-load-matrix mat
+Loads the matrix @var{mat} to the current modifiable matrix.
+@var{Mat} can be a @code{<matrix4f>} instance, or
+f32 or f64vector of length 16.
+@end defun
+
+@defun gl-mult-matrix mat
+Multiplies the matrix @var{mat} to the current modifiable matrix.
+@var{Mat} can be a @code{<matrix4f>} instance, or
+f32 or f64vector of length 16.
+@end defun
+
+@defun gl-translate x y z
+Multiplies the current matrix by a matrix taht translates
+an object by (@var{x}, @var{y}, @var{z}).
+Internally, @code{glTranslated} is called.
+@end defun
+
+@defun gl-rotate angle x y z
+Multiplies the current matrix by a matrix that rotates
+an object in a counterclockwise direction about the ray
+from the origin through the point (@var{x}, @var{y}, @var{z})
+by @var{angle} degrees.
+Internally, @code{glRotated} is called.
+@end defun
+
+@defun gl-scale x y z
+Multiplies the current matrix by a matrix that scales
+an object by (@var{x}, @var{y}, @var{z}).
+Internally, @code{glScaled} is called.
+@end defun
+
+@defun glu-look-at eyex eyey eyez ctrx ctry ctrz upx upy upz
+Defines a viewing matrix and multiplies it to the right of
+the current matrix.
 @end defun
 
 @defun gl-frustum left right bottom top nearv farv
+Creates a matrix for a perspective-view frustum and
+multiplies the current matrix by it.
+@end defun
+
+@defun glu-perspective fovy aspect znear zfar
+Creates a matrix for a symmetrix perspective-view frustum and
+multiplies the current matrix by it.
+@end defun
+
+@defun gl-ortho left right bottom top nearv farv
+Creates a matrix for an orthographic parallel viewing volume nand
+multiplies the current matrix by it.
+@end defun
+
+@defun glu-ortho-2d left right bottom top
+Convenience procedure for 2D drawing; it is the same as @code{gl-ortho}
+except nearv and farv are fixed (along Z axis) to -1.0 and 1.0, respectively.
 @end defun
 
 @defun gl-viewport x y width height
+Defines a pixel rectangle in the window into which the final image
+is mapped.
 @end defun
 
 @defun gl-push-matrix
 @defunx gl-pop-matrix
-@end defun
-
-@defun gl-load-identity
-@end defun
-
-@defun gl-load-matrix mat
-@end defun
-
-@defun gl-mult-matrix mat
-@end defun
-
-@defun gl-rotate angle x y z
-@end defun
-
-@defun gl-scale x y z
-@end defun
-
-@defun gl-translate x y z
+Pushes/pops the current matrix.
 @end defun
 
 @node Display lists, Vertex arrays, Transformation, OpenGL API
@@ -1042,35 +1126,98 @@ Sets the edge flag of vertices.
 @node Vertex arrays, Lighting, Display lists, OpenGL API
 @section Vertex arrays
 
+Scheme version of APIs doesn't have @var{GLenum type} argument
+in C API, since Gauche-gl can figure out the type by passed 
+vectors.
+
+Scheme API of @code{gl-*-array} has @var{offset} optional argument,
+by which you can pass the GL the values beginning from the @var{offset}-th
+element of the passed uniform vector.   This isn't in GL C API, 
+since you can just offset the pointer in C.
+
 NOTE: it is caller's responsibility to guarantee the passed vector
 has enough length.  GL doesn't have an interface to specify the boundary,
 so Gauche can't detect an invalid length vector.
 
+
 @defun gl-vertex-pointer size vec &optional stride offset
+Sets the vertex array.  @var{Size} specifies the number of 
+scalar values per vertex (2, 3, or 4), and @var{vec} provides
+the actual value in either f32, f64, s32 or s16vector.
+@code{Stride} and @var{offset} can be used to tell GL to 
+access @var{vec} sparsely.
 @end defun
 
 @defun gl-normal-pointer vec &optional stride offset
+Sets the normal array.  @var{Vec} should be either
+a f32, f64, s32 or s16vector, where each consecutive triplet
+specifies a normal vector.
+@code{Stride} and @var{offset} can be used to tell GL to 
+access @var{vec} sparsely.
 @end defun
 
 @defun gl-color-pointer size vec &optional stride offset
+Sets the color array.   @var{Size} specifies the number of
+scalar values per color (3 or 4), and @var{vec} provides
+the actual values in either f32, f64, u32, u16, u8, s32, s16, or s8vector.
+@code{Stride} and @var{offset} can be used to tell GL to 
+access @var{vec} sparsely.
 @end defun
 
 @defun gl-index-pointer vec &optional stride offset
+Sets the index array.   @var{Vec} can be either s32, s16, u8, f32, or
+f64vector.
+@code{Stride} and @var{offset} can be used to tell GL to 
+access @var{vec} sparsely.
 @end defun
 
 @defun gl-tex-coord-pointer size vec &optional stride offset
+Sets the texture coordinate array.  @var{Size} specifies the
+number of scalar values per texture coordinate (1, 2, 3 or 4),
+and @var{vec} provides the actual values in either f32, f64, s32 or
+s16vector.
+@code{Stride} and @var{offset} can be used to tell GL to 
+access @var{vec} sparsely.
 @end defun
 
 @defun gl-edge-flag-pointer vec &optional stride offset
+Sets the edge flag array.  @var{Vec} must be a GL boolean vector.
+@code{Stride} and @var{offset} can be used to tell GL to 
+access @var{vec} sparsely.
 @end defun
 
 @defun gl-array-element ith
+Dereference @var{ith} vertex information of the currently enabled arrays.
 @end defun
 
 @defun gl-draw-elements mode indices
+Issues geometric primitive calls consists of the vertex information
+of the currently enabled arrays, each of which is specified
+by @var{indices}, which should be either a u8, u16 or u32vector.
+
+@var{Mode} is the same as of @code{gl-begin}.
+@end defun
+
+@defun gl-draw-range-elements mode start end indices
+[GL1.2] Like @code{gl-draw-elements}, but limits the range of indices
+between @var{start} and @var{end}, inclusive.  GL driver may take
+advantage of the information for better performance.
+@end defun
+
+@defun gl-draw-arrays mode first count
+This is more straightforward.  Starting from @var{first} index,
+@var{count} vertices is wrtten in the drawing mode @var{mode}
+(same as of @code{gl-begin}), taken from the current enabled arrays.
 @end defun
 
 @defun gl-interleaved-arrays format vec &optional stride offset
+@var{Vec} must be a f32vector.  It contains various information
+(e.g. vertex position, color and texture coordinate) interleaved,
+in the way specified by @var{format}.
+
+In Scheme API, we only allow uniform vector as @var{vec}, so
+you can't use the format that mixes float and integer, such as
+@code{GL_C4UB_V2F}.
 @end defun
 
 @node Lighting, Raster functions, Vertex arrays, OpenGL API
@@ -1300,15 +1447,6 @@ so Gauche can't detect an invalid length vector.
 
 @node Projection, Quadrics, GLU API, GLU API
 @section Projection
-
-@defun glu-look-at eyex eyey eyez ctrx ctry ctrz upx upy upz
-@end defun
-
-@defun glu-ortho-2d left right bottom top
-@end defun
-
-@defun glu-perspective fovy aspect znear zfar
-@end defun
 
 @defun glu-pick-matrix x y w h vp
 @end defun

@@ -1,34 +1,8 @@
-;; Example 10-2  Antialiasing by jittering the viewing volume
+;; Example 10-2  Antialiasing by jittering the orthographic projection
 
 (use gl)
 (use gl.glut)
 (use math.const)
-
-(define (acc-frustum left right bottom top near far
-                     pixdx pixdy eyedx eyedy focus)
-  (let ((viewport (gl-get-integer GL_VIEWPORT))
-        (xwsize   (- right left))
-        (ywsize   (- top bottom)))
-    (let ((dx (- (+ (* pixdx (/ xwsize (ref viewport 2)))
-                    (* eyedx (/ near focus)))))
-          (dy (- (+ (* pixdy (/ ywsize (ref viewport 3)))
-                    (* eyedy (/ near focus))))))
-      (gl-matrix-mode GL_PROJECTION)
-      (gl-load-identity)
-      (gl-frustum (+ left dx) (+ right dx) (+ bottom dy) (+ top dy) near far)
-      (gl-matrix-mode GL_MODELVIEW)
-      (gl-load-identity)
-      (gl-translate (- eyedx) (- eyedy) 0.0)
-      )))
-
-(define (acc-perspective fovy aspect near far pixdx pixdy eyedx eyedy focus)
-  (let* ((fov2   (/ (* fovy pi/180) 2.0))
-         (top    (/ near (/ (cos fov2) (sin fov2))))
-         (bottom (- top))
-         (right  (* top aspect))
-         (left   (- right)))
-    (acc-frustum left right bottom top near far pixdy pixdy eyedx eyedy focus)
-    ))
 
 (define (init)
   (let ((mat-ambient    '#f32(1.0 1.0 1.0 1.0))
@@ -103,12 +77,15 @@
     (gl-clear GL_ACCUM_BUFFER_BIT)
     (dotimes (jitter ACSIZE)
       (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
-      (acc-perspective 50.0 (/ (ref viewport 2) (ref viewport 3))
-                       1.0 15.0
-                       (car (ref J8 jitter))
-                       (cadr (ref J8 jitter))
-                       0.0 0.0 1.0)
-      (display-objects)
+      (gl-push-matrix*
+       ;; Note that 4.5 is the distance in world space between
+       ;; left and right and bottom and top.
+       ;; This formula converts fractional pixel movement to 
+       ;; world coordinates.
+       (gl-translate (/ (* (car (ref J8 jitter))  4.5) (ref viewport 2))
+                     (/ (* (cadr (ref J8 jitter)) 4.5) (ref viewport 3))
+                     0.0)
+       (display-objects))
       (gl-accum GL_ACCUM (/ ACSIZE)))
     (gl-accum GL_RETURN 1.0)
     (gl-flush)
@@ -116,6 +93,13 @@
 
 (define (reshape-proc w h)
   (gl-viewport 0 0 w h)
+  (gl-matrix-mode GL_PROJECTION)
+  (gl-load-identity)
+  (if (<= w h)
+    (gl-ortho -2.25 2.25 (* -2.25 (/ h w)) (* 2.25 (/ h w)) -10.0 10.0)
+    (gl-ortho (* -2.25 (/ w h)) (* 2.25 (/ w h)) -2.25 2.25 -10.0 10.0))
+  (gl-matrix-mode GL_MODELVIEW)
+  (gl-load-identity)
   )
 
 (define (keyboard-proc key x y)

@@ -1,4 +1,4 @@
-;; Example 10-2  Antialiasing by jittering the orthographic projection
+;; Example 10-4  Antialiasing by jittering the orthographic projection
 
 (use gl)
 (use gl.glut)

@@ -1,4 +1,4 @@
-;; Example 10-2  Antialiasing by jittering the viewing volume
+;; Example 10-3  Antialiasing by jittering the viewing volume
 
 (use gl)
 (use gl.glut)

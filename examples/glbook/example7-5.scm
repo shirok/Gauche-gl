@@ -45,7 +45,7 @@
     (gl-end-list)))
 
 (define (print-stroked-string s)
-  (gl-call-lists (string-size s) GL_BYTE s))
+  (gl-call-lists s))
 
 (define (disp)
   (gl-clear GL_COLOR_BUFFER_BIT)

@@ -56,7 +56,7 @@
 (define (print-string s)
   (gl-push-attrib GL_LIST_BIT)
   (gl-list-base *font-offset*)
-  (gl-call-lists (string-size s) GL_UNSIGNED_BYTE s)
+  (gl-call-lists s)
   (gl-pop-attrib))
 
 (define (disp)

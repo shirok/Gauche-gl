@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.17 2005-06-08 12:10:42 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.18 2005-06-08 12:13:15 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -74,7 +74,7 @@ It provides the following modules:
 The module that provides bindings to OpenGL API.
 It covers almost all functions in OpenGL 1.0 through 1.5 and 2.0,
 registered vendor extensions, and most functions in GLU.
-The functions are described in @ref{OpenGL API} and @ref{GLU API}.
+The functions are described in @ref{OpenGL API}.
 @item gl.glut
 The module that provides bindings to most functions in GLUT.
 The functions are described in @ref{GLUT API}.
@@ -393,11 +393,10 @@ for the details of what each API do.
 * Display lists::               
 * Vertex arrays::               
 * Lighting::                    
-* Raster functions::            
+* Pixels::                      
 * Texture mapping::             
 * Fog::                         
 * Selection and feedback::      
-* Color operations::            
 * Projection::                  
 * Quadrics::                    
 * Nurbs::                       
@@ -1364,7 +1363,7 @@ you can't use the format that mixes float and integer, such as
 @code{GL_C4UB_V2F}.
 @end defun
 
-@node Lighting, Raster functions, Vertex arrays, OpenGL API
+@node Lighting, Pixels, Vertex arrays, OpenGL API
 @section Lighting
 
 @defun gl-shade-model mode
@@ -1435,7 +1434,7 @@ Makes the material property @var{mode} (e.g. @code{GL_AMBIENT} etc.)
 of the face @var{face} follow the current color set by @code{gl-color}.
 @end defun
 
-@node Pixels, bitmaps and images
+@node Pixels, Texture mapping, Lighting, OpenGL API
 @section Pixels, bitmaps and images
 
 @subheading Pixel operations
@@ -1580,7 +1579,7 @@ enough size.
 @end defun
 
 
-@node Texture mapping, Fog, Raster functions, OpenGL API
+@node Texture mapping, Fog, Pixels, OpenGL API
 @section Texture mapping
 
 @defun gl-tex-gen coord pname param
@@ -1661,7 +1660,7 @@ enough size.
 @defun gl-fog pname param
 @end defun
 
-@node Selection and feedback, Color operations, Fog, OpenGL API
+@node Selection and feedback, Projection, Fog, OpenGL API
 @section Selection and feedback
 
 @defun gl-feedback-buffer type buffer
@@ -1690,7 +1689,7 @@ enough size.
 
 
 
-q@node Projection, Quadrics, Color operations, OpenGL API
+@node Projection, Quadrics, Selection and feedback, OpenGL API
 @section Projection
 
 @defun glu-pick-matrix x y w h vp

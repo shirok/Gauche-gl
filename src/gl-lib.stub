@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.37 2005-06-06 12:06:59 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.38 2005-06-08 12:10:43 shirok Exp $
 ;;;
 
 "
@@ -438,78 +438,101 @@
 (define-cproc gl-call-list (list::<int>)
   (return <void> "glCallList"))
 
-(define-cproc gl-call-lists (n::<int> type::<int> lists)
-  "switch (type) {
-  case GL_BYTE:
-    if (SCM_S8VECTORP(lists)) {
-      glCallLists(n, type, SCM_S8VECTOR_ELEMENTS(lists));
-    } else if (SCM_STRINGP(lists)) {
-      glCallLists(n, type, SCM_STRING_START(lists));
-    } else {
-      Scm_Error(\"s8vector or string required, but got %S\", lists);
-    }
-    break;
-  case GL_UNSIGNED_BYTE:
-    if (SCM_U8VECTORP(lists)) {
-      glCallLists(n, type, SCM_U8VECTOR_ELEMENTS(lists));
-    } else if (SCM_STRINGP(lists)) {
-      glCallLists(n, type, SCM_STRING_START(lists));
-    } else {
-      Scm_Error(\"u8vector or string required, but got %S\", lists);
-    }
-    break;
-  case GL_SHORT:
-    if (!SCM_S16VECTORP(lists)) {
-      Scm_Error(\"s16vector required, but got %S\", lists);
-    }
-    glCallLists(n, type, SCM_S16VECTOR_ELEMENTS(lists));
-    break;
-  case GL_UNSIGNED_SHORT:
-    if (!SCM_U16VECTORP(lists)) {
-      Scm_Error(\"u16vector required, but got %S\", lists);
-    }
-    glCallLists(n, type, SCM_U16VECTOR_ELEMENTS(lists));
-    break;
-  case GL_INT:
-    if (!SCM_S32VECTORP(lists)) {
-      Scm_Error(\"s32vector required, but got %S\", lists);
-    }
-    glCallLists(n, type, SCM_S32VECTOR_ELEMENTS(lists));
-    break;
-  case GL_UNSIGNED_INT:
-    if (!SCM_U32VECTORP(lists)) {
-      Scm_Error(\"u32vector required, but got %S\", lists);
-    }
-    glCallLists(n, type, SCM_U32VECTOR_ELEMENTS(lists));
-    break;
-  case GL_FLOAT:
-    if (!SCM_F32VECTORP(lists)) {
-      Scm_Error(\"f32vector required, but got %S\", lists);
-    }
-    glCallLists(n, type, SCM_F32VECTOR_ELEMENTS(lists));
-    break;
-  case GL_2_BYTES:
-    if (!SCM_U8VECTORP(lists)) {
-      Scm_Error(\"u8vector required, but got %S\", lists);
-    }
-    glCallLists(n, type, SCM_U8VECTOR_ELEMENTS(lists));
-    break;
-  case GL_3_BYTES:
-    if (!SCM_U8VECTORP(lists)) {
-      Scm_Error(\"u8vector required, but got %S\", lists);
-    }
-    glCallLists(n, type, SCM_U8VECTOR_ELEMENTS(lists));
-    break;
-  case GL_4_BYTES:
-    if (!SCM_U8VECTORP(lists)) {
-      Scm_Error(\"u8vector required, but got %S\", lists);
-    }
-    glCallLists(n, type, SCM_U8VECTOR_ELEMENTS(lists));
-    break;
-  default:
-    Scm_Error(\"bad value %d for type argument\", type);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+;; this may be called as
+;;  (gl-call-lists array)
+;;  (gl-call-lists size array)
+;;  (gl-call-lists size type array)
+(define-cproc gl-call-lists (arg0 &optional arg1 arg2)
+  "GLsizei size = 0;  
+   int type = -1;
+   ScmObj array, bad;
+   if (SCM_UNBOUNDP(arg2)) {
+     if (SCM_UNBOUNDP(arg1)) {
+       /* single arg case */
+       array = arg0;
+     } else {
+       /* double arg case */
+       if (!SCM_INTP(arg0)) {
+         bad = arg0; goto badarg;
+       }
+       size = SCM_INT_VALUE(arg0);
+       array = arg1;
+     }
+   } else {
+     /* triple arg case */
+     if (!SCM_INTP(arg0)) {
+       bad = arg0; goto badarg;
+     }
+     size = SCM_INT_VALUE(arg0);
+     if (!SCM_INTP(arg1)) {
+       bad = arg1; goto badarg;
+     }
+     type = SCM_INT_VALUE(arg1);
+     array = arg2;
+   }
+
+   if (SCM_U8VECTORP(array)) {
+     switch (type) {
+       case -1:
+         if (size == 0) size = SCM_U8VECTOR_SIZE(array);
+         else if (SCM_U8VECTOR_SIZE(array) < size) goto nee;
+         glCallLists(size, GL_UNSIGNED_BYTE, SCM_U8VECTOR_ELEMENTS(array));
+         break;
+       case GL_2_BYTES:
+         if (size == 0) size = SCM_U8VECTOR_SIZE(array)/2;
+         else if (SCM_U8VECTOR_SIZE(array)/2 < size) goto nee;
+         glCallLists(size, GL_2_BYTES, SCM_U8VECTOR_ELEMENTS(array));
+         break;
+       case GL_3_BYTES:
+         if (size == 0) size = SCM_U8VECTOR_SIZE(array)/3;
+         else if (SCM_U8VECTOR_SIZE(array)/3 < size) goto nee;
+         glCallLists(size, GL_3_BYTES, SCM_U8VECTOR_ELEMENTS(array));
+         break;
+       case GL_4_BYTES:
+         if (size == 0) size = SCM_U8VECTOR_SIZE(array)/4;
+         else if (SCM_U8VECTOR_SIZE(array)/4 < size) goto nee;
+         glCallLists(size, GL_4_BYTES, SCM_U8VECTOR_ELEMENTS(array));
+         break;
+       default:
+         goto badtype;
+     }
+   } else if (SCM_STRINGP(array)) {
+     if (size == 0) size = SCM_STRING_SIZE(array);
+     else if (SCM_STRING_SIZE(array) < size) goto nee;
+     glCallLists(size, GL_UNSIGNED_BYTE, SCM_STRING_START(array));
+   } else if (SCM_S8VECTORP(array)) {
+     if (size == 0) size = SCM_S8VECTOR_SIZE(array);
+     else if (SCM_S8VECTOR_SIZE(array) < size) goto nee;
+     glCallLists(size, GL_BYTE, SCM_S8VECTOR_ELEMENTS(array));
+   } else if (SCM_S16VECTORP(array)) {
+     if (size == 0) size = SCM_S16VECTOR_SIZE(array);
+     else if (SCM_S16VECTOR_SIZE(array) < size) goto nee;
+     glCallLists(size, GL_SHORT, SCM_S16VECTOR_ELEMENTS(array));
+   } else if (SCM_U16VECTORP(array)) {
+     if (size == 0) size = SCM_U16VECTOR_SIZE(array);
+     else if (SCM_U16VECTOR_SIZE(array) < size) goto nee;
+     glCallLists(size, GL_UNSIGNED_SHORT, SCM_U16VECTOR_ELEMENTS(array));
+   } else if (SCM_S32VECTORP(array)) {
+     if (size == 0) size = SCM_S32VECTOR_SIZE(array);
+     else if (SCM_S32VECTOR_SIZE(array) < size) goto nee;
+     glCallLists(size, GL_INT, SCM_S32VECTOR_ELEMENTS(array));
+   } else if (SCM_U32VECTORP(array)) {
+     if (size == 0) size = SCM_U32VECTOR_SIZE(array);
+     else if (SCM_U32VECTOR_SIZE(array) < size) goto nee;
+     glCallLists(size, GL_UNSIGNED_INT, SCM_U32VECTOR_ELEMENTS(array));
+   } else if (SCM_F32VECTORP(array)) {
+     if (size == 0) size = SCM_F32VECTOR_SIZE(array);
+     else if (SCM_F32VECTOR_SIZE(array) < size) goto nee;
+     glCallLists(size, GL_INT, SCM_U32VECTOR_ELEMENTS(array));
+   }
+   SCM_RETURN(SCM_UNDEFINED);
+  badarg:
+   Scm_Error(\"bad argument to gl-call-lists: %S\", bad);
+  nee:
+   Scm_Error(\"not enough elements passed to gl-call-lists: %S\", array);
+  badtype:
+   Scm_Error(\"given type %d doesn't match the passed array (u8vector)\", type);
+   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-list-base (base::<int>)
   (return <void> "glListBase"))
@@ -1027,9 +1050,7 @@
      }
      break;
    default:
-     if (SCM_EXACTP(param)) {
-       glLighti(light, pname, (GLint)Scm_GetInteger(param));
-     } else if (SCM_REALP(param)) {
+     if (SCM_REALP(param)) {
        glLightf(light, pname, (GLfloat)Scm_GetDouble(param));
      } else {
        Scm_Error(\"bad parameter: %S, must be a real number.\", param);
@@ -1067,7 +1088,14 @@
      } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
        glLightModeliv(pname, SCM_S32VECTOR_ELEMENTS(param));
      } else {
-       Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 4\", param);
+       Scm_Error(\"bad parameter for GL_LIGHT_MODEL_AMBIENT: %S, must be f32 or s32 vector of length 4\", param);
+     }
+     break;
+    case GL_LIGHT_MODEL_COLOR_CONTROL:
+     if (SCM_INTP(param)) {
+       glLightModeli(pname, SCM_INT_VALUE(param));
+     } else {
+       Scm_Error(\"bad parameter for GL_LIGHT_MODEL_COLOR_CONTROL: %S, must be an exact small integer\", param);
      }
      break;
     default:
@@ -1148,6 +1176,18 @@
      glPixelStoref(pname, (float)SCM_FLONUM_VALUE(param));
    } else {
      Scm_Error(\"real number required for param, but got %S\", param);
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc gl-pixel-transfer (pname::<fixnum> param)
+  "if (SCM_BOOLP(param)) {
+     glPixelTransferi(pname, SCM_BOOL_VALUE(param));
+   } else if (SCM_EXACTP(param)) {
+     glPixelTransferi(pname, Scm_GetInteger(param));
+   } else if (SCM_FLONUMP(param)) {
+     glPixelTransferf(pname, (GLfloat)SCM_FLONUM_VALUE(param));
+   } else {
+     Scm_Error(\"real number or boolean required for param, but got %S\", param);
    }
    SCM_RETURN(SCM_UNDEFINED);")
 
@@ -1281,7 +1321,7 @@
   (return <void> "glStencilMask"))
 
 (define-cproc gl-stencil-op (func::<fixnum> zfail::<fixnum> zpass::<fixnum>)
-  (return <void> "glStencilFunc"))
+  (return <void> "glStencilOp"))
 
 (define-cproc gl-clear-stencil (s::<int>)
   (return <void> "glClearStencil"))

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.10 2005-06-06 12:06:59 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.11 2005-06-08 12:10:43 shirok Exp $
 ;;;
 
 "
@@ -158,7 +158,16 @@
    glCopyColorTable(target, internal_format, x, y, width);
    SCM_RETURN(SCM_UNDEFINED);")
 
-; gl-get-color-table
+(define-cproc gl-get-color-table! (target::<fixnum> format::<fixnum>
+                                   type::<fixnum> data)
+  ;; TODO: check the type and size vailidity of data
+  "ENSURE(glGetColorTable);
+   if (!SCM_UVECTORP(data)) {
+     Scm_Error(\"uniform vector required, but got %S\", data);
+   }
+   glGetColorTable(target, format, type, SCM_UVECTOR_ELEMENTS(data));
+   SCM_RETURN(data);")
+
 ; gl-get-color-table-parameter
 
 (define-cproc gl-blend-equation (mode::<fixnum>)
@@ -199,6 +208,26 @@
 ; gl-get-minmax-parameter
 ; gl-convolution-filter-1d
 ; gl-convolution-filter-2d
+
+(define-cproc gl-convolution-filter-2d (target::<fixnum>
+                                        internal-format::<fixnum>
+                                        width::<fixnum> height::<fixnum>
+                                        format::<fixnum> type::<fixnum>
+                                        data)
+  "int elttype, size;
+   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
+   if (!SCM_UVECTORP(data)) {
+     Scm_Error(\"uniform vector required, but got %S\", data);
+   }
+   if (SCM_UVECTOR_SIZE(data) < size) {
+     Scm_Error(\"given vector is too short (minimum %d elements): %S\",
+               size, data);
+   }
+   ENSURE(glConvolutionFilter2D);
+   glConvolutionFilter2D(target, internal_format, width, height, 
+                         format, type, SCM_UVECTOR_ELEMENTS(data));
+   SCM_RETURN(SCM_UNDEFINED);")
+
 ; gl-convolution-parameter
 ; gl-copy-convolution-filter-1d
 ; gl-copy-convolution-filter-2d

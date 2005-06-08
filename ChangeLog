@@ -1,3 +1,9 @@
+2005-06-08  Shiro Kawai  <shiro@acm.org>
+
+	* lib/gl/simple-image.scm : added.
+	* src/glext-lib.stub, src/gl-lib.stub: more API support.
+	* examples/images/* : added.
+
 2005-06-05  Shiro Kawai  <shiro@acm.org>
 
 	* src/glext-api.scm: API definition of GL extension.  We no longer

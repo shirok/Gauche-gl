@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.16 2005-06-06 12:09:27 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.17 2005-06-08 12:10:42 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -57,7 +57,6 @@ This manual is for version @VERSION@.
 * Installation::                
 * Getting Started::             
 * OpenGL API::                  
-* GLU API::                     
 * GLUT API::                    
 * Vectors and matrices::        
 * Indices::                     
@@ -374,7 +373,7 @@ fast, and the latter handles complicated logic).
 @end table
 
 @c ======================================================================
-@node OpenGL API, GLU API, Getting Started, Top
+@node OpenGL API, GLUT API, Getting Started, Top
 @chapter OpenGL API
 
 In this chapter we list a GL and GLU procedures accessible from
@@ -388,18 +387,21 @@ for the details of what each API do.
 * GL feature checking::         
 * Drawing functions::           
 * GL state control::            
-* GL states::                   
-* Depth buffer and accumulation buffer::  
+* GL states for drawing::       
+* Framebuffers::                
 * Transformation::              
 * Display lists::               
 * Vertex arrays::               
 * Lighting::                    
 * Raster functions::            
-* Stenciling::                  
 * Texture mapping::             
 * Fog::                         
 * Selection and feedback::      
 * Color operations::            
+* Projection::                  
+* Quadrics::                    
+* Nurbs::                       
+* Polygon tesselation::         
 @end menu
 
 @node GL data types, GL feature checking, OpenGL API, OpenGL API
@@ -610,25 +612,6 @@ Corresponds to @code{glBegin} and @code{glEnd}.
 Use of @code{gl-begin*} macro is recommended, though.
 @end defun
 
-@defun gl-clear-color r g b a
-Sets the current clearing color.
-Each color value sould be a real number, and is clamped to
-@code{[0.0,1.0]}.
-@end defun
-
-@defun gl-clear mask
-Clears the specified buffer.   @var{Mask} is a logical-or of
-the following constants.
-
-@table @code
-@item GL_COLOR_BUFFER_BIT
-@item GL_DEPTH_BUFFER_BIT
-@item GL_ACCUM_BUFFER_BIT
-@item GL_STENCIL_BUFFER_BIT
-@end table
-
-@end defun
-
 @defun gl-flush
 Flush the GL command buffer.
 @end defun
@@ -683,7 +666,7 @@ Sets the current raster position.  In the first form,
 second form, all args should be a real numbers.
 @end defun
 
-@node GL state control, GL states, Drawing functions, OpenGL API
+@node GL state control, GL states for drawing, Drawing functions, OpenGL API
 @section GL state control
 
 @subsubheading Capabilities
@@ -866,8 +849,8 @@ And @var{hint} can be one of the following:
 @end defun
 
 
-@node GL states, Depth buffer and accumulation buffer, GL state control, OpenGL API
-@section GL states
+@node GL states for drawing, Framebuffers, GL state control, OpenGL API
+@section GL states for drawing
 
 @defun gl-point-size size
 Sets the width in pixels for rendered points.
@@ -949,54 +932,150 @@ for @code{glEdgeFlag}.
 @end defun
 
 
-@defun gl-clear-index c
-@var{c} must be a real number.
-@end defun
-
-@defun gl-index-mask mask
-@end defun
-
-@defun gl-color-mask r g b a
-@end defun
-
-@defun gl-alpha-func func ref
-@end defun
-
 @defun gl-blend-func func factor
-@end defun
-
-@defun gl-logic-op opcode
 @end defun
 
 @defun gl-polygon-offset factor units
 [GL1.1]
 @end defun
 
-@defun gl-scissor x y width height
-@end defun
-
 @defun gl-clip-plane plane equation
+Defines a clipping plane.  @var{Plane} specifies which clipping
+plane you're defining.  Use @code{GL_MAX_CLIP_PLANES} to
+@code{gl-get-integer} to obtain the number of clipping planes
+you can use.  You have to enable the specific clipping plane
+(e.g. @code{(gl-enable GL_CLIP_PLANE0)}) to use the clipping plane.
+
+@var{Equation} must be an f64vector of size 4, specifying four
+coefficients of the plane equation, @code{Ax + By + Cz + D = 0}.
 @end defun
 
 @defun gl-get-clip-plane plane
+Returns the four coefficients of the equation of clipping plane
+@var{plane}, in f64vector.
 @end defun
 
+@node Framebuffers, Transformation, GL states for drawing, OpenGL API
+@section Framebuffers
+
+@subheading Clearing buffers
+
+@defun gl-clear-color r g b a
+Sets the current clearing color.
+Each color value sould be a real number, and is clamped to
+@code{[0.0,1.0]}.
+@end defun
+
+@defun gl-clear-index c
+Sets the current clearing color (in color index mode).
+@var{c} must be a real number.  
+@end defun
+
+@defun gl-clear-depth depth
+Sets the current clearing depth value.
+@var{Depth} must be a real number and clamped to @code{[0.0,1.0]}.
+@end defun
+
+@defun gl-clear-stencil s
+Sets the current clearing value of the stencil buffer.
+@end defun
+
+@defun gl-clear-accum r g b a
+Sets the current clearing value of accumulation buffer.
+@end defun
+
+@defun gl-clear mask
+Clears the specified buffer.   @var{Mask} is a logical-or of
+the following constants.
+
+@table @code
+@item GL_COLOR_BUFFER_BIT
+@item GL_DEPTH_BUFFER_BIT
+@item GL_ACCUM_BUFFER_BIT
+@item GL_STENCIL_BUFFER_BIT
+@end table
+
+@end defun
+
+@subheading Selecting color buffers
+
 @defun gl-draw-buffer mode
+Selects (a) buffer(s) to which the image is rendered.
+Possible @var{mode} values are: @code{GL_FRONT},
+@code{GL_FRONT_LEFT}, @code{GL_FRONT_RIGHT},
+@code{GL_BACK}, @var{GL_BACK_LEFT}, @var{GL_BACK_RIGHT},
+@code{GL_LEFT}, @code{GL_RIGHT}, @code{GL_AUXi},
+@code{GL_FRONT_AND_BACK}, and @code{GL_NONE}.
 @end defun
 
 @defun gl-read-buffer mode
+Selects a color buffer as the source for reading pixels.
+Possible @var{mode} values are the same as @code{gl-draw-buffer}
+except @code{GL_FRONT_AND_BACK} and @code{GL_NONE}.
 @end defun
 
-@node Depth buffer and accumulation buffer, Transformation, GL states, OpenGL API
-@section Depth buffer and accumulation buffer
+@subheading Masking buffers
 
-@defun gl-clear-depth depth
+@defun gl-index-mask mask
+In color index mode, sets the mask of the color-index buffer.
+@var{Mask} is an exact integer.
 @end defun
 
-@defun gl-depth-func func
+@defun gl-color-mask r g b a
+@var{R}, @var{g}, @var{b} and @var{a} are boolean values to
+specify whether the corresponding color channel should be written
+to the color buffer or not.
 @end defun
 
 @defun gl-depth-mask flag
+@var{Flag} is a boolean value specifies whether depth buffer should
+be written or not.
+@end defun
+
+@defun gl-stencil-mask mask
+Sets the mask bit pattern for the stencil buffer.  @var{Mask} is 
+an exact integer.
+@end defun
+
+
+@subheading Testing and operating on fragments
+
+@defun gl-scissor x y width height
+Sets the scissor rectangle.  If the scissor test is enabled
+(use @code{(gl-enable GL_SCISSOR_TEST)}), only the pixels that lie inside
+the rectangle are written.
+@end defun
+
+@defun gl-alpha-func func ref
+Sets the reference value and comparison function for the alpha test.
+@var{Func} may be either one of @code{GL_NEVER}, @code{GL_ALWAYS},
+@code{GL_LESS}, @code{GL_LEQUAL}, @code{GL_EQUAL}, @code{GL_GEQUAL},
+@code{GL_GREATER}, or @code{GL_NOTEQUAL}.  @var{Ref} sets the reference
+value, a real number clamped to be between 0.0 and 1.0.
+@end defun
+
+@defun gl-stencil-func func ref mask
+Sets the comparison function, the reference value, and a mask for
+stencil test.  @var{Func} specifies the funciton, and its possible
+value is the same as @code{gl-alpha-func}'s.  @var{Ref} is an integer
+reference value, and @var{mask} is an integer specifying bitwise mask.
+Before the comparison, the reference value and the fragment value are
+taken bitwise AND by @var{mask}.
+@end defun
+
+@defun gl-stencil-op func zfail zpass
+Speficies how the stencil buffer should be modified by the result of
+the stencil test.  Each three parameter can take one of the following
+values independently: @code{GL_KEEP}, @code{GL_ZERO}, @code{GL_REPLACE},
+@code{GL_INCR}, @code{GL_DECR}, or @code{GL_INVERT}.
+@end defun
+
+
+@defun gl-depth-func func
+Sets the comparison function for the depth test.  @var{Func} may
+be one of the following constant value: @code{GL_NEVER}, 
+@code{GL_ALWAYS}, @code{GL_LESS}, @code{GL_LEQUAL}, @code{GL_EQUAL},
+@code{GL_GEQUAL}, @code{GL_GREATER}, or @code{GL_NOTEQUAL}.
 @end defun
 
 @defun gl-depth-range nearv farv
@@ -1005,13 +1084,41 @@ define the minimum and maximum values that can be stored in the
 depth buffer.  By default, they're 0.0 and 1.0, respectively.
 @end defun
 
-@defun gl-clear-accum r g b a
+@defun gl-logic-op opcode
+Selects the logical operation to be performed, given an incoming
+(source) fragment and the pixel currently in the color buffer
+(destination).  @var{Opcode} may be one of the following values:
+@code{GL_CLEAR}, @code{GL_COPY}, @code{GL_NOOP}, @code{GL_SET},
+@code{GL_COPY_INVERTED}, @code{GL_INVERT}, @code{GL_AND_REVERSE},
+@code{GL_OR_REVERSE}, @code{GL_AND}, @code{GL_OR}, @code{GL_NAND},
+@code{GL_NOR}, @code{GL_XOR}, @code{GL_EQUIV}, @code{GL_AND_INVERTED}
+or @code{GL_OR_INVERTED}.
 @end defun
 
 @defun gl-accum op value
+Sets the accumulation buffer operation mode.  @var{Op} may be
+one of the following values:
+@table @code
+@item GL_ACCUM
+Reads each pixel from the current selected buffer to read
+(by @code{gl-read-buffer}), multiplies its values by @var{value},
+and adds the result into the accumulation buffer.
+@item GL_LOAD
+Same as @code{GL_ACCUM} but replacing the accumulation buffer by
+the result of multiplication, instead of adding it.
+@item GL_RETURN
+Takes the values from accumulation buffer, multiplies them with @var{value},
+then write it to the current color buffer to write (by @code{gl-draw-buffer}).
+@item GL_ADD
+Adds @var{value} to each pixel in the accumulation buffer and write
+it back.
+@item GL_MULT
+Multiplies @var{value} to each pixel in the accumulation buffer and write
+it back.  The result value is clamped to [-1.0, 1.0].
+@end table
 @end defun
 
-@node Transformation, Display lists, Depth buffer and accumulation buffer, OpenGL API
+@node Transformation, Display lists, Framebuffers, OpenGL API
 @section Transformation
 
 @defun gl-matrix-mode mode
@@ -1096,31 +1203,68 @@ is mapped.
 Pushes/pops the current matrix.
 @end defun
 
+@defmac gl-push-matrix* expr @dots{}
+A convenience macro.  Pushes the current matrix, 
+executes @var{expr}s, then pop the current matrix.
+@end defmac
+
+
 @node Display lists, Vertex arrays, Transformation, OpenGL API
 @section Display lists
 
-@defun gl-is-list list-no
-@end defun
-
-@defun gl-delete-lists list-no-start range
-@end defun
-
 @defun gl-gen-lists range
+Allocates @var{range} number of contiguous display list indices.
+Returns an integer which is the smallest display list index you
+can use.
 @end defun
 
 @defun gl-new-list list-no mode
+Starts a display list construction.   @var{Mode} may be
+one of the constants @code{GL_COMPILE} or @code{GL_COMPILE_AND_EXECUTE}.
 @end defun
 
 @defun gl-end-list
+Ends a display list construction.
 @end defun
 
 @defun gl-call-list list-no
+Calls a display list.
 @end defun
 
-@defun gl-call-lists n type lists
+@defun gl-is-list list-no
+Returns @code{#t} if @var{list-no} is an already used display list number,
+@code{#f} otherwise.
+@end defun
+
+@defun gl-delete-lists list-no-start range
+Deletes @var{range} display list, beginning from @var{list-no-start}.
 @end defun
 
 @defun gl-list-base base
+Specifies the offset that's added to the display list indices in
+@code{gl-call-list}.
+@end defun
+
+@defun gl-call-lists size type lists
+@defunx gl-call-lists size lists
+@defunx gl-call-lists lists
+Executes @var{size} display list, whose indices are contained in @var{lists}.
+You can pass a u8, s8, u16, s16, u32, s32 or f32vector, or a string,
+as @var{lists}.  If it is a string, each byte consists of the string
+is interpreted as an unsigned integer specifying a display list.
+It is useful for the technique to display character strings by
+creating display lists for each ASCII characters.  But be aware that
+it doesn't work for multibyte characters.
+
+Usually you can use the simplest form (the third form) and Gauche-gl
+infers the @var{size} and @var{type} from the passed @var{lists}.
+You can explicitly specify @var{size} if you want to use just a
+beginning portion of @var{lists}.   An error is signalled if you
+specify @var{size} that is larger than the size of @var{lists}.
+
+Specifying @var{type} is useful only if @var{lists} is a u8vector,
+and you want to use one of three special types allowed to @code{glCallLists},
+namely @code{GL_2_BYTES}, @code{GL_3_BYTES}, and @code{GL_4_BYTES}.
 @end defun
 
 @node Vertex arrays, Lighting, Display lists, OpenGL API
@@ -1224,70 +1368,219 @@ you can't use the format that mixes float and integer, such as
 @section Lighting
 
 @defun gl-shade-model mode
+Sets the shading model, either @code{GL_SMOOTH} or @code{GL_FLAT}.
 @end defun
 
 @defun gl-light light pname param
+Creates a light specified by @var{light}, which is
+one of  @code{GL_LIGHT0}, @dots{}, @code{GL_LIGHT7},
+and sets a characteristics named by @var{pname} with the value @var{param}.
+
+Possible values as @var{pname} and acceptable types of @var{param} are
+as follows.
+@table @asis
+@item @code{GL_AMBIENT}, @code{GL_DIFFUSE}, @code{GL_SPECULAR}, @code{GL_POSITION}
+Accepts an f32 or s32vector of size 4.
+@item @code{GL_SPOT_DIRECTION}
+Accepts an f32 or s32vector of size 3.
+@item @code{GL_SPOT_EXPONENT}, @code{GL_SPOT_CUTOFF}, @code{GL_CONSTNAT_ATTENUATION}, @code{GL_LINEAR_ATTENUATION}, @code{GL_QUADRATIC_ATTENUATION}
+Accepts a real number (@code{glLightf} is used).
+@end table
 @end defun
 
 @defun gl-get-light light pname
+Returns the value of the property @var{pname} of the light @var{light}.
+Returned value can be f32vector or a real number.
 @end defun
 
 @defun gl-light-model pname param
+Sets the value of the property @var{pname} of the lighting model.
+Possible @var{pname} and its allowed @var{param} is as follows.
+@table @asis
+@item @code{GL_LIGHT_MODEL_AMBIENT}
+Accepts f32 or s32vector of size 4.
+@item @code{GL_LIGHT_MODEL_LOCAL_VIEWER}, @code{GL_LIGHT_MODEL_TWO_SIDE}
+Accepts any Scheme value, which is interpreted as a boolean value.
+(That is, you have to pass @code{#f} to turn off these properties,
+and any other value to turn on.
+@item @code{GL_LIGHT_MODEL_COLOR_CONTROL}
+Accepts an enum value either @code{GL_SINGLE_COLOR} or
+@code{GL_SEPARATE_SPECULAR_COLOR}.
+@end table
 @end defun
 
 @defun gl-matrial face pname param
+Sets the current material property.  @var{Face} may be either
+@code{GL_FRONT}, @code{GL_BACK}, or @code{GL_FRONT_AND_BACK}.
+Possible values of @var{pname} and acceptable @var{param} types are
+as follows.
+@table @asis
+@item @code{GL_AMBIENT}, @code{GL_DIFFUSE}, @code{GL_AMBIENT_AND_DIFFUSE}, @code{GL_SPECULAR}, @code{GL_EMISSION}
+Accepts f32 or s32vector of size 4.
+@item @code{GL_SHININESS}
+Accepts a single real number (@code{glMatrialf} is called).
+@item @code{GL_COLOR_INDEXES}
+Accepts f32 or s32vector of size 3.
+@end table
 @end defun
 
 @defun gl-get-material face pname
+Returns the current material property of @var{face} and @var{pname}.
+The type of returned value may be f32vector, s32vector (only for 
+@code{GL_COLOR_INDEXES}), or a real number.
 @end defun
 
 @defun gl-color-material face mode
+Makes the material property @var{mode} (e.g. @code{GL_AMBIENT} etc.)
+of the face @var{face} follow the current color set by @code{gl-color}.
 @end defun
 
-@node Raster functions, Stenciling, Lighting, OpenGL API
-@section Raster functions
+@node Pixels, bitmaps and images
+@section Pixels, bitmaps and images
 
-@defun gl-pixel-zoom xfactor yfactor
-@end defun
-
-@defun gl-pixel-store pname param
-@end defun
-
-@defun gl-pixel-map map values
-@end defun
-
-@defun gl-get-pixel-map map &optional type
-@defunx gl-get-pixel-map! map values
-@end defun
+@subheading Pixel operations
 
 @defun gl-bitmap width height xbo ybo xbi ybi bitmap
+Draws a bitmap.  @var{Width} and @var{height} gives the dimension
+of the bitmap.  @var{Xbo}, @var{ybo}, @var{xbi}, and @var{ybi}
+specifies the origin and increment of the current raster position.
+@var{Bitmap} is the actual bitmap data, packed in a u8vector.
 @end defun
 
 @defun gl-read-pixels x y width height format type
+Reads pixel data from the framebuffer.  Returns the pixel data
+in a uniform vector of the type determined by @var{format} and
+@var{type} (check out OpenGL doc to find out the actual data format).
 @end defun
 
 @defun gl-draw-pixels width height format type pixels
+Draws a pixel data @var{pixels} at the current raster position.
+@var{Pixels} must be a uniform vector compatible to the specified
+@var{format} and @var{type} values.
 @end defun
 
-@defun gl-copy-pixels x y width height type
+@defun gl-copy-pixels x y width height buffer
+Copies pixel data in a rectangle area of the framebuffer,
+specified by lower-left corner (@var{x}, @var{y}) and dimensions
+(@var{width}, @var{height}).   @var{Buffer} specifies which buffer
+is used, and should be one of @code{GL_COLOR}, @code{GL_STENCIL}
+or @code{GL_DEPTH}.
 @end defun
 
-@node Stenciling, Texture mapping, Raster functions, OpenGL API
-@section Stenciling
-
-@defun gl-stencil-func func ref mask
+@defun gl-pixel-store pname param
+Sets the pixel stroage models.  Check out the OpenGL doc for
+the possible @var{pname} and @var{param} values.
 @end defun
 
-@defun gl-stencil-mask mask
+@defun gl-pixel-transfer pname param
+Sets the pixel transfer modes.  Check out the OpenGL doc for
+the possible @var{pname} and @var{param} values.
 @end defun
 
-@defun gl-stencil-op func zfail zpass
+@defun gl-pixel-map map values
+Sets the pixel map table @var{map} with @var{values},
+which must be either u16, u32 or f32vecotor.
+Check out the OpenGL doc for the possible @var{map} values.
 @end defun
 
-@defun gl-clear-stencil s
+@defun gl-pixel-zoom xfactor yfactor
+Sets the magnification/reduction factors for pixel-write operations.
 @end defun
 
-@node Texture mapping, Fog, Stenciling, OpenGL API
+@defun gl-get-pixel-map map &optional type
+Returns the current pixel map table as an uniform vector specified
+by @var{type}, which must be either a class @code{<u32vector>} (default),
+@code{<u16vector>}, or @code{<f32vector>}.
+@end defun
+
+@defun gl-get-pixel-map! map values
+Like @code{gl-get-pixel-map}, but instead of allocating a new vector,
+it stores the result to a uniform vector passed to @var{values}.
+It is a caller's responsibility to ensure @var{values} has enough size.
+@end defun
+
+@subheading Color tables
+
+@defun gl-color-table target internal-format width format type data
+[GL_ARB_imaging] 
+Specifies one of the color table @var{target}.
+@var{Data} should be a uniform vector compatible to the
+@var{format} and @var{type} parameters.
+@end defun
+
+@defun gl-color-table-parameter target pname param
+[GL_ARB_imaging]
+Sets the color table parameter @var{pname}
+(either @code{GL_COLOR_TABLE_SCALE} or @code{GL_COLOR_TABLE_BIAS}),
+of the color table @var{target}.  @var{Param} must be 
+an f32 or s32vector of size 4.
+@end defun
+
+@defun gl-copy-color-table target internal-format x y width
+[GL_ARB_imaging]
+Creates a color table @var{target} using framebuffer data.  
+The pixels are
+read from the current buffer for read (specified by @code{glReadBuffer}).
+@end defun
+
+@defun gl-color-sub-table target start count format type data
+[GL_ARB_imaging]
+Replaces a part of color table @var{target}, starting @var{start}
+and @var{count} entries.  Values are given in @var{data} as a
+uniform vector compatible to the @var{format} and @var{type} arguments.
+@end defun
+
+@defun gl-copy-color-sub-table target start x y width
+[GL_ARB_imaging] Replaces a part of color table entries using framebuffer data.
+@end defun
+
+@defun gl-get-color-table! target format type data
+[GL_ARB_imaging]
+Reads the color table @var{target} and store it in @var{data},
+in the format specified by @var{format} and @var{type}.
+@var{Data} must be a uniform vector compatible to the
+@var{format} and @var{type} arguments.  The caller must ensure
+that @var{data} has enough size to contain the result.
+@end defun
+
+@subheading Convolutions
+
+@defun gl-convolution-filter-2d target internal-format width height format type data
+[GL_ARB_imaging]
+Defines 2D convolution filter.  @code{Data} must be a uniform vector
+compatible to the @var{format} and @var{type} arguments, and must have
+enough size.
+@end defun
+
+
+
+
+@subheading Histogram
+
+@defun gl-histogram target width internal-format sink
+@end defun
+
+@defun gl-reset-histogram target
+@end defun
+
+@subheading Minmax
+
+@defun gl-minmax target internal-format sink
+@end defun
+
+@defun gl-reset-minmax target
+@end defun
+
+@subheading Blending
+
+@defun gl-blend-equation mode
+@end defun
+
+@defun gl-blend-color red green blue alpha
+@end defun
+
+
+@node Texture mapping, Fog, Raster functions, OpenGL API
 @section Texture mapping
 
 @defun gl-tex-gen coord pname param
@@ -1395,57 +1688,9 @@ you can't use the format that mixes float and integer, such as
 @defun gl-pop-name
 @end defun
 
-@node Color operations,  , Selection and feedback, OpenGL API
-@section Color operations
-
-@defun gl-color-table target internal-format width format type data
-@end defun
-
-@defun gl-color-sub-table target start count format type data
-@end defun
-
-@defun gl-color-table-parameter target pname param
-@end defun
-
-@defun gl-copy-color-sub-table target start x y width
-@end defun
-
-@defun gl-copy-color-table target internal-format x y width
-@end defun
-
-@defun gl-blend-equation mode
-@end defun
-
-@defun gl-blend-color red green blue alpha
-@end defun
-
-@defun gl-histogram target width internal-format sink
-@end defun
-
-@defun gl-reset-histogram target
-@end defun
-
-@defun gl-minmax target internal-format sink
-@end defun
-
-@defun gl-reset-minmax target
-@end defun
 
 
-
-@c ======================================================================
-@node GLU API, GLUT API, OpenGL API, Top
-@chapter GLU API
-
-@menu
-* Projection::                  
-* Quadrics::                    
-* Nurbs::                       
-* Polygon tesselation::         
-* GLU miscellaneous utilities::  
-@end menu
-
-@node Projection, Quadrics, GLU API, GLU API
+q@node Projection, Quadrics, Color operations, OpenGL API
 @section Projection
 
 @defun glu-pick-matrix x y w h vp
@@ -1463,7 +1708,7 @@ you can't use the format that mixes float and integer, such as
 @defun glu-un-project! obj win model-map proj-mat vp
 @end defun
 
-@node Quadrics, Nurbs, Projection, GLU API
+@node Quadrics, Nurbs, Projection, OpenGL API
 @section Quadrics
 
 @deftp {Class} <glu-quadric>
@@ -1511,7 +1756,7 @@ you can't use the format that mixes float and integer, such as
 @defun glu-partial-disk quad inner-radius outer-radius slices loops start-angle sweep-angle
 @end defun
 
-@node Nurbs, Polygon tesselation, Quadrics, GLU API
+@node Nurbs, Polygon tesselation, Quadrics, OpenGL API
 @section Nurbs
 
 @deftp {Class} <glu-nurbs>
@@ -1542,28 +1787,19 @@ you can't use the format that mixes float and integer, such as
 @end defun
 
 
-@node Polygon tesselation, GLU miscellaneous utilities, Nurbs, GLU API
+@node Polygon tesselation,  , Nurbs, OpenGL API
 @section Polygon tesselation
 
 @deftp {Class} <glu-tesselator>
 @end deftp
 
 
-@node GLU miscellaneous utilities,  , Polygon tesselation, GLU API
-@section Miscellaneous utilities
-
-@defun glu-error-string code
-@end defun
-
-@defun glu-get-string name
-[GLU1.1]
-@end defun
 
 
 
 
 @c ======================================================================
-@node GLUT API, Vectors and matrices, GLU API, Top
+@node GLUT API, Vectors and matrices, OpenGL API, Top
 @chapter GLUT API
 
 @c ----------------------------------------------------------------------

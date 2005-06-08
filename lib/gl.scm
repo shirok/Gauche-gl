@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl.scm,v 1.9 2005-06-06 10:22:46 shirok Exp $
+;;;  $Id: gl.scm,v 1.10 2005-06-08 12:10:43 shirok Exp $
 ;;;
 
 (define-module gl
@@ -71,6 +71,12 @@
     ((_ mode commands ...)
      (begin
        (gl-begin mode) commands ... (gl-end)))
+    ))
+
+(define-syntax gl-push-matrix*
+  (syntax-rules ()
+    ((_ commands ...)
+     (begin (gl-push-matrix) commands ... (gl-pop-matrix)))
     ))
 
 ;; Check GL version and extensions

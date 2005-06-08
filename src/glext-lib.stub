@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.12 2005-06-08 12:26:15 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.13 2005-06-08 19:35:24 shirok Exp $
 ;;;
 
 "
@@ -194,9 +194,32 @@
    glResetHistogram(target);
    SCM_RETURN(SCM_UNDEFINED);")
 
-; gl-get-histogram
+(define-cproc gl-get-histogram (target::<fixnum> reset::<boolean>
+                                format::<fixnum> type::<fixnum>)
+  "int elttype, size; GLint width; ScmObj vec;
+   ENSURE(glGetHistogramParameteriv);
+   ENSURE(glGetHistogram);
+   glGetHistogramParameteriv(GL_HISTOGRAM, GL_HISTOGRAM_WIDTH, &width);
+   size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, NULL);
+   vec = Scm_GLAllocUVector(elttype, size);
+   if (!SCM_UVECTORP(vec)) {
+     Scm_Error(\"invalid format or type (%S, %S)\", format, type);
+   }
+   glGetHistogram(target, reset, format, type, SCM_UVECTOR_ELEMENTS(vec));
+   SCM_RETURN(vec);")
 
-; gl-get-histogram-parameter
+(define-cproc gl-get-histogram-parameter (target::<fixnum>
+                                          pname::<fixnum>)
+  "GLint param;
+   ENSURE(glGetHistogramParameteriv);
+   switch (pname) {
+     case GL_HISTOGRAM_SINK:
+       glGetHistogramParameteriv(target, pname, &param);
+       SCM_RETURN(SCM_MAKE_BOOL(param));
+     default:
+       glGetHistogramParameteriv(target, pname, &param);
+       SCM_RETURN(Scm_MakeInteger(param));
+   }")
 
 (define-cproc gl-minmax (target::<fixnum> internal-format::<fixnum> sink::<boolean>)
   "ENSURE(glMinmax);
@@ -256,10 +279,56 @@
                        SCM_UVECTOR_ELEMENTS(column));
    SCM_RETURN(SCM_UNDEFINED);")
 
+(define-cproc gl-convolution-filter-1d (target::<fixnum>
+                                        internal-format::<fixnum>
+                                        width::<fixnum>
+                                        format::<fixnum> type::<fixnum>
+                                        data)
+  "int elttype, size;
+   size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, NULL);
+   if (!SCM_UVECTORP(data)) {
+     Scm_Error(\"uniform vector required, but got %S\", data);
+   }
+   if (SCM_UVECTOR_SIZE(data) < size) {
+     Scm_Error(\"given vector is too short (minimum %d elements): %S\",
+               size, data);
+   }
+   ENSURE(glConvolutionFilter1D);
+   glConvolutionFilter1D(target, internal_format, width, 
+                         format, type, SCM_UVECTOR_ELEMENTS(data));
+   SCM_RETURN(SCM_UNDEFINED);")
 
+(define-cproc gl-copy-convolution-filter-1d (target::<fixnum>
+                                             internal-format::<fixnum>
+                                             x::<fixnum> y::<fixnum>
+                                             width::<fixnum>)
+  "ENSURE(glCopyConvolutionFilter1D);
+   glCopyConvolutionFilter1D(target, internal_format, x, y, width);
+   SCM_RETURN(SCM_UNDEFINED);")
 
-; gl-convolution-parameter
-; gl-copy-convolution-filter-1d
+(define-cproc gl-convolution-parameter (target::<fixnum>
+                                        pname::<fixnum>
+                                        param)
+  "switch (pname) {
+     case GL_CONVOLUTION_BORDER_MODE:
+       if (!SCM_INTP(param)) {
+          Scm_Error(\"bad type of param value for GL_CONVOLUTION_BORDER_MODE (enum required): %S\", param);
+       }
+       glConvolutionParameteri(target, pname, SCM_INT_VALUE(param));
+       break;
+     case GL_CONVOLUTION_FILTER_SCALE:;
+     case GL_CONVOLUTION_FILTER_BIAS:
+       if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
+         glConvolutionParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
+       } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
+         glConvolutionParameteriv(target, pname, SCM_S32VECTOR_ELEMENTS(param));
+       } else {
+          Scm_Error(\"bad type of param value for GL_CONVOLUTION_FILTER_SCALE/GL_CONVOLUTION_FILTER_BIAS (s32 or f32vector of size 4 required): %S\", param);
+       }
+       break;
+   }
+   SCM_RETURN(SCM_UNDEFINED);")
+  
 ; gl-get-convolution-filter
 ; gl-get-convolution-parameter
 ; gl-get-separable-filter

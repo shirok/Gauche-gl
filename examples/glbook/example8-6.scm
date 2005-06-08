@@ -22,6 +22,7 @@
         -0.125  1.0   -0.125
         -0.125 -0.125 -0.125))
 
+(define *image-file* "../images/noturn.rgb")
 (define *width* #f)
 (define *height* #f)
 (define *image* #f)
@@ -85,12 +86,12 @@
   (glut-init args)
   (glut-init-display-mode (logior GLUT_SINGLE GLUT_RGB))
 
-  (unless (file-exists? "../images/noturn.rgb")
-    (print "Couldn't find image file")
+  (unless (file-exists? *image-file*)
+    (print "Couldn't find image file: " *image-file*)
     (exit 0))
   
   (match-let1 (width height depth image)
-      (read-sgi-image "../images/noturn.rgb")
+      (read-sgi-image *image-file*)
     (set! *width* width)
     (set! *height* height)
     (set! *image* image)

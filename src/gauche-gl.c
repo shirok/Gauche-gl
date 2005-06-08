@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.25 2005-06-06 10:22:46 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.26 2005-06-08 19:35:24 shirok Exp $
  */
 
 #include <gauche.h>
@@ -326,6 +326,33 @@ void *Scm_GLPixelDataCheck(ScmObj pixels, int elttype, int size)
     default:
         Scm_Error("Scm_GLPixelDataCheck: unknown element type: %d", elttype);
         return NULL;
+    }
+}
+
+/* Allocates a uvector of SIZE.  The type of uvector is specified by
+   ELTTYPE (SCM_GL_BYTE, SCM_GL_UBYTE, etc.)   Useful for generic handling
+   of getting image data.   May return SCM_FALSE if the type is ambiguous. */
+ScmObj Scm_GLAllocUVector(int elttype, int size)
+{
+    switch (elttype) {
+    case SCM_GL_BYTE:
+        return Scm_MakeS8Vector(size, 0);
+    case SCM_GL_UBYTE:
+        return Scm_MakeU8Vector(size, 0);
+    case SCM_GL_SHORT:
+        return Scm_MakeS16Vector(size, 0);
+    case SCM_GL_USHORT:
+        return Scm_MakeU16Vector(size, 0);
+    case SCM_GL_INT:
+        return Scm_MakeS32Vector(size, 0);
+    case SCM_GL_UINT:
+        return Scm_MakeU32Vector(size, 0);
+    case SCM_GL_FLOAT:
+        return Scm_MakeF32Vector(size, 0);
+    case SCM_GL_DOUBLE:
+        return Scm_MakeF64Vector(size, 0);
+    default:
+        return SCM_FALSE;
     }
 }
 

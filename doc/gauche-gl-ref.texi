@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.18 2005-06-08 12:13:15 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.19 2005-06-08 19:35:06 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -1546,21 +1546,90 @@ that @var{data} has enough size to contain the result.
 
 @defun gl-convolution-filter-2d target internal-format width height format type data
 [GL_ARB_imaging]
-Defines 2D convolution filter.  @code{Data} must be a uniform vector
+Defines a 2D convolution filter.  @var{Target} must be GL_CONVOLUTION_2D.
+@code{Data} must be a uniform vector
 compatible to the @var{format} and @var{type} arguments, and must have
 enough size.
 @end defun
 
+@defun gl-copy-convolution-filter-2d target internal-format x y width height
+[GL_ARB_imaging]
+Defines a 2D convolution filter, 
+taking the convolution filter data from the current color buffer to read.
+@end defun
 
+@defun gl-separable-filetr-2d target internal-format width height format type row column
+[GL_ARB_imaging]
+Defines a 2D convolution filter by a product of a 1D row vector and
+1D column vector.  @var{Target} must be GL_SEPARABLE_2D.
+Both @var{row} and @var{column} must be a uniform
+vector, compatible with the @var{format} and @var{type} arguments,
+and must have enough size.
+@end defun
+
+@defun gl-convolution-filter-1d target internal-format width format type data
+[GL_ARB_imaging]
+Defines 1D convolution filter.  @var{Target} must be GL_CONVOLUTION_1D.
+@code{Data} must be a uniform vector
+compatible to the @var{format} and @var{type} arguments, and must have
+enough size.
+@end defun
+
+@defun gl-copy-convolution-filter-1d target internal-format x y width
+[GL_ARB_imaging]
+Defines 1D convolution filter, taking the convolution filter data
+from the current color buffer to read.
+@end defun
+
+@defun gl-convolution-parameter target pname param
+[GL_ARB_imaging]
+Sets a parameter for a convolution filter @var{target}, which can 
+be either @code{GL_CONVOLUTION_2D}, @code{GL_SEPARABLE_2D},
+or @code{GL_CONVOLUTION_1D}.  Possible values of @var{pname} and 
+their acceptable @var{param} are as follows.
+@table @asis
+@item @code{GL_CONVOLUTION_BORDER_MODE}
+Either one of the constants: @code{GL_REDUCE}, @code{GL_CONSTNAT_BORDER},
+@code{GL_REPLICATE_BORDER}
+@item @code{GL_CONVOLUTION_FILTER_SCALE}, @code{GL_CONVOLUTION_FILTER_BIAS}
+An s32 or f32vector of size 4, specifying color values.
+@end table
+@end defun
 
 
 @subheading Histogram
 
 @defun gl-histogram target width internal-format sink
+[GL_ARB_imaging]
+Specifies the way the histogram data is stored.
+@var{Target} must be either @code{GL_HISTOGRAM} or @code{GL_PROXY_HISTOGRAM}.
+@var{Width} is the number of entires of the histogram, and has to be
+a power of 2.
+@var{Sink} is a boolean value to indicate whether pixels should be
+discarded or sent down further to the pipeline.
 @end defun
 
 @defun gl-reset-histogram target
+Resets the histogram counters.  @var{Target} must be @code{GL_HISTOGRAM}.
 @end defun
+
+@defun gl-get-histogram target reset format type
+Returns histogram data in a uniform vector, whose type and size
+are determined by @var{format} and @var{type}.
+A boolean value @var{reset} specifies whether the histogram should
+be reset or not.
+@end defun
+
+@defun gl-get-histogram-parameter target pname
+Returns the parameter value of the histogram.
+@var{Pname} can be either one of @code{GL_HISTOGRAM_WIDTH},
+@code{GL_HISTOGRAM_FORMAT}, @code{GL_HISTOGRAM_RED_SIZE},
+@code{GL_HISTOGRAM_GREEN_SIZE}, @code{GL_HISTOGRAM_BLUE_SIZE},
+@code{GL_HISTOGRAM_ALPHA_SIZE}, @code{GL_HISTOGRAM_LUMINANCE_SIZE},
+or @code{GL_HISTOGRAM_SINK}.  The returned value is an integer,
+except the case of @code{GL_HISTOGRAM_SINK}, which returns a boolean value.
+@end defun
+
 
 @subheading Minmax
 

@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.22 2005-06-10 11:48:11 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.23 2005-06-10 12:05:48 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -39,7 +39,7 @@
 
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2002-2003 Shiro Kawai (shiro@@acm.org)
+Copyright @copyright{} 2002-2005 Shiro Kawai (shiro@@acm.org)
 
 @end titlepage
 
@@ -72,15 +72,14 @@ It provides the following modules:
 
 @table @code
 @item gl
-The module that provides bindings to OpenGL API.
-It covers almost all functions in OpenGL 1.0 through 1.5 and 2.0,
-registered vendor extensions, and most functions in GLU.
-The functions are described in @ref{OpenGL API}.
+This module provides bindings to OpenGL API.
+It covers most functions in OpenGL 1.0 through 2.0,
+and GLU.   The functions are described in @ref{OpenGL API}.
 @item gl.glut
-The module that provides bindings to most functions in GLUT.
+This module provides bindings to most functions in GLUT.
 The functions are described in @ref{GLUT API}.
 @item gl.math3d
-The module that provides vector and matrix calculations
+This module provides vector and matrix calculations
 optimized for 3D homogeneous coordinates.
 The vector and matrix objects here can be directly passed to
 Gauche-gl functions.
@@ -88,7 +87,7 @@ The functions are descrbied in @ref{Vectors and matrices}.
 @item gl.simple-image
 OpenGL doesn't provide any means of reading/writing image data, and
 it should be covered by other Gauche extensions.  However,
-it is sometimes handy to have a simple means to handle external
+it is sometimes handy to have simple means to handle external
 image data, so that you can do some experiment with Gauche-gl alone.
 This module provides minimal support for that.
 The functions are descrbied in @ref{Simple image handling}.
@@ -135,6 +134,28 @@ enabled, and Gauche-gl can't be linked unless Gauche itself is
 compiled with pthreads.  The configure script of Gauche prints
 warning if you specify pthreads, but it is safe as far as you
 don't call make-thread in your program.
+
+There are various examples under @file{examples/} directory.
+If you want to run the examples before installing Gauche-gl,
+you have to tell the location of the library to @code{gosh}
+command, e.g. @code{gosh -I../src -I../lib gears.scm}.
+Some demos under subdirectories have a shell script that invokes
+@code{gosh} with proper command-line options.
+
+@table @file
+@item gears.scm
+Brian Paul's 3D gear wheels.
+@item mandelbrot.scm
+Simple calculated texture.
+@item glbook/
+This subdirectory contains examples found in "OpenGL Programming Guide",
+a.k.a. Redbook.  
+@item slbook/
+This subdirectory contains examples found in "OpenGL Shading Language".
+Each demo is under its own subdirectories.  You need to have
+proper driver/hardware that supports GLSL to run these demos.
+@end table
+
 
 @c ======================================================================
 @node Getting Started, OpenGL API, Installation, Top
@@ -2127,7 +2148,7 @@ All strings are concatenated internally in the OpenGL driver.
 [GL_ARB_shader_objects]
 Compile the source code attached to the shader, whose handle is @var{shader}.
 You can query the result of the compilation by passing
-@var{GL_OBJECT_COMPILE_STATUS_ARB} to @code{gl-get-object-parameter-arb};
+@code{GL_OBJECT_COMPILE_STATUS_ARB} to @code{gl-get-object-parameter-arb};
 it returns @code{#t} if the compilation succeeded, or @code{#f} if failed.
 The information about the compilation can be obtained by
 @code{gl-get-info-log-arb}.
@@ -2171,7 +2192,7 @@ Deletes either a shader object or a program object specified by
 [GL_ARB_shader_objects]
 Queries the value of @var{pname} of the shader or the program
 specified by @var{object}.  The following values are accepted 
-as @var{pname}: @var{GL_OBJECT_TYPE_ARB}, 
+as @var{pname}: @code{GL_OBJECT_TYPE_ARB}, 
 @code{GL_OBJECT_SUBTYPE_ARB},
 @code{GL_OBJECT_DELETE_STATUS_ARB},
 @code{GL_OBJECT_COMPILE_STATUS_ARB},

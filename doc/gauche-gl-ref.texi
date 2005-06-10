@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.21 2005-06-10 11:27:00 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.22 2005-06-10 11:48:11 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -59,6 +59,7 @@ This manual is for version @VERSION@.
 * OpenGL API::                  
 * GLUT API::                    
 * Vectors and matrices::        
+* Simple image handling::       
 * Indices::                     
 @end menu
 
@@ -84,6 +85,13 @@ optimized for 3D homogeneous coordinates.
 The vector and matrix objects here can be directly passed to
 Gauche-gl functions.
 The functions are descrbied in @ref{Vectors and matrices}.
+@item gl.simple-image
+OpenGL doesn't provide any means of reading/writing image data, and
+it should be covered by other Gauche extensions.  However,
+it is sometimes handy to have a simple means to handle external
+image data, so that you can do some experiment with Gauche-gl alone.
+This module provides minimal support for that.
+The functions are descrbied in @ref{Simple image handling}.
 @end table
 
 @c ======================================================================
@@ -2874,7 +2882,7 @@ f64vector of size 4 or @code{<vector4f>} object.
 
 
 @c ======================================================================
-@node Vectors and matrices, Indices, GLUT API, Top
+@node Vectors and matrices, Simple image handling, GLUT API, Top
 @chapter Vectors and matrices
 
 @deftp {Module} gl.math3d
@@ -3627,13 +3635,43 @@ The destructive version modifies @var{t}.
 
 
 @c ======================================================================
-@c @node GL-Scheme utility, Indices, 3D vectors and matrices, Top
-@c @chapter GL-Scheme utility
+@node Simple image handling, Indices, Vectors and matrices, Top
+@chapter Simple image handling
+
+@deftp {Module} gl.simple-image
+@mdindex gl.simple-image
+This module provides a minimal support to handle external image
+data, so that one can do some experiment in Gauche-gl alone.
+
+The functionality might be extended over time, but this is never
+intended to be a full featured image library.  A separate Gauche
+extension should be a better place to have it.
+@end deftp
+
+Currently, only reading from 8bit SGI image file is supported.
+It is written in pure Scheme, so don't expect the performance.
+
+@defun read-sgi-image filename
+@defunx read-sgi-image-from-port port
+Reads an image data in SGI format from the named file or the input port,
+respectively.
+
+Only 8bit-per-channel, direct color mode is supported.
+
+Returns four values: the image's width in pixels, its height in pixels,
+number of channels (e.g. 1 for grayscale, 3 for RGB, 4 for RGBA),
+and the image data in u8vector.   The pixel data is packed, i.e. there's
+no padding between each pixel nor each scanline.
+
+Warning: be careful to call this function interactively.  The
+image data vector is usually huge, and you have to wait long
+for the REPL to display the entire result.
+@end defun
 
 
 
 @c ======================================================================
-@node Indices,  , Vectors and matrices, Top
+@node Indices,  , Simple image handling, Top
 @appendix Indices
 @c NODE º÷°ú
 

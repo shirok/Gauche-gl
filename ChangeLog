@@ -1,5 +1,9 @@
 2005-06-10  Shiro Kawai  <shiro@acm.org>
 
+	* src/gen-ptrs.scm : use different name for the function ptr
+	  variables from the GL function name, to avoid possible conflict
+	  with gl.h.
+
 	* src/glext-lib.stub : changed some APIs for consistency (e.g.
 	  gl-uniform*).
 	* examples/slbool/* : fixed accordingly.

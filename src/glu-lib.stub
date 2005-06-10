@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.11 2005-05-30 21:46:23 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.12 2005-06-10 03:12:44 shirok Exp $
 ;;;
 
 "
@@ -26,6 +26,10 @@
 #include <gauche/uvector.h>
 #include \"gauche-gl.h\"
 "
+
+(define-type <uvector> "ScmUVector*" "uniform vector"
+  "SCM_UVECTORP" "SCM_UVECTOR")
+
 ;;================================================================
 ;; Miscellaneous
 ;;
@@ -159,6 +163,13 @@
 ;;=============================================================
 ;; Mipmapping and image scaling
 ;;
+
+;(define-cproc glu-scale-image! (format::<fixnum>
+;                                width-in::<fixnum> height-in::<fixnum>
+;                                type-in::<fixnum> data-in::<uvector>
+;                                width-out::<fixnum> height-out::<fixnum>
+;                                type-out::<fixnum> data-out::<uvector>)
+
 
 ;;=============================================================
 ;; Quadrics
@@ -300,20 +311,93 @@
 ;;
 
 ;; caller must ensure vector has enough length
+(define-cproc glu-build-1d-mipmaps (target::<fixnum>
+                                    internalformat::<fixnum>
+                                    width::<fixnum>
+                                    format::<fixnum> type::<fixnum>
+                                    texels)
+  "int elttype, size, r; void *texelptr;
+  size = Scm_GLPixelDataSize(width, 1, format, type, &elttype,
+NULL);
+  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
+  r = gluBuild1DMipmaps(target, internalformat, width, format,
+                        type, texelptr);
+  SCM_RETURN(SCM_MAKE_INT(r));")
+
 (define-cproc glu-build-2d-mipmaps (target::<fixnum>
                                     internalformat::<fixnum>
                                     width::<fixnum> height::<fixnum>
                                     format::<fixnum>
                                     type::<fixnum> texels)
-  "int elttype, size; void *texelptr;
+  "int elttype, size, r; void *texelptr;
   size = Scm_GLPixelDataSize(width, height, format, type, &elttype,
 NULL);
   texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-  if (texelptr) {
-     gluBuild2DMipmaps(target, internalformat, width, height, format,
-type, texelptr);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  r = gluBuild2DMipmaps(target, internalformat, width, height, format,
+                        type, texelptr);
+  SCM_RETURN(SCM_MAKE_INT(r));")
+
+(define-cproc glu-build-3d-mipmaps (target::<fixnum>
+                                    internalformat::<fixnum>
+                                    width::<fixnum> height::<fixnum>
+                                    depth::<fixnum> format::<fixnum>
+                                    type::<fixnum> texels)
+  ;; NB: does Scm_GLPxielDataSize work to pass height*depth as height?
+  ;; need to think over it.
+  "int elttype, size, r; void *texelptr;
+  size = Scm_GLPixelDataSize(width, height*depth, format, type, &elttype,
+NULL);
+  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
+  r = gluBuild3DMipmaps(target, internalformat, width, height, depth, format,
+                        type, texelptr);
+  SCM_RETURN(SCM_MAKE_INT(r));")
+
+(define-cproc glu-build-1d-mipmap-levels (target::<fixnum>
+                                          internalformat::<fixnum>
+                                          width::<fixnum>
+                                          format::<fixnum> type::<fixnum>
+                                          level::<fixnum> base::<fixnum>
+                                          max::<fixnum>
+                                          texels)
+  "int elttype, size, r; void *texelptr;
+  size = Scm_GLPixelDataSize(width, 1, format, type, &elttype,
+NULL);
+  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
+  r = gluBuild1DMipmapLevels(target, internalformat, width, format,
+                             type, level, base, max, texelptr);
+  SCM_RETURN(SCM_MAKE_INT(r));")
+
+(define-cproc glu-build-2d-mipmap-levels (target::<fixnum>
+                                          internalformat::<fixnum>
+                                          width::<fixnum> height::<fixnum>
+                                          format::<fixnum> type::<fixnum>
+                                          level::<fixnum> base::<fixnum>
+                                          max::<fixnum>
+                                          texels)
+  "int elttype, size, r; void *texelptr;
+  size = Scm_GLPixelDataSize(width, height, format, type, &elttype,
+NULL);
+  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
+  r = gluBuild2DMipmapLevels(target, internalformat, width, height, format,
+                             type, level, base, max, texelptr);
+  SCM_RETURN(SCM_MAKE_INT(r));")
+
+(define-cproc glu-build-3d-mipmap-levels (target::<fixnum>
+                                          internalformat::<fixnum>
+                                          width::<fixnum> height::<fixnum>
+                                          depth::<fixnum> format::<fixnum>
+                                          type::<fixnum> level::<fixnum>
+                                          base::<fixnum> max::<fixnum>
+                                          texels)
+  ;; NB: does Scm_GLPxielDataSize work to pass height*depth as height?
+  ;; need to think over it.
+  "int elttype, size, r; void *texelptr;
+  size = Scm_GLPixelDataSize(width, height*depth, format, type, &elttype,
+NULL);
+  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
+  r = gluBuild3DMipmapLevels(target, internalformat, width, height, depth, 
+                             format, type, level, base, max, texelptr);
+  SCM_RETURN(SCM_MAKE_INT(r));")
 
 ;;================================================================
 ;; New function in GLU 1.1

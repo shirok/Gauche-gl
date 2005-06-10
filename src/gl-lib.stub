@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.39 2005-06-08 19:35:24 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.40 2005-06-10 03:12:44 shirok Exp $
 ;;;
 
 "
@@ -31,6 +31,8 @@
 "
 
 ;; NB: this should be taken care of by genstub.
+(define-type <uvector> "ScmUVector*" "uniform vector"
+  "SCM_UVECTORP" "SCM_UVECTOR")
 (define-type <u32vector> "ScmU32Vector*" "u32vector"
   "SCM_U32VECTORP" "SCM_U32VECTOR")
 (define-type <f32vector> "ScmF32Vector*" "f32vector"
@@ -114,7 +116,7 @@
 (define-cproc gl-alpha-func (func::<fixnum> ref::<float>)
   (return <void> "glAlphaFunc"))
 
-(define-cproc gl-blend-func (func::<fixnum> factor::<float>)
+(define-cproc gl-blend-func (sfactor::<fixnum> dfactor::<fixnum>)
   (return <void> "glBlendFunc"))
 
 (define-cproc gl-logic-op (opcode::<fixnum>)
@@ -1394,20 +1396,16 @@
   switch (pname) {
      case GL_TEXTURE_WRAP_S:;
      case GL_TEXTURE_WRAP_T:;
-#if !defined(__CYGWIN__)
      case GL_TEXTURE_WRAP_R:;
      case GL_TEXTURE_BASE_LEVEL:;
      case GL_TEXTURE_MAX_LEVEL:;
-#endif /*!defined(__CYGWIN__)*/
      case GL_TEXTURE_MAG_FILTER:;
      case GL_TEXTURE_MIN_FILTER:;
        glGetTexParameteriv(target, pname, &i);
        SCM_RETURN(Scm_MakeInteger(i));
      case GL_TEXTURE_PRIORITY:;
-#if !defined(__CYGWIN__)
      case GL_TEXTURE_MIN_LOD:;
      case GL_TEXTURE_MAX_LOD:;
-#endif /*!defined(__CYGWIN__)*/
        glGetTexParameterfv(target, pname, &f);
        SCM_RETURN(Scm_MakeFlonum((double)f));
      case GL_TEXTURE_BORDER_COLOR:
@@ -1419,9 +1417,29 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-; gl-get-tex-level-parameter
+(define-cproc gl-get-tex-level-parameter (target::<fixnum> level::<fixnum>
+                                          pname::<fixnum>)
+  "GLint i;
+   switch (pname) {
+     case GL_TEXTURE_WIDTH:;
+     case GL_TEXTURE_HEIGHT:;
+     case GL_TEXTURE_DEPTH:;
+     case GL_TEXTURE_BORDER:;
+     case GL_TEXTURE_INTERNAL_FORMAT:;
+     case GL_TEXTURE_RED_SIZE:;
+     case GL_TEXTURE_GREEN_SIZE:;
+     case GL_TEXTURE_BLUE_SIZE:;
+     case GL_TEXTURE_ALPHA_SIZE:;
+     case GL_TEXTURE_LUMINANCE_SIZE:;
+     case GL_TEXTURE_INTENSITY_SIZE:;
+       glGetTexLevelParameteriv(target, level, pname, &i);
+       SCM_RETURN(Scm_MakeInteger(i));
+     default:
+       Scm_Error(\"unknown or unsupported glTexLevelParameter pname: %d\", pname);
+       SCM_RETURN(SCM_UNDEFINED);
+   }")
 
-;; caller must ensure vector has enough length
+;; Caller must ensure vector has enough length
 (define-cproc gl-tex-image-1d (target::<fixnum> level::<fixnum>
                                internalformat::<fixnum>
                                width::<fixnum> border::<fixnum>
@@ -1468,27 +1486,21 @@
   "glBindTexture(target, name);
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-prioritize-textures (n::<fixnum>
-                                      names
-                                      priorities)
-  "if (n < 0) Scm_Error(\"argument out of range: %d\", n);
-  if (!SCM_U32VECTORP(names)) Scm_Error(\"u32vector required, but got %S\", names);
-  if (n > SCM_U32VECTOR_SIZE(names)) Scm_Error(\"texture name vector length doesn't match the given size %d: %S\", n, names);
-  if (!SCM_F32VECTORP(priorities)) Scm_Error(\"f32vector required, but got %S\", priorities);
-  if (n > SCM_F32VECTOR_SIZE(priorities)) Scm_Error(\"priority vector length doesn't match the given size %d: %S\", n, priorities);
+(define-cproc gl-prioritize-textures (names::<u32vector>
+                                      priorities::<f32vector>)
+  "int n = SCM_U32VECTOR_SIZE(names);
+  if (n != SCM_F32VECTOR_SIZE(priorities)) {
+    Scm_Error(\"priority vector length doesn't match the names vector length %d: %S\", n, priorities);
+  }
   glPrioritizeTextures(n, SCM_U32VECTOR_ELEMENTS(names), SCM_F32VECTOR_ELEMENTS(priorities));
   SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-are-textures-resident (n::<fixnum> names)
-  "GLboolean res_static[32], *res = res_static; ScmObj r; int i;
-  if (n < 0) Scm_Error(\"argument out of range: %d\", n);
-  if (!SCM_U32VECTORP(names)) Scm_Error(\"u32vector required, but got %S\", names);
-  if (n > SCM_U32VECTOR_SIZE(names)) Scm_Error(\"texture name vector length doesn't match the given size %d: %S\", n, names);
-  if (n > 32) res = SCM_NEW_ATOMIC2(GLboolean*, n*sizeof(GLboolean));
-  glAreTexturesResident(n, SCM_U32VECTOR_ELEMENTS(names), res);
-  r = Scm_MakeVector(n, SCM_FALSE);
-  for (i=0; i<n; i++) if (res[i]) SCM_VECTOR_ELEMENTS(r)[i] = SCM_TRUE;
-  SCM_RETURN(r);")
+(define-cproc gl-are-textures-resident! (names::<u32vector>
+                                         res::<gl-boolean-vector>)
+  "GLboolean b; int i, n;
+   n = SCM_U32VECTOR_SIZE(names);
+   b = glAreTexturesResident(n, SCM_U32VECTOR_ELEMENTS(names), SCM_GL_BOOLEAN_VECTOR_ELEMENTS(res));
+   SCM_RETURN(SCM_MAKE_BOOL(b));")
 
 (define-cproc gl-is-texture (name::<int>)
   "SCM_RETURN(SCM_MAKE_INT(glIsTexture(name)));")

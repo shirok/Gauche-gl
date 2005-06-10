@@ -43,7 +43,7 @@
  *                                                                      *
 /************************************************************************/
 |#
-;;; $Id: ogl2brick.scm,v 1.3 2005-06-04 11:56:10 shirok Exp $
+;;; $Id: ogl2brick.scm,v 1.4 2005-06-10 11:27:16 shirok Exp $
 
 (use srfi-1)
 (use gauche.uvector)
@@ -328,14 +328,14 @@
     (gl-compile-shader-arb brickvs)
     (print-opengl-error) ;; Check for OpenGL errors
     (set! vert-compiled
-          (gl-get-object-parameter-i-arb brickvs GL_OBJECT_COMPILE_STATUS_ARB))
+          (gl-get-object-parameter-arb brickvs GL_OBJECT_COMPILE_STATUS_ARB))
     (print-info-log brickvs)
     ;; Compile the brick fragment shader, and print out
     ;; the compiler log file.
     (gl-compile-shader-arb brickfs)
     (print-opengl-error)
     (set! frag-compiled
-          (gl-get-object-parameter-i-arb brickfs GL_OBJECT_COMPILE_STATUS_ARB))
+          (gl-get-object-parameter-arb brickfs GL_OBJECT_COMPILE_STATUS_ARB))
     (print-info-log brickfs)
 
     (if (or (zero? vert-compiled) (zero? frag-compiled))
@@ -348,24 +348,23 @@
         (gl-link-program-arb brickprog)
         (print-opengl-error)
         (set! linked
-              (gl-get-object-parameter-i-arb brickprog
-                                             GL_OBJECT_LINK_STATUS_ARB))
+              (gl-get-object-parameter-arb brickprog GL_OBJECT_LINK_STATUS_ARB))
         (print-info-log brickprog)
         (if (zero? linked)
           #f ;; failure
           (begin
             ;; Install program object as part of current state
             (gl-use-program-object-arb brickprog)
-            (gl-uniform-3f-arb (get-uniloc brickprog "BrickColor")
-                               1.0 0.3 0.2)
-            (gl-uniform-3f-arb (get-uniloc brickprog "MortarColor")
-                               0.85 0.86 0.84)
-            (gl-uniform-2f-arb (get-uniloc brickprog "BrickSize")
-                               0.30 0.15)
-            (gl-uniform-2f-arb (get-uniloc brickprog "BrickPct")
-                               0.90 0.85)
-            (gl-uniform-3f-arb (get-uniloc brickprog "LightPosition")
-                               0.0 0.0 4.0)
+            (gl-uniform3-arb (get-uniloc brickprog "BrickColor")
+                             1.0 0.3 0.2)
+            (gl-uniform3-arb (get-uniloc brickprog "MortarColor")
+                             0.85 0.86 0.84)
+            (gl-uniform2-arb (get-uniloc brickprog "BrickSize")
+                             0.30 0.15)
+            (gl-uniform2-arb (get-uniloc brickprog "BrickPct")
+                             0.90 0.85)
+            (gl-uniform3-arb (get-uniloc brickprog "LightPosition")
+                             0.0 0.0 4.0)
             #t ;; success
             ))
         )))

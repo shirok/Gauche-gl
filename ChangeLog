@@ -1,3 +1,12 @@
+2005-06-10  Shiro Kawai  <shiro@acm.org>
+
+	* src/glext-lib.stub : changed some APIs for consistency (e.g.
+	  gl-uniform*).
+	* examples/slbool/* : fixed accordingly.
+
+	* doc/gauche-gl-ref.texi : documented most supported GL and GLU
+	  APIs.
+
 2005-06-08  Shiro Kawai  <shiro@acm.org>
 
 	* lib/gl/simple-image.scm : added.

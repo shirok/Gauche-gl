@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.14 2005-06-10 03:12:44 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.15 2005-06-10 11:27:17 shirok Exp $
 ;;;
 
 "
@@ -579,141 +579,105 @@
    glValidateProgramARB(program);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-uniform-1f-arb (location::<int> v0)
-  "ENSURE(glUniform1fARB);
-   glUniform1fARB(location, (GLfloat)Scm_GetDouble(v0));
+(define-cproc gl-uniform1-arb (location::<int> v0)
+  "if (SCM_F32VECTORP(v0)) {
+     int count = SCM_F32VECTOR_SIZE(v0);
+     ENSURE(glUniform1fvARB);
+     glUniform1fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v0));
+   } else if (SCM_S32VECTORP(v0)) {
+     int count = SCM_S32VECTOR_SIZE(v0);
+     ENSURE(glUniform1ivARB);
+     glUniform1ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v0));
+   } else {
+     ENSURE(glUniform1fARB);
+     glUniform1fARB(location, (GLfloat)Scm_GetDouble(v0));
+   }
    SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-2f-arb (location::<int> v0 v1)
-  "ENSURE(glUniform2fARB);
-   glUniform2fARB(location, (GLfloat)Scm_GetDouble(v0),
-                  (GLfloat)Scm_GetDouble(v1));
+(define-cproc gl-uniform2-arb (location::<int> v0 &optional v1)
+  "if (SCM_F32VECTORP(v0)) {
+     int count = SCM_F32VECTOR_SIZE(v0)/2;
+     ENSURE(glUniform2fvARB);
+     glUniform2fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v0));
+   } else if (SCM_S32VECTORP(v0)) {
+     int count = SCM_S32VECTOR_SIZE(v0)/2;
+     ENSURE(glUniform2ivARB);
+     glUniform2ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v0));
+   } else if (SCM_UNBOUNDP(v1)) {
+     Scm_Error(\"Not enough arguments for gl-uniform2-arb\");
+   } else {
+     ENSURE(glUniform2fARB);
+     glUniform2fARB(location, (GLfloat)Scm_GetDouble(v0),
+                              (GLfloat)Scm_GetDouble(v1));
+   }
    SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-3f-arb (location::<int> v0 v1 v2)
-  "ENSURE(glUniform3fARB);
-   glUniform3fARB(location, (GLfloat)Scm_GetDouble(v0),
-                  (GLfloat)Scm_GetDouble(v1),
-                  (GLfloat)Scm_GetDouble(v2));
+(define-cproc gl-uniform3-arb (location::<int> v0 &optional v1 v2)
+  "if (SCM_F32VECTORP(v0)) {
+     int count = SCM_F32VECTOR_SIZE(v0)/3;
+     ENSURE(glUniform3fvARB);
+     glUniform3fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v0));
+   } else if (SCM_S32VECTORP(v0)) {
+     int count = SCM_S32VECTOR_SIZE(v0)/3;
+     ENSURE(glUniform3ivARB);
+     glUniform3ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v0));
+   } else if (SCM_UNBOUNDP(v2)) {
+     Scm_Error(\"Not enough arguments for gl-uniform3-arb\");
+   } else {
+     ENSURE(glUniform3fARB);
+     glUniform3fARB(location, (GLfloat)Scm_GetDouble(v0),
+                    (GLfloat)Scm_GetDouble(v1),
+                    (GLfloat)Scm_GetDouble(v2));
+   }
    SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-4f-arb (location::<int> v0 v1 v2 v3)
-  "ENSURE(glUniform4fARB);
-   glUniform4fARB(location, (GLfloat)Scm_GetDouble(v0),
-                  (GLfloat)Scm_GetDouble(v1),
-                  (GLfloat)Scm_GetDouble(v2),
-                  (GLfloat)Scm_GetDouble(v3));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-1i-arb (location::<int> v0)
-  "ENSURE(glUniform1iARB);
-   glUniform1iARB(location, Scm_GetInteger(v0));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-2i-arb (location::<int> v0 v1)
-  "ENSURE(glUniform2iARB);
-   glUniform2iARB(location, Scm_GetInteger(v0),
-                  Scm_GetInteger(v1));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-3i-arb (location::<int> v0 v1 v2)
-  "ENSURE(glUniform3iARB);
-   glUniform3iARB(location, Scm_GetInteger(v0),
-                  Scm_GetInteger(v1),
-                  Scm_GetInteger(v2));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-4i-arb (location::<int> v0 v1 v2 v3)
-  "ENSURE(glUniform4iARB);
-   glUniform4iARB(location, Scm_GetInteger(v0),
-                  Scm_GetInteger(v1),
-                  Scm_GetInteger(v2),
-                  Scm_GetInteger(v3));
-   SCM_RETURN(SCM_UNDEFINED);")
-  
-(define-cproc gl-uniform-1fv-arb (location::<int> count::<uint> v::<f32vector>)
-  "ENSURE(glUniform1fvARB);
-   if (SCM_F32VECTOR_SIZE(v) < 1*count)
-     Scm_Error(\"not enough value for gl-uniform-1fv-arb: %S\", v);
-   glUniform1fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-2fv-arb (location::<int> count::<uint> v::<f32vector>)
-  "ENSURE(glUniform2fvARB);
-   if (SCM_F32VECTOR_SIZE(v) < 2*count) 
-     Scm_Error(\"not enough value for gl-uniform-2fv-arb: %S\", v);
-   glUniform2fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-3fv-arb (location::<int> count::<uint> v::<f32vector>)
-  "ENSURE(glUniform3fvARB);
-   if (SCM_F32VECTOR_SIZE(v) < 3*count) 
-     Scm_Error(\"not enough value for gl-uniform-3fv-arb: %S\", v);
-   glUniform3fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-4fv-arb (location::<int> count::<uint> v::<f32vector>)
-  "ENSURE(glUniform4fvARB);
-   if (SCM_F32VECTOR_SIZE(v) < 4*count) 
-     Scm_Error(\"not enough value for gl-uniform-4fv-arb: %S\", v);
-   glUniform4fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc gl-uniform-1iv-arb (location::<int> count::<uint> v::<s32vector>)
-  "ENSURE(glUniform1ivARB);
-   if (SCM_S32VECTOR_SIZE(v) < 1*count) 
-     Scm_Error(\"not enough value for gl-uniform-1iv-arb: %S\", v);
-   glUniform1ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-2iv-arb (location::<int> count::<uint> v::<s32vector>)
-  "ENSURE(glUniform2ivARB);
-   if (SCM_S32VECTOR_SIZE(v) < 2*count) 
-     Scm_Error(\"not enough value for gl-uniform-2iv-arb: %S\", v);
-   glUniform2ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-3iv-arb (location::<int> count::<uint> v::<s32vector>)
-  "ENSURE(glUniform3ivARB);
-   if (SCM_S32VECTOR_SIZE(v) < 3*count) 
-     Scm_Error(\"not enough value for gl-uniform-3iv-arb: %S\", v);
-   glUniform3ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-4iv-arb (location::<int> count::<uint> v::<s32vector>)
-  "ENSURE(glUniform4ivARB);
-   if (SCM_S32VECTOR_SIZE(v) < 4*count) 
-     Scm_Error(\"not enough value for gl-uniform-4iv-arb: %S\", v);
-   glUniform4ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v));
+(define-cproc gl-uniform4-arb (location::<int> v0 &optional v1 v2 v3)
+  "if (SCM_F32VECTORP(v0)) {
+     int count = SCM_F32VECTOR_SIZE(v0)/4;
+     ENSURE(glUniform4fvARB);
+     glUniform4fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v0));
+   } else if (SCM_S32VECTORP(v0)) {
+     int count = SCM_S32VECTOR_SIZE(v0)/4;
+     ENSURE(glUniform4ivARB);
+     glUniform4ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v0));
+   } else if (SCM_UNBOUNDP(v3)) {
+     Scm_Error(\"Not enough arguments for gl-uniform4-arb\");
+   } else {
+     ENSURE(glUniform4fARB);
+     glUniform4fARB(location, (GLfloat)Scm_GetDouble(v0),
+                    (GLfloat)Scm_GetDouble(v1),
+                    (GLfloat)Scm_GetDouble(v2),
+                    (GLfloat)Scm_GetDouble(v3));
+   }
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-uniform-matrix-2fv-arb (location::<int>
-                                         count::<uint>
-                                         transpose::<boolean>
-                                         v::<f32vector>)
-  "ENSURE(glUniformMatrix2fvARB);
-   if (SCM_F32VECTOR_SIZE(v) < 4*count)
-     Scm_Error(\"not enough value for gl-uniform-matrix-2fv-arb: %S\", v);
+(define-cproc gl-uniform-matrix2-arb (location::<int>
+                                      transpose::<boolean>
+                                      v::<f32vector>)
+  "int count = SCM_F32VECTOR_SIZE(v)/4;
+   ENSURE(glUniformMatrix2fvARB);
    glUniformMatrix2fvARB(location, count, transpose, 
                          SCM_F32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-matrix-3fv-arb (location::<int>
-                                         count::<uint>
-                                         transpose::<boolean>
-                                         v::<f32vector>)
-  "ENSURE(glUniformMatrix3fvARB);
-   if (SCM_F32VECTOR_SIZE(v) < 9*count)
-     Scm_Error(\"not enough value for gl-uniform-matrix-3fv-arb: %S\", v);
+(define-cproc gl-uniform-matrix3-arb (location::<int>
+                                      transpose::<boolean>
+                                      v::<f32vector>)
+  "int count = SCM_F32VECTOR_SIZE(v)/9;
+   ENSURE(glUniformMatrix3fvARB);
    glUniformMatrix3fvARB(location, count, transpose, 
                          SCM_F32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform-matrix-4fv-arb (location::<int>
-                                         count::<uint>
-                                         transpose::<boolean>
-                                         v::<f32vector>)
-  "ENSURE(glUniformMatrix4fvARB);
-   if (SCM_F32VECTOR_SIZE(v) < 16*count)
-     Scm_Error(\"not enough value for gl-uniform-matrix-4fv-arb: %S\", v);
+(define-cproc gl-uniform-matrix4-arb (location::<int>
+                                      transpose::<boolean>
+                                      v::<f32vector>)
+  "int count = SCM_F32VECTOR_SIZE(v)/16;
+   ENSURE(glUniformMatrix4fvARB);
    glUniformMatrix4fvARB(location, count, transpose, 
                          SCM_F32VECTOR_ELEMENTS(v));
    SCM_RETURN(SCM_UNDEFINED);")
 
-;; glGetObjectParameter
-;;  In OpenGL 2.0 these functions only returns a single value.  In future
-;;  they might be extended to return an array of values, hence we may need
-;;  a similar mechanism of the gl-get-integer and gl-get-integer! pair
-;;  later.
-
-"
- static int get_object_parameter_num_values(GLenum pname)
- {
+(define-cproc gl-get-object-parameter-arb (object::<gl-handle>
+                                           pname::<uint>)
+  "GLint i;
+   ENSURE(glGetObjectParameterfvARB);
+   ENSURE(glGetObjectParameterivARB);
    switch (pname) {
      case GL_OBJECT_TYPE_ARB:;
      case GL_OBJECT_SUBTYPE_ARB:;
@@ -728,32 +692,12 @@
      case GL_OBJECT_ACTIVE_UNIFORMS_ARB:;
      case GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB:;
      case GL_OBJECT_SHADER_SOURCE_LENGTH_ARB:;
-      return 1;
+       glGetObjectParameterivARB(object, pname, &i);
+       SCM_RETURN(Scm_MakeInteger(i));
      default:
-      return 0;
-   }
- }
-"
-
-(define-cproc gl-get-object-parameter-f-arb (object::<gl-handle>
-                                             pname::<uint>)
-  "GLfloat r;
-  ENSURE(glGetObjectParameterfvARB);
-  if (get_object_parameter_num_values(pname) != 1) {
-    Scm_Error(\"invalid pname for gl-get-object-parameter-f-arb: %d\", pname);
-  }
-  glGetObjectParameterfvARB(object, pname, &r);
-  SCM_RETURN(Scm_MakeFlonum((double)r));")
-
-(define-cproc gl-get-object-parameter-i-arb (object::<gl-handle>
-                                             pname::<uint>)
-  "GLint r;
-  ENSURE(glGetObjectParameterivARB);
-  if (get_object_parameter_num_values(pname) != 1) {
-    Scm_Error(\"invalid pname for gl-get-object-parameter-i-arb: %d\", pname);
-  }
-  glGetObjectParameterivARB(object, pname, &r);
-  SCM_RETURN(Scm_MakeInteger(r));")
+       Scm_Error(\"invalid pname for gl-get-object-parameter-arb: %d\", pname);
+       SCM_RETURN(SCM_UNDEFINED);
+  }")
 
 (define-cproc gl-get-info-log-arb (object::<gl-handle>)
   "GLint loglen = 0; GLcharARB *logstr;

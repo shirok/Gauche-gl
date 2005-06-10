@@ -43,7 +43,7 @@
  *                                                                      *
 /************************************************************************/
 |#
-;;; $Id: ogl2particle.scm,v 1.3 2005-06-04 11:56:10 shirok Exp $
+;;; $Id: ogl2particle.scm,v 1.4 2005-06-10 11:27:17 shirok Exp $
 
 (use srfi-1)
 (use srfi-27)
@@ -131,7 +131,7 @@
     (inc! *particle-time* 0.002)
     (when (> *particle-time* 15.0)
       (set! *particle-time* 0.0))
-    (gl-uniform-1f-arb location *particle-time*)
+    (gl-uniform1-arb location *particle-time*)
     (print-opengl-error)))
 
 (define (play-proc)
@@ -355,14 +355,14 @@
     (gl-compile-shader-arb vs)
     (print-opengl-error) ;; Check for OpenGL errors
     (set! vert-compiled
-          (gl-get-object-parameter-i-arb vs GL_OBJECT_COMPILE_STATUS_ARB))
+          (gl-get-object-parameter-arb vs GL_OBJECT_COMPILE_STATUS_ARB))
     (print-info-log vs)
     ;; Compile the brick fragment shader, and print out
     ;; the compiler log file.
     (gl-compile-shader-arb fs)
     (print-opengl-error)
     (set! frag-compiled
-          (gl-get-object-parameter-i-arb fs GL_OBJECT_COMPILE_STATUS_ARB))
+          (gl-get-object-parameter-arb fs GL_OBJECT_COMPILE_STATUS_ARB))
     (print-info-log fs)
 
     (if (or (zero? vert-compiled) (zero? frag-compiled))
@@ -379,18 +379,17 @@
         (gl-link-program-arb progobj)
         (print-opengl-error)
         (set! linked
-              (gl-get-object-parameter-i-arb progobj
-                                             GL_OBJECT_LINK_STATUS_ARB))
+              (gl-get-object-parameter-arb progobj GL_OBJECT_LINK_STATUS_ARB))
         (print-info-log progobj)
         (if (zero? linked)
           #f ;; failure
           (begin
             ;; Install program object as part of current state
             (gl-use-program-object-arb progobj)
-            (gl-uniform-4f-arb (get-uniloc progobj "Background")
+            (gl-uniform4-arb (get-uniloc progobj "Background")
                                0.0 0.0 0.0 1.0)
             (print-opengl-error)
-            (gl-uniform-1f-arb (get-uniloc progobj "Time") -5.0)
+            (gl-uniform1-arb (get-uniloc progobj "Time") -5.0)
             (print-opengl-error)
             #t ;; success
             ))

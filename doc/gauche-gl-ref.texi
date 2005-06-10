@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.20 2005-06-10 03:12:27 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.21 2005-06-10 11:27:00 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -2159,136 +2159,230 @@ Deletes either a shader object or a program object specified by
 @var{handle}.
 @end defun
 
-@defun gl-get-object-parameter-f-arb object pname
-@defunx gl-get-object-parameter-i-arb object pname
+@defun gl-get-object-parameter-arb object pname
 [GL_ARB_shader_objects]
 Queries the value of @var{pname} of the shader or the program
-specified by @var{object}.  (Unlike other overloaded Gauche-gl
-APIs, this one you have to specify the return type by 'f' or 'i'.)
+specified by @var{object}.  The following values are accepted 
+as @var{pname}: @var{GL_OBJECT_TYPE_ARB}, 
+@code{GL_OBJECT_SUBTYPE_ARB},
+@code{GL_OBJECT_DELETE_STATUS_ARB},
+@code{GL_OBJECT_COMPILE_STATUS_ARB},
+@code{GL_OBJECT_LINK_STATUS_ARB},
+@code{GL_OBJECT_VALIDATE_STATUS_ARB},
+@code{GL_OBJECT_INFO_LOG_LENGTH_ARB},
+@code{GL_OBJECT_ATTACHED_OBJECTS_ARB},
+@code{GL_OBJECT_ACTIVE_ATTRIBUTES_ARB}, 
+@code{GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB},
+@code{GL_OBJECT_ACTIVE_UNIFORMS_ARB},
+@code{GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB}, and
+@code{GL_OBJECT_SHADER_SOURCE_LENGTH_ARB}.
+The procedure returns an integer value.
 @end defun
 
-
-@defun gl-get-handle-arb type
+@defun gl-get-shader-source-arb shader
 [GL_ARB_shader_objects]
+Returns the shader source code of a shader object @var{shader}
+in a string.
 @end defun
 
-@defun gl-validate-program-arb
+@defun gl-get-info-log-arb handle
 [GL_ARB_shader_objects]
+Returns the information log of an object pointed by @var{handle}.
 @end defun
 
-@defun gl-uniform-1f-arb location v0
-@defunx gl-uniform-2f-arb location v0 v1
-@defunx gl-uniform-3f-arb location v0 v1 v2
-@defunx gl-uniform-4f-arb location v0 v1 v1 v3
-@defunx gl-uniform-1i-arb location v0
-@defunx gl-uniform-2i-arb location v0 v1
-@defunx gl-uniform-3i-arb location v0 v1 v2
-@defunx gl-uniform-4i-arb location v0 v1 v1 v3
+@defun gl-get-handle-arb pname
 [GL_ARB_shader_objects]
-@end defun
-
-@defun gl-uniform-1fv-arb location count v
-@defunx gl-uniform-2fv-arb location count v
-@defunx gl-uniform-3fv-arb location count v
-@defunx gl-uniform-4fv-arb location count v
-@defunx gl-uniform-1iv-arb location count v
-@defunx gl-uniform-2iv-arb location count v
-@defunx gl-uniform-3iv-arb location count v
-@defunx gl-uniform-4iv-arb location count v
-[GL_ARB_shader_objects]
-@end defun
-
-@defun gl-uniform-matrix-2fv-arb location count transpose v
-@defunx gl-uniform-matrix-3fv-arb location count transpose v
-@defunx gl-uniform-matrix-4fv-arb location count transpose v
-[GL_ARB_shader_objects]
-@end defun
-
-@defun gl-get-info-log-arb object
-[GL_ARB_shader_objects]
+Returns the handle to an object that is used in the current state.
+The only argument accepted currently as @var{pname} is
+@code{GL_PROGRAM_OBJECT_ARB}, which returns the handle to the current
+program object.
 @end defun
 
 @defun gl-get-attached-objects-arb program
 [GL_ARB_shader_objects]
+Rethrns a vector of GL object handles that are attached to the @var{program}.
 @end defun
 
-@defun gl-get-uniform-location-arb program name
+@defun gl-validate-program-arb program
 [GL_ARB_shader_objects]
+Checks whether the @var{program} can execute in the current GL state.
+The result is stored in @var{program}'s log.
 @end defun
 
-@defun gl-get-active-uniform-arb program index
-[GL_ARB_shader_objects]
-@end defun
-
-@defun gl-get-shader-source-arb object
-@end defun
-
-@subheading Vertex program
+@subheading Specifying vertex attributes
 
 @defun gl-vertex-attrib-arb index values
 @defunx gl-vertex-attrib-arb index v0 &rest v1 v2 v3
 [GL_ARB_vertex_program]
+Sets the generic vertex attribute specified by @var{index}.
+In the first form, you can pass f32, f64, or s16vector of size 
+1 to 4, or u8, s8, u16, s32, or u32vector of size 4.
+In the second form, you can pass 1 to 4 real numbers (they
+are interpreted as C doubles and @code{glVertexAttrib4dARB} is called).
 @end defun
 
 @defun gl-vertex-attrib-4n-arb index values
 @defunx gl-vertex-attrib-4n-arb index v0 v1 v2 v3
 [GL_ARB_vertex_program]
+These variations can be used to pass normalized values.
+The first form accepts s8, u8, s16, u16, s32, u32, f32 and f64vector
+of size 4.  The second value takes four integers, whose lower 8bits
+are taken as unsigned byte and passed to @code{glVertexAttrib4NubARB}.
 @end defun
 
-@defun gl-vertex-attrib-pointer-arb index size vec &optional normalize stride offset
+@defun gl-vertex-attrib-pointer-arb index size vec &optional normalized stride offset
 [GL_ARB_vertex_program]
-@end defun
+This is the generic version of vertex arrays.  @var{Index} names
+the attribute, @var{size} specifies the number of components (1, 2, 3 or 4),
+and @var{vec} is a uniform vector that contains the array of values.
 
-@defun gl-is-program-arb prog-id
-[GL_ARB_vertex_program]
+The optional boolean @var{normalized} argument tells whether the
+passed integer values should be mapped to normalized range (@code{#t} or
+taken as are @code{#f}, default).  The optional @var{stride} argument
+specifies the gap between each set of values within @var{vec}.
+The optional @var{offset} argument tells GL to take values beginning
+from the @var{offset}-th element of @var{vec}.
 @end defun
 
 @defun gl-enable-vertex-attrib-array-arb index
+@defunx gl-disable-vertex-attrib-array-arb index
 [GL_ARB_vertex_program]
+Enable or disable a vertex attribute array specified by @var{index}.
 @end defun
 
-@defun gl-disable-vertex-attrib-array-arb index
-[GL_ARB_vertex_program]
+@defun gl-bind-attrib-location-arb program index name
+[GL_ARB_vertex_shader]
+Associates a user-defined attribute variable in the program object
+@var{program} with an @var{index}-th generic vertex attribute.
+@var{Name} is a string of the name of user-defined attribute as appears
+in the shader program.
 @end defun
 
-@defun gl-program-string-arb target format text
-[GL_ARB_vertex_program]
+@defun gl-get-attrib-location-arb program name
+[GL_ARB_vertex_shader]
+Returns an integer index of the user-defined attribute @var{name}
+in the @var{program}.  Must be called after @var{program} is linked.
 @end defun
 
-@defun gl-bind-program-arb target id
+@defun gl-get-active-attrib-arb program index
+[GL_ARB_vertex_shader]
+Obtains information about the @var{index}-th user-defined attribute
+in the @var{program}.  Must be called after @var{program} is linked.
+
+It returns three values: the size of the attribute (1, 2, 3 or 4),
+the type of the attribute (an integer that matches one of the following
+constants: @code{GL_FLOAT}, @code{GL_FLOAT_VEC2_ARB},
+@code{GL_FLOAT_VEC3_ARB}, @code{GL_FLOAT_VEC4_ARB}, 
+@code{GL_FLOAT_MAT2_ARB}, @code{GL_FLOAT_MAT3_ARB}, or
+@code{GL_FLOAT_MAT4_ARB}.), and
+the name of the attribute.
+@end defun
+
+@subheading Specifying uniform variables
+
+@defun gl-get-uniform-location-arb program name
+[GL_ARB_shader_objects]
+Returns an integer location of the uniform variable @var{name}
+of the program @var{program}.
+@end defun
+
+@defun gl-uniform1-arb location vec
+@defunx gl-uniform1-arb location v0
+@defunx gl-uniform2-arb location vec
+@defunx gl-uniform2-arb location v0 v1
+@defunx gl-uniform3-arb location vec
+@defunx gl-uniform3-arb location v0 v1 v2
+@defunx gl-uniform4-arb location vec
+@defunx gl-uniform4-arb location v0 v1 v1 v3
+[GL_ARB_shader_objects]
+Sets a value of the uniform variable specified by @var{location}.
+@var{gl-uniform1-arb} sets a single component value (e.g. @code{float})
+@var{gl-uniform2-arb} sets a double component value
+(e.g. @code{vec2}) etc.
+
+The first form of each function takes either an s32vector or f32vector.
+It can have a size multiple of the number of components to 
+set an array uniform variable (e.g. you can pass an f32vector of
+size 8 to fill @code{vec2[2]}).
+
+The second form just sets the component(s) of a single uniform variable.
+The arguments @var{v0} to @var{v3} must be real numbers, and 
+coerced to C @code{float} (i.e. @code{glUniform*fARB} is used).
+@end defun
+
+
+@defun gl-uniform-matrix2-arb location transpose v
+@defunx gl-uniform-matrix3-arb location transpose v
+@defunx gl-uniform-matrix4-arb location transpose v
+[GL_ARB_shader_objects]
+Sets a matrix uniform variable (or an array of matrix uniform variables)
+specified by @var{location}.
+A boolean flag @var{transpose} specifies whether the matrix should be 
+transposed.
+The @var{v} argument must be a f32vector of size multiple of 4, 9, or
+16, respectively.
+@end defun
+
+@defun gl-get-active-uniform-arb program index
+[GL_ARB_shader_objects]
+Returns informaton about the @var{index}-th uniform variable of
+@var{program}.
+
+Returns three values.  The first one is the size, either 1, 2, 3 or 4.
+The second value is the type, which is an integer that matches
+one of the following constants: @code{GL_FLOAT}, 
+@code{GL_FLOAT_VEC(1|2|3|4)_ARB}, @code{GL_INT}, 
+@code{GL_INT_VEC(1|2|3|4)_ARB}, @code{GL_BOOL}, 
+@code{GL_BOOL_VEC(1|2|3|4)_ARB}, @code{GL_FLOAT_MAT(2|3|4)_ARB}.
+And the third value is the name of the uniform variable.
+@end defun
+
+@subheading Vertex and fragment programs
+
+These APIs are for low-level vertex/fragment pipeline programming.
+
+@defun gl-gen-programs-arb n
 [GL_ARB_vertex_program]
+Generates @var{N} names (integers) for the new programs and
+returns them in an s32vector.
 @end defun
 
 @defun gl-delete-programs-arb programs
 [GL_ARB_vertex_program]
+Deletes programs whose names are specified by an s32vector @var{programs}.
 @end defun
 
-@defun gl-gen-program-arb n
+@defun gl-is-program-arb prog-id
 [GL_ARB_vertex_program]
+Returns @code{#t} if an integer @var{prog-id} refers to a valid program.
+@end defun
+
+@defun gl-bind-program-arb target prog-id
+[GL_ARB_vertex_program]
+Binds a program specified by @var{prog-id} to a @var{target},
+which is either @code{GL_VERTEX_PROGRAM_ARB} or 
+@var{GL_FRAGMENT_PROGRAM_ARB}.
+@end defun
+
+@defun gl-program-string-arb target format text
+[GL_ARB_vertex_program]
+Sets the source code of the program currently bound to the
+@var{target} (@code{GL_VERTEX_PROGRAM_ARB} or 
+@var{GL_FRAGMENT_PROGRAM_ARB}).
+
+@var{Format} must be @code{GL_PROGRAM_FORMAT_ASCII_ARB}.
+@var{Text} is a string for the program source.
 @end defun
 
 @defun gl-program-env-parameter-arb target param-id args
 @defunx gl-program-env-parameter-arb target param-id arg0 arg1 arg2 arg3
-[GL_ARB_vertex_program]
-@end defun
-
-@defun gl-program-local-parameter-arb target param-id args
+@defunx gl-program-local-parameter-arb target param-id args
 @defunx gl-program-local-parameter-arb target param-id arg0 arg1 arg2 arg3
 [GL_ARB_vertex_program]
-@end defun
-
-@subheading Vertex shader
-
-@defun gl-bind-attrib-location-arb program index name
-[GL_ARB_vertex_program]
-@end defun
-
-@defun gl-get-active-attrib-arb program index
-[GL_ARB_vertex_program]
-@end defun
-
-@defun gl-get-attrib-location-arb program name
-[GL_ARB_vertex_program]
+Sets the value of the environment and local parameter
+specified by @var{param-id} of the program currently bount to the @var{target}.
+In the first form of each, @var{args} must be either f32 or
+f64vector of size 4 or @code{<vector4f>} object.
 @end defun
 
 

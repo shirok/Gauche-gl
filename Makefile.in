@@ -9,9 +9,12 @@ DESTDIR =
 INSTALL_TYPE = @INSTALL_TYPE@
 SCM_INSTALL_DIR = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)libdir`
 
+ENABLE_CG = @ENABLE_CG@
+
 
 all :
 	cd src; $(MAKE) all
+	if test X$(ENABLE_CG) != X; then (cd cg; $(MAKE) all); fi
 	cd doc; $(MAKE) all
 
 check : all
@@ -21,23 +24,27 @@ clean :
 	rm -rf core *~
 	cd src; $(MAKE) clean
 	cd lib; $(MAKE) clean
+	cd cg;  $(MAKE) clean
 	cd doc; $(MAKE) clean
 
 distclean : clean
 	cd src; $(MAKE) distclean
 	cd lib; $(MAKE) distclean
+	cd cg;  $(MAKE) distclean
 	cd doc; $(MAKE) distclean
 	rm -rf $(CONFIG_GENERATED)
 
 install :
 	cd src; $(MAKE) install
 	cd lib; $(MAKE) install
+	if test X$(ENABLE_CG) != X; then (cd cg; $(MAKE) install); fi
 	cd doc; $(MAKE) install
 	$(INSTALL) -m 444 -T $(SCM_INSTALL_DIR)/.packages Gauche-gl.gpd
 
 maintainer-clean : clean
 	cd src; $(MAKE) maintainer-clean
 	cd lib; $(MAKE) maintainer-clean
+	cd cg;  $(MAKE) maintainer-clean
 	cd doc; $(MAKE) maintainer-clean
 	rm -rf configure VERSION $(CONFIG_GENERATED)
 

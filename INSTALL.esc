@@ -26,7 +26,7 @@
                        Gauche-gl - Gauche OpenGL binding
 <? ) !>
 
-$Id: INSTALL.esc,v 1.5 2003-02-11 01:48:42 shirok Exp $
+$Id: INSTALL.esc,v 1.6 2005-06-14 21:53:09 shirok Exp $
 <? (if-lang japanese? !>
 Gauche-glの最新情報は以下のURLで得られます。<? else !>
 Up-to-date information about Gauche-gl is posted to the following URL:
@@ -36,11 +36,11 @@ Up-to-date information about Gauche-gl is posted to the following URL:
 <? (header "必要な準備" "Prerequisites") !>
 
 <? (if-lang japanese? !>
-* Gauche 0.6.7.1 以降がインストールされている必要があります。
+* Gauche 0.8.4 以降がインストールされている必要があります。
 * OpenGL 1.1以降もしくはMesa 3.0以降が必要です。
 * GLUT 3.7以降が必要です。
 <? else !>
-* Gauche 0.6.7.1 or later must be installed.
+* Gauche 0.8.4 or later must be installed.
 * OpenGL 1.1 or later, or Mesa 3.0 or later, required.
 * GLUT 3.7 or later is required.
 <? ) !>
@@ -69,6 +69,32 @@ tell the configure script where it is.
 <? ) !>
 
   ./configure --with-glut=DIR
+
+<? (header "NVidia Cg バインディング" "NVidia Cg binding") !>
+
+<? (if-lang japanese? !>
+Issac Trotts氏による、NVidiaのCg Toolkitを使うためのバインディングが
+オプションで提供されています。まだ一部のAPIしかカバーされていませんが
+いくつかのサンプルを走らせることはできます。Cgバインディングをビルド、
+インストールするためには、configure時に--enable-cgを指定してください。
+<? else !>
+Optionally you can build and install NVidia's Cg Toolkit bindings,
+written by Issac Trotts.  It only covers a part of API yet, but
+some examples are runnable.  To build and install Cg binding,
+give --enable-cg to the configure script.
+<? ) !>
+
+  ./configure --enable-cg
+
+<? (if-lang japanese? !>
+ビルドには、NVidiaのCg Toolkitが既にインストールされている必要があります。
+NVidiaのCg Toolkitは次のURLからダウンロードできます。
+<? else !>
+NVidia's Cg Toolkit has to be installed before building the
+binding.  You can download the toolkit from the following URL.
+<? ) !>
+
+  http://developer.nvidia.com/object/cg_toolkit.html
 
 <? (header "プラットフォーム特有の情報" "Platform-specific information") !>
 

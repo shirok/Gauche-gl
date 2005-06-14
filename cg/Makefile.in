@@ -1,0 +1,88 @@
+#
+# Makefile.in for Gauche-gl/src
+#  $Id: Makefile.in,v 1.1 2005-06-14 21:53:09 shirok Exp $
+#
+
+# prelude ---------------------------------------------
+
+.SUFFIXES: .stub
+
+.stub.c :
+	$(GOSH) genstub $<
+
+SHELL       = @SHELL@
+srcdir      = @srcdir@
+VPATH       = $(srcdir)
+top_builddir = @top_builddir@
+top_srcdir   = @top_srcdir@
+
+# These may be overridden by make invocators
+DESTDIR  = 
+OPTFLAGS = @OPTFLAGS@
+
+# These are set by configure
+# NB: cc and various flags must match the ones used to compile Gauche,
+# so the make invocator shouldn't casually override them.
+CC       = @CC@
+CFLAGS   = @DEFS@ @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@ $(OPTFLAGS) -I../src
+LDFLAGS  = -I../src @LDFLAGS@ 
+OBJEXT   = @OBJEXT@
+SOEXT    = @SOEXT@
+OLIBS    = @LIBS@
+LIBS     = @GL_LIBS@ @LIBS@ @X_LIBS@ @X_PRE_LIBS@ @X_EXTRA_LIBS@ @X_LIBS@ 
+INSTALL  = @GAUCHE_INSTALL@
+GOSH     = @GOSH@
+GAUCHE_CONFIG = @GAUCHE_CONFIG@
+
+INSTALL_TYPE = @INSTALL_TYPE@
+HEADER_INSTALL_DIR  = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)incdir`
+SCM_INSTALL_DIR     = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)libdir`
+ARCH_INSTALL_DIR    = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)archdir`
+
+# build -----------------------------------------------
+
+ARCHFILES = libgauche-gl-cg.$(SOEXT)
+SCMFILES = 
+HEADERS = gauche/math3d.h
+
+TARGET = $(ARCHFILES)
+CGOBJS = cg_head.$(OBJEXT) gauche-cg.$(OBJEXT) \
+	 cg-lib.$(OBJEXT) cg_tail.$(OBJEXT)
+OBJS = $(CGOBJS)
+CONFIG_GENERATED = Makefile config.cache config.log config.status
+GENERATED = cg_head.c cg-lib.c cg_tail.c
+
+all : $(TARGET)
+
+libgauche-gl-cg.$(SOEXT) : $(CGOBJS)
+	$(CC) $(LDFLAGS) libgauche-gl-cg.$(SOEXT) $(CGOBJS) @GL_EXTRALIBS@ \
+	    $(LIBS) @CG_LIBS@
+
+cg-lib.c : cg-lib.stub
+
+cg_head.c cg_tail.c :
+	$(GAUCHE_CONFIG) --fixup-extension cg gauche_cg
+
+# tests -----------------------------------------------
+
+check : all
+	@rm -f test.log
+	$(GOSH) -I. -I../lib test.scm >> test.log
+
+# install ----------------------------------------------
+
+install : all
+	$(INSTALL) -m 444 -T $(HEADER_INSTALL_DIR) $(HEADERS)
+	$(INSTALL) -m 444 -T $(SCM_INSTALL_DIR) $(SCMFILES)
+	$(INSTALL) -m 555 -T $(ARCH_INSTALL_DIR) $(ARCHFILES)
+
+# clean ------------------------------------------------
+
+clean :
+	rm -rf core $(TARGET) $(OBJS) $(GENERATED) *~ gl/*~ test.log so_locations
+
+distclean : clean
+	rm -rf $(CONFIG_GENERATED)
+
+maintainer-clean : clean
+	rm -rf $(CONFIG_GENERATED) configure

@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ "$1" = "" ]; then
+  echo "Usage: ./run <program.scm>"
+else
+  gosh -I../../lib -I../../src -I../../cg $@
+fi

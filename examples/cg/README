@@ -1,0 +1,11 @@
+This directory contains a couple of examples ported from NVidia's
+Cg distribution.    Porting is done by Issac Trotts.
+The original program is copyrighted by NVidia Corporation.  
+See the source for the complete notice.
+
+A shell script `run' is included to run the demos conveniently.
+After building Gauche-gl with --enable-cg, try:
+
+  ./run checkered-sphere-cg.scm
+
+

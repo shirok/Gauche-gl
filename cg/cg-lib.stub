@@ -1,0 +1,1327 @@
+;;;
+;;; cg-lib.stub - glue functions for Cg
+;;;
+;;;  Copyright(C) 2005 by Issac Trotts (ijtrotts@ucdavis.edu)
+;;;
+;;;  Permission to use, copy, modify, distribute this software and
+;;;  accompanying documentation for any purpose is hereby granted,
+;;;  provided that existing copyright notices are retained in all
+;;;  copies and that this notice is included verbatim in all
+;;;  distributions.
+;;;  This software is provided as is, without express or implied
+;;;  warranty.  In no circumstances the author(s) shall be liable
+;;;  for any damages arising out of the use of this software.
+;;;
+;;;  $Id: cg-lib.stub,v 1.1 2005-06-14 21:53:09 shirok Exp $
+;;;
+
+"
+#include \"gauche-gl.h\"
+#include \"gauche-cg.h\"
+#include <stdio.h>
+#include <stdlib.h>
+#include <gauche/class.h>
+#include <gauche/uvector.h>
+#include <gauche/math3d.h>
+"
+
+
+;; This little section is a stop-gap until Gauche-gl stabilizes again.
+(define-cproc auto-generate-mipmaps! (yes-or-no::<boolean>)
+  "
+  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, yes_or_no);
+  ")
+
+
+
+(define-type <cg-context> "Scm_CGcontext*" #f
+    "SCM_CG_CONTEXT_P" "SCM_CG_CONTEXT")
+
+(define-type <cg-program> "Scm_CGprogram*" #f
+    "SCM_CG_PROGRAM_P" "SCM_CG_PROGRAM")
+
+(define-type <cg-parameter> "Scm_CGparameter*" #f
+    "SCM_CG_PARAMETER_P" "SCM_CG_PARAMETER")
+
+(define-type <f32vector> "ScmF32Vector*" "f32vector"
+  "SCM_F32VECTORP" "SCM_F32VECTOR")
+
+;;
+;; Cg/cg_datatypes.h
+;;
+
+(define-enum CG_UNKNOWN_TYPE)
+(define-enum CG_STRUCT)
+(define-enum CG_ARRAY)
+(define-enum CG_TYPE_START_ENUM )
+
+(define-enum CG_HALF)
+(define-enum CG_HALF2)
+(define-enum CG_HALF3)
+(define-enum CG_HALF4)
+(define-enum CG_HALF1x1)
+(define-enum CG_HALF1x2)
+(define-enum CG_HALF1x3)
+(define-enum CG_HALF1x4)
+(define-enum CG_HALF2x1)
+(define-enum CG_HALF2x2)
+(define-enum CG_HALF2x3)
+(define-enum CG_HALF2x4)
+(define-enum CG_HALF3x1)
+(define-enum CG_HALF3x2)
+(define-enum CG_HALF3x3)
+(define-enum CG_HALF3x4)
+(define-enum CG_HALF4x1)
+(define-enum CG_HALF4x2)
+(define-enum CG_HALF4x3)
+(define-enum CG_HALF4x4)
+(define-enum CG_FLOAT)
+(define-enum CG_FLOAT2)
+(define-enum CG_FLOAT3)
+(define-enum CG_FLOAT4)
+(define-enum CG_FLOAT1x1)
+(define-enum CG_FLOAT1x2)
+(define-enum CG_FLOAT1x3)
+(define-enum CG_FLOAT1x4)
+(define-enum CG_FLOAT2x1)
+(define-enum CG_FLOAT2x2)
+(define-enum CG_FLOAT2x3)
+(define-enum CG_FLOAT2x4)
+(define-enum CG_FLOAT3x1)
+(define-enum CG_FLOAT3x2)
+(define-enum CG_FLOAT3x3)
+(define-enum CG_FLOAT3x4)
+(define-enum CG_FLOAT4x1)
+(define-enum CG_FLOAT4x2)
+(define-enum CG_FLOAT4x3)
+(define-enum CG_FLOAT4x4)
+(define-enum CG_SAMPLER1D)
+(define-enum CG_SAMPLER2D)
+(define-enum CG_SAMPLER3D)
+(define-enum CG_SAMPLERRECT)
+(define-enum CG_SAMPLERCUBE)
+(define-enum CG_FIXED)
+(define-enum CG_FIXED2)
+(define-enum CG_FIXED3)
+(define-enum CG_FIXED4)
+(define-enum CG_FIXED1x1)
+(define-enum CG_FIXED1x2)
+(define-enum CG_FIXED1x3)
+(define-enum CG_FIXED1x4)
+(define-enum CG_FIXED2x1)
+(define-enum CG_FIXED2x2)
+(define-enum CG_FIXED2x3)
+(define-enum CG_FIXED2x4)
+(define-enum CG_FIXED3x1)
+(define-enum CG_FIXED3x2)
+(define-enum CG_FIXED3x3)
+(define-enum CG_FIXED3x4)
+(define-enum CG_FIXED4x1)
+(define-enum CG_FIXED4x2)
+(define-enum CG_FIXED4x3)
+(define-enum CG_FIXED4x4)
+(define-enum CG_HALF1)
+(define-enum CG_FLOAT1)
+(define-enum CG_FIXED1)
+(define-enum CG_INT)
+(define-enum CG_INT1)
+(define-enum CG_INT2)
+(define-enum CG_INT3)
+(define-enum CG_INT4)
+(define-enum CG_INT1x1)
+(define-enum CG_INT1x2)
+(define-enum CG_INT1x3)
+(define-enum CG_INT1x4)
+(define-enum CG_INT2x1)
+(define-enum CG_INT2x2)
+(define-enum CG_INT2x3)
+(define-enum CG_INT2x4)
+(define-enum CG_INT3x1)
+(define-enum CG_INT3x2)
+(define-enum CG_INT3x3)
+(define-enum CG_INT3x4)
+(define-enum CG_INT4x1)
+(define-enum CG_INT4x2)
+(define-enum CG_INT4x3)
+(define-enum CG_INT4x4)
+(define-enum CG_BOOL)
+(define-enum CG_BOOL1)
+(define-enum CG_BOOL2)
+(define-enum CG_BOOL3)
+(define-enum CG_BOOL4)
+(define-enum CG_BOOL1x1)
+(define-enum CG_BOOL1x2)
+(define-enum CG_BOOL1x3)
+(define-enum CG_BOOL1x4)
+(define-enum CG_BOOL2x1)
+(define-enum CG_BOOL2x2)
+(define-enum CG_BOOL2x3)
+(define-enum CG_BOOL2x4)
+(define-enum CG_BOOL3x1)
+(define-enum CG_BOOL3x2)
+(define-enum CG_BOOL3x3)
+(define-enum CG_BOOL3x4)
+(define-enum CG_BOOL4x1)
+(define-enum CG_BOOL4x2)
+(define-enum CG_BOOL4x3)
+(define-enum CG_BOOL4x4)
+
+;;
+;; Cg/cg_bindlocations.h
+;; 
+
+(define-enum CG_TEXUNIT0)
+(define-enum CG_TEXUNIT1)
+(define-enum CG_TEXUNIT2)
+(define-enum CG_TEXUNIT3)
+(define-enum CG_TEXUNIT4)
+(define-enum CG_TEXUNIT5)
+(define-enum CG_TEXUNIT6)
+(define-enum CG_TEXUNIT7)
+(define-enum CG_TEXUNIT8)
+(define-enum CG_TEXUNIT9)
+(define-enum CG_TEXUNIT10)
+(define-enum CG_TEXUNIT11)
+(define-enum CG_TEXUNIT12)
+(define-enum CG_TEXUNIT13)
+(define-enum CG_TEXUNIT14)
+(define-enum CG_TEXUNIT15)
+
+(define-enum CG_ATTR0)
+(define-enum CG_ATTR1)
+(define-enum CG_ATTR2)
+(define-enum CG_ATTR3)
+(define-enum CG_ATTR4)
+(define-enum CG_ATTR5)
+(define-enum CG_ATTR6)
+(define-enum CG_ATTR7)
+(define-enum CG_ATTR8)
+(define-enum CG_ATTR9)
+(define-enum CG_ATTR10)
+(define-enum CG_ATTR11)
+(define-enum CG_ATTR12)
+(define-enum CG_ATTR13)
+(define-enum CG_ATTR14)
+(define-enum CG_ATTR15)
+
+(define-enum CG_C)
+
+(define-enum CG_TEX0)
+(define-enum CG_TEX1)
+(define-enum CG_TEX2)
+(define-enum CG_TEX3)
+(define-enum CG_TEX4)
+(define-enum CG_TEX5)
+(define-enum CG_TEX6)
+(define-enum CG_TEX7)
+
+(define-enum CG_HPOS)
+(define-enum CG_COL0)
+(define-enum CG_COL1)
+(define-enum CG_COL2)
+(define-enum CG_COL3)
+(define-enum CG_PSIZ)
+(define-enum CG_WPOS)
+
+(define-enum CG_POSITION0)
+(define-enum CG_POSITION1)
+(define-enum CG_POSITION2)
+(define-enum CG_POSITION3)
+(define-enum CG_POSITION4)
+(define-enum CG_POSITION5)
+(define-enum CG_POSITION6)
+(define-enum CG_POSITION7)
+(define-enum CG_POSITION8)
+(define-enum CG_POSITION9)
+(define-enum CG_POSITION10)
+(define-enum CG_POSITION11)
+(define-enum CG_POSITION12)
+(define-enum CG_POSITION13)
+(define-enum CG_POSITION14)
+(define-enum CG_POSITION15)
+(define-enum CG_DIFFUSE0)
+(define-enum CG_TANGENT0)
+(define-enum CG_TANGENT1)
+(define-enum CG_TANGENT2)
+(define-enum CG_TANGENT3)
+(define-enum CG_TANGENT4)
+(define-enum CG_TANGENT5)
+(define-enum CG_TANGENT6)
+(define-enum CG_TANGENT7)
+(define-enum CG_TANGENT8)
+(define-enum CG_TANGENT9)
+(define-enum CG_TANGENT10)
+(define-enum CG_TANGENT11)
+(define-enum CG_TANGENT12)
+(define-enum CG_TANGENT13)
+(define-enum CG_TANGENT14)
+(define-enum CG_TANGENT15)
+(define-enum CG_SPECULAR0)
+(define-enum CG_BLENDINDICES0)
+(define-enum CG_BLENDINDICES1)
+(define-enum CG_BLENDINDICES2)
+(define-enum CG_BLENDINDICES3)
+(define-enum CG_BLENDINDICES4)
+(define-enum CG_BLENDINDICES5)
+(define-enum CG_BLENDINDICES6)
+(define-enum CG_BLENDINDICES7)
+(define-enum CG_BLENDINDICES8)
+(define-enum CG_BLENDINDICES9)
+(define-enum CG_BLENDINDICES10)
+(define-enum CG_BLENDINDICES11)
+(define-enum CG_BLENDINDICES12)
+(define-enum CG_BLENDINDICES13)
+(define-enum CG_BLENDINDICES14)
+(define-enum CG_BLENDINDICES15)
+(define-enum CG_COLOR0)
+(define-enum CG_COLOR1)
+(define-enum CG_COLOR2)
+(define-enum CG_COLOR3)
+(define-enum CG_COLOR4)
+(define-enum CG_COLOR5)
+(define-enum CG_COLOR6)
+(define-enum CG_COLOR7)
+(define-enum CG_COLOR8)
+(define-enum CG_COLOR9)
+(define-enum CG_COLOR10)
+(define-enum CG_COLOR11)
+(define-enum CG_COLOR12)
+(define-enum CG_COLOR13)
+(define-enum CG_COLOR14)
+(define-enum CG_COLOR15)
+(define-enum CG_PSIZE0)
+(define-enum CG_PSIZE1)
+(define-enum CG_PSIZE2)
+(define-enum CG_PSIZE3)
+(define-enum CG_PSIZE4)
+(define-enum CG_PSIZE5)
+(define-enum CG_PSIZE6)
+(define-enum CG_PSIZE7)
+(define-enum CG_PSIZE8)
+(define-enum CG_PSIZE9)
+(define-enum CG_PSIZE10)
+(define-enum CG_PSIZE11)
+(define-enum CG_PSIZE12)
+(define-enum CG_PSIZE13)
+(define-enum CG_PSIZE14)
+(define-enum CG_PSIZE15)
+(define-enum CG_BINORMAL0)
+(define-enum CG_BINORMAL1)
+(define-enum CG_BINORMAL2)
+(define-enum CG_BINORMAL3)
+(define-enum CG_BINORMAL4)
+(define-enum CG_BINORMAL5)
+(define-enum CG_BINORMAL6)
+(define-enum CG_BINORMAL7)
+(define-enum CG_BINORMAL8)
+(define-enum CG_BINORMAL9)
+(define-enum CG_BINORMAL10)
+(define-enum CG_BINORMAL11)
+(define-enum CG_BINORMAL12)
+(define-enum CG_BINORMAL13)
+(define-enum CG_BINORMAL14)
+(define-enum CG_BINORMAL15)
+(define-enum CG_FOG0)
+(define-enum CG_FOG1)
+(define-enum CG_FOG2)
+(define-enum CG_FOG3)
+(define-enum CG_FOG4)
+(define-enum CG_FOG5)
+(define-enum CG_FOG6)
+(define-enum CG_FOG7)
+(define-enum CG_FOG8)
+(define-enum CG_FOG9)
+(define-enum CG_FOG10)
+(define-enum CG_FOG11)
+(define-enum CG_FOG12)
+(define-enum CG_FOG13)
+(define-enum CG_FOG14)
+(define-enum CG_FOG15)
+(define-enum CG_DEPTH0)
+(define-enum CG_DEPTH1)
+(define-enum CG_DEPTH2)
+(define-enum CG_DEPTH3)
+(define-enum CG_DEPTH4)
+(define-enum CG_DEPTH5)
+(define-enum CG_DEPTH6)
+(define-enum CG_DEPTH7)
+(define-enum CG_DEPTH8)
+(define-enum CG_DEPTH9)
+(define-enum CG_DEPTH10)
+(define-enum CG_DEPTH11)
+(define-enum CG_DEPTH12)
+(define-enum CG_DEPTH13)
+(define-enum CG_DEPTH14)
+(define-enum CG_DEPTH15)
+(define-enum CG_SAMPLE0)
+(define-enum CG_SAMPLE1)
+(define-enum CG_SAMPLE2)
+(define-enum CG_SAMPLE3)
+(define-enum CG_SAMPLE4)
+(define-enum CG_SAMPLE5)
+(define-enum CG_SAMPLE6)
+(define-enum CG_SAMPLE7)
+(define-enum CG_SAMPLE8)
+(define-enum CG_SAMPLE9)
+(define-enum CG_SAMPLE10)
+(define-enum CG_SAMPLE11)
+(define-enum CG_SAMPLE12)
+(define-enum CG_SAMPLE13)
+(define-enum CG_SAMPLE14)
+(define-enum CG_SAMPLE15)
+(define-enum CG_BLENDWEIGHT0)
+(define-enum CG_BLENDWEIGHT1)
+(define-enum CG_BLENDWEIGHT2)
+(define-enum CG_BLENDWEIGHT3)
+(define-enum CG_BLENDWEIGHT4)
+(define-enum CG_BLENDWEIGHT5)
+(define-enum CG_BLENDWEIGHT6)
+(define-enum CG_BLENDWEIGHT7)
+(define-enum CG_BLENDWEIGHT8)
+(define-enum CG_BLENDWEIGHT9)
+(define-enum CG_BLENDWEIGHT10)
+(define-enum CG_BLENDWEIGHT11)
+(define-enum CG_BLENDWEIGHT12)
+(define-enum CG_BLENDWEIGHT13)
+(define-enum CG_BLENDWEIGHT14)
+(define-enum CG_BLENDWEIGHT15)
+(define-enum CG_NORMAL0)
+(define-enum CG_NORMAL1)
+(define-enum CG_NORMAL2)
+(define-enum CG_NORMAL3)
+(define-enum CG_NORMAL4)
+(define-enum CG_NORMAL5)
+(define-enum CG_NORMAL6)
+(define-enum CG_NORMAL7)
+(define-enum CG_NORMAL8)
+(define-enum CG_NORMAL9)
+(define-enum CG_NORMAL10)
+(define-enum CG_NORMAL11)
+(define-enum CG_NORMAL12)
+(define-enum CG_NORMAL13)
+(define-enum CG_NORMAL14)
+(define-enum CG_NORMAL15)
+(define-enum CG_FOGCOORD)
+(define-enum CG_TEXCOORD0)
+(define-enum CG_TEXCOORD1)
+(define-enum CG_TEXCOORD2)
+(define-enum CG_TEXCOORD3)
+(define-enum CG_TEXCOORD4)
+(define-enum CG_TEXCOORD5)
+(define-enum CG_TEXCOORD6)
+(define-enum CG_TEXCOORD7)
+(define-enum CG_TEXCOORD8)
+(define-enum CG_TEXCOORD9)
+(define-enum CG_TEXCOORD10)
+(define-enum CG_TEXCOORD11)
+(define-enum CG_TEXCOORD12)
+(define-enum CG_TEXCOORD13)
+(define-enum CG_TEXCOORD14)
+(define-enum CG_TEXCOORD15)
+(define-enum CG_COMBINER_CONST0)
+(define-enum CG_COMBINER_CONST1)
+(define-enum CG_COMBINER_STAGE_CONST0)
+(define-enum CG_COMBINER_STAGE_CONST1)
+(define-enum CG_OFFSET_TEXTURE_MATRIX)
+(define-enum CG_OFFSET_TEXTURE_SCALE)
+(define-enum CG_OFFSET_TEXTURE_BIAS)
+(define-enum CG_CONST_EYE)
+(define-enum CG_TESSFACTOR)
+
+;;
+;; Cg/cg_profiles.h
+;;
+(define-enum CG_PROFILE_START)
+(define-enum CG_PROFILE_UNKNOWN)
+
+(define-enum CG_PROFILE_VS_1_1)
+(define-enum CG_PROFILE_VS_2_0)
+(define-enum CG_PROFILE_VS_2_X)
+
+(define-enum CG_PROFILE_PS_1_1)
+(define-enum CG_PROFILE_PS_1_2)
+(define-enum CG_PROFILE_PS_1_3)
+(define-enum CG_PROFILE_PS_2_0)
+(define-enum CG_PROFILE_PS_2_X)
+
+(define-enum CG_PROFILE_MAX)
+
+;;
+;; Cg/cg_errors.h
+;;
+(define-enum CG_NO_ERROR)
+(define-enum CG_COMPILER_ERROR)
+(define-enum CG_INVALID_PARAMETER_ERROR)
+(define-enum CG_INVALID_PROFILE_ERROR)
+(define-enum CG_PROGRAM_LOAD_ERROR)
+(define-enum CG_PROGRAM_BIND_ERROR)
+(define-enum CG_PROGRAM_NOT_LOADED_ERROR)
+(define-enum CG_UNSUPPORTED_GL_EXTENSION_ERROR)
+(define-enum CG_INVALID_VALUE_TYPE_ERROR)
+(define-enum CG_NOT_MATRIX_PARAM_ERROR)
+(define-enum CG_INVALID_ENUMERANT_ERROR)
+(define-enum CG_NOT_4x4_MATRIX_ERROR)
+(define-enum CG_FILE_READ_ERROR)
+(define-enum CG_FILE_WRITE_ERROR)
+(define-enum CG_NVPARSE_ERROR)
+(define-enum CG_MEMORY_ALLOC_ERROR)
+(define-enum CG_INVALID_CONTEXT_HANDLE_ERROR)
+(define-enum CG_INVALID_PROGRAM_HANDLE_ERROR)
+(define-enum CG_INVALID_PARAM_HANDLE_ERROR)
+(define-enum CG_UNKNOWN_PROFILE_ERROR)
+(define-enum CG_VAR_ARG_ERROR)
+(define-enum CG_INVALID_DIMENSION_ERROR)
+(define-enum CG_ARRAY_PARAM_ERROR)
+(define-enum CG_OUT_OF_ARRAY_BOUNDS_ERROR)
+(define-enum CG_CONFLICTING_TYPES_ERROR)
+(define-enum CG_CONFLICTING_PARAMETER_TYPES_ERROR)
+(define-enum CG_PARAMETER_IS_NOT_SHARED_ERROR)
+(define-enum CG_INVALID_PARAMETER_VARIABILITY_ERROR)
+(define-enum CG_CANNOT_DESTROY_PARAMETER_ERROR)
+(define-enum CG_NOT_ROOT_PARAMETER_ERROR)
+(define-enum CG_PARAMETERS_DO_NOT_MATCH_ERROR)
+(define-enum CG_IS_NOT_PROGRAM_PARAMETER_ERROR)
+(define-enum CG_INVALID_PARAMETER_TYPE_ERROR)
+(define-enum CG_PARAMETER_IS_NOT_RESIZABLE_ARRAY_ERROR)
+(define-enum CG_INVALID_SIZE_ERROR)
+(define-enum CG_BIND_CREATES_CYCLE_ERROR)
+(define-enum CG_ARRAY_TYPES_DO_NOT_MATCH_ERROR)
+(define-enum CG_ARRAY_DIMENSIONS_DO_NOT_MATCH_ERROR)
+(define-enum CG_ARRAY_HAS_WRONG_DIMENSION_ERROR)
+(define-enum CG_TYPE_IS_NOT_DEFINED_IN_PROGRAM_ERROR)
+
+;;
+;; Cg/cg_enums.h
+;;
+(define-enum CG_UNKNOWN)
+(define-enum CG_IN)
+(define-enum CG_OUT)
+(define-enum CG_INOUT)
+(define-enum CG_MIXED)
+(define-enum CG_VARYING)
+(define-enum CG_UNIFORM)
+(define-enum CG_CONSTANT)
+(define-enum CG_PROGRAM_SOURCE)
+(define-enum CG_PROGRAM_ENTRY)
+(define-enum CG_COMPILED_PROGRAM)
+(define-enum CG_PROGRAM_PROFILE)
+(define-enum CG_GLOBAL)
+(define-enum CG_PROGRAM)
+(define-enum CG_DEFAULT)
+(define-enum CG_ERROR)
+(define-enum CG_SOURCE)
+(define-enum CG_OBJECT)
+(define-enum CG_COMPILE_MANUAL)
+(define-enum CG_COMPILE_IMMEDIATE)
+(define-enum CG_COMPILE_LAZY)
+(define-enum CG_CURRENT)
+(define-enum CG_LITERAL)
+(define-enum CG_VERSION)
+
+;;
+;; Cg/cg.h
+;; 
+
+;;;;; Context ;;;;;
+
+"
+static void context_finalize(ScmObj obj, void* data)
+{
+  fprintf(stderr,\"context_finalize\\n\"); 
+  Scm_CGcontext* c = (Scm_CGcontext*)obj;
+  if(c->is_valid) { 
+    cgDestroyContext(c->context);
+    c->is_valid = 0;
+  }
+}
+"
+
+(define-cproc cg-create-context ()
+  "Scm_CGcontext* c = SCM_NEW(Scm_CGcontext);
+   SCM_SET_CLASS(c, SCM_CLASS_CG_CONTEXT);
+   c->context = cgCreateContext();
+   gauche_cg_context = c->context;
+   c->is_valid = 1;
+   Scm_RegisterFinalizer(SCM_OBJ(c), context_finalize, NULL);
+   SCM_RETURN(SCM_OBJ(c));
+   ")
+  
+;; Calling this is optional, since the garbage collector will eventually
+;; call cgDestroyContext() anyway.
+(define-cproc cg-destroy-context (c::<cg-context>)
+  " 
+  if(c->is_valid) {
+    cgDestroyContext(c->context);
+    c->is_valid = 0;
+  }
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-is-context (c::<cg-context>)
+  "SCM_RETURN(SCM_MAKE_BOOL(cgIsContext(c->context)));")
+
+(define-cproc cg-get-last-listing (c::<cg-context>)
+  "SCM_RETURN(SCM_MAKE_STR_COPYING(cgGetLastListing(c->context)));")
+
+(define-cproc cg-set-auto-compile (c::<cg-context> flag::<fixnum>)
+  "cgSetAutoCompile(c->context,flag);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;;;;; Program ;;;;;
+
+"
+static void program_finalize(ScmObj obj, void* data)
+{
+  Scm_CGprogram* p = (Scm_CGprogram*)obj;
+  if(p->is_valid) { 
+    cgDestroyProgram(p->program);
+    p->is_valid = 0;
+  }
+}
+"
+
+"
+static const char** convert_compiler_args(ScmObj compiler_arg_list)
+{
+    int i,n;
+    const char **args;
+    if(SCM_LISTP(compiler_arg_list)) {
+      n = Scm_Length(compiler_arg_list);
+      args = (const char**)malloc((n+1)*sizeof(const char*));
+      for(i=0;i<n;i++) {
+          ScmObj o = Scm_ListRef(compiler_arg_list, i, SCM_FALSE);
+          if(!SCM_STRINGP(o)) { 
+              Scm_Error(\"Non-string found in compiler-arg-list: %S\",o);
+          }
+          else {
+              args[i] = (char*)SCM_STRING_START(o);
+          }
+      }
+      args[n] = NULL; /* null terminator at the end. */
+    }
+    else {
+      args = NULL;
+    }
+    return args;
+}
+"
+
+(define-cproc cg-create-program 
+    (c::<cg-context>
+     program-type::<fixnum>
+     program-string::<string>
+     profile::<fixnum>
+     entry-func-name   ; #f denotes "main", otherwise pass in a string
+     compiler-arg-list ; #f or a list of strings
+     )       
+    "
+    const char **args = convert_compiler_args(compiler_arg_list);
+    Scm_CGprogram* p = SCM_NEW(Scm_CGprogram);
+    SCM_SET_CLASS(p, SCM_CLASS_CG_PROGRAM);
+    p->is_valid = 1;
+    p->program = cgCreateProgram(c->context, program_type, 
+        (char*)SCM_STRING_START(program_string), profile, 
+        SCM_STRINGP(entry_func_name)?(char*)SCM_STRING_START(entry_func_name):NULL, 
+        args);
+    if(args) { free(args); }
+    Scm_RegisterFinalizer(SCM_OBJ(p), program_finalize, NULL);
+    SCM_RETURN(SCM_OBJ(p));
+    ")
+
+(define-cproc cg-create-program-from-file
+    (c::<cg-context>
+     program-type::<fixnum>  ; usually CG_SOURCE
+     program-filename::<string>
+     profile::<fixnum> ; e.g., CG_PROFILE_VP20 or CG_PROFILE_FP20
+     entry-func-name   ; #f denotes "main", otherwise pass in a string
+     compiler-arg-list ; #f or a list of strings
+     )       
+    "
+    const char **args = convert_compiler_args(compiler_arg_list);
+    Scm_CGprogram* p = SCM_NEW(Scm_CGprogram);
+    SCM_SET_CLASS(p, SCM_CLASS_CG_PROGRAM);
+    p->is_valid = 1;
+    p->program = cgCreateProgramFromFile(c->context, program_type, 
+        (char*)SCM_STRING_START(program_filename), profile, 
+        SCM_STRINGP(entry_func_name)?(char*)SCM_STRING_START(entry_func_name):NULL, 
+        args);
+    if(args) { free(args); }
+    /* Scm_RegisterFinalizer(SCM_OBJ(p), program_finalize, NULL); */
+    SCM_RETURN(SCM_OBJ(p));
+    ")
+
+;(define-cproc cg-copy-program (p::<cg-program>)
+;  (return <cg-program> "cgCopyProgram"))
+
+(define-cproc cg-destroy-program (p::<cg-program>)
+  "cgDestroyProgram(p->program);
+  p->is_valid = 0;
+  SCM_RETURN(SCM_UNDEFINED);")
+ 
+; (define-cproc cg-get-first-program (p::<cg-context>)
+;     (return <cg-program> "cgGetFirstProgram"))
+
+; (define-cproc cg-get-next-program (p::<cg-context>)
+;     (return <cg-program> "cgGetNextProgram"))
+
+; (define-cproc cg-get-program-context (p::<cg-program>)
+;     (return <cg-context> "cgGetProgramContext"))
+
+; (define-cproc cg-is-program (p::<cg-program>)
+;     (return <boolean> "cgIsProgram"))
+ 
+(define-cproc cg-compile-program (p::<cg-program>)
+  "
+  cgCompileProgram(p->program);
+  SCM_RETURN(SCM_UNDEFINED);
+  ")
+
+(define-cproc cg-is-program-compiled (p::<cg-program>)
+  "
+  SCM_RETURN(SCM_MAKE_BOOL(cgIsProgramCompiled(p->program)));
+  ")
+
+(define-cproc cg-get-program-string (p::<cg-program> pname::<fixnum>)
+    "SCM_RETURN(SCM_OBJ(SCM_MAKE_STR_COPYING(
+        cgGetProgramString(p->program, pname))));")
+    
+; (define-cproc cg-get-program-profile (prog::<cg-program)
+;     (return <fixnum> "cgGetProgramProfile"))
+
+; ;;;; Parameter functions ;;;;;
+
+; (define-cproc cg-create-parameter (ctx::<cg-context> type::<fixnum>) 
+;     (return <cg-parameter> "cgCreateParameter"))
+
+; (define-cproc cg-destroy-parameter (p::<cg-parameter>) 
+;     (return <void> "cgDestroyParameter"))
+
+; (define-cproc cg-create-parameter-array (ctx::<cg-context> length::<fixnum>)
+;     (return <cg-parameter> "cgCreateParameterArray"))
+
+; (define-cproc cg-create-parameter-multi-dim-array 
+;     (ctx::<cg-context> type::<fixnum> length-list)
+;     "CGparameter param;
+;     int i,dim; 
+;     int* lengths; 
+;     if(!SCM_LISTP(length_list)) {
+;         Scm_Error(\"Expected a list for third argument\");
+;     }
+;     dim = Scm_Length(length_list);
+;     lengths = (int*)malloc(dim*sizeof(int));
+;     for(i=0;i<dim;i++) {
+;         ScmObj* o = Scm_ListRef(length_list, i, SCM_FALSE);
+;         if(!SCM_INTP(o)) {
+;             Scm_Error(\"length-list should be all integers but is not\");
+;         }
+;         lengths[i] = SCM_INT_VALUE(o);
+;         if(lengths[i]<=0) {
+;             Scm_Error(\"Found a non-positive integer in length-list\");
+;         }
+;     }
+;     param = cgCreateParameterMultiDimArray(ctx,type,dim,lengths)
+;     free(lengths);
+;     SCM_RETURN(SCM_MAKE_CG_PARAMETER(param));")
+
+; (define-cproc cg-connect-parameter (from::<cg-parameter> to::<cg-parameter>)
+;     (return <void> "cgConnectParameter"))
+
+; (define-cproc cg-disconnect-parameter (p::<cg-parameter>)
+;     (return <void> "cgDisconnectParameter"))
+ 
+; (define-cproc cg-get-connected-parameter (p::<cg-parameter>)
+;     (return <cg-parameter> "cgGetConnectedParameter"))
+
+; (define-cproc cg-get-num-connected-to-parameters (p::<cg-parameter>)
+;     (return <int> "cgGetNumConnectedToParameters"))
+
+; (define-cproc cg-get-connected-to-parameter 
+;     (p::<cg-parameter> index::<fixnum>)
+;     (return <cg-parameter> "cgGetConnectedToParameter"))
+
+;; The reference document Cg_Toolkit.pdf discusses the cgGLSetParameter functions
+;; but does not mention the cgSetParameter functions.  So, for now, I'm 
+;; only binding the cgGLSetParameter functions. -ijt
+; 
+; (define-cproc cg-set-parameter (p::<cg-parameter> value &rest args)
+; ...
+
+; ; Set a matrix parameter in row order.  The caller must make sure the matrix
+; ; argument has the right number of elements.  
+
+; (define-cproc cg-set-named-matrix-parameter-r (param::<cg-parameter> mat)
+;     "if(SCM_F32VECTORP(mat)) {
+;         cgSetMatrixParameterfr(param, SCM_F32VECTOR_ELEMENTS(mat));
+;     } else if(SCM_F64VECTORP(mat)) {
+;         cgSetMatrixParameterdr(param, SCM_F64VECTOR_ELEMENTS(mat));
+;     } else {
+;         Scm_Error(\"Bad matrix argument type (expected f32vector or f64vector)\");
+;     }
+;     SCM_RETURN(SCM_UNDEFINED);")
+
+; ; Set a matrix parameter in column order.
+
+; (define-cproc set-matrix-parameter-c (param::<cg-parameter> mat)
+;     "if(SCM_F32VECTORP(mat)) {
+;         cgSetMatrixParameterfc(param, SCM_F32VECTOR_ELEMENTS(mat));
+;     } else if(SCM_F64VECTORP(mat)) {
+;         cgSetMatrixParameterdc(param, SCM_F64VECTOR_ELEMENTS(mat));
+;     } else {
+;         Scm_Error(\"Bad matrix argument type (expected f32vector or f64vector)\");
+;     }
+;     SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-get-named-parameter (prog::<cg-program> name::<string>)
+  "
+  Scm_CGparameter* ret = SCM_NEW(Scm_CGparameter);
+  SCM_SET_CLASS(ret, SCM_CLASS_CG_PARAMETER);
+  ret->parameter = cgGetNamedParameter(prog->program, (char*)SCM_STRING_START(name));
+  SCM_RETURN(SCM_OBJ(ret));
+  ")
+
+(define-cproc cg-get-named-program-parameter 
+  (prog::<cg-program> name-space::<fixnum> name::<string>)
+  "
+  Scm_CGparameter* ret = SCM_NEW(Scm_CGparameter);
+  SCM_SET_CLASS(ret, SCM_CLASS_CG_PARAMETER);
+  ret->parameter = cgGetNamedProgramParameter(prog->program, name_space,
+      (char*)SCM_STRING_START(name));
+  SCM_RETURN(SCM_OBJ(ret));
+  ")
+
+; (define-cproc cg-get-first-parameter 
+;     (prog::<cg-program> name-space::<fixnum>)
+;     (return <cg-parameter> "cgGetFirstParameter"))
+
+; (define-cproc cg-get-next-parameter (current::<cg-parameter>)
+;     (return <cg-parameter> "cgGetNextParameter"))
+
+; (define-cproc cg-get-first-leaf-parameter 
+;     (prog::<cg-program> name-space::<fixnum>)
+;     (return <cg-parameter> "cgGetFirstLeafParameter"))
+
+; (define-cproc cg-get-next-leaf-parameter (current::<cg-parameter>)
+;     (return <cg-parameter> "cgGetNextLeafParameter"))
+ 
+; (define-cproc cg-get-first-struct-parameter (param::<cg-parameter>)
+;     (return <cg-parameter> "cgGetFirstStructParameter"))
+
+; (define-cproc cg-get-named-struct-parameter 
+;     (param::<cg-parameter> name::<string>)
+;     (return <cg-parameter> "cgGetNamedStructParameter"))
+ 
+; (define-cproc cg-get-first-dependent-parameter (param::<cg-parameter>)
+;     (return <cg-parameter> "cgGetFirstDependentParameter"))
+ 
+; (define-cproc cg-get-array-parameter (aparam::<cg-parameter> index::<fixnum>)
+;     (return <cg-parameter> "cgGetArrayParameter"))
+
+; (define-cproc cg-get-array-dimension (p::<cg-parameter>)
+;     (return <int> "cgGetArrayDimension"))
+
+; (define-cproc cg-get-array-type (p::<cg-parameter>)
+;     (return <fixnum> "cgGetArrayType"))
+
+; (define-cproc cg-get-array-size (p::<cg-parameter> dimension::<fixnum>)
+;     (return <int> "cgGetArraySize"))
+
+; (define-cproc cg-set-array-size (p::<cg-parameter> size::<fixnum>)
+;     (return <void> "cgSetArraySize"))
+
+; (define-cproc cg-set-multi-dim-array-size (p::<cg-parameter> size-list)
+;     "
+;     int i,n;
+;     int *sizes;
+;     if(!SCM_LISTP(size_list)) {
+;         Scm_Error(\"Expected a list for second argument\");
+;     }
+;     n = Scm_Length(list);
+;     sizes = (int*) malloc(n*sizeof(int));
+;     for(i=0;i<n;i++) {
+;         ScmObj* o = Scm_ListRef(size_list,i,SCM_FALSE);
+;         if(!SCM_INTP(o)) {
+;             Scm_Error(\"Non-integer found in size-list\");
+;         }
+;         sizes[i] = SCM_INT_VALUE(o);
+;     }
+;     SCM_RETURN(SCM_UNDEFINED);")
+
+; (define-cproc cg-get-parameter-program (p::<cg-parameter>)
+;     (return <cg-program> "cgGetParameterProgram"))
+
+; (define-cproc cg-get-parameter-context (p::<cg-parameter>)
+;     (return <cg-context> "cgGetParameterContext"))
+
+; (define-cproc cg-is-parameter (p::<cg-parameter>)
+;     (return <boolean> "cgIsParameter")) 
+
+; (define-cproc cg-get-parameter-name (p::<cg-parameter>)
+;     "SCM_RETURN(SCM_MAKE_STR_COPYING(cgGetParameterName(p)));")
+
+; (define-cproc cg-get-parameter-type (p::<cg-parameter>)
+;     (return <fixnum> "cgGetParameterType"))
+
+; (define-cproc cg-get-parameter-named-type (p::<cg-parameter>)
+;     (return <fixnum> "cgGetParameterNamedType"))
+
+; (define-cproc cg-get-parameter-semantic (p::<cg-parameter>)
+;     "SCM_RETURN(SCM_MAKE_STR_COPYING(cgGetParameterSemantic(p)));")
+
+; (define-cproc cg-get-parameter-resource (p::<cg-parameter>)
+;     (return <fixnum> "cgGetParameterResource"))
+
+; (define-cproc cg-get-parameter-base-resource (p::<cg-parameter>)
+;     (return <fixnum> "cgGetParameterBaseResource"))
+
+; (define-cproc cg-get-parameter-resource-index (p::<cg-parameter>)
+;     (return <int> "cgGetParameterResourceIndex"))
+
+; (define-cproc cg-get-parameter-variability (p::<cg-parameter>)
+;     (return <fixnum> "cgGetParameterVariability"))
+
+; (define-cproc cg-get-parameter-direction (p::<cg-parameter>)
+;     (return <fixnum> "cgGetParameterDirection"))
+
+; (define-cproc cg-is-parameter-referenced (p::<cg-parameter>)
+;     (return <boolean> "cgIsParameterReferenced"))
+
+; (define-cproc cg-get-parameter-values (p::<cg-parameter>)
+;     "int nvals;
+;     double* vals;
+;     vals = cgGetParameterValues(p,&nvals);
+;     SCM_RETURN(Scm_MakeF64VectorFromArray(nvals,vals));")
+
+; (define-cproc cg-get-parameter-ordinal-number (p::<cg-parameter>)
+;     (return <int> "cgGetParameterOrdinalNumber")) 
+
+; (define-cproc cg-is-parameter-global (p::<cg-parameter>)
+;     (return <boolean> "cgIsParameterGlobal"))
+
+; (define-cproc cg-get-parameter-index (p::<cg-parameter>)
+;     (return <int> "cgGetParameterIndex"))
+ 
+; (define-cproc cg-set-parameter-variability (p::<cg-parameter> vary::<fixnum>)
+;     (return <void> "cgSetParameterVariability"))
+
+; (define-cproc cg-set-parameter-semantic (p::<cg-parameter> semantic::<string>)
+;     (return <void> "cgSetParameterSemantic"))
+
+; ;;;; Type Functions ;;;;;
+
+; (define-cproc cg-get-type-string (t::<fixnum>)
+;     "SCM_RETURN(SCM_MAKE_STR_COPYING(cgGetTypeString(t)));")
+
+; (define-cproc cg-get-type (s::<string>)
+;     (return <fixnum> "cgGetType"))
+
+; (define-cproc cg-get-named-user-type (p::<cg-program> name::<string>)
+;     (return <fixnum> "cgGetNamedUserType"))
+ 
+; (define-cproc cg-get-num-user-types (p::<cg-program>)
+;     (return <int> "cgGetNumUserTypes"))
+
+; (define-cproc cg-get-user-type (p::<cg-program> index::<fixnum>)
+;     (return <fixnum> "cgGetUserType"))
+ 
+; (define-cproc cg-get-num-parent-types (t::<fixnum>)
+;     (return <int> "cgGetNumParentTypes"))
+
+; (define-cproc cg-get-parent-type (t::<fixnum> index::<fixnum>)
+;     (return <fixnum> "cgGetParentType"))
+ 
+; (define-cproc cg-is-parent-type (parent::<fixnum> child::<fixnum>)
+;     (return <boolean> "cgIsParentType"))
+
+; (define-cproc cg-is-interface-type (type::<fixnum>)
+;     (return <boolean> "cgIsInterfaceType"))
+ 
+; ;;;; Resource Functions ;;;;;
+
+; (define-cproc cg-get-resource-string (resource::<fixnum>)
+;     "SCM_RETURN(SCM_MAKE_STR_COPYING(cgGetResourceString(resource)));")
+
+; (define-cproc cg-get-resource (s::<string>)
+;     (return <fixnum> "cgGetResource"))
+
+; ;;;; Enum Functions ;;;;;
+ 
+; (define-cproc cg-get-enum-string (en::<fixnum>)
+;     "SCM_RETURN(SCM_MAKE_STR_COPYING(cgGetEnumString(en)));")
+
+; (define-cproc cg-get-enum (enum-string::<string>)
+;     (return <int> "cgGetEnum"))
+ 
+; ;;;; Profile Functions ;;;;;
+
+; (define-cproc cg-get-profile-string (profile::<fixnum>)
+;     "SCM_RETURN(SCM_MAKE_STR_COPYING(cgGetProfileString(profile)));")
+
+; (define-cproc cg-get-profile (profile-string::<string>)
+;     (return <int> "cgGetProfile"))
+
+;;;; Error Functions ;;;;;
+
+(define-cproc cg-get-error ()
+    (return <int> "cgGetError"))
+
+(define-cproc cg-get-error-string (error::<fixnum>)
+     "SCM_RETURN(SCM_MAKE_STR_COPYING(cgGetErrorString(error)));")
+
+(define-cproc cg-get-last-error-string ()
+    "CGerror e;
+    const char *s;
+    s=cgGetLastErrorString(&e);    
+    SCM_RETURN(
+        SCM_LIST2(
+            SCM_MAKE_STR_COPYING(s),
+            Scm_MakeInteger(e)));
+    ")
+
+; ;; Error callback -----------
+
+"static ScmObj error_fn = SCM_FALSE;
+ static void error_callback(void)
+ {
+     if(SCM_PROCEDUREP(error_fn)) {
+         Scm_Apply(error_fn, SCM_NIL);
+     }
+ }"
+ 
+(define-cproc cg-set-error-callback (fn::<procedure>)
+    "
+    error_fn = SCM_OBJ(fn);
+    cgSetErrorCallback(error_callback); 
+    SCM_RETURN(SCM_UNDEFINED);
+    ")
+
+(define-cproc cg-get-error-callback ()
+    "SCM_RETURN(SCM_OBJ(error_fn));")
+
+;;;;; Misc Functions ;;;;;
+
+(define-cproc cg-get-string (sname::<fixnum>)
+    (return <string> "cgGetString"))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; cgGL ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Cg/cgGL_profiles.h
+
+(define-enum CG_PROFILE_VP20)
+(define-enum CG_PROFILE_FP20)
+(define-enum CG_PROFILE_VP30)
+(define-enum CG_PROFILE_FP30)
+(define-enum CG_PROFILE_ARBVP1)
+(define-enum CG_PROFILE_FP40)
+(define-enum CG_PROFILE_ARBFP1)
+(define-enum CG_PROFILE_VP40)
+
+;; CGGLenum type
+
+(define-enum CG_GL_MATRIX_IDENTITY)
+(define-enum CG_GL_MATRIX_TRANSPOSE)
+(define-enum CG_GL_MATRIX_INVERSE)
+(define-enum CG_GL_MATRIX_INVERSE_TRANSPOSE)
+
+(define-enum CG_GL_MODELVIEW_MATRIX)
+(define-enum CG_GL_PROJECTION_MATRIX)
+(define-enum CG_GL_TEXTURE_MATRIX)
+(define-enum CG_GL_MODELVIEW_PROJECTION_MATRIX)
+
+(define-enum CG_GL_VERTEX)
+(define-enum CG_GL_FRAGMENT)
+
+;; Profile Functions                                 
+
+(define-cproc cg-gl-is-profile-supported (profile::<fixnum>)
+  "SCM_RETURN(SCM_MAKE_BOOL(cgGLIsProfileSupported(profile)));")
+
+(define-cproc cg-gl-enable-profile (profile::<fixnum>)
+  (return <void> "cgGLEnableProfile"))
+
+(define-cproc cg-gl-disable-profile (profile::<fixnum>)
+  (return <void> "cgGLDisableProfile"))
+
+(define-cproc cg-gl-get-latest-profile (profile_type::<fixnum>)
+  (return <fixnum> "cgGLGetLatestProfile"))
+
+(define-cproc cg-gl-set-optimal-options (profile::<fixnum>)
+  (return <void> "cgGLSetOptimalOptions"))
+
+;; Program Managment Functions                                 
+
+(define-cproc cg-gl-load-program (p::<cg-program>)
+  "cgGLLoadProgram(p->program);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-gl-is-program-loaded (p::<cg-program>)
+  "SCM_RETURN(SCM_MAKE_BOOL(cgGLIsProgramLoaded(p->program)));")
+
+(define-cproc cg-gl-bind-program (p::<cg-program>)
+  "cgGLBindProgram(p->program);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-gl-unbind-program (profile::<fixnum>)
+  (return <void> "cgGLUnbindProgram"))
+
+(define-cproc cg-gl-get-program-id (p::<cg-program>)
+  "SCM_RETURN(SCM_MAKE_INT(cgGLGetProgramID(p->program)));")
+
+;; Parameter Managment Functions                                 
+
+(define-cproc cg-gl-set-parameter (p::<cg-parameter> value &rest args)
+    "
+    CGparameter param = p->parameter;
+    if (SCM_VECTOR4FP(value)) {
+        cgGLSetParameter4fv(param, SCM_VECTOR4F_D(value));
+    } 
+    else if(SCM_F32VECTORP(value)) {
+        switch(SCM_F32VECTOR_SIZE(value)) {
+            case 1: cgGLSetParameter1fv(param,SCM_F32VECTOR_ELEMENTS(value)); break;
+            case 2: cgGLSetParameter2fv(param,SCM_F32VECTOR_ELEMENTS(value)); break;
+            case 3: cgGLSetParameter3fv(param,SCM_F32VECTOR_ELEMENTS(value)); break;
+            case 4: cgGLSetParameter4fv(param,SCM_F32VECTOR_ELEMENTS(value)); break;
+            default:
+                Scm_Error(\"Bad vector size: %i\",(int)SCM_F32VECTOR_SIZE(value));
+                break;
+        }
+    } 
+    else if(SCM_F64VECTORP(value)) {
+        switch(SCM_F64VECTOR_SIZE(value)) {
+            case 1: cgGLSetParameter1dv(param,SCM_F64VECTOR_ELEMENTS(value)); break;
+            case 2: cgGLSetParameter2dv(param,SCM_F64VECTOR_ELEMENTS(value)); break;
+            case 3: cgGLSetParameter3dv(param,SCM_F64VECTOR_ELEMENTS(value)); break;
+            case 4: cgGLSetParameter4dv(param,SCM_F64VECTOR_ELEMENTS(value)); break;
+            default:
+                Scm_Error(\"Bad vector size: %i\",(int)SCM_F64VECTOR_SIZE(value));
+                break;
+        }
+    }
+    else if(SCM_MATRIX4FP(value)) {
+        /* Should this be cgGLSetMatrixParameterfr? -ijt */
+        cgGLSetMatrixParameterfc(param,SCM_MATRIX4F_D(value));
+    }
+    else {
+        double array[4];
+        int nvals = Scm_GLGetDoubles(value, args, array, 4, 1);
+        switch(nvals) {
+            case 1: cgGLSetParameter1dv(param,array); break;
+            case 2: cgGLSetParameter2dv(param,array); break;
+            case 3: cgGLSetParameter3dv(param,array); break;
+            case 4: cgGLSetParameter4dv(param,array); break;
+            default:
+                Scm_Error(\"Bad number of args: %i\",nvals);
+                break;
+        }
+    }
+    SCM_RETURN(SCM_UNDEFINED);")
+
+
+; void cg-gl-set-parameter-array1f(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          const float *v);
+
+; void cg-gl-set-parameter-array2f(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          const float *v);
+
+; void cg-gl-set-parameter-array3f(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          const float *v);
+
+; void cg-gl-set-parameter-array4f(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          const float *v);
+
+; void cg-gl-set-parameter-array1d(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          const double *v);
+
+; void cg-gl-set-parameter-array2d(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          const double *v);
+
+; void cg-gl-set-parameter-array3d(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          const double *v);
+
+; void cg-gl-set-parameter-array4d(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          const double *v);
+
+; void cg-gl-get-parameter-array1f(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          float *v);
+
+; void cg-gl-get-parameter-array2f(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          float *v);
+
+; void cg-gl-get-parameter-array3f(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          float *v);
+
+; void cg-gl-get-parameter-array4f(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          float *v);
+
+; void cg-gl-get-parameter-array1d(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          double *v);
+
+; void cg-gl-get-parameter-array2d(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          double *v);
+
+; void cg-gl-get-parameter-array3d(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          double *v);
+
+; void cg-gl-get-parameter-array4d(CGparameter param,
+;                                          long offset,
+;                                          long nelements,
+;                                          double *v);
+
+;; Please be sure not to pass temporary values to this function since
+;; it points to the original data without copying.  (Shiro, how can we
+;; make sure that the pointer object does not get garbage collected
+;; before the parameter object does? -ijt) ;; 
+;; 
+(define-cproc cg-gl-set-parameter-pointer (p::<cg-parameter>
+                                           fsize::<fixnum> 
+                                           type::<fixnum> 
+                                           stride::<fixnum> 
+                                           pointer::<f32vector>)
+  "
+  cgGLSetParameterPointer(p->parameter,
+    (GLint)fsize, (GLenum)type, (GLsizei)stride,
+    SCM_F32VECTOR_ELEMENTS(pointer));
+  ")
+
+(define-cproc cg-gl-enable-client-state (p::<cg-parameter>)
+  "cgGLEnableClientState(p->parameter);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-gl-disable-client-state (p::<cg-parameter>)
+  "cgGLDisableClientState(p->parameter);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+;; Matrix Parameter Managment Functions                                 
+
+(define-cproc cg-gl-set-named-matrix-parameter-r (p::<cg-parameter> mat)
+    "CGparameter param = p->parameter;
+    if(SCM_F32VECTORP(mat)) {
+        cgGLSetMatrixParameterfr(param, SCM_F32VECTOR_ELEMENTS(mat));
+    } else if(SCM_F64VECTORP(mat)) {
+        cgGLSetMatrixParameterdr(param, SCM_F64VECTOR_ELEMENTS(mat));
+    } else {
+        Scm_Error(\"Bad matrix argument type (expected f32vector or f64vector)\");
+    }
+    SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-gl-set-named-matrix-parameter-c (p::<cg-parameter> mat)
+    "CGparameter param = p->parameter;
+    if(SCM_F32VECTORP(mat)) {
+        cgGLSetMatrixParameterfc(param, SCM_F32VECTOR_ELEMENTS(mat));
+    } else if(SCM_F64VECTORP(mat)) {
+        cgGLSetMatrixParameterdc(param, SCM_F64VECTOR_ELEMENTS(mat));
+    } else {
+        Scm_Error(\"Bad matrix argument type (expected f32vector or f64vector)\");
+    }
+    SCM_RETURN(SCM_UNDEFINED);")
+
+; void cg-gl-get-matrix-parameterdr(CGparameter param, double *matrix);
+; void cg-gl-get-matrix-parameterfr(CGparameter param, float *matrix);
+; void cg-gl-get-matrix-parameterdc(CGparameter param, double *matrix);
+; void cg-gl-get-matrix-parameterfc(CGparameter param, float *matrix);
+
+(define-cproc cg-gl-set-state-matrix-parameter (p::<cg-parameter> 
+                                                matrix-enum::<fixnum>
+                                                transform-enum::<fixnum>)
+  "cgGLSetStateMatrixParameter(p->parameter, matrix_enum, transform_enum);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+; void cg-gl-set-matrix-parameter-arrayfc(CGparameter param, 
+;                                                long offset,
+;                                                long nelements,
+;                                                const float *matrices);
+
+; void cg-gl-set-matrix-parameter-arrayfr(CGparameter param, 
+;                                                long offset,
+;                                                long nelements,
+;                                                const float *matrices);
+
+; void cg-gl-set-matrix-parameter-arraydc(CGparameter param, 
+;                                                long offset,
+;                                                long nelements,
+;                                                const double *matrices);
+
+; void cg-gl-set-matrix-parameter-arraydr(CGparameter param, 
+;                                                long offset,
+;                                                long nelements,
+;                                                const double *matrices);
+
+; void cg-gl-get-matrix-parameter-arrayfc(CGparameter param, 
+;                                                long offset,
+;                                                long nelements,
+;                                                float *matrices);
+
+; void cg-gl-get-matrix-parameter-arrayfr(CGparameter param, 
+;                                                long offset,
+;                                                long nelements,
+;                                                float *matrices);
+
+; void cg-gl-get-matrix-parameter-arraydc(CGparameter param, 
+;                                                long offset,
+;                                                long nelements,
+;                                                double *matrices);
+
+; void cg-gl-get-matrix-parameter-arraydr(CGparameter param, 
+;                                                long offset,
+;                                                long nelements,
+;                                                double *matrices);
+
+;; Texture Parameter Managment Functions
+
+(define-cproc cg-gl-set-texture-parameter (param::<cg-parameter> texobj::<fixnum>)
+  "cgGLSetTextureParameter(param->parameter, texobj);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-gl-get-texture-parameter (param::<cg-parameter>)
+  "SCM_RETURN(SCM_MAKE_INT(cgGLGetTextureParameter(param->parameter)));")
+
+(define-cproc cg-gl-enable-texture-parameter (param::<cg-parameter>)
+  "cgGLEnableTextureParameter(param->parameter);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-gl-disable-texture-parameter (p::<cg-parameter>)
+  "cgGLDisableTextureParameter(p->parameter);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-gl-get-texture-enum (p::<cg-parameter>)
+  "SCM_RETURN(SCM_MAKE_INT(cgGLGetTextureEnum(p->parameter)));")
+
+(define-cproc cg-gl-set-manage-texture-parameters (c::<cg-context> flag::<boolean>)
+  "cgGLSetManageTextureParameters(c->context,flag);
+  SCM_RETURN(SCM_UNDEFINED);")
+
+(define-cproc cg-gl-get-manage-texture-parameters (c::<cg-context>)
+  "SCM_RETURN(SCM_MAKE_BOOL(cgGLGetManageTextureParameters(c->context)));")
+
+;; Local variables:
+;; mode: scheme
+;; end:

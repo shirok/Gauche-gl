@@ -19,6 +19,7 @@ all :
 
 check : all
 	cd src; $(MAKE) check
+	if test X$(ENABLE_CG) != X; then (cd cg; $(MAKE) check); fi
 
 clean :
 	rm -rf core *~

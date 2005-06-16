@@ -12,11 +12,12 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.40 2005-06-10 03:12:44 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.41 2005-06-16 20:22:45 shirok Exp $
 ;;;
 
 "
 #include \"gauche-gl.h\"
+#include \"gl-syms.h\"
 "
 
 ;; The functions are ordered in the same way as Mesa's header file.
@@ -233,7 +234,7 @@
     SCM_RETURN(Scm_MakeInteger(i));
   } else {
     ScmS32Vector *v = SCM_S32VECTOR(Scm_MakeS32Vector(vsize, 0));
-    glGetIntegerv((GLenum)state, SCM_S32VECTOR_ELEMENTS(v));
+    glGetIntegerv((GLenum)state, (GLint*)SCM_S32VECTOR_ELEMENTS(v));
     SCM_RETURN(SCM_OBJ(v));
   }")
 
@@ -244,7 +245,7 @@
   if (vsize != SCM_S32VECTOR_SIZE(vec))
     Scm_Error(\"state %x needs a vector of size %d, but got %S\",
                state, vsize, vec);
-  glGetIntegerv((GLenum)state, SCM_S32VECTOR_ELEMENTS(vec));
+  glGetIntegerv((GLenum)state, (GLint*)SCM_S32VECTOR_ELEMENTS(vec));
   SCM_RETURN(SCM_OBJ(vec));")
 
 (define-cproc gl-get-float (state::<fixnum>)
@@ -554,30 +555,30 @@
      glVertex3fv(SCM_VECTOR4F_D(v));
   } else if (SCM_F32VECTORP(v)) {
      switch (SCM_F32VECTOR_SIZE(v)) {
-       case 3: glVertex3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 2: glVertex2fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 4: glVertex4fv(SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 3: glVertex3fv((GLfloat*)SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 2: glVertex2fv((GLfloat*)SCM_F32VECTOR_ELEMENTS(v)); break;
+       case 4: glVertex4fv((GLfloat*)SCM_F32VECTOR_ELEMENTS(v)); break;
        default: goto badarg;
      }
   } else if (SCM_F64VECTORP(v)) {
      switch (SCM_F64VECTOR_SIZE(v)) {
-       case 3: glVertex3dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 2: glVertex2dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 4: glVertex4dv(SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 3: glVertex3dv((GLdouble*)SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 2: glVertex2dv((GLdouble*)SCM_F64VECTOR_ELEMENTS(v)); break;
+       case 4: glVertex4dv((GLdouble*)SCM_F64VECTOR_ELEMENTS(v)); break;
        default: goto badarg;
      }
   } else if (SCM_S32VECTORP(v)) {
      switch (SCM_S32VECTOR_SIZE(v)) {
-       case 3: glVertex3iv(SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 2: glVertex2iv(SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 4: glVertex4iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 3: glVertex3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 2: glVertex2iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 4: glVertex4iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
        default: goto badarg;
      }
   } else if (SCM_S16VECTORP(v)) {
      switch (SCM_S16VECTOR_SIZE(v)) {
-       case 3: glVertex3sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 2: glVertex2sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 4: glVertex4sv(SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 3: glVertex3sv((GLshort*)SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 2: glVertex2sv((GLshort*)SCM_S16VECTOR_ELEMENTS(v)); break;
+       case 4: glVertex4sv((GLshort*)SCM_S16VECTOR_ELEMENTS(v)); break;
        default: goto badarg;
      }
   } else {
@@ -598,13 +599,13 @@
   "if (SCM_VECTOR4FP(v)) {
      glNormal3fv(SCM_VECTOR4F_D(v));
   } else if (SCM_F32VECTORP(v) && SCM_F32VECTOR_SIZE(v) == 3) {
-     glNormal3fv(SCM_F32VECTOR_ELEMENTS(v));
+     glNormal3fv((GLfloat*)SCM_F32VECTOR_ELEMENTS(v));
   } else if (SCM_F64VECTORP(v) && SCM_F64VECTOR_SIZE(v) == 3) {
-     glNormal3dv(SCM_F64VECTOR_ELEMENTS(v));
+     glNormal3dv((GLdouble*)SCM_F64VECTOR_ELEMENTS(v));
   } else if (SCM_S32VECTORP(v) && SCM_S32VECTOR_SIZE(v) == 3) {
-     glNormal3iv(SCM_S32VECTOR_ELEMENTS(v));
+     glNormal3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v));
   } else if (SCM_S16VECTORP(v) && SCM_S16VECTOR_SIZE(v) == 3) {
-     glNormal3sv(SCM_S16VECTOR_ELEMENTS(v));
+     glNormal3sv((GLshort*)SCM_S16VECTOR_ELEMENTS(v));
   } else {
      double val[3];
      Scm_GLGetDoubles(v, args, val, 3, 3);
@@ -641,8 +642,8 @@
      }
   } else if (SCM_U32VECTORP(v)) {
      switch (SCM_U32VECTOR_SIZE(v)) {
-       case 3: glColor3uiv(SCM_U32VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4uiv(SCM_U32VECTOR_ELEMENTS(v)); break;
+       case 3: glColor3uiv((GLuint*)SCM_U32VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4uiv((GLuint*)SCM_U32VECTOR_ELEMENTS(v)); break;
        default: goto badarg;
      }
   } else if (SCM_S8VECTORP(v)) {
@@ -659,8 +660,8 @@
      }
   } else if (SCM_S32VECTORP(v)) {
      switch (SCM_S32VECTOR_SIZE(v)) {
-       case 3: glColor3iv(SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 3: glColor3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 4: glColor4iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
        default: goto badarg;
      }
   } else {
@@ -695,10 +696,10 @@
      }
   } else if (SCM_S32VECTORP(v)) {
      switch (SCM_S32VECTOR_SIZE(v)) {
-       case 2: glTexCoord2iv(SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 1: glTexCoord2iv(SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 3: glTexCoord3iv(SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 4: glTexCoord4iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 2: glTexCoord2iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 1: glTexCoord2iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 3: glTexCoord3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 4: glTexCoord4iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
        default: goto badarg;
      }
   } else if (SCM_S16VECTORP(v)) {
@@ -741,9 +742,9 @@
      }
   } else if (SCM_S32VECTORP(v)) {
      switch (SCM_S32VECTOR_SIZE(v)) {
-       case 3: glRasterPos3iv(SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 2: glRasterPos2iv(SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 4: glRasterPos4iv(SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 3: glRasterPos3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 2: glRasterPos2iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
+       case 4: glRasterPos4iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
        default: goto badarg;
      }
   } else if (SCM_S16VECTORP(v)) {
@@ -782,7 +783,7 @@
   } else if (SCM_S32VECTORP(v1)) {
      if (SCM_S32VECTOR_SIZE(v1) != 2) goto badarg1;
      if (!SCM_S32VECTORP(v2) || SCM_S32VECTOR_SIZE(v2) != 2) goto badarg2;
-     glRectiv(SCM_S32VECTOR_ELEMENTS(v1), SCM_S32VECTOR_ELEMENTS(v2));
+     glRectiv((GLint*)SCM_S32VECTOR_ELEMENTS(v1), (GLint*)SCM_S32VECTOR_ELEMENTS(v2));
   } else if (SCM_S16VECTORP(v1)) {
      if (SCM_S16VECTOR_SIZE(v1) != 2) goto badarg1;
      if (!SCM_S16VECTORP(v2) || SCM_S16VECTOR_SIZE(v2) != 2) goto badarg2;
@@ -1037,7 +1038,7 @@
      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
        glLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(param));
      } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-       glLightiv(light, pname, SCM_S32VECTOR_ELEMENTS(param));
+       glLightiv(light, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
      } else {
        Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 4\", param);
      }
@@ -1046,7 +1047,7 @@
      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 3) {
        glLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(param));
      } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 3) {
-       glLightiv(light, pname, SCM_S32VECTOR_ELEMENTS(param));
+       glLightiv(light, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
      } else {
        Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 3\", param);
      }
@@ -1088,7 +1089,7 @@
      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
        glLightModelfv(pname, SCM_F32VECTOR_ELEMENTS(param));
      } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-       glLightModeliv(pname, SCM_S32VECTOR_ELEMENTS(param));
+       glLightModeliv(pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
      } else {
        Scm_Error(\"bad parameter for GL_LIGHT_MODEL_AMBIENT: %S, must be f32 or s32 vector of length 4\", param);
      }
@@ -1113,7 +1114,7 @@
      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
        glMaterialfv(face, pname, SCM_F32VECTOR_ELEMENTS(param));
      } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-       glMaterialiv(face, pname, SCM_S32VECTOR_ELEMENTS(param));
+       glMaterialiv(face, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
      } else {
        Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 4\", param);
      }
@@ -1122,7 +1123,7 @@
      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 3) {
        glMaterialfv(face, pname, SCM_F32VECTOR_ELEMENTS(param));
      } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 3) {
-       glMaterialiv(face, pname, SCM_S32VECTOR_ELEMENTS(param));
+       glMaterialiv(face, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
      } else {
        Scm_Error(\"bad parameter: %S, must be f32 or s32vector of length 3\", param);
      }
@@ -1147,7 +1148,7 @@
    case GL_COLOR_INDEXES:
      {
        ScmS32Vector *v = SCM_S32VECTOR(Scm_MakeS32Vector(3, 0.0));
-       glGetMaterialiv(face, pname, SCM_S32VECTOR_ELEMENTS(v));
+       glGetMaterialiv(face, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(v));
        SCM_RETURN(SCM_OBJ(v));
      }
    case GL_SHININESS:
@@ -1196,7 +1197,7 @@
 (define-cproc gl-pixel-map (map::<fixnum> values)
   "if (SCM_U32VECTORP(values)) {
     glPixelMapuiv(map, SCM_U32VECTOR_SIZE(values),
-                  SCM_U32VECTOR_ELEMENTS(values));
+                  (GLuint*)SCM_U32VECTOR_ELEMENTS(values));
   } else if (SCM_U16VECTORP(values)) {
     glPixelMapusv(map, SCM_U16VECTOR_SIZE(values),
                   SCM_U16VECTOR_ELEMENTS(values));
@@ -1212,7 +1213,7 @@
 ;; values must have enough size
 (define-cproc gl-get-pixel-map! (map::<fixnum> values)
   "if (SCM_U32VECTORP(values)) {
-    glGetPixelMapuiv(map, SCM_U32VECTOR_ELEMENTS(values));
+    glGetPixelMapuiv(map, (GLuint*)SCM_U32VECTOR_ELEMENTS(values));
   } else if (SCM_U16VECTORP(values)) {
     glGetPixelMapusv(map, SCM_U16VECTOR_ELEMENTS(values));
   } else if (SCM_F32VECTORP(values)) {
@@ -1232,7 +1233,7 @@
   SCM_ASSERT(size >= 0);
   if (SCM_UNBOUNDP(type) || type == SCM_OBJ(SCM_CLASS_U32VECTOR)) {
     vec = Scm_MakeU32Vector(size, 0);
-    glGetPixelMapuiv(map, SCM_U32VECTOR_ELEMENTS(vec));
+    glGetPixelMapuiv(map, (GLuint*)SCM_U32VECTOR_ELEMENTS(vec));
   } else if (type == SCM_OBJ(SCM_CLASS_U16VECTOR)) {
     vec = Scm_MakeU16Vector(size, 0);
     glGetPixelMapusv(map, SCM_U16VECTOR_ELEMENTS(vec));
@@ -1318,7 +1319,7 @@
       } else if (SCM_F64VECTORP(param) && SCM_F64VECTOR_SIZE(param) == 4) {
         glTexGendv(coord, pname, SCM_F64VECTOR_ELEMENTS(param));
       } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-        glTexGeniv(coord, pname, SCM_S32VECTOR_ELEMENTS(param));
+        glTexGeniv(coord, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
       } else {
         Scm_Error(\"s32, f32 or f64 vector of size 4 is required for parameter, but got %S\", param);
       }
@@ -1381,7 +1382,7 @@
        if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
          glTexParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
        } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-         glTexParameteriv(target, pname, SCM_S32VECTOR_ELEMENTS(param));
+         glTexParameteriv(target, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
        } else {
          Scm_Error(\"f32 or s32 vector parameter of size 4 required, but got %S\", param);
        }
@@ -1474,12 +1475,13 @@
   "ScmObj vec;
   if (size <= 0) Scm_Error(\"size must be a positive integer, but got %d\", size);
   vec = Scm_MakeU32Vector(size, 0);
-  glGenTextures(size, SCM_U32VECTOR_ELEMENTS(vec));
+  glGenTextures(size, (GLuint*)SCM_U32VECTOR_ELEMENTS(vec));
   SCM_RETURN(vec);")
 
 (define-cproc gl-delete-textures (names)
   "if (!SCM_U32VECTORP(names)) Scm_Error(\"texture names must be an u32vector, but got %S\", names);
-  glDeleteTextures(SCM_U32VECTOR_SIZE(names), SCM_U32VECTOR_ELEMENTS(names));
+  glDeleteTextures(SCM_U32VECTOR_SIZE(names),
+                   (GLuint*)SCM_U32VECTOR_ELEMENTS(names));
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-bind-texture (target::<fixnum> name::<int>)
@@ -1492,14 +1494,16 @@
   if (n != SCM_F32VECTOR_SIZE(priorities)) {
     Scm_Error(\"priority vector length doesn't match the names vector length %d: %S\", n, priorities);
   }
-  glPrioritizeTextures(n, SCM_U32VECTOR_ELEMENTS(names), SCM_F32VECTOR_ELEMENTS(priorities));
+  glPrioritizeTextures(n, (GLuint*)SCM_U32VECTOR_ELEMENTS(names), 
+                       SCM_F32VECTOR_ELEMENTS(priorities));
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-are-textures-resident! (names::<u32vector>
                                          res::<gl-boolean-vector>)
   "GLboolean b; int i, n;
    n = SCM_U32VECTOR_SIZE(names);
-   b = glAreTexturesResident(n, SCM_U32VECTOR_ELEMENTS(names), SCM_GL_BOOLEAN_VECTOR_ELEMENTS(res));
+   b = glAreTexturesResident(n, (GLuint*)SCM_U32VECTOR_ELEMENTS(names), 
+                             SCM_GL_BOOLEAN_VECTOR_ELEMENTS(res));
    SCM_RETURN(SCM_MAKE_BOOL(b));")
 
 (define-cproc gl-is-texture (name::<int>)
@@ -1615,7 +1619,8 @@
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-select-buffer (buffer::<u32vector>)
-  "glSelectBuffer(SCM_U32VECTOR_SIZE(buffer), SCM_U32VECTOR_ELEMENTS(buffer));
+  "glSelectBuffer(SCM_U32VECTOR_SIZE(buffer), 
+                  (GLuint*)SCM_U32VECTOR_ELEMENTS(buffer));
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc gl-pass-through (token::<float>)

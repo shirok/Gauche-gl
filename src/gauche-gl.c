@@ -12,10 +12,11 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.26 2005-06-08 19:35:24 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.27 2005-06-16 20:22:45 shirok Exp $
  */
 
 #include <gauche.h>
+#include <gauche/class.h>
 #include <gauche/extend.h>
 #include "gauche-gl.h"
 #include "gl-syms.h"
@@ -27,9 +28,16 @@
 static void glboolvec_print(ScmObj obj, ScmPort *port, ScmWriteContext *ctx);
 static int  glboolvec_compare(ScmObj x, ScmObj y, int equalp);
 
+static ScmClass *sequenceCPL[] = {
+    SCM_CLASS_STATIC_PTR(Scm_SequenceClass),
+    SCM_CLASS_STATIC_PTR(Scm_CollectionClass),
+    SCM_CLASS_STATIC_PTR(Scm_TopClass),
+    NULL
+};
+
 SCM_DEFINE_BUILTIN_CLASS(Scm_GLBooleanVectorClass, glboolvec_print,
                          glboolvec_compare, NULL, NULL,
-                         SCM_CLASS_SEQUENCE_CPL);
+                         sequenceCPL);
 
 static ScmGLBooleanVector *glboolvec_allocate(int size,
                                               GLboolean *elts)

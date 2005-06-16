@@ -1,7 +1,7 @@
 ;;;
 ;;; glu-lib.stub - glue functions for GLU
 ;;;
-;;;  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright(C) 2001-2005 by Shiro Kawai (shiro@acm.org)
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.12 2005-06-10 03:12:44 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.13 2005-06-16 20:22:45 shirok Exp $
 ;;;
 
 "
@@ -52,7 +52,7 @@
      Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
    }
   gluPickMatrix((GLdouble)x, (GLdouble)y, (GLdouble)w, (GLdouble)h,
-                 SCM_S32VECTOR_ELEMENTS(vp));
+                 (GLint*)SCM_S32VECTOR_ELEMENTS(vp));
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc glu-error-string (code::<int>)
@@ -80,7 +80,7 @@
    r = fn(srcx, srcy, srcz,
           SCM_F64VECTOR_ELEMENTS(model_mat),
           SCM_F64VECTOR_ELEMENTS(proj_mat),
-          SCM_S32VECTOR_ELEMENTS(vp),
+          (GLint*)SCM_S32VECTOR_ELEMENTS(vp),
           &dstx, &dsty, &dstz);
    if (r == GL_TRUE) {
      SCM_RETURN(Scm_Values3(Scm_MakeFlonum(dstx),
@@ -133,13 +133,13 @@
      r = fn((GLdouble)srcfp[0], (GLdouble)srcfp[1], (GLdouble)srcfp[2],
             SCM_F64VECTOR_ELEMENTS(model_mat),
             SCM_F64VECTOR_ELEMENTS(proj_mat),
-            SCM_S32VECTOR_ELEMENTS(vp),
+            (GLint*)SCM_S32VECTOR_ELEMENTS(vp),
             &dstx, &dsty, &dstz);
    } else {
      r = fn((GLdouble)srcdp[0], (GLdouble)srcdp[1], (GLdouble)srcdp[2],
             SCM_F64VECTOR_ELEMENTS(model_mat),
             SCM_F64VECTOR_ELEMENTS(proj_mat),
-            SCM_S32VECTOR_ELEMENTS(vp),
+            (GLint*)SCM_S32VECTOR_ELEMENTS(vp),
             &dstx, &dsty, &dstz);
    }
    if (r == GL_TRUE) {
@@ -254,7 +254,7 @@
    gluLoadSamplingMatrices(nurbs->nurbs,
                            SCM_F32VECTOR_ELEMENTS(model_matrix),
                            SCM_F32VECTOR_ELEMENTS(proj_matrix),
-                           SCM_S32VECTOR_ELEMENTS(viewport));
+                           (GLint*)SCM_S32VECTOR_ELEMENTS(viewport));
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc glu-nurbs-property (nurbs::<glu-nurbs>
@@ -337,6 +337,8 @@ NULL);
                         type, texelptr);
   SCM_RETURN(SCM_MAKE_INT(r));")
 
+(if "defined(GL_VERSION_1_2)" (begin
+
 (define-cproc glu-build-3d-mipmaps (target::<fixnum>
                                     internalformat::<fixnum>
                                     width::<fixnum> height::<fixnum>
@@ -398,6 +400,8 @@ NULL);
   r = gluBuild3DMipmapLevels(target, internalformat, width, height, depth, 
                              format, type, level, base, max, texelptr);
   SCM_RETURN(SCM_MAKE_INT(r));")
+
+)) ;; if defined(GL_VERSION_1_2)
 
 ;;================================================================
 ;; New function in GLU 1.1

@@ -1,6 +1,6 @@
 #
 # Makefile.in for Gauche-gl/src
-#  $Id: Makefile.in,v 1.1 2005-06-14 21:53:09 shirok Exp $
+#  $Id: Makefile.in,v 1.2 2005-06-29 12:01:41 shirok Exp $
 #
 
 # prelude ---------------------------------------------
@@ -43,7 +43,7 @@ ARCH_INSTALL_DIR    = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)archdir`
 
 ARCHFILES = libgauche-gl-cg.$(SOEXT)
 SCMFILES = 
-HEADERS = gauche/math3d.h
+HEADERS = 
 
 TARGET = $(ARCHFILES)
 CGOBJS = cg_head.$(OBJEXT) gauche-cg.$(OBJEXT) \

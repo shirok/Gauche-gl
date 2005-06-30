@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.27 2005-06-16 20:22:45 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.28 2005-06-30 13:29:29 shirok Exp $
  */
 
 #include <gauche.h>
@@ -143,6 +143,8 @@ void *Scm_GLGetProcAddress(const char *name)
     if (glXGetProcAddressARB != NULL) {
         return glXGetProcAddressARB(name);
     }
+#elif defined(MacOSX)
+    return glutGetprocAddress(name);
 #endif /* !defined(GLX_VERSION_1_4) && !defined(GLX_ARB_get_proc_address) */
     Scm_Error("GL extension %s is not supported on this platform", name);
 }

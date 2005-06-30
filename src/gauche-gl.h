@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.17 2005-06-08 19:35:24 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.18 2005-06-30 13:29:29 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -21,6 +21,7 @@
 #if MacOSX
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
+#include <GLUT/glut.h> /* for glutGetProcAddress. */
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>

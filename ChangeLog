@@ -1,3 +1,9 @@
+2005-06-30  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-gl.h, src/gauche-gl.c, configure.in: Make 
+	  Scm_GLGetProcAddress work on MacOSX by using glutGetProcAddress
+	  (Patch provided by Issac Trotts.)
+
 2005-06-14  Shiro Kawai  <shiro@acm.org>
 
 	* cg/*, examples/cg/* : Added NVidia's Cg Toolkit binding written

@@ -1,5 +1,7 @@
 2005-06-30  Shiro Kawai  <shiro@acm.org>
 
+	* release 0.4
+	
 	* src/gauche-gl.h, src/gauche-gl.c, configure.in: Make 
 	  Scm_GLGetProcAddress work on MacOSX by using glutGetProcAddress
 	  (Patch provided by Issac Trotts.)

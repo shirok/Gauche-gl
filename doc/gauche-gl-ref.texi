@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.23 2005-06-10 12:05:48 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.24 2005-07-01 12:10:03 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -102,7 +102,7 @@ Installing Gauche-gl is usually straightforward on Unix variants.
 You have to have the following programs installed on your machine.
 @itemize @bullet
 @item
-Gauche 0.8.4 or later
+Gauche 0.8.5 or later
 @item
 OpenGL 1.1 equivalent library; the auther checked with Mesa 3.4
 and NVidia's GLX driver.
@@ -120,6 +120,12 @@ The standard way to compile and install Gauche-gl is as follows:
 % make install
 @end example
 
+Or you can use @file{gauche-package} command:
+@example
+% gauche-package install -C=<configure-option> Gauche-gl-@VERSION@.tgz
+@end example
+
+
 The confiugre script figures out the location Gauche is installed,
 and install Gauche-gl in the same place.
 
@@ -128,6 +134,15 @@ tell the configure script where it is.
 @example
 % ./configure --with-glut=DIR
 @end example
+
+Since version 0.4, Gauche-gl can be configured to include bindings
+to NVidia's Cg Toolkit.  The binding code is contributed by Issac Trotts.
+To enable Cg binding, give @code{--enable-cg} option to the configure
+script.
+@example
+% ./configure --enable-cg
+@end example
+
 
 It is reported that Mesa in FreeBSD ports is compiled with pthreads
 enabled, and Gauche-gl can't be linked unless Gauche itself is

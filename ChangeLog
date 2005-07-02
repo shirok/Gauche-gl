@@ -1,5 +1,7 @@
 2005-07-02  Shiro Kawai  <shiro@acm.org>
 
+	* src/gauche-gl.c (Scm_GLGetProcAddress): typo fix (Pointed by
+	  Takashi Ishizaki).
 	* src/glext-lib.stub (gl-shader-source-arb): fix code that had
 	  declaration after expressions, causing older cc fail.
 

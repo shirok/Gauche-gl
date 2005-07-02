@@ -1,3 +1,8 @@
+2005-07-02  Shiro Kawai  <shiro@acm.org>
+
+	* src/glext-lib.stub (gl-shader-source-arb): fix code that had
+	  declaration after expressions, causing older cc fail.
+
 2005-06-30  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.4

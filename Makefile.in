@@ -6,8 +6,7 @@ GAUCHE_CONFIG = @GAUCHE_CONFIG@
 INSTALL = @GAUCHE_INSTALL@
 DESTDIR = 
 
-INSTALL_TYPE = @INSTALL_TYPE@
-SCM_INSTALL_DIR = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)libdir`
+SCM_INSTALL_DIR = $(DESTDIR)`$(GAUCHE_CONFIG) --syslibdir`
 
 ENABLE_CG = @ENABLE_CG@
 
@@ -41,6 +40,13 @@ install :
 	if test X$(ENABLE_CG) != X; then (cd cg; $(MAKE) install); fi
 	cd doc; $(MAKE) install
 	$(INSTALL) -m 444 -T $(SCM_INSTALL_DIR)/.packages Gauche-gl.gpd
+
+uninstall :
+	cd src; $(MAKE) uninstall
+	cd lib; $(MAKE) uninstall
+	if test X$(ENABLE_CG) != X; then (cd cg; $(MAKE) uninstall); fi
+	cd doc; $(MAKE) uninstall
+	$(INSTALL) -U $(SCM_INSTALL_DIR)/.packages Gauche-gl.gpd
 
 maintainer-clean : clean
 	cd src; $(MAKE) maintainer-clean

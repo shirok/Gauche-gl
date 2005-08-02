@@ -1,14 +1,9 @@
 #
 # Makefile.in for Gauche-gl/src
-#  $Id: Makefile.in,v 1.2 2005-06-29 12:01:41 shirok Exp $
+#  $Id: Makefile.in,v 1.3 2005-08-02 04:21:48 shirok Exp $
 #
 
 # prelude ---------------------------------------------
-
-.SUFFIXES: .stub
-
-.stub.c :
-	$(GOSH) genstub $<
 
 SHELL       = @SHELL@
 srcdir      = @srcdir@
@@ -18,26 +13,25 @@ top_srcdir   = @top_srcdir@
 
 # These may be overridden by make invocators
 DESTDIR  = 
-OPTFLAGS = @OPTFLAGS@
 
 # These are set by configure
 # NB: cc and various flags must match the ones used to compile Gauche,
 # so the make invocator shouldn't casually override them.
-CC       = @CC@
-CFLAGS   = @DEFS@ @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@ $(OPTFLAGS) -I../src
+CFLAGS   = @DEFS@ @CFLAGS@ @X_CFLAGS@ @GLUT_INCDIR@ -I../src
 LDFLAGS  = -I../src @LDFLAGS@ 
 OBJEXT   = @OBJEXT@
 SOEXT    = @SOEXT@
 OLIBS    = @LIBS@
-LIBS     = @GL_LIBS@ @LIBS@ @X_LIBS@ @X_PRE_LIBS@ @X_EXTRA_LIBS@ @X_LIBS@ 
-INSTALL  = @GAUCHE_INSTALL@
+LIBS     = @CG_LIBS@ @GL_EXTRALIBS@ @GL_LIBS@ @LIBS@ \
+           @X_LIBS@ @X_PRE_LIBS@ @X_EXTRA_LIBS@ @X_LIBS@
 GOSH     = @GOSH@
-GAUCHE_CONFIG = @GAUCHE_CONFIG@
+GAUCHE_CONFIG  = @GAUCHE_CONFIG@
+GAUCHE_INSTALL = @GAUCHE_INSTALL@
+GAUCHE_PACKAGE = @GAUCHE_PACKAGE@
 
-INSTALL_TYPE = @INSTALL_TYPE@
-HEADER_INSTALL_DIR  = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)incdir`
-SCM_INSTALL_DIR     = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)libdir`
-ARCH_INSTALL_DIR    = $(DESTDIR)`$(GAUCHE_CONFIG) --$(INSTALL_TYPE)archdir`
+HEADER_INSTALL_DIR  = $(DESTDIR)`$(GAUCHE_CONFIG) --sysincdir`
+SCM_INSTALL_DIR     = $(DESTDIR)`$(GAUCHE_CONFIG) --syslibdir`
+ARCH_INSTALL_DIR    = $(DESTDIR)`$(GAUCHE_CONFIG) --sysarchdir`
 
 # build -----------------------------------------------
 
@@ -46,22 +40,16 @@ SCMFILES =
 HEADERS = 
 
 TARGET = $(ARCHFILES)
-CGOBJS = cg_head.$(OBJEXT) gauche-cg.$(OBJEXT) \
-	 cg-lib.$(OBJEXT) cg_tail.$(OBJEXT)
-OBJS = $(CGOBJS)
+cg_SRCS = gauche-cg.c cg-lib.stub
 CONFIG_GENERATED = Makefile config.cache config.log config.status
-GENERATED = cg_head.c cg-lib.c cg_tail.c
+GENERATED =
 
 all : $(TARGET)
 
-libgauche-gl-cg.$(SOEXT) : $(CGOBJS)
-	$(CC) $(LDFLAGS) libgauche-gl-cg.$(SOEXT) $(CGOBJS) @GL_EXTRALIBS@ \
-	    $(LIBS) @CG_LIBS@
-
-cg-lib.c : cg-lib.stub
-
-cg_head.c cg_tail.c :
-	$(GAUCHE_CONFIG) --fixup-extension cg gauche_cg
+libgauche-gl-cg.$(SOEXT) : $(cg_SRCS)
+	$(GAUCHE_PACKAGE) compile --verbose \
+	   --cflags="$(CFLAGS)" --ldflags="$(LDFLAGS)" --libs="$(LIBS)" \
+	   libgauche-gl-cg $(cg_SRCS)
 
 # tests -----------------------------------------------
 
@@ -72,14 +60,20 @@ check : all
 # install ----------------------------------------------
 
 install : all
-	$(INSTALL) -m 444 -T $(HEADER_INSTALL_DIR) $(HEADERS)
-	$(INSTALL) -m 444 -T $(SCM_INSTALL_DIR) $(SCMFILES)
-	$(INSTALL) -m 555 -T $(ARCH_INSTALL_DIR) $(ARCHFILES)
+	$(GAUCHE_INSTALL) -m 444 -T $(HEADER_INSTALL_DIR) $(HEADERS)
+	$(GAUCHE_INSTALL) -m 444 -T $(SCM_INSTALL_DIR) $(SCMFILES)
+	$(GAUCHE_INSTALL) -m 555 -T $(ARCH_INSTALL_DIR) $(ARCHFILES)
+
+uninstall : all
+	$(GAUCHE_INSTALL) -U $(HEADER_INSTALL_DIR) $(HEADERS)
+	$(GAUCHE_INSTALL) -U $(SCM_INSTALL_DIR) $(SCMFILES)
+	$(GAUCHE_INSTALL) -U $(ARCH_INSTALL_DIR) $(ARCHFILES)
 
 # clean ------------------------------------------------
 
 clean :
-	rm -rf core $(TARGET) $(OBJS) $(GENERATED) *~ gl/*~ test.log so_locations
+	$(GAUCHE_PACKAGE) compile --clean libgauche-gl-cg $(cg_SRCS)
+	rm -rf core $(TARGET) $(GENERATED) *~ gl/*~ test.log so_locations
 
 distclean : clean
 	rm -rf $(CONFIG_GENERATED)

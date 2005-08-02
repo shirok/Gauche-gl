@@ -1,11 +1,10 @@
 dnl
 dnl Configuring gauche-gl
-dnl  process this file with "autoconf -I `gauche-config --ac`" to
-dnl  generate 'configure'.
-dnl $Id: configure.in,v 1.26 2005-07-01 11:42:49 shirok Exp $
+dnl  process this file with "autoconf" to generate 'configure'.
+dnl $Id: configure.in,v 1.27 2005-08-02 04:21:39 shirok Exp $
+
 AC_PREREQ(2.54)
-AC_INIT(Gauche-gl, 0.4, shiro@acm.org)
-AC_GAUCHE_INIT_EXT
+AC_INIT(Gauche-gl, 0.4.1_pre1, shiro@acm.org)
 AC_CANONICAL_SYSTEM
 
 AC_PATH_XTRA
@@ -43,6 +42,23 @@ AC_SUBST(ENABLE_CG)
 AC_SUBST(CG_LIBS)
 AC_SUBST(CG_SCM)
 
+dnl Set up gauche related commands.  The commands are set by scanning
+dnl PATH.  You can override them by "GOSH=/my/gosh ./configure" etc.
+AC_PATH_PROG([GOSH], gosh)
+AC_PATH_PROG([GAUCHE_CONFIG], gauche-config)
+AC_PATH_PROG([GAUCHE_PACKAGE], gauche-package)
+AC_PATH_PROG([GAUCHE_INSTALL], gauche-install)
+AC_PATH_PROG([GAUCHE_CESCONV], gauche-cesconv)
+
+dnl Usually these parameters are set by AC_PROG_CC, but we'd rather use
+dnl the same one as Gauche has been compiled with.
+SOEXT=`$GAUCHE_CONFIG --so-suffix`
+OBJEXT=`$GAUCHE_CONFIG --object-suffix`
+EXEEXT=`$GAUCHE_CONFIG --executable-suffix`
+AC_SUBST(SOEXT)
+AC_SUBST(OBJEXT)
+AC_SUBST(EXEEXT)
+
 # Check for headers
 AC_CHECK_HEADERS(GL/glx.h, [   # OpenGL/X11
      # NB: FreeBSD seems to need -lX11 -lXext.  We are on X11 system anyway,
@@ -75,13 +91,6 @@ AC_SUBST(GLUT_LIB)
 AC_SUBST(GLUT_INCDIR)
 AC_SUBST(GLUT_LIBDIR)
 
-# Sets the default value of INSTALL_TYPE macro.
-AC_GAUCHE_INSTALL_TYPE(sys)
-
-# Get compiler parameters which Gauche has been compiled with.
-AC_GAUCHE_CC
-AC_GAUCHE_FLAGS
-
 # Check for other programs.
 AC_CHECK_PROGS(MAKEINFO, makeinfo)
 AC_CHECK_PROGS(GZIP_PROGRAM, gzip)
@@ -99,10 +108,13 @@ esac
 AC_SUBST(GL_EXTRALIBS)
 AC_SUBST(GLUT_EXTRALIBS)
 
-# Set LDFLAGS to generate shared library.
-AC_GAUCHE_FIX_LIBS
+dnl Creating gpd (gauche package description) file
+GAUCHE_PACKAGE_CONFIGURE_ARGS="`echo ""$ac_configure_args"" | sed 's/[\\""\`\$]/\\\&/g'`"
+AC_MSG_NOTICE([creating ${PACKAGE_NAME}.gpd])
+$GAUCHE_PACKAGE make-gpd "$PACKAGE_NAME" \
+  -version "$PACKAGE_VERSION" \
+  -configure "./configure $GAUCHE_PACKAGE_CONFIGURE_ARGS"
 
-# Output
-AC_GAUCHE_MAKE_GPD
+dnl Output
 echo $PACKAGE_VERSION > VERSION
 AC_OUTPUT(Makefile src/Makefile lib/Makefile cg/Makefile doc/Makefile)

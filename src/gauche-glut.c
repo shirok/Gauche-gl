@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-glut.c,v 1.6 2003-10-05 05:05:25 shirok Exp $
+ *  $Id: gauche-glut.c,v 1.7 2005-08-02 04:21:48 shirok Exp $
  */
 
 #include <gauche.h>
@@ -40,7 +40,7 @@ static ScmObj makeGlutFont(void *ptr)
 void Scm_Init_libgauche_glut(void)
 {
     ScmModule *mod;
-    SCM_INIT_EXTENSION(gauche_glut);
+    SCM_INIT_EXTENSION(libgauche_glut);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl.glut", TRUE));
     Scm_Init_glut_lib(mod);
 

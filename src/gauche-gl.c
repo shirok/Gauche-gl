@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.29 2005-07-02 23:14:04 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.30 2005-08-02 04:21:48 shirok Exp $
  */
 
 #include <gauche.h>
@@ -448,7 +448,7 @@ extern void Scm_Init_glu_lib(ScmModule *mod);
 void Scm_Init_libgauche_gl(void)
 {
     ScmModule *mod;
-    SCM_INIT_EXTENSION(gauche_gl);
+    SCM_INIT_EXTENSION(libgauche_gl);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl", TRUE));
     Scm_InitStaticClassWithMeta(&Scm_GLBooleanVectorClass,
                                 "<gl-boolean-vector>",

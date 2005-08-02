@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-cg.c,v 1.1 2005-06-14 21:53:09 shirok Exp $
+ *  $Id: gauche-cg.c,v 1.2 2005-08-02 04:21:48 shirok Exp $
  */
 
 #include <stdio.h>
@@ -44,7 +44,7 @@ extern void Scm_Init_cg_lib(ScmModule *mod);
 void Scm_Init_libgauche_gl_cg(void)
 {
     ScmModule *mod;
-    SCM_INIT_EXTENSION(gauche_cg);
+    SCM_INIT_EXTENSION(libgauche_gl_cg);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl.cg", TRUE));
     Scm_InitBuiltinClass(&Scm_CGcontextClass, "<cg-context>", NULL, 0, mod);
     Scm_InitBuiltinClass(&Scm_CGprogramClass, "<cg-program>", NULL, 0, mod);

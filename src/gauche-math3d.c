@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.24 2003-11-11 12:49:23 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.25 2005-08-02 04:21:48 shirok Exp $
  */
 
 #include <math.h>
@@ -1255,7 +1255,7 @@ extern void Scm_Init_math3d_lib(ScmModule *mod);
 void Scm_Init_libgauche_math3d(void)
 {
     ScmModule *mod;
-    SCM_INIT_EXTENSION(gauche_math3d);
+    SCM_INIT_EXTENSION(libgauche_math3d);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl.math3d", TRUE));
     Scm_InitBuiltinClass(&Scm_Vector4fClass, "<vector4f>",
                          NULL, sizeof(ScmVector4f)/sizeof(ScmObj),

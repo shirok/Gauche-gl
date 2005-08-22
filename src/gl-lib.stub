@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.41 2005-06-16 20:22:45 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.42 2005-08-22 02:02:58 shirok Exp $
 ;;;
 
 "
@@ -414,7 +414,7 @@
   (return <void> "glRotated"))
 
 (define-cproc gl-scale (x::<real> y::<real> z::<real>)
-  (return void "glScaled"))
+  (return <void> "glScaled"))
 
 (define-cproc gl-translate (x::<real> y::<real> z::<real>)
   (return <void> "glTranslated"))

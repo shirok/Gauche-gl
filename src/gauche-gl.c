@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.30 2005-08-02 04:21:48 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.31 2005-08-31 10:04:19 shirok Exp $
  */
 
 #include <gauche.h>
@@ -141,7 +141,7 @@ void *Scm_GLGetProcAddress(const char *name)
     }
 #elif defined(GLX_ARB_get_proc_address)
     if (glXGetProcAddressARB != NULL) {
-        return glXGetProcAddressARB(name);
+        return glXGetProcAddressARB((const GLubyte*)name);
     }
 #elif defined(MacOSX)
     return glutGetProcAddress(name);

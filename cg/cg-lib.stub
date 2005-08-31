@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: cg-lib.stub,v 1.1 2005-06-14 21:53:09 shirok Exp $
+;;;  $Id: cg-lib.stub,v 1.2 2005-08-31 10:04:19 shirok Exp $
 ;;;
 
 "
@@ -999,7 +999,7 @@ static const char** convert_compiler_args(ScmObj compiler_arg_list)
 ;;;;; Misc Functions ;;;;;
 
 (define-cproc cg-get-string (sname::<fixnum>)
-    (return <string> "cgGetString"))
+  (return <const-cstring> "cgGetString"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; cgGL ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

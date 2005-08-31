@@ -1,3 +1,8 @@
+2005-08-30  Shiro Kawai  <shiro@acm.org>
+
+	* lib/Makefile.in: gl/simple-image.scm wasn't installed.
+	* cg/Makefile.in: gl/cg.scm wasn't installed.
+
 2005-08-01  Shiro Kawai  <shiro@acm.org>
 
 	* src/configure.in, Makefile.ins: adapted to the new extension

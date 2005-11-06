@@ -1,3 +1,7 @@
+2005-11-05  Shiro Kawai  <shiro@acm.org>
+
+	* release 0.4.1
+
 2005-08-30  Shiro Kawai  <shiro@acm.org>
 
 	* lib/Makefile.in: gl/simple-image.scm wasn't installed.

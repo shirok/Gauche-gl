@@ -1,7 +1,7 @@
 dnl
 dnl Configuring gauche-gl
 dnl  process this file with "autoconf" to generate 'configure'.
-dnl $Id: configure.in,v 1.28 2005-11-06 05:57:26 shirok Exp $
+dnl $Id: configure.in,v 1.29 2006-03-05 08:12:47 shirok Exp $
 
 AC_PREREQ(2.54)
 AC_INIT(Gauche-gl, 0.4.1, shiro@acm.org)
@@ -68,7 +68,7 @@ AC_CHECK_HEADERS(GL/glx.h, [   # OpenGL/X11
 ], ,)
 AC_CHECK_HEADERS(GLUT/glut.h, [
       case $target in
-      powerpc-apple-darwin*)  
+      *-apple-darwin*)  
           AC_DEFINE(MacOSX, 1) # darwin which has GLUT/glut.h is MacOSX
           GL_LIBS='-framework OpenGL -framework GLUT' # GLUT for glutGetProcAddress
           GLUT_LIB='-framework GLUT' ;;

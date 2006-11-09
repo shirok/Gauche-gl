@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.31 2005-08-31 10:04:19 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.32 2006-11-09 09:09:18 shirok Exp $
  */
 
 #include <gauche.h>
@@ -132,16 +132,21 @@ static int glboolvec_compare(ScmObj x, ScmObj y, int equalp)
      wglGetProcAddress()
      glXGetProcAddress() / glXGetProcAddressARB()
    This function will hide the difference, though it only
-   supports GLX for the time being. */
+   supports GLX for the time being.
+
+   NB: It seems that we'd better to use glXGetProcAddressARB.
+
+   http://lists.freedesktop.org/archives/xorg/2005-November/011279.html
+*/
 void *Scm_GLGetProcAddress(const char *name)
 {
-#if defined(GLX_VERSION_1_4)
-    if (glXGetProcAddress != NULL) {
-        return glXGetProcAddress(name);
-    }
-#elif defined(GLX_ARB_get_proc_address)
+#if defined(GLX_ARB_get_proc_address)
     if (glXGetProcAddressARB != NULL) {
         return glXGetProcAddressARB((const GLubyte*)name);
+    }
+#elif defined(GLX_VERSION_1_4)
+    if (glXGetProcAddress != NULL) {
+        return glXGetProcAddress(name);
     }
 #elif defined(MacOSX)
     return glutGetProcAddress(name);

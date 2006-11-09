@@ -1,3 +1,9 @@
+2006-11-08  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-gl.c (Scm_GLGetProcAddress): try glXGetProcAddressARB
+	  first, before glXGetProcAddress, since ARB version is the 'proper'
+	  one.  See the comment in the source for the details.
+
 2006-03-04  Shiro Kawai  <shiro@acm.org>
 
 	* configure.in: drop 'powerpc' from the check of OSX, for we have

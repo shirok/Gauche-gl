@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.16 2005-07-02 23:12:12 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.17 2006-11-09 19:46:36 shirok Exp $
 ;;;
 
 "
@@ -232,7 +232,7 @@
 
 (define-cproc gl-get-minmax (target::<fixnum> reset::<boolean>
                              format::<fixnum> type::<fixnum>)
-  "int elttype, size; GLint width; ScmObj vec;
+  "int elttype, size; ScmObj vec;
    ENSURE(glGetMinmax);
    size = Scm_GLPixelDataSize(2, 1, format, type, &elttype, NULL);
    vec = Scm_GLAllocUVector(elttype, size);

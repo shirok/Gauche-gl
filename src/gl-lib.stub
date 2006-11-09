@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.43 2005-08-31 10:04:19 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.44 2006-11-09 19:46:36 shirok Exp $
 ;;;
 
 "
@@ -67,9 +67,8 @@
   "if (k < 0 || k >= bv->size) {
     if (SCM_UNBOUNDP(fallback)) {
       Scm_Error(\"argument out of bound: %d\", k);
-    } else {
-      SCM_RETURN(fallback);
     }
+    SCM_RETURN(fallback);
   } else {
     SCM_RETURN(SCM_MAKE_BOOL(bv->elements[k]));
   }")
@@ -1500,7 +1499,7 @@
 
 (define-cproc gl-are-textures-resident! (names::<u32vector>
                                          res::<gl-boolean-vector>)
-  "GLboolean b; int i, n;
+  "GLboolean b; int n;
    n = SCM_U32VECTOR_SIZE(names);
    b = glAreTexturesResident(n, (GLuint*)SCM_U32VECTOR_ELEMENTS(names), 
                              SCM_GL_BOOLEAN_VECTOR_ELEMENTS(res));

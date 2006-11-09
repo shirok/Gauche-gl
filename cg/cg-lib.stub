@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: cg-lib.stub,v 1.2 2005-08-31 10:04:19 shirok Exp $
+;;;  $Id: cg-lib.stub,v 1.3 2006-11-09 19:46:36 shirok Exp $
 ;;;
 
 "
@@ -28,9 +28,8 @@
 
 ;; This little section is a stop-gap until Gauche-gl stabilizes again.
 (define-cproc auto-generate-mipmaps! (yes-or-no::<boolean>)
-  "
-  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, yes_or_no);
-  ")
+  (body <void>
+        "glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, yes_or_no);"))
 
 
 
@@ -1206,11 +1205,10 @@ static const char** convert_compiler_args(ScmObj compiler_arg_list)
                                            type::<fixnum> 
                                            stride::<fixnum> 
                                            pointer::<f32vector>)
-  "
-  cgGLSetParameterPointer(p->parameter,
-    (GLint)fsize, (GLenum)type, (GLsizei)stride,
-    SCM_F32VECTOR_ELEMENTS(pointer));
-  ")
+  (body <void>
+        "cgGLSetParameterPointer(p->parameter,
+                                 (GLint)fsize, (GLenum)type, (GLsizei)stride,
+                                 SCM_F32VECTOR_ELEMENTS(pointer));"))
 
 (define-cproc cg-gl-enable-client-state (p::<cg-parameter>)
   "cgGLEnableClientState(p->parameter);

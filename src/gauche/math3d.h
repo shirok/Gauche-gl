@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.20 2006-11-09 19:09:16 shirok Exp $
+ *  $Id: math3d.h,v 1.21 2006-11-09 19:46:37 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -22,6 +22,7 @@
 
 #include <gauche.h>
 #include <gauche/uvector.h>
+#include <math.h>
 
 /*=============================================================
  * Common utility macros

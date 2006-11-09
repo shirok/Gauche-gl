@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.23 2003-01-30 05:50:12 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.24 2006-11-09 19:46:36 shirok Exp $
 ;;;
 
 "
@@ -492,8 +492,9 @@
 (define-cproc euler-angle->matrix4f! (m::<matrix4f>
                                       x::<real> y::<real> z::<real>
                                      &optional order)
-  "Scm_EulerToMatrix4fv(SCM_MATRIX4F_D(m), (float)x, (float)y, (float)z,
-                       rotation_order(order));")
+  (body <void>
+        "Scm_EulerToMatrix4fv(SCM_MATRIX4F_D(m), (float)x, (float)y, (float)z,
+                              rotation_order(order));"))
 
 
 (define-cproc matrix4f-decompose (m::<matrix4f>)

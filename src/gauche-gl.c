@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.32 2006-11-09 09:09:18 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.33 2006-11-09 19:46:36 shirok Exp $
  */
 
 #include <gauche.h>
@@ -74,7 +74,6 @@ ScmObj Scm_MakeGLBooleanVectorFromArray(int size, const GLboolean arr[])
 
 ScmObj Scm_MakeGLBooleanVectorFromArrayShared(int size, GLboolean arr[])
 {
-    int i;
     ScmGLBooleanVector *v = glboolvec_allocate(size, arr);
     return SCM_OBJ(v);
 }

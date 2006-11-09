@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.19 2003-01-06 13:12:32 shirok Exp $
+ *  $Id: math3d.h,v 1.20 2006-11-09 19:09:16 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -130,7 +130,7 @@ extern ScmObj Scm_Vector4fToList(const ScmVector4f *v);
      r[3] = 0.0)
 
 /* SCM_VECTOR4F_NORMV(float p[4]) */
-#define SCM_VECTOR4F_NORMV(p)   sqrt(SCM_VECTOR4F_DOTV(p, p))
+#define SCM_VECTOR4F_NORMV(p)   sqrtf(SCM_VECTOR4F_DOTV(p, p))
 
 /* SCM_VECTOR4F_NORMALIZE(float p[4]) */
 #define SCM_VECTOR4F_NORMALIZEV(p)                      \

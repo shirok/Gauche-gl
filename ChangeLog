@@ -1,5 +1,7 @@
 2006-11-08  Shiro Kawai  <shiro@acm.org>
 
+	* src/gen-ptrs.scm (main): typo fix (pointed by Erik Greenwald)
+
 	* src/gauche-gl.c (Scm_GLGetProcAddress): try glXGetProcAddressARB
 	  first, before glXGetProcAddress, since ARB version is the 'proper'
 	  one.  See the comment in the source for the details.

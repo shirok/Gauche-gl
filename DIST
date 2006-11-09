@@ -19,8 +19,8 @@ if [ "$tgz" = "yes" ]; then
   ./configure
   (cd doc; make html)
   make distclean
-  escm -o INSTALL INSTALL.esc
-  LANG=ja_JP escm -o INSTALL.eucjp INSTALL.esc
+  gosh doc/extract -en -o INSTALL INSTALL.in
+  gosh doc/extract -jp -o INSTALL.eucjp INSTALL.in
 
   if [ ! -f VERSION ]; then echo "No VERSION; something wrong?"; exit 1; fi
   VERSION=`cat VERSION`

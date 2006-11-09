@@ -1,114 +1,128 @@
-#? /usr/bin/env gosh
-<? ;; Process this file with escm
-(define japanese? (equal? (sys-getenv "LANG") "ja_JP"))
-(define (header ja en)
-  (format #t "[~a]\n------------------------------------------"
-          (if japanese? ja en)))
-(define-syntax if-lang
-  (syntax-rules (else)
-    ((_ "collect-then" then-expr () test)
-     (if test (begin . then-expr)))
-    ((_ "collect-then" then-expr () test else body ...)
-     (if-lang "collect-else" then-expr () test body ...))
-    ((_ "collect-then" (then-expr ...) () test body1 body ...)
-     (if-lang "collect-then" (then-expr ... body1) () test body ...))
-    ((_ "collect-else" then-expr else-expr test)
-     (if test (begin . then-expr) (begin . else-expr)))
-    ((_ "collect-else" then-expr (else-expr ...) test body1 body ...)
-     (if-lang "collect-else" then-expr (else-expr ... body1) test body ...))
-    ((_ test body ...)
-     (if-lang "collect-then" () () test body ...))))
-!>
-
-<? (if-lang japanese? !>
+@c JP
                      Gauche-gl - Gauche OpenGL バインディング
-<? else !>
+@c EN
                        Gauche-gl - Gauche OpenGL binding
-<? ) !>
+@c COMMON
 
-$Id: INSTALL.esc,v 1.7 2005-07-01 12:09:47 shirok Exp $
-<? (if-lang japanese? !>
-Gauche-glの最新情報は以下のURLで得られます。<? else !>
+$Id: INSTALL.in,v 1.1 2006-11-09 23:56:20 shirok Exp $
+@c JP
+Gauche-glの最新情報は以下のURLで得られます。
+@c EN
 Up-to-date information about Gauche-gl is posted to the following URL:
-<? ) !>
+@c COMMON
   http://www.shiro.dreamhost.com/scheme/gauche/
 
-<? (header "必要な準備" "Prerequisites") !>
 
-<? (if-lang japanese? !>
+@c JP
+必要な準備
+@c EN
+Prerequisites
+@c COMMON
+----------------------------------------------------------
+
+
+@c JP
 * Gauche 0.8.5 以降がインストールされている必要があります。
 * OpenGL 1.1以降もしくはMesa 3.0以降が必要です。
 * GLUT 3.7以降が必要です。
-<? else !>
+@c EN
 * Gauche 0.8.5 or later must be installed.
 * OpenGL 1.1 or later, or Mesa 3.0 or later, required.
 * GLUT 3.7 or later is required.
-<? ) !>
+@c COMMON
 
-<? (header "簡単な方法" "Quick Start") !>
+
+@c JP
+簡単な方法
+@c EN
+Quick Start
+@c COMMON
+----------------------------------------------------------
+
 
    % ./configure
    % make
    % make install
-<? (if-lang japanese? !>
+@c JP
 Configureスクリプトは、既にインストールされているGaucheの情報を元に、
 必要なコンパイラオプションやインストール先を設定します。
-<? else !>
+@c EN
 Configure script figures out the necessary compiler options and the
 install location from the installed Gauche.
-<? ) !>
+@c COMMON
 
-<? (header "GLUTライブラリの場所" "Location of GLUT Library") !>
 
-<? (if-lang japanese? !>
+@c JP
+GLUTライブラリの場所
+@c EN
+Location of GLUT Library
+@c COMMON
+----------------------------------------------------------
+
+
+@c JP
 もしGLUTライブラリが標準でない場所にインストールされている場合、以下のオプションで
 その場所をconfigureスクリプトに渡して下さい。
-<? else !>
+@c EN
 If you have GLUT installed in non-standard place, you have to
 tell the configure script where it is.
-<? ) !>
+@c COMMON
 
   ./configure --with-glut=DIR
 
-<? (header "NVidia Cg バインディング" "NVidia Cg binding") !>
 
-<? (if-lang japanese? !>
+@c JP
+NVidia Cg バインディング
+@c EN
+NVidia Cg binding
+@c COMMON
+----------------------------------------------------------
+
+
+@c JP
 Issac Trotts氏による、NVidiaのCg Toolkitを使うためのバインディングが
 オプションで提供されています。まだ一部のAPIしかカバーされていませんが
 いくつかのサンプルを走らせることはできます。Cgバインディングをビルド、
 インストールするためには、configure時に--enable-cgを指定してください。
-<? else !>
+@c EN
 Optionally you can build and install NVidia's Cg Toolkit bindings,
 written by Issac Trotts.  It only covers a part of API yet, but
 some examples are runnable.  To build and install Cg binding,
 give --enable-cg to the configure script.
-<? ) !>
+@c COMMON
 
   ./configure --enable-cg
 
-<? (if-lang japanese? !>
+@c JP
 ビルドには、NVidiaのCg Toolkitが既にインストールされている必要があります。
 NVidiaのCg Toolkitは次のURLからダウンロードできます。
-<? else !>
+@c EN
 NVidia's Cg Toolkit has to be installed before building the
 binding.  You can download the toolkit from the following URL.
-<? ) !>
+@c COMMON
 
   http://developer.nvidia.com/object/cg_toolkit.html
 
-<? (header "プラットフォーム特有の情報" "Platform-specific information") !>
 
-<? (if-lang japanese? !>
+@c JP
+プラットフォーム特有の情報
+@c EN
+Platform-specific information
+@c COMMON
+----------------------------------------------------------
+
+
+@c JP
 FreeBSDのportsではMesaがpthreadsをイネーブルにしてコンパイルされている
 そうなので、Gauche本体もpthreadsをイネーブルにしておかないとGauche-glが
 リンクできません。(pthreadsを指定するとGaucheのconfigure時に警告が
 出ますが、プログラム中でmake-threadしなければ全く問題ありません)
-<? else !>
+@c EN
 It is reported that Mesa in FreeBSD ports is compiled with pthreads
 enabled.  Thus Gauche-gl can't be linked unless Gauche itself is
 compiled with pthreads.  The configure script of Gauche prints
 warning if you specify pthreads, but it is safe as far as you
 don't call make-thread in your program.
-<? ) !>
+@c COMMON
 
 

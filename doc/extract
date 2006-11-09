@@ -12,18 +12,22 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: extract,v 1.4 2003-03-07 21:39:40 shirok Exp $
+;;;  $Id: extract,v 1.5 2006-11-09 23:56:20 shirok Exp $
 ;;;
 
-(use gauche.regexp)
 (use gauche.parseopt)
 (use gauche.charconv)
+(use srfi-1)
 (use srfi-13)
+(use file.util)
 
 (define *outfile* #f)
 (define *lang* 'en)
 (define *version*
-  (string-trim-both (call-with-input-file "../VERSION" port->string)))
+  (string-trim-both (file->string (or (find (cut sys-access <> R_OK)
+                                            '("../VERSION"
+                                              "./VERSION"))
+                                      (error "No VERSION file?")))))
 (define *node-table* '())
 (define *header-table* '())
 
@@ -42,6 +46,8 @@
                  (jh (if jheader (string-trim-both jheader) jn)))
             (push! *node-table* (cons current-node jn))
             (push! *header-table* (cons current-header jh))))
+         (#/^@include\s+(\S+)/ (#f file)
+           (with-input-from-file file (cut scan-nodes) :encoding 'euc-jp))
          ))
      read-line)))
 
@@ -51,6 +57,10 @@
       (test eof-object?)
       (pattern-in () (in (read-line)))
       (pattern-out () (out (read-line)))
+      (#/^@include\s+(\S+)/ (#f file)
+        (with-input-from-file file (cut filter pattern-in pattern-out)
+                              :encoding 'euc-jp)
+        (in (read-line)))
       (#/^@c COMMON$/ () (in (read-line)))
       (test (lambda _ (eq? *lang* 'en))
             (display (regexp-replace-all #/@VERSION@/ line *version*))
@@ -59,8 +69,10 @@
         (process-node nodedesc) (in (read-line)))
       (#/^@(chapter|(sub)*section|appendix\w*)\s+(.*)/ (#f cmd #f header)
         (process-header cmd header) (in (read-line)))
-      (#/^\* ([^:]+)::/ (#f menu)
-        (process-menu menu) (in (read-line)))
+      (#/^\* ([^:]+)::(.*)?/ (#f node desc)
+        (process-menu node #f desc) (in (read-line)))
+      (#/^\* ([^:]+):\s+([^)]+\))\.(.*)?/ (#f tag node desc)
+        (process-menu node tag desc) (in (read-line)))
       (else (display
              (regexp-replace-all #/@VERSION@/
               (regexp-replace-all #/(@x?ref)\{([^\}]+)\}/ line process-ref)
@@ -94,10 +106,17 @@
           (cond ((assoc (string-trim-both header) *header-table*) => cdr)
                 (else header))))
 
-(define (process-menu menu)
-  (format #t "* ~a::\n"
-          (cond ((assoc (string-trim-both menu) *node-table*) => cdr)
-                (else menu))))
+(define (process-menu node tag desc)
+  (if tag
+    (format #t "* ~a: ~a.  ~a\n"
+            tag
+            (cond ((assoc (string-trim-both node) *node-table*) => cdr)
+                  (else node))
+            (string-trim-both (or desc "")))
+    (format #t "* ~a::  ~a\n"
+            (cond ((assoc (string-trim-both node) *node-table*) => cdr)
+                  (else node))
+            (string-trim-both (or desc "")))))
 
 (define (process-ref match)
   (let ((cmd  (rxmatch-substring match 1))
@@ -122,6 +141,8 @@
       (case *lang*
         ((en) (filter #/^@c EN$/ #/^@c JP$/))
         ((jp) (filter #/^@c JP$/ #/^@c EN$/))))
+
+    (define outenc (if (eq? *lang* 'jp) 'euc-jp 'utf8))
     
     (unless (= (length a) 1) (usage))
 
@@ -131,11 +152,11 @@
     (with-input-from-file (car a)
       (lambda ()
         (if *outfile*
-            (with-output-to-file *outfile* do-it :encoding 'euc-jp)
-            (let1 out (open-output-conversion-port
-                       (current-output-port) 'euc-jp)
-              (with-output-to-port out do-it)
-              (close-output-port out))))
+          (with-output-to-file *outfile* do-it :encoding outenc)
+          (let1 out (open-output-conversion-port
+                     (current-output-port) outenc)
+            (with-output-to-port out do-it)
+            (close-output-port out))))
       :encoding 'euc-jp)
     0))
 

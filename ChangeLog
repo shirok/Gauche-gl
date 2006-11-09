@@ -1,5 +1,9 @@
 2006-11-09  Shiro Kawai  <shiro@acm.org>
 
+	* INSTALL.in, doc/extract: moved from using escm to generate INSTALL
+	  and INSTALL.eucjp, to avoid complication about character encodings.
+	  Using 'extract' script instead.
+
 	* src/gauche/math3d.h (SCM_VECTOR4F_NORMV): use sqrtf instead of
 	  sqrt for float operation.
 

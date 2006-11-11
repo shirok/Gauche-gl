@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.24 2005-07-01 12:10:03 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.25 2006-11-11 21:02:05 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -617,16 +617,16 @@ Give @var{version} in a string, e.g. @code{"1.3"}.
 @section Drawing functions
 
 @defmac gl-begin* mode gl-commands @dots{}
-@vrindex GL_POINTS
-@vrindex GL_LINES
-@vrindex GL_LINE_STRIP
-@vrindex GL_LINE_LOOP
-@vrindex GL_TRIANGLES
-@vrindex GL_TRIANGLE_STRIP
-@vrindex GL_TRIANGLE_FAN
-@vrindex GL_QUADS
-@vrindex GL_QUAD_STRIP
-@vrindex GL_POLYGON
+@vindex GL_POINTS
+@vindex GL_LINES
+@vindex GL_LINE_STRIP
+@vindex GL_LINE_LOOP
+@vindex GL_TRIANGLES
+@vindex GL_TRIANGLE_STRIP
+@vindex GL_TRIANGLE_FAN
+@vindex GL_QUADS
+@vindex GL_QUAD_STRIP
+@vindex GL_POLYGON
 
 Executes @var{gl-commands} between @code{(gl-begin @var{mode})} and
 @code{(gl-end)}.  @var{Mode} can be one of the following constants.

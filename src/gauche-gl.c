@@ -1,7 +1,7 @@
 /*
  * gauche-gl.c - Gauche GL binding
  *
- *  Copyright(C) 2001-2005 by Shiro Kawai (shiro@acm.org)
+ *  Copyright(C) 2001-2007 by Shiro Kawai (shiro@acm.org)
  *
  *  Permission to use, copy, modify, distribute this software and
  *  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.33 2006-11-09 19:46:36 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.34 2007-01-15 10:26:57 shirok Exp $
  */
 
 #include <gauche.h>
@@ -373,20 +373,19 @@ ScmObj Scm_GLAllocUVector(int elttype, int size)
 /* GLU objects */
 
 /* Quadric */
-static void quadric_finalize(GC_PTR obj, GC_PTR data)
+static void quadric_finalize(ScmObj obj, void *data)
 {
-    gluDeleteQuadric((GLUquadricObj*)obj);
+    gluDeleteQuadric(SCM_GLU_QUADRIC(obj)->quadric);
 }
 
 static ScmObj quadric_allocate(ScmClass *klass, ScmObj initargs)
 {
     ScmGluQuadric *q = SCM_NEW(ScmGluQuadric);
-    GC_finalization_proc ofn; GC_PTR ocd;
     SCM_SET_CLASS(q, SCM_CLASS_GLU_QUADRIC);
     if ((q->quadric = gluNewQuadric()) == NULL) {
         Scm_Error("gluNewQuadric failed");
     }
-    GC_REGISTER_FINALIZER(q, quadric_finalize, NULL, &ofn, &ocd);
+    Scm_RegisterFinalizer(SCM_OBJ(q), quadric_finalize, NULL);
     return SCM_OBJ(q);
 }
 
@@ -396,20 +395,19 @@ SCM_DEFINE_BUILTIN_CLASS(Scm_GluQuadricClass,
                          NULL);
 
 /* Nurbs */
-static void nurbs_finalize(GC_PTR obj, GC_PTR data)
+static void nurbs_finalize(ScmObj obj, void *data)
 {
-    gluDeleteNurbsRenderer((GLUnurbsObj*)obj);
+    gluDeleteNurbsRenderer(SCM_GLU_NURBS(obj)->nurbs);
 }
 
 static ScmObj nurbs_allocate(ScmClass *klass, ScmObj initargs)
 {
     ScmGluNurbs *n = SCM_NEW(ScmGluNurbs);
-    GC_finalization_proc ofn; GC_PTR ocd;
     SCM_SET_CLASS(n, SCM_CLASS_GLU_NURBS);
     if ((n->nurbs = gluNewNurbsRenderer()) == NULL) {
         Scm_Error("gluNewNurbsRenderer failed");
     }
-    GC_REGISTER_FINALIZER(n, nurbs_finalize, NULL, &ofn, &ocd);
+    Scm_RegisterFinalizer(SCM_OBJ(n), nurbs_finalize, NULL);
     return SCM_OBJ(n);
 }
 
@@ -420,20 +418,19 @@ SCM_DEFINE_BUILTIN_CLASS(Scm_GluNurbsClass,
 
 
 /* Tesselator */
-static void tesselator_finalize(GC_PTR obj, GC_PTR data)
+static void tesselator_finalize(ScmObj obj, void* data)
 {
-    gluDeleteTess((GLUtriangulatorObj*)obj);
+    gluDeleteTess(SCM_GLU_TESSELATOR(obj)->tesselator);
 }
 
 static ScmObj tesselator_allocate(ScmClass *klass, ScmObj initargs)
 {
     ScmGluTesselator *q = SCM_NEW(ScmGluTesselator);
-    GC_finalization_proc ofn; GC_PTR ocd;
     SCM_SET_CLASS(q, SCM_CLASS_GLU_TESSELATOR);
     if ((q->tesselator = gluNewTess()) == NULL) {
         Scm_Error("gluNewTess failed");
     }
-    GC_REGISTER_FINALIZER(q, tesselator_finalize, NULL, &ofn, &ocd);
+    Scm_RegisterFinalizer(SCM_OBJ(q), tesselator_finalize, NULL);
     return SCM_OBJ(q);
 }
 

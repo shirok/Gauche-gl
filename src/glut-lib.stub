@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.11 2003-10-05 05:05:25 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.12 2007-01-15 10:26:58 shirok Exp $
 ;;;
 
 "
@@ -228,7 +228,7 @@
     int menu = glutGetMenu();
     ScmObj p = Scm_Assoc(SCM_MAKE_INT(menu), menu_fn_assoc, SCM_CMP_EQV);
     if (SCM_PAIRP(p) && SCM_PROCEDUREP(SCM_CDR(p))) {
-      Scm_Apply(SCM_CDR(p), SCM_LIST1(SCM_MAKE_INT(item)));
+      Scm_ApplyRec(SCM_CDR(p), SCM_LIST1(SCM_MAKE_INT(item)));
     }
  }"
 
@@ -296,7 +296,7 @@
  static void display_callback(void)
  {
    if (SCM_PROCEDUREP(display_fn)) {
-      Scm_Apply(display_fn, SCM_NIL);
+      Scm_ApplyRec(display_fn, SCM_NIL);
    }
  }"
 
@@ -314,7 +314,7 @@
  static void reshape_callback(int w, int h)
  {
    if (SCM_PROCEDUREP(reshape_fn)) {
-      Scm_Apply(reshape_fn, SCM_LIST2(SCM_MAKE_INT(w), SCM_MAKE_INT(h)));
+      Scm_ApplyRec(reshape_fn, SCM_LIST2(SCM_MAKE_INT(w), SCM_MAKE_INT(h)));
    }
  }"
 
@@ -332,7 +332,7 @@
  static void keyboard_callback(unsigned char key, int x, int y)
  {
    if (SCM_PROCEDUREP(keyboard_fn)) {
-      Scm_Apply(keyboard_fn, SCM_LIST3(SCM_MAKE_INT(key),
+      Scm_ApplyRec(keyboard_fn, SCM_LIST3(SCM_MAKE_INT(key),
                                        SCM_MAKE_INT(x),
                                        SCM_MAKE_INT(y)));
    }
@@ -352,7 +352,7 @@
  static void mouse_callback(int button, int state, int x, int y)
  {
    if (SCM_PROCEDUREP(mouse_fn)) {
-      Scm_Apply(mouse_fn, SCM_LIST4(SCM_MAKE_INT(button),
+      Scm_ApplyRec(mouse_fn, SCM_LIST4(SCM_MAKE_INT(button),
                                     SCM_MAKE_INT(state),
                                     SCM_MAKE_INT(x),
                                     SCM_MAKE_INT(y)));
@@ -373,7 +373,7 @@
  static void motion_callback(int x, int y)
  {
    if (SCM_PROCEDUREP(motion_fn)) {
-      Scm_Apply(motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
+      Scm_ApplyRec(motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
                                      SCM_MAKE_INT(y)));
    }
  }"
@@ -392,7 +392,7 @@
  static void passive_motion_callback(int x, int y)
  {
    if (SCM_PROCEDUREP(passive_motion_fn)) {
-      Scm_Apply(passive_motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
+      Scm_ApplyRec(passive_motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
                                      SCM_MAKE_INT(y)));
    }
  }"
@@ -411,7 +411,7 @@
  static void entry_callback(int state)
  {
    if (SCM_PROCEDUREP(entry_fn)) {
-      Scm_Apply(entry_fn, SCM_LIST1(SCM_MAKE_INT(state)));
+      Scm_ApplyRec(entry_fn, SCM_LIST1(SCM_MAKE_INT(state)));
    }
  }"
 
@@ -429,7 +429,7 @@
  static void visibility_callback(int state)
  {
    if (SCM_PROCEDUREP(visibility_fn)) {
-      Scm_Apply(visibility_fn, SCM_LIST1(SCM_MAKE_INT(state)));
+      Scm_ApplyRec(visibility_fn, SCM_LIST1(SCM_MAKE_INT(state)));
    }
  }"
 
@@ -447,7 +447,7 @@
  static void idle_callback(void)
  {
    if (SCM_PROCEDUREP(idle_fn)) {
-      Scm_Apply(idle_fn, SCM_NIL);
+      Scm_ApplyRec(idle_fn, SCM_NIL);
    }
  }"
 
@@ -466,7 +466,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void timer_callback(int value)
  {
    if (SCM_PROCEDUREP(timer_fn)) {
-      Scm_Apply(timer_fn, SCM_LIST1(SCM_MAKE_INT(value)));
+      Scm_ApplyRec(timer_fn, SCM_LIST1(SCM_MAKE_INT(value)));
    }
  }"
 
@@ -480,7 +480,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void menu_state_callback(int state)
  {
    if (SCM_PROCEDUREP(menu_state_fn)) {
-      Scm_Apply(menu_state_fn, SCM_LIST1(SCM_MAKE_INT(state)));
+      Scm_ApplyRec(menu_state_fn, SCM_LIST1(SCM_MAKE_INT(state)));
    }
  }"
 
@@ -498,7 +498,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void special_callback(int key, int x, int y)
  {
    if (SCM_PROCEDUREP(special_fn)) {
-      Scm_Apply(special_fn, SCM_LIST3(SCM_MAKE_INT(key),
+      Scm_ApplyRec(special_fn, SCM_LIST3(SCM_MAKE_INT(key),
                                       SCM_MAKE_INT(x),
                                       SCM_MAKE_INT(y)));
    }
@@ -518,7 +518,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void spaceball_motion_callback(int x, int y, int z)
  {
    if (SCM_PROCEDUREP(spaceball_motion_fn)) {
-      Scm_Apply(spaceball_motion_fn, SCM_LIST3(SCM_MAKE_INT(x),
+      Scm_ApplyRec(spaceball_motion_fn, SCM_LIST3(SCM_MAKE_INT(x),
                                                SCM_MAKE_INT(y),
                                                SCM_MAKE_INT(z)));
    }
@@ -538,7 +538,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void spaceball_rotate_callback(int x, int y, int z)
  {
    if (SCM_PROCEDUREP(spaceball_rotate_fn)) {
-      Scm_Apply(spaceball_rotate_fn, SCM_LIST3(SCM_MAKE_INT(x),
+      Scm_ApplyRec(spaceball_rotate_fn, SCM_LIST3(SCM_MAKE_INT(x),
                                                SCM_MAKE_INT(y),
                                                SCM_MAKE_INT(z)));
    }
@@ -558,7 +558,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void spaceball_button_callback(int button, int state)
  {
    if (SCM_PROCEDUREP(spaceball_button_fn)) {
-      Scm_Apply(spaceball_button_fn, SCM_LIST2(SCM_MAKE_INT(button),
+      Scm_ApplyRec(spaceball_button_fn, SCM_LIST2(SCM_MAKE_INT(button),
                                                SCM_MAKE_INT(state)));
    }
  }"
@@ -577,7 +577,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void button_box_callback(int button, int state)
  {
    if (SCM_PROCEDUREP(button_box_fn)) {
-      Scm_Apply(button_box_fn, SCM_LIST2(SCM_MAKE_INT(button),
+      Scm_ApplyRec(button_box_fn, SCM_LIST2(SCM_MAKE_INT(button),
                                          SCM_MAKE_INT(state)));
    }
  }"
@@ -596,7 +596,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void dials_callback(int button, int state)
  {
    if (SCM_PROCEDUREP(dials_fn)) {
-      Scm_Apply(dials_fn, SCM_LIST2(SCM_MAKE_INT(button),
+      Scm_ApplyRec(dials_fn, SCM_LIST2(SCM_MAKE_INT(button),
                                     SCM_MAKE_INT(state)));
    }
  }"
@@ -615,7 +615,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void tablet_motion_callback(int x, int y)
  {
    if (SCM_PROCEDUREP(tablet_motion_fn)) {
-      Scm_Apply(tablet_motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
+      Scm_ApplyRec(tablet_motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
                                             SCM_MAKE_INT(y)));
    }
  }"
@@ -634,7 +634,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void tablet_button_callback(int button, int state, int x, int y)
  {
    if (SCM_PROCEDUREP(tablet_button_fn)) {
-      Scm_Apply(tablet_button_fn, SCM_LIST4(SCM_MAKE_INT(button),
+      Scm_ApplyRec(tablet_button_fn, SCM_LIST4(SCM_MAKE_INT(button),
                                             SCM_MAKE_INT(state),
                                             SCM_MAKE_INT(x),
                                             SCM_MAKE_INT(y)));
@@ -656,7 +656,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void menu_status_callback(int state, int x, int y)
  {
    if (SCM_PROCEDUREP(menu_status_fn)) {
-      Scm_Apply(menu_status_fn, SCM_LIST3(SCM_MAKE_INT(state),
+      Scm_ApplyRec(menu_status_fn, SCM_LIST3(SCM_MAKE_INT(state),
                                           SCM_MAKE_INT(x),
                                           SCM_MAKE_INT(y)));
    }
@@ -676,7 +676,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void overlay_display_callback(void)
  {
    if (SCM_PROCEDUREP(overlay_display_fn)) {
-      Scm_Apply(overlay_display_fn, SCM_NIL);
+      Scm_ApplyRec(overlay_display_fn, SCM_NIL);
    }
  }"
 
@@ -695,7 +695,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void window_status_callback(int state)
  {
    if (SCM_PROCEDUREP(window_status_fn)) {
-      Scm_Apply(window_status_fn, SCM_LIST1(SCM_MAKE_INT(state)));
+      Scm_ApplyRec(window_status_fn, SCM_LIST1(SCM_MAKE_INT(state)));
    }
  }
 #endif"
@@ -717,7 +717,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void keyboard_up_callback(unsigned char key, int x, int y)
  {
    if (SCM_PROCEDUREP(keyboard_up_fn)) {
-      Scm_Apply(keyboard_up_fn, SCM_LIST3(SCM_MAKE_INT(key),
+      Scm_ApplyRec(keyboard_up_fn, SCM_LIST3(SCM_MAKE_INT(key),
                                           SCM_MAKE_INT(x),
                                           SCM_MAKE_INT(y)));
    }
@@ -741,7 +741,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void special_up_callback(int key, int x, int y)
  {
    if (SCM_PROCEDUREP(special_up_fn)) {
-      Scm_Apply(special_up_fn, SCM_LIST3(SCM_MAKE_INT(key),
+      Scm_ApplyRec(special_up_fn, SCM_LIST3(SCM_MAKE_INT(key),
                                          SCM_MAKE_INT(x),
                                          SCM_MAKE_INT(y)));
    }
@@ -765,7 +765,7 @@ static ScmObj timer_fn = SCM_FALSE;
  static void joystick_callback(unsigned int mask, int x, int y, int z)
  {
    if (SCM_PROCEDUREP(joystick_fn)) {
-      Scm_Apply(joystick_fn, SCM_LIST4(Scm_MakeIntegerFromUI(mask),
+      Scm_ApplyRec(joystick_fn, SCM_LIST4(Scm_MakeIntegerFromUI(mask),
                                        SCM_MAKE_INT(x),
                                        SCM_MAKE_INT(y),
                                        SCM_MAKE_INT(z)));

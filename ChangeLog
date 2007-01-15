@@ -1,3 +1,11 @@
+2007-01-15  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-gl.c: fixed bugs in finalizers of GLU objects, reported
+	  by Jens Thiele.
+
+	* src/glut-lib.stub, cg/cg-lib.stub: adapted the new Scm_ApplyRec
+	  API of Gauche.
+
 2006-11-11  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.4.2

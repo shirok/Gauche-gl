@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: cg-lib.stub,v 1.3 2006-11-09 19:46:36 shirok Exp $
+;;;  $Id: cg-lib.stub,v 1.4 2007-01-15 10:26:57 shirok Exp $
 ;;;
 
 "
@@ -981,7 +981,7 @@ static const char** convert_compiler_args(ScmObj compiler_arg_list)
  static void error_callback(void)
  {
      if(SCM_PROCEDUREP(error_fn)) {
-         Scm_Apply(error_fn, SCM_NIL);
+         Scm_ApplyRec(error_fn, SCM_NIL);
      }
  }"
  

@@ -200,12 +200,11 @@
   (inc! *frames*)
 
   (let1 t (glut-get GLUT_ELAPSED_TIME)
-	(when (>= (- t *t0*) 5000)
-	      (let1 seconds (/ (- t *t0*) 1000)
-		    (print #`",*frames* in ,seconds seconds = ,(/ *frames* seconds) FPS")
-		    ;(printf "%d frames in %6.3f seconds = %6.3f FPS\n" *frames* seconds (/ *frames* seconds))
-		    (set! *t0*	   t)
-		    (set! *frames* 0)))))
+    (when (>= (- t *t0*) 5000)
+      (let1 seconds (/ (- t *t0*) 1000.0)
+        (print #`",*frames* in ,seconds seconds = ,(/ *frames* seconds) FPS")
+        (set! *t0*	   t)
+        (set! *frames* 0)))))
 
 ;; new window size or exposure
 (define (reshape width height)

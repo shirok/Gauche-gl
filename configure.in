@@ -1,17 +1,23 @@
 dnl
 dnl Configuring gauche-gl
 dnl  process this file with "autoconf" to generate 'configure'.
-dnl $Id: configure.in,v 1.31 2007-01-17 19:19:16 shirok Exp $
+dnl $Id: configure.in,v 1.32 2007-07-10 00:13:21 shirok Exp $
 
 AC_PREREQ(2.54)
-AC_INIT(Gauche-gl, 0.4.3, shiro@acm.org)
+AC_INIT(Gauche-gl, 0.4.4, shiro@acm.org)
 AC_CANONICAL_SYSTEM
 
 AC_PATH_XTRA
 
 case "$target" in
   *-*-cygwin*)
-    LIBGLUT=glut32;;
+    if test "x-$have_x" = "x-disabled" -o "x-$have_x" = "x-no";
+    then
+      LIBGLUT=glut32;
+    else
+      LIBGLUT=glut
+      CPPFLAGS="$CPPFLAGS -I$x_includes";
+    fi;;
   *)
     LIBGLUT=glut;;
 esac

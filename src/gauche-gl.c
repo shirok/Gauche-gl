@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.34 2007-01-15 10:26:57 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.35 2007-07-10 00:13:24 shirok Exp $
  */
 
 #include <gauche.h>
@@ -130,11 +130,10 @@ static int glboolvec_compare(ScmObj x, ScmObj y, int equalp)
    The way to get procedure address differs by platforms:
      wglGetProcAddress()
      glXGetProcAddress() / glXGetProcAddressARB()
-   This function will hide the difference, though it only
-   supports GLX for the time being.
+   This function is to hide the difference.  The coverage is
+   incomplete, though.
 
    NB: It seems that we'd better to use glXGetProcAddressARB.
-
    http://lists.freedesktop.org/archives/xorg/2005-November/011279.html
 */
 void *Scm_GLGetProcAddress(const char *name)
@@ -149,6 +148,10 @@ void *Scm_GLGetProcAddress(const char *name)
     }
 #elif defined(MacOSX)
     return glutGetProcAddress(name);
+#elif defined(__CYGWIN__) && defined(X_DISPLAY_MISSING)
+    if (wglGetProcAddress != NULL) {
+        return wglGetProcAddress(name);
+    }
 #endif /* !defined(GLX_VERSION_1_4) && !defined(GLX_ARB_get_proc_address) */
     Scm_Error("GL extension %s is not supported on this platform", name);
 }

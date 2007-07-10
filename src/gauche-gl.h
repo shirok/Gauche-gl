@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.18 2005-06-30 13:29:29 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.19 2007-07-10 00:13:24 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H
@@ -28,7 +28,12 @@
 #endif
 
 #ifdef HAVE_GL_GLX_H
+#define GLX_GLXEXT_PROTOTYPES
 #include <GL/glx.h>
+#endif
+
+#if defined(__CYGWIN__) && defined(X_DISPLAY_MISSING)
+#include <windows.h>   /* for wglGetProcAddress */
 #endif
 
 #include <gauche/uvector.h>

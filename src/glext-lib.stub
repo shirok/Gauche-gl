@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glext-lib.stub,v 1.17 2006-11-09 19:46:36 shirok Exp $
+;;;  $Id: glext-lib.stub,v 1.18 2007-08-05 03:09:46 shirok Exp $
 ;;;
 
 "
@@ -1780,6 +1780,142 @@
 ;;=============================================================
 ;; GL_NV_vertex_program3
 ;;
+
+;;=============================================================
+;; GL_EXT_framebuffer_object
+;;
+
+(define-cproc gl-is-renderbuffer-ext (renderbuffer::<uint>)
+  (body <boolean>
+        "ENSURE(glIsRenderbufferEXT);"
+        "SCM_RESULT = glIsRenderbufferEXT(renderbuffer);"))
+
+(define-cproc gl-bind-renderbuffer-ext (target::<int> renderbuffer::<uint>)
+  (body <void>
+        "ENSURE(glBindRenderbufferEXT);"
+        "glBindRenderbufferEXT(target, renderbuffer);"))
+
+(define-cproc gl-gen-renderbuffers-ext (size::<int>)
+  (body "ScmObj vec;"
+        "ENSURE(glGenRenderbuffersEXT);"
+        "if (size <= 0) Scm_Error(\"size must be a positive integer, but got %d\", size);"
+        "vec = Scm_MakeU32Vector(size, 0);"
+        "glGenRenderbuffersEXT(size, (GLuint*)SCM_U32VECTOR_ELEMENTS(vec));"
+        "SCM_RESULT = vec;"))
+
+(define-cproc gl-renderbuffer-storage-ext (target::<int>
+                                           internalformat::<int>
+                                           width::<uint> height::<uint>)
+  (body <void>
+        "ENSURE(glRenderbufferStorageEXT);"
+        "glRenderbufferStorageEXT(target, internalformat, width, height);"))
+
+(define-cproc gl-get-renderbuffer-parameter-ext (target::<int>
+                                                 pname::<int>)
+  (body "GLint val;"
+        "ENSURE(glGetRenderbufferParameterivEXT);"
+        "switch (pname) {"
+        "case GL_RENDERBUFFER_WIDTH_EXT:"
+        "case GL_RENDERBUFFER_HEIGHT_EXT:"
+        "case GL_RENDERBUFFER_INTERNAL_FORMAT_EXT:"
+        "case GL_RENDERBUFFER_RED_SIZE_EXT:"
+        "case GL_RENDERBUFFER_GREEN_SIZE_EXT:"
+        "case GL_RENDERBUFFER_BLUE_SIZE_EXT:"
+        "case GL_RENDERBUFFER_ALPHA_SIZE_EXT:"
+        "case GL_RENDERBUFFER_DEPTH_SIZE_EXT:"
+        "case GL_RENDERBUFFER_STENCIL_SIZE_EXT:"
+        "  glGetRenderbufferParameterivEXT(target, pname, &val);"
+        "  SCM_RESULT = Scm_MakeInteger(val);"
+        "  break;"
+        "default:"
+        "  Scm_Error(\"unsupported pname for gl-get-renderbuffer-parameter-ext: %S\", pname);"
+        "  SCM_RESULT = SCM_UNDEFINED;"
+        "}"))
+
+(define-cproc gl-bind-framebuffer-ext (target::<int> framebuffer::<uint>)
+  (body <void>
+        "ENSURE(glBindFramebufferEXT);"
+        "glBindFramebufferEXT(target, framebuffer);"))
+
+(define-cproc gl-delete-framebuffers-ext (fbs::<u32vector>)
+  (body <void>
+        "ENSURE(glDeleteFramebuffersEXT);"
+        "glDeleteFramebuffersEXT(SCM_U32VECTOR_SIZE(fbs),"
+        "                        (GLuint*)SCM_U32VECTOR_ELEMENTS(fbs));"))
+       
+(define-cproc gl-gen-framebuffers-ext (size::<int>)
+  (body "ScmObj vec;"
+        "ENSURE(glGenFramebuffersEXT);"
+        "if (size <= 0) Scm_Error(\"size must be a positive integer, but got %d\", size);"
+        "vec = Scm_MakeU32Vector(size, 0);"
+        "glGenFramebuffersEXT(size, (GLuint*)SCM_U32VECTOR_ELEMENTS(vec));"
+        "SCM_RESULT = vec;"))
+
+(define-cproc gl-check-framebuffer-status-ext (target::<int>)
+  (body <int>
+        "ENSURE(glCheckFramebufferStatusEXT);"
+        "SCM_RESULT = glCheckFramebufferStatusEXT(target);"))
+
+(define-cproc gl-framebuffer-texture-1d-ext (target::<int>
+                                             attachment::<int>
+                                             textarget::<int>
+                                             texture::<uint>
+                                             level::<int>)
+  (body <void>
+        "ENSURE(glFramebufferTexture1DEXT);"
+        "glFramebufferTexture1DEXT(target, attachment, textarget, texture, level);"))
+  
+(define-cproc gl-framebuffer-texture-2d-ext (target::<int>
+                                             attachment::<int>
+                                             textarget::<int>
+                                             texture::<uint>
+                                             level::<int>)
+  (body <void>
+        "ENSURE(glFramebufferTexture2DEXT);"
+        "glFramebufferTexture2DEXT(target, attachment, textarget, texture, level);"))
+  
+(define-cproc gl-framebuffer-texture-3d-ext (target::<int>
+                                             attachment::<int>
+                                             textarget::<int>
+                                             texture::<uint>
+                                             level::<int>
+                                             zoffset::<int>)
+  (body <void>
+        "ENSURE(glFramebufferTexture3DEXT);"
+        "glFramebufferTexture3DEXT(target, attachment, textarget, texture, level, zoffset);"))
+  
+(define-cproc gl-framebuffer-renderbuffer-ext (target::<int>
+                                               attachment::<int>
+                                               renderbuffertarget::<int>
+                                               renderbuffer::<uint>)
+  (body <void>
+        "ENSURE(glFramebufferRenderbufferEXT);"
+        "glFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer);"))
+
+(define-cproc gl-get-framebuffer-attachment-parameter-ext (target::<int>
+                                                           attachment::<int>
+                                                           pname::<int>)
+  (body "GLint val;"
+        "ENSURE(glGetFramebufferAttachmentParameterivEXT);"
+        "switch (pname) {"
+        "case GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT:"
+        "case GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT:"
+        "case GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL_EXT:"
+        "case GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE_EXT:"
+        "case GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT:"
+        "  glGetFramebufferAttachmentParameterivEXT(target, attachment, pname, &val);"
+        "  SCM_RESULT = Scm_MakeInteger(val);"
+        "  break;"
+        "default:"
+        "  Scm_Error(\"unsupported pname for gl-get-renderbuffer-parameter-ext: %S\", pname);"
+        "  SCM_RESULT = SCM_UNDEFINED;"
+        "}"))
+
+(define-cproc gl-generate-mipmap-ext (target::<int>)
+  (body <void>
+        "ENSURE(glGenerateMipmapEXT);"
+        "glGenerateMipmapEXT(target);"))
+
 
 ;; Local variables:
 ;; mode: scheme

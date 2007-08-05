@@ -1,3 +1,12 @@
+2007-08-04  Shiro Kawai  <shiro@acm.org>
+
+	* src/glext-lib.stub: Added support of the framebuffer object
+	  extension.
+	* src/gl-lib.stub (gl-tex-image-2d): allow passing #f to the texture
+	  texels array so that it is possible to allocate texture memory but
+	  not initialize it.  It is useful when you want to render to 
+	  the texture.
+
 2007-07-09  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.4.4

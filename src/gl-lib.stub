@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.45 2007-08-05 03:09:46 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.46 2007-08-06 02:21:50 shirok Exp $
 ;;;
 
 "
@@ -926,20 +926,20 @@
     Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
   }
   if (SCM_S32VECTORP(vec)) {
-    glNormalPointer(GL_INT, stride*sizeof(GLint),
-                    (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
+    glIndexPointer(GL_INT, stride*sizeof(GLint),
+                   (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
   } else if (SCM_S16VECTORP(vec)) {
-    glNormalPointer(GL_SHORT, stride*sizeof(GLshort),
-                    (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
+    glIndexPointer(GL_SHORT, stride*sizeof(GLshort),
+                   (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
   } else if (SCM_U8VECTORP(vec)) {
-    glNormalPointer(GL_UNSIGNED_BYTE, stride*sizeof(GLubyte),
-                    (void*)(SCM_U8VECTOR_ELEMENTS(vec)+offset));
+    glIndexPointer(GL_UNSIGNED_BYTE, stride*sizeof(GLubyte),
+                   (void*)(SCM_U8VECTOR_ELEMENTS(vec)+offset));
   } else if (SCM_F32VECTORP(vec)) {
-    glNormalPointer(GL_FLOAT, stride*sizeof(GLfloat),
-                    (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
+    glIndexPointer(GL_FLOAT, stride*sizeof(GLfloat),
+                   (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
   } else if (SCM_F64VECTORP(vec)) {
-    glNormalPointer(GL_DOUBLE, stride*sizeof(GLdouble),
-                    (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
+    glIndexPointer(GL_DOUBLE, stride*sizeof(GLdouble),
+                   (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
   } else {
     Scm_Error(\"bad argument for vec: %S, must be f32, f64, u8, s16 or s32 vector\", vec);
   }
@@ -958,17 +958,17 @@
     Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
   }
   if (SCM_F32VECTORP(vec)) {
-    glColorPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
-                  (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
+    glTexCoordPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
+                     (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
   } else if (SCM_F64VECTORP(vec)) {
-    glColorPointer(size, GL_DOUBLE, stride*sizeof(GLdouble),
-                   (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
+    glTexCoordPointer(size, GL_DOUBLE, stride*sizeof(GLdouble),
+                      (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
   } else if (SCM_S32VECTORP(vec)) {
-    glColorPointer(size, GL_INT, stride*sizeof(GLint),
-                   (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
+    glTexCoordPointer(size, GL_INT, stride*sizeof(GLint),
+                      (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
   } else if (SCM_S16VECTORP(vec)) {
-    glColorPointer(size, GL_SHORT, stride*sizeof(GLshort),
-                   (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
+    glTexCoordPointer(size, GL_SHORT, stride*sizeof(GLshort),
+                      (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
   } else {
     Scm_Error(\"bad argument for vec: %S, must be f32, f64, s16 or s32vector\", vec);
   }

@@ -1,3 +1,8 @@
+2007-08-05  Shiro Kawai  <shiro@acm.org>
+
+	* src/gl-lib.stub (gl-tex-coord-pointer, gl-index-pointer): Wrong GL
+	  functions were called.
+
 2007-08-04  Shiro Kawai  <shiro@acm.org>
 
 	* src/glext-lib.stub: Added support of the framebuffer object

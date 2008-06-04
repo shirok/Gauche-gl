@@ -1,7 +1,7 @@
 ;;;
 ;;; glu-lib.stub - glue functions for GLU
 ;;;
-;;;  Copyright(C) 2001-2005 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.13 2005-06-16 20:22:45 shirok Exp $
+;;;  $Id: glu-lib.stub,v 1.14 2008-06-04 11:51:00 shirok Exp $
 ;;;
 
 "

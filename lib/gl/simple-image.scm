@@ -1,7 +1,7 @@
 ;;;
 ;;; simple-image.scm - simple image I/O
 ;;;  
-;;;   Copyright (c) 2005 Shiro Kawai, All rights reserved.
+;;;   Copyright (c) 2005-2008  Shiro Kawai  <shiro@acm.org>
 ;;;   
 ;;;   Redistribution and use in source and binary forms, with or without
 ;;;   modification, are permitted provided that the following conditions
@@ -30,7 +30,7 @@
 ;;;   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;;   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;  
-;;;  $Id: simple-image.scm,v 1.1 2005-06-08 12:10:43 shirok Exp $
+;;;  $Id: simple-image.scm,v 1.2 2008-06-04 11:46:27 shirok Exp $
 ;;;
 
 ;; For serious image handling, I'd recommend you to use a serious

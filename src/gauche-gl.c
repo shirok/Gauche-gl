@@ -1,7 +1,7 @@
 /*
  * gauche-gl.c - Gauche GL binding
  *
- *  Copyright(C) 2001-2007 by Shiro Kawai (shiro@acm.org)
+ *  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
  *
  *  Permission to use, copy, modify, distribute this software and
  *  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.c,v 1.35 2007-07-10 00:13:24 shirok Exp $
+ *  $Id: gauche-gl.c,v 1.36 2008-06-04 11:50:07 shirok Exp $
  */
 
 #include <gauche.h>

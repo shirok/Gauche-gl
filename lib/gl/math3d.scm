@@ -1,7 +1,7 @@
 ;;;
 ;;; gl/math3d.scm - auxiliary vector arithmetics for 3D graphics
 ;;;
-;;;  Copyright(C) 2002-2003 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright (c) 2002-2008  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.11 2003-10-05 05:05:25 shirok Exp $
+;;;  $Id: math3d.scm,v 1.12 2008-06-04 11:46:25 shirok Exp $
 ;;;
 
 (define-module gl.math3d

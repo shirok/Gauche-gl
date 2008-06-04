@@ -1,7 +1,7 @@
 /*
  * gauche-glut.h - Gauche GLUT binding
  *
- *  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+ *  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
  *
  *  Permission to use, copy, modify, distribute this software and
  *  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-glut.h,v 1.2 2002-07-22 14:29:46 shirok Exp $
+ *  $Id: gauche-glut.h,v 1.3 2008-06-04 11:50:21 shirok Exp $
  */
 
 #ifndef GAUCHE_GLUT_H

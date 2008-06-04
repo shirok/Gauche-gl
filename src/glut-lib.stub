@@ -1,7 +1,7 @@
 ;;;
 ;;; glut-lib.stub - glue functions for GLUT
 ;;;
-;;;  Copyright(C) 2001-2002 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut-lib.stub,v 1.12 2007-01-15 10:26:58 shirok Exp $
+;;;  $Id: glut-lib.stub,v 1.13 2008-06-04 11:51:05 shirok Exp $
 ;;;
 
 "

@@ -2,7 +2,7 @@
 ;;;
 ;;; glstate.scm - state variable table
 ;;;
-;;;  Copyright(C) 2001-2005 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -13,7 +13,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glstate.scm,v 1.7 2005-06-06 08:10:10 shirok Exp $
+;;;  $Id: glstate.scm,v 1.8 2008-06-04 11:50:56 shirok Exp $
 ;;;
 
 ;;

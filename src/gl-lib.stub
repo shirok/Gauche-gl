@@ -1,7 +1,7 @@
 ;;;
 ;;; gl-lib.stub - glue functions for GL
 ;;;
-;;;  Copyright(C) 2001-2005 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl-lib.stub,v 1.46 2007-08-06 02:21:50 shirok Exp $
+;;;  $Id: gl-lib.stub,v 1.47 2008-06-04 11:50:43 shirok Exp $
 ;;;
 
 "

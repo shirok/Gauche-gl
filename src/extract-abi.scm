@@ -1,7 +1,7 @@
 ;;;
 ;;; extract-abi.scm - Extract ABI of GL extension
 ;;;
-;;;  Copyright(C) 2005 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright (c) 2005-2008  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Redistribution and use in source and binary forms, with or without
 ;;;  modification, are permitted provided that the following conditions
@@ -30,7 +30,7 @@
 ;;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
-;;;  $Id: extract-abi.scm,v 1.3 2005-06-05 02:25:56 shirok Exp $
+;;;  $Id: extract-abi.scm,v 1.4 2008-06-04 11:50:01 shirok Exp $
 ;;;
 
 ;; We no longer count on glext.h on the target platform, since

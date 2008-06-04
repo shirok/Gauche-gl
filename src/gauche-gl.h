@@ -1,7 +1,7 @@
 /*
  * gauche-gl.h - Gauche GL extension
  *
- *  Copyright(C) 2001-2005 by Shiro Kawai (shiro@acm.org)
+ *  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
  *
  *  Permission to use, copy, modify, distribute this software and
  *  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-gl.h,v 1.19 2007-07-10 00:13:24 shirok Exp $
+ *  $Id: gauche-gl.h,v 1.20 2008-06-04 11:50:11 shirok Exp $
  */
 
 #ifndef GAUCHE_GL_H

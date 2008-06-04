@@ -1,7 +1,7 @@
 ;;;
 ;;; glut.scm - Gauche GLUT binding
 ;;;
-;;;  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glut.scm,v 1.2 2003-10-05 05:05:25 shirok Exp $
+;;;  $Id: glut.scm,v 1.3 2008-06-04 11:46:21 shirok Exp $
 ;;;
 
 (define-module gl.glut

@@ -1,7 +1,7 @@
 ;;;
 ;;; math3d-lib.stub - 3d vector arithmetics
 ;;;
-;;;  Copyright(C) 2002-2003 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright (c) 2002-2008  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.25 2008-06-04 11:01:52 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.26 2008-06-04 11:51:40 shirok Exp $
 ;;;
 
 "

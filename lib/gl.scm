@@ -1,7 +1,7 @@
 ;;;
 ;;; gl.scm - Gauche GL binding
 ;;;
-;;;  Copyright(C) 2001 by Shiro Kawai (shiro@acm.org)
+;;;  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: gl.scm,v 1.10 2005-06-08 12:10:43 shirok Exp $
+;;;  $Id: gl.scm,v 1.11 2008-06-04 11:42:54 shirok Exp $
 ;;;
 
 (define-module gl

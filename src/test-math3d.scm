@@ -444,6 +444,31 @@
                                             (* -13 pi/180)))
        nearly=?)
 
+;; rotation check
+(let ()
+  (define (rot-test q v)
+    (let* ((nv (vector4f-normalize v)))
+      (test* (format "rotation by quaternion ~s ~s" q v)
+             (* (quatf->matrix4f q) nv)
+             (quatf-transform q nv)
+             nearly=?)))
+  (define (rot-test* q)
+    (for-each (cute rot-test (quatf-normalize q) <>)
+              '(#,(vector4f 1 0 0 0)
+                #,(vector4f 0 1 0 0)
+                #,(vector4f 0 0 1 0)
+                #,(vector4f 1 1 0 0)
+                #,(vector4f 1 -1 0 0)
+                #,(vector4f -1 0 1 0)
+                #,(vector4f 1 0 -1 0)
+                #,(vector4f 0 1 -1 0)
+                #,(vector4f 0 -1 1 0)
+                #,(vector4f 3 1 4 0))))
+  (for-each rot-test*
+            '(#,(quatf 1 0 0 0) #,(quatf 0 1 0 0) #,(quatf 0 0 1 0)
+              #,(quatf 0 0 0 1) #,(quatf 1 1 1 1) #,(quatf 1 -1 1 -1)
+              #,(quatf 3 1 -4 5))))
+
 ;; test case for small trace case
 (test* "matrix->quatf (small trace)"
        (make-quatf (vector4f 1 0 0) (- pi 0.1))
@@ -457,6 +482,25 @@
        (make-quatf (vector4f 0 0 1) (- pi 0.1))
        (matrix4f->quatf (rotation->matrix4f (vector4f 0 0 1) (- pi 0.1)))
        nearly=?)
+
+;; two vectors -> quatf
+(let ()
+  (define (2vtest v w)
+    (let ((nv (vector4f-normalize v))
+          (nw (vector4f-normalize w)))
+      (test* (format "2vtest ~s ~s" v w) nw
+             (quatf-transform (2vectors->quatf nv nw) nv)
+             nearly=?)
+      (test* (format "2vtest ~s ~s" w v) nv
+             (quatf-transform (2vectors->quatf nw nv) nw)
+             nearly=?)))
+  (2vtest #,(vector4f 1 0 0 0) #,(vector4f 0 1 0 0))
+  (2vtest #,(vector4f 0 1 0 0) #,(vector4f 0 0 1 0))
+  (2vtest #,(vector4f 0 0 1 0) #,(vector4f 1 0 0 0))
+  (2vtest #,(vector4f 1 2 3 0) #,(vector4f 4 -5 6 0))
+  (2vtest #,(vector4f 1 1 0 0) #,(vector4f 1 1 0 0))
+  (2vtest #,(vector4f 1 1 0 0) #,(vector4f 1 1 0.001 0))
+  )
 
 ;; sequence access
 (test* "sequence"

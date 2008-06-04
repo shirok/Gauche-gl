@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.26 2008-06-04 11:50:23 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.27 2008-06-04 21:21:19 shirok Exp $
  */
 
 #include <math.h>
@@ -1246,6 +1246,25 @@ void Scm_QuatfSlerp(float r[], const float p[], const float q[], float t)
  */
 
 
+/*
+ * Two vectors -> Quaternion
+ */
+void Scm_TwoVectorsToQuatfv(float r[], const float v[], const float w[])
+{
+    float p[4], c, s2, f;
+    SCM_VECTOR4F_CROSSV(p, v, w);
+    c = SCM_VECTOR4F_DOTV(v, w);   /* cos(t) */
+    s2 = SCM_VECTOR4F_DOTV(p, p);  /* sin^2(t) */
+    if (s2 > 0) {               /* NB: should we consider epsilon? */
+        f = sqrtf((1-c) / (2*s2));     /* sin(t/2)/sin(t) sans sign */
+    } else {
+        f = 0.0f;
+    }
+    r[0] = f*p[0];
+    r[1] = f*p[1];
+    r[2] = f*p[2];
+    r[3] = sqrtf((1+c)/2);
+}
 
 /*=============================================================
  * Initialization

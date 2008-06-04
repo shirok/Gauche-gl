@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.26 2008-06-04 11:51:40 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.27 2008-06-04 21:21:27 shirok Exp $
 ;;;
 
 "
@@ -533,7 +533,7 @@
         (set! (SCM_VECTOR4F_REF v 1) (aref (SCM_MATRIX4F_D m) 13))
         (set! (SCM_VECTOR4F_REF v 2) (aref (SCM_MATRIX4F_D m) 14))
         (set! (SCM_VECTOR4F_REF v 3) 0.0)
-        (result v)))
+        (result (SCM_OBJ v))))
 
 (define-cproc matrix4f->rotation (m::<matrix4f>)
   "float v[4];
@@ -674,12 +674,27 @@
   SCM_RETURN(SCM_OBJ(q));")
 
 (define-cproc quatf-slerp (p::<quatf> q::<quatf> t::<real>)
-  "float r[4];
-  Scm_QuatfSlerp(r, SCM_QUATF_D(q), SCM_QUATF_D(p), t);
-  SCM_RETURN(Scm_MakeQuatfv(r));")
+  (body <top>
+        (let* ((|r[4]| :: float))
+          (Scm_QuatfSlerp r (SCM_QUATF_D p) (SCM_QUATF_D q) t)
+          (return (Scm_MakeQuatfv r)))))
+
 (define-cproc quatf-slerp! (r::<quatf> p::<quatf> q::<quatf> t::<real>)
-  "Scm_QuatfSlerp(SCM_QUATF_D(r), SCM_QUATF_D(p), SCM_QUATF_D(p), t);
-  SCM_RETURN(SCM_OBJ(r));")
+  (body <top>
+        (Scm_QuatfSlerp (SCM_QUATF_D r) (SCM_QUATF_D p) (SCM_QUATF_D q) t)
+        (return (SCM_OBJ r))))
+
+(define-cproc 2vectors->quatf (v::<vector4f> w::<vector4f>)
+  (body <top>
+        (let* ((|r[4]| :: float))
+          (Scm_TwoVectorsToQuatfv r (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
+          (return (Scm_MakeQuatfv r)))))
+
+(define-cproc 2vectors->quatf! (q::<quatf> v::<vector4f> w::<vector4f>)
+  (body <top>
+        (Scm_TwoVectorsToQuatfv (SCM_QUATF_D q)
+                                (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
+        (return (SCM_OBJ q))))
 
 ;; Local variables:
 ;; mode: scheme

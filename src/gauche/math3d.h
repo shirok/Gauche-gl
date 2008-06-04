@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: math3d.h,v 1.22 2008-06-04 11:54:59 shirok Exp $
+ *  $Id: math3d.h,v 1.23 2008-06-04 21:24:49 shirok Exp $
  */
 
 /* Vector and matrix arithmetics, specialized for 3D graphics calculation. */
@@ -275,6 +275,13 @@ SCM_CLASS_DECL(Scm_QuatfClass);
         }                                               \
     } while (0)
 
+#define SCM_QUATF_CONJUGATEV(p) \
+    do {                        \
+        p[0] = -p[0];           \
+        p[1] = -p[1];           \
+        p[2] = -p[2];           \
+    } while (0)
+
 extern ScmObj Scm_MakeQuatf(float x, float y, float z, float w);
 extern ScmObj Scm_MakeQuatfv(const float d[4]);
 extern ScmObj Scm_MakeQuatfvShared(float d[4]);
@@ -289,7 +296,6 @@ extern void   Scm_QuatfSubv(float *r, const float *p, const float *q);
 extern ScmObj Scm_QuatfMul(const ScmQuatf *p, const ScmQuatf *q);
 extern void   Scm_QuatfMulv(float *r, const float *p, const float *q);
 extern ScmObj Scm_QuatfNormalize(const ScmQuatf *q);
-extern ScmObj Scm_QuatfNormalizev(float *q);
 extern ScmObj Scm_QuatfNormalizeX(ScmQuatf *q);
 
 /* q[] must be a unit quaternion */
@@ -300,6 +306,9 @@ extern void   Scm_Matrix4fToQuatfv(float *q, const float *m);
 
 /* p[] and q[] must be unit quaternions */
 extern void   Scm_QuatfSlerp(float *r, const float *p, const float *q, float t);
+
+/* v[] and w[] must be unit vectors */
+extern void   Scm_TwoVectorsToQuatfv(float *r, const float *v, const float *w);
 
 /*=============================================================
  * Matrix

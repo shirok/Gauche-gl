@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.25 2006-11-11 21:02:05 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.26 2008-06-04 10:59:37 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -3115,6 +3115,10 @@ Returns a cross product of two vector4fs, @var{x} and @var{y}.
 (@var{w} element is ignored).
 @end defun
 
+@defun vector4f-norm v
+Returns the norm (length) of the vector @var{v}.
+@end defun
+
 @defun vector4f-normalize x
 @defunx vector4f-normalize! x
 Returns a normalized vector of vector4f @var{x}.
@@ -3524,6 +3528,17 @@ Linear update version of @code{matrix4f-decompose}.
 The result vectors and matrices are stored in @var{t}, @var{r}, @var{h}
 and @var{s}.  The return value is a boolean value indicates
 @var{m} is non-singular or not.
+@end defun
+
+@defun matrix4f->translation m
+Extract the translation component from the given TRS matrix @var{m}
+and returns it as a @code{<vector4f>}.
+@end defun
+
+@defun matrix4f->translation! m v
+Extract the translation component from the given TRS matrix @var{m}
+and stores the result into a @code{<vector4f>} @var{v}.
+Returns @var{v}.
 @end defun
 
 @defun matrix4f->rotation m

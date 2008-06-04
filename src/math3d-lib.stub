@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.24 2006-11-09 19:46:36 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.25 2008-06-04 11:01:52 shirok Exp $
 ;;;
 
 "
@@ -91,6 +91,9 @@
 (define-cproc vector4f-cross (x::<vector4f> y::<vector4f>)
   (return "Scm_Vector4fCross"))
 
+(define-cproc vector4f-norm (v::<vector4f>)
+  (expr <real> (SCM_VECTOR4F_NORMV (SCM_VECTOR4F_D v))))
+
 (define-cproc vector4f-normalize (x::<vector4f>)
   (return "Scm_Vector4fNormalize"))
 
@@ -105,11 +108,12 @@
   SCM_RETURN(SCM_OBJ(x));")
 
 (define-cproc vector4f-sub (x::<vector4f> y::<vector4f>)
-  (return "Scm_Vector4fSub"))
+  (call "Scm_Vector4fSub"))
 
 (define-cproc vector4f-sub! (x::<vector4f> y::<vector4f>)
   "Scm_Vector4fSubv(SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(y));
   SCM_RETURN(SCM_OBJ(x));")
+
 
 ;; VectorArray --------------------------------------------------
 
@@ -515,6 +519,21 @@
                              SCM_VECTOR4F_D(H),
                              SCM_VECTOR4F_D(S));
   SCM_RETURN(SCM_MAKE_BOOL(r));")
+
+(define-cproc matrix4f->translation (m::<matrix4f>)
+  (body <top>
+        (result (Scm_MakeVector4f (aref (SCM_MATRIX4F_D m) 12)
+                                  (aref (SCM_MATRIX4F_D m) 13)
+                                  (aref (SCM_MATRIX4F_D m) 14)
+                                  0.0))))
+
+(define-cproc matrix4f->translation! (m::<matrix4f> v::<vector4f>)
+  (body <top>
+        (set! (SCM_VECTOR4F_REF v 0) (aref (SCM_MATRIX4F_D m) 12))
+        (set! (SCM_VECTOR4F_REF v 1) (aref (SCM_MATRIX4F_D m) 13))
+        (set! (SCM_VECTOR4F_REF v 2) (aref (SCM_MATRIX4F_D m) 14))
+        (set! (SCM_VECTOR4F_REF v 3) 0.0)
+        (result v)))
 
 (define-cproc matrix4f->rotation (m::<matrix4f>)
   "float v[4];

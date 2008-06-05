@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.28 2008-06-05 11:17:33 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.29 2008-06-05 17:33:04 shirok Exp $
  */
 
 #include <math.h>
@@ -1294,6 +1294,7 @@ void Scm_FourVectorsToQuatfv(float r[],
     Scm_TwoVectorsToQuatfv(q1, v1, w1);
     Scm_QuatfTransformv(wt, q1, v2);
     SCM_VECTOR4F_CROSSV(axis, wt, w2);
+    SCM_VECTOR4F_NORMALIZEV(axis);
     c = SCM_VECTOR4F_DOTV(w2, wt);  /* cos(t) */
     t = acosf(c);
     s2 = sinf(t/2);

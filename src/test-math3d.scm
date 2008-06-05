@@ -56,6 +56,12 @@
 (test* "vector4f -" #,(vector4f -1.0 -2.0 -3.0 -4.0)
        (- #,(vector4f 1.0 2.0 3.0 4.0)
           #,(vector4f 2.0 4.0 6.0 8.0)))
+(test* "vector4f *" #,(vector4f 2 4 6 8)
+       (* #,(vector4f 1 2 3 4) 2.0))
+(test* "vector4f *" #,(vector4f 2 4 6 8)
+       (* 2.0 #,(vector4f 1 2 3 4)))
+(test* "vector4f /" #,(vector4f 0.5 1.0 1.5 2.0)
+       (/ #,(vector4f 1 2 3 4) 2.0))
 (test* "vector4f dot" 40.0
        (vector4f-dot #,(vector4f 1.0 2.0 3.0 4.0)
                      #,(vector4f 2.0 3.0 4.0 5.0)))
@@ -68,6 +74,7 @@
        (let1 v (vector4f 4 4 4 4)
          (vector4f-normalize! v)
          v))
+
 
 ;; sequence access
 (test* "sequence"

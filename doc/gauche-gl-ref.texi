@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.28 2008-06-04 21:28:30 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.29 2008-06-05 07:47:11 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -3680,6 +3680,14 @@ Returns a matrix that represents a rotation specified by a unit
 quaternion @var{q}.
 The behavior is undefined if @var{q} is not normalized.
 The destructive version modifies @var{m}.
+@end defun
+
+@defun matrix4f->quatf m
+@defunx matrix4f->quatf! q m
+Extracts the rotation component of a matrix @var{m} and
+returns a quaterion that represents the rotation.
+@code{Matrix4f->quatf!} also uses @var{q} as the storage
+to store the result.
 @end defun
 
 @defun quatf-slerp p q t

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.27 2008-06-04 21:21:27 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.28 2008-06-05 07:53:15 shirok Exp $
 ;;;
 
 "
@@ -114,6 +114,41 @@
   "Scm_Vector4fSubv(SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(y));
   SCM_RETURN(SCM_OBJ(x));")
 
+(define-cise-stmt vec4-eltwise
+  [(_ stmts ...)
+   (letrec ((replace (lambda (form i)
+                       (match form
+                         ['_ i]
+                         [(xs ...) (map (cut replace <> i) xs)]
+                         [_ form]))))
+     `(begin ,@(append-map (lambda (stmt)
+                             (map (cute replace stmt <>) '(0 1 2 3)))
+                           stmts)))])
+
+(define-cproc vector4f-mul (x::<vector4f> f::<real>)
+  (body <top>
+        (let* ((|r[4]| :: float))
+          (vec4-eltwise (set! (aref r _) (* (SCM_VECTOR4F_REF x _) f)))
+          (return (Scm_MakeVector4fv r)))))
+
+(define-cproc vector4f-mul! (x::<vector4f> f::<real>)
+  (body <top>
+        (vec4-eltwise
+         (set! (SCM_VECTOR4F_REF x _) (* (SCM_VECTOR4F_REF x _) f)))
+        (return (SCM_OBJ x))))
+
+(define-cproc vector4f-div (x::<vector4f> f::<real>)
+  (body <top>
+        (let* ((|r[4]| :: float))
+          (vec4-eltwise
+           (set! (aref r _) (/ (SCM_VECTOR4F_REF x _) f)))
+          (return (Scm_MakeVector4fv r)))))
+
+(define-cproc vector4f-div! (x::<vector4f> f::<real>)
+  (body <top>
+        (vec4-eltwise
+         (set! (SCM_VECTOR4F_REF x _) (/ (SCM_VECTOR4F_REF x _) f)))
+        (return (SCM_OBJ x))))
 
 ;; VectorArray --------------------------------------------------
 

@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.12 2008-06-04 11:46:25 shirok Exp $
+;;;  $Id: math3d.scm,v 1.13 2008-06-05 07:49:55 shirok Exp $
 ;;;
 
 (define-module gl.math3d
@@ -288,6 +288,13 @@
 
 (define-method object-- ((x <vector4f>))
   (vector4f-sub #,(vector4f 0 0 0) x))
+
+(define-method object-* ((v <vector4f>) (f <real>))
+  (vector4f-mul v f))
+(define-method object-* ((f <real>) (v <vector4f>))
+  (vector4f-mul v f))
+(define-method object-/ ((v <vector4f>) (f <real>))
+  (vector4f-div v f))
 
 (define-method object-* ((m <matrix4f>) (v <vector4f>))
   (matrix4f-mul m v))

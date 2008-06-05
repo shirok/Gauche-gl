@@ -1,3 +1,8 @@
+2008-06-05  Shiro Kawai  <shiro@acm.org>
+
+	* src/math3d-lib.stub (quatf-conjugate!, 4vectors->quatf,
+	  4vectors->quatf!): added.
+
 2008-06-04  Shiro Kawai  <shiro@acm.org>
 
 	* src/glext-lib.stub (gl-active-texture, gl-client-active-texture):

@@ -17,7 +17,7 @@
 @c COMMON
 @comment %**end of header
 
-@c $Id: gauche-gl-ref.texi,v 1.29 2008-06-05 07:47:11 shirok Exp $
+@c $Id: gauche-gl-ref.texi,v 1.30 2008-06-05 11:14:46 shirok Exp $
 
 @c module and class index
 @defcodeindex md
@@ -3626,7 +3626,19 @@ a f32vector (only first three component is used).
 @defunx 2vectors->quatf! q v w
 Given two unit vectors @var{v} and @var{w}, calculates and returns
 a quaternion that represents a rotation from @var{v} to @var{w}.
-@code{2vectors->quatf!} also stores the result to @var{q}.
+The destructive version @code{2vectors->quatf!} modifies @var{q}.
+@end defun
+
+@defun 4vectors->quatf v1 v2 w1 w2
+@defunx 4vectors->quatf! q v1 v2 w1 w2
+The arguments must be all unit vectors,
+@var{v1} and @var{v2} must be perpendicular, 
+and also @var{w1} and @var{w2} must be perpendicular.
+
+Calculates and returns a quaternion that represents a rotation
+which transforms @var{v1} to @var{w1}, and @var{v2} to @var{w2},
+respectively.  The destructive version stores the result
+into @var{q}.
 @end defun
 
 @defun quatf-add p q
@@ -3646,11 +3658,13 @@ The destructive version modifies @var{q}.
 @defun quatf-mul p q
 @defunx quatf-mul! p q
 Multiply two quaternions @var{p} and @var{q}.
-The destructive version modifies @var{p}.
+The destructive version modifies @var{p} as well.
 @end defun
 
-@defun quatf-conjugate q
-Returns a conjugate of a quaternion @var{q}.
+@defun quatf-conjugate p
+@defunx quatf-conjugate! q p
+Returns a conjugate of a quaternion @var{p}.
+The destructive version modifies @var{q} as well.
 @end defun
 
 @defun quatf-transform q p

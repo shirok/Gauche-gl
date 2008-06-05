@@ -12,7 +12,7 @@
  *  warranty.  In no circumstances the author(s) shall be liable
  *  for any damages arising out of the use of this software.
  *
- *  $Id: gauche-math3d.c,v 1.27 2008-06-04 21:21:19 shirok Exp $
+ *  $Id: gauche-math3d.c,v 1.28 2008-06-05 11:17:33 shirok Exp $
  */
 
 #include <math.h>
@@ -1224,6 +1224,18 @@ void Scm_Matrix4fToQuatfv(float q[], const float m[])
 }
 
 /*
+ * Transform a vector/point by quaternion
+ * calculates qvq*
+ */
+void Scm_QuatfTransformv(float r[], const float q[], const float v[])
+{
+    float qconj[4], s[4];
+    SCM_QUATF_CONJUGATEV(qconj, q);
+    Scm_QuatfMulv(s, q, v);
+    Scm_QuatfMulv(r, s, qconj);
+}
+
+/*
  * Interpolation
  */
 void Scm_QuatfSlerp(float r[], const float p[], const float q[], float t)
@@ -1264,6 +1276,30 @@ void Scm_TwoVectorsToQuatfv(float r[], const float v[], const float w[])
     r[1] = f*p[1];
     r[2] = f*p[2];
     r[3] = sqrtf((1+c)/2);
+}
+
+/*
+ * Four vectors -> Quaternion
+ *
+ *  (v1, v2) and (w1,w2) are pair of perpendicular unit vectors.  Calculates
+ *  a rotation that transforms v1 to w1 and v2 to w2.
+ */
+void Scm_FourVectorsToQuatfv(float r[],
+                             const float v1[],
+                             const float v2[],
+                             const float w1[],
+                             const float w2[])
+{
+    float q1[4], q2[4], c, t, s2, axis[4], wt[4];
+    Scm_TwoVectorsToQuatfv(q1, v1, w1);
+    Scm_QuatfTransformv(wt, q1, v2);
+    SCM_VECTOR4F_CROSSV(axis, wt, w2);
+    c = SCM_VECTOR4F_DOTV(w2, wt);  /* cos(t) */
+    t = acosf(c);
+    s2 = sinf(t/2);
+    q2[0] = axis[0] * s2; q2[1] = axis[1] * s2; q2[2] = axis[2] * s2;
+    q2[3] = cosf(t/2);
+    Scm_QuatfMulv(r, q2, q1);
 }
 
 /*=============================================================

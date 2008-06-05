@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d-lib.stub,v 1.28 2008-06-05 07:53:15 shirok Exp $
+;;;  $Id: math3d-lib.stub,v 1.29 2008-06-05 11:17:40 shirok Exp $
 ;;;
 
 "
@@ -647,7 +647,7 @@
   SCM_RETURN(Scm_QuatfSetv(p, r));")
 
 (define-cproc quatf-sub (p::<quatf> q::<quatf>)
-  (return "Scm_QuatfSub"))
+  (call "Scm_QuatfSub"))
 (define-cproc quatf-sub! (p::<quatf> q::<quatf>)
   "float r[4];
   Scm_QuatfSubv(r, SCM_QUATF_D(p), SCM_QUATF_D(q));
@@ -672,25 +672,35 @@
 
 ;; calculate qpq*
 (define-cproc quatf-transform (quat::<quatf> v)
-  "float *d, *q, qconj[4], s[4], r[4];
-  SCM_MATH3D_X4FP(d, v);
-  q = SCM_QUATF_D(quat);
-  qconj[0] = -q[0]; qconj[1] = -q[1]; qconj[2] = -q[2]; qconj[3] = q[3];
-  Scm_QuatfMulv(s, q, d);
-  Scm_QuatfMulv(r, s, qconj);
-  if (SCM_VECTOR4FP(v)) SCM_RETURN(Scm_MakeVector4fv(r));
-  else if (SCM_POINT4FP(v)) SCM_RETURN(Scm_MakePoint4fv(r));
-  else SCM_RETURN(Scm_MakeF32VectorFromArray(4, r));")
+  (body <top>
+        (let* ((d :: float*) (|r[4]| :: float))
+          (SCM_MATH3D_X4FP d v)
+          (Scm_QuatfTransformv r (SCM_QUATF_D quat) d)
+          (cond [(SCM_VECTOR4FP v) (result (Scm_MakeVector4fv r))]
+                [(SCM_POINT4FP v)  (result (Scm_MakePoint4fv r))]
+                [else (result (Scm_MakeF32VectorFromArray 4 r))]))))
 
 (define-cproc quatf-conjugate (q::<quatf>)
-  "float *d = SCM_QUATF_D(q);
-  SCM_RETURN(Scm_MakeQuatf(-d[0], -d[1], -d[2], d[3]));")
+  (body <top>
+        (let* ((d :: float* (SCM_QUATF_D q)))
+          (result (Scm_MakeQuatf (- (aref d 0)) (- (aref d 1)) (- (aref d 2))
+                                 (aref d 3))))))
+
+(define-cproc quatf-conjugate! (q::<quatf> p::<quatf>)
+  (body <top>
+        (let* ((s :: float* (SCM_QUATF_D p))
+               (d :: float* (SCM_QUATF_D q)))
+          (SCM_QUATF_CONJUGATEV d s)
+          (result (SCM_OBJ q)))))
+
 (define-cproc quatf-norm (q::<quatf>)
-  "SCM_RETURN(Scm_MakeFlonum(SCM_QUATF_NORMV(SCM_QUATF_D(q))));")
+  (expr <top> (Scm_MakeFlonum (SCM_QUATF_NORMV (SCM_QUATF_D q)))))
+
 (define-cproc quatf-normalize (q::<quatf>)
-  (return "Scm_QuatfNormalize"))
+  (call "Scm_QuatfNormalize"))
+
 (define-cproc quatf-normalize! (q::<quatf>)
-  (return "Scm_QuatfNormalizeX"))
+  (call "Scm_QuatfNormalizeX"))
 
 (define-cproc quatf->matrix4f (q::<quatf>)
   "float m[16];
@@ -701,35 +711,59 @@
   SCM_RETURN(SCM_OBJ(m));")
 
 (define-cproc matrix4f->quatf (m::<matrix4f>)
-  "float q[4];
-  Scm_Matrix4fToQuatfv(q, SCM_MATRIX4F_D(m));
-  SCM_RETURN(Scm_MakeQuatfv(q));")
+  (body <top>
+        (let* ((|q[4]| :: float))
+          (Scm_Matrix4fToQuatfv q (SCM_MATRIX4F_D m))
+          (result (Scm_MakeQuatfv q)))))
+
 (define-cproc matrix4f->quatf! (q::<quatf> m::<matrix4f>)
-  "Scm_Matrix4fToQuatfv(SCM_QUATF_D(q), SCM_MATRIX4F_D(m));
-  SCM_RETURN(SCM_OBJ(q));")
+  (body <top>
+        (Scm_Matrix4fToQuatfv (SCM_QUATF_D q) (SCM_MATRIX4F_D m))
+        (result (SCM_OBJ q))))
 
 (define-cproc quatf-slerp (p::<quatf> q::<quatf> t::<real>)
   (body <top>
         (let* ((|r[4]| :: float))
           (Scm_QuatfSlerp r (SCM_QUATF_D p) (SCM_QUATF_D q) t)
-          (return (Scm_MakeQuatfv r)))))
+          (result (Scm_MakeQuatfv r)))))
 
 (define-cproc quatf-slerp! (r::<quatf> p::<quatf> q::<quatf> t::<real>)
   (body <top>
         (Scm_QuatfSlerp (SCM_QUATF_D r) (SCM_QUATF_D p) (SCM_QUATF_D q) t)
-        (return (SCM_OBJ r))))
+        (result (SCM_OBJ r))))
 
 (define-cproc 2vectors->quatf (v::<vector4f> w::<vector4f>)
   (body <top>
         (let* ((|r[4]| :: float))
           (Scm_TwoVectorsToQuatfv r (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
-          (return (Scm_MakeQuatfv r)))))
+          (result (Scm_MakeQuatfv r)))))
 
 (define-cproc 2vectors->quatf! (q::<quatf> v::<vector4f> w::<vector4f>)
   (body <top>
         (Scm_TwoVectorsToQuatfv (SCM_QUATF_D q)
                                 (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
-        (return (SCM_OBJ q))))
+        (result (SCM_OBJ q))))
+
+(define-cproc 4vectors->quatf (v1::<vector4f>
+                               v2::<vector4f>
+                               w1::<vector4f>
+                               w2::<vector4f>)
+  (body <top>
+        (let* ((|r[4]| :: float))
+          (Scm_FourVectorsToQuatfv r (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
+                                   (SCM_VECTOR4F_D w1) (SCM_VECTOR4F_D w2))
+          (result (Scm_MakeQuatfv r)))))
+
+(define-cproc 4vectors->quatf! (q::<quatf>
+                                v1::<vector4f>
+                                v2::<vector4f>
+                                w1::<vector4f>
+                                w2::<vector4f>)
+  (body <top>
+        (Scm_FourVectorsToQuatfv (SCM_QUATF_D q)
+                                 (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
+                                 (SCM_VECTOR4F_D w1) (SCM_VECTOR4F_D w2))
+        (result (SCM_OBJ q))))
 
 ;; Local variables:
 ;; mode: scheme

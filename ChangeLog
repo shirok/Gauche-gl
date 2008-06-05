@@ -1,5 +1,8 @@
 2008-06-04  Shiro Kawai  <shiro@acm.org>
 
+	* src/glext-lib.stub (gl-active-texture, gl-client-active-texture):
+	  added sans '-arb' versions, which were added in GL1.3.
+
 	* src/math3d-lib.stub (vector4f-norm, matrix4f->translation,
 	  matrix4f->translation!, 2vectors->quatf, 2vectors->quatf!,
 	  vector4f-mul, vector4f-mul!, vector4f-div): added.

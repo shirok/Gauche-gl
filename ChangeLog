@@ -1,5 +1,7 @@
 2008-06-05  Shiro Kawai  <shiro@acm.org>
 
+	* repository migrated to subversion.
+
 	* src/math3d-lib.stub (quatf-conjugate!, 4vectors->quatf,
 	  4vectors->quatf!): added.
 

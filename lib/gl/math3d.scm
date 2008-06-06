@@ -12,7 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: math3d.scm,v 1.13 2008-06-05 07:49:55 shirok Exp $
+;;;  $Id: math3d.scm,v 1.14 2008-06-06 00:58:26 shirok Exp $
 ;;;
 
 (define-module gl.math3d
@@ -273,6 +273,8 @@
 (define-method object-+ ((x <vector4f>) (y <vector4f>))
   (vector4f-add x y))
 (define-method object-+ ((x <point4f>) (y <vector4f>))
+  (point4f-add x y))
+(define-method object-+ ((y <vector4f>) (x <point4f>))
   (point4f-add x y))
 (define-method object-+ ((x <quatf>) (y <quatf>))
   (quatf-add x y))

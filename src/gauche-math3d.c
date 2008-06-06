@@ -1259,9 +1259,9 @@ void Scm_QuatfSlerp(float r[], const float p[], const float q[], float t)
 
 
 /*
- * Two vectors -> Quaternion
+ * vectors -> Quaternion
  */
-void Scm_TwoVectorsToQuatfv(float r[], const float v[], const float w[])
+void Scm_VectorsToQuatfv(float r[], const float v[], const float w[])
 {
     float p[4], c, s2, f;
     SCM_VECTOR4F_CROSSV(p, v, w);
@@ -1279,19 +1279,19 @@ void Scm_TwoVectorsToQuatfv(float r[], const float v[], const float w[])
 }
 
 /*
- * Four vectors -> Quaternion
+ * Axes -> Quaternion
  *
  *  (v1, v2) and (w1,w2) are pair of perpendicular unit vectors.  Calculates
  *  a rotation that transforms v1 to w1 and v2 to w2.
  */
-void Scm_FourVectorsToQuatfv(float r[],
-                             const float v1[],
-                             const float v2[],
-                             const float w1[],
-                             const float w2[])
+void Scm_AxesToQuatfv(float r[],
+                      const float v1[],
+                      const float v2[],
+                      const float w1[],
+                      const float w2[])
 {
     float q1[4], q2[4], c, t, s2, axis[4], wt[4];
-    Scm_TwoVectorsToQuatfv(q1, v1, w1);
+    Scm_VectorsToQuatfv(q1, v1, w1);
     Scm_QuatfTransformv(wt, q1, v2);
     SCM_VECTOR4F_CROSSV(axis, wt, w2);
     SCM_VECTOR4F_NORMALIZEV(axis);

@@ -732,37 +732,37 @@
         (Scm_QuatfSlerp (SCM_QUATF_D r) (SCM_QUATF_D p) (SCM_QUATF_D q) t)
         (result (SCM_OBJ r))))
 
-(define-cproc 2vectors->quatf (v::<vector4f> w::<vector4f>)
+(define-cproc vectors->quatf (v::<vector4f> w::<vector4f>)
   (body <top>
         (let* ((|r[4]| :: float))
-          (Scm_TwoVectorsToQuatfv r (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
+          (Scm_VectorsToQuatfv r (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
           (result (Scm_MakeQuatfv r)))))
 
-(define-cproc 2vectors->quatf! (q::<quatf> v::<vector4f> w::<vector4f>)
+(define-cproc vectors->quatf! (q::<quatf> v::<vector4f> w::<vector4f>)
   (body <top>
-        (Scm_TwoVectorsToQuatfv (SCM_QUATF_D q)
-                                (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
+        (Scm_VectorsToQuatfv (SCM_QUATF_D q)
+                             (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
         (result (SCM_OBJ q))))
 
-(define-cproc 4vectors->quatf (v1::<vector4f>
-                               v2::<vector4f>
-                               w1::<vector4f>
-                               w2::<vector4f>)
+(define-cproc axes->quatf (v1::<vector4f>
+                           v2::<vector4f>
+                           w1::<vector4f>
+                           w2::<vector4f>)
   (body <top>
         (let* ((|r[4]| :: float))
-          (Scm_FourVectorsToQuatfv r (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
+          (Scm_AxesToQuatfv r (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
                                    (SCM_VECTOR4F_D w1) (SCM_VECTOR4F_D w2))
           (result (Scm_MakeQuatfv r)))))
 
-(define-cproc 4vectors->quatf! (q::<quatf>
+(define-cproc axes->quatf! (q::<quatf>
                                 v1::<vector4f>
                                 v2::<vector4f>
                                 w1::<vector4f>
                                 w2::<vector4f>)
   (body <top>
-        (Scm_FourVectorsToQuatfv (SCM_QUATF_D q)
-                                 (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
-                                 (SCM_VECTOR4F_D w1) (SCM_VECTOR4F_D w2))
+        (Scm_AxesToQuatfv (SCM_QUATF_D q)
+                          (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
+                          (SCM_VECTOR4F_D w1) (SCM_VECTOR4F_D w2))
         (result (SCM_OBJ q))))
 
 ;; Local variables:

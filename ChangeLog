@@ -1,5 +1,10 @@
 2008-06-05  Shiro Kawai  <shiro@acm.org>
 
+	* src/gauche-math3d.c, src/gauche/math3d.h (Scm_VectorsToQuatf,
+	  Scm_AxesToQuatf): renamed from Scm_{Two|Four}Vectors...
+	* src/math3d-lib.stub (vectors->quatf, axes->quatf): renamed
+	  accordingly.
+
 	* repository migrated to subversion.
 
 	* src/math3d-lib.stub (quatf-conjugate!, 4vectors->quatf,

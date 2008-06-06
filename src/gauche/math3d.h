@@ -312,12 +312,12 @@ extern void Scm_QuatfTransformv(float r[], const float q[], const float v[]);
 extern void   Scm_QuatfSlerp(float *r, const float *p, const float *q, float t);
 
 /* v[], v1[], v2[], w[], w1[] and w2[] must be unit vectors */
-extern void   Scm_TwoVectorsToQuatfv(float *r, const float *v, const float *w);
-extern void   Scm_FourVectorsToQuatfv(float r[],
-                                      const float v1[],
-                                      const float v2[],
-                                      const float w1[],
-                                      const float w2[]);
+extern void   Scm_VectorsToQuatfv(float *r, const float *v, const float *w);
+extern void   Scm_AxesToQuatfv(float r[],
+                               const float v1[],
+                               const float v2[],
+                               const float w1[],
+                               const float w2[]);
 
 /*=============================================================
  * Matrix

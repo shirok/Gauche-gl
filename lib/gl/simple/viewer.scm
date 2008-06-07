@@ -224,10 +224,15 @@
   (axis 0.0 1.0 0.0)
   (axis 0.0 0.0 1.0))
 
+(define (quit-loop)
+  (cond-expand
+   [gauche.sys.pthreads (thread-terminate! (current-thread))]
+   [else (exit)]))
+
 ;;
 ;; Set up default keymaps
 ;;
 
-(simple-viewer-set-key! #\escape (lambda _ (exit)))
+(simple-viewer-set-key! #\escape (lambda _ (quit-loop)))
 
 (provide "gl/simple/viewer")

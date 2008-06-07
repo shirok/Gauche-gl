@@ -1,3 +1,8 @@
+2008-06-06  Shiro Kawai  <shiro@acm.org>
+
+	* lib/gl/simple/viewer.scm: added.
+	* examples/simple/minimum-viewer.scm: added.
+
 2008-06-05  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-math3d.c, src/gauche/math3d.h (Scm_VectorsToQuatf,

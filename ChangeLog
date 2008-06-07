@@ -1,5 +1,8 @@
 2008-06-06  Shiro Kawai  <shiro@acm.org>
 
+	* lib/gl/simple/image.scm, lib/gl/simple-image.scm: Moved
+	  gl.simple-image to gl.simple.image.
+
 	* lib/gl/simple/viewer.scm: added.
 	* examples/simple/minimum-viewer.scm: added.
 

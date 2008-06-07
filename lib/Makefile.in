@@ -15,7 +15,8 @@ SCMFILES = gl.scm        \
 	   gl/math3d.scm \
 	   gl/glut.scm   \
            gl/simple-image.scm \
-	   gl/simple/viewer.scm
+	   gl/simple/viewer.scm \
+	   gl/simple/image.scm
 
 CONFIG_GENERATED = Makefile
 

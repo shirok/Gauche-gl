@@ -2,7 +2,7 @@
 
 (use gl)
 (use gl.glut)
-(use gl.simple-image)
+(use gl.simple.image)
 (use gauche.uvector)
 (use util.match)
 

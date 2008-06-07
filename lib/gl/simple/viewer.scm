@@ -42,6 +42,7 @@
   (use gl)
   (use gl.glut)
   (use gl.math3d)
+  (use util.match)
   (use srfi-42)
   (export simple-viewer-window
           simple-viewer-display
@@ -76,10 +77,16 @@
 (define-access-fn simple-viewer-grid    *grid-proc*)
 (define-access-fn simple-viewer-axis    *axis-proc*)
 
-(define (simple-viewer-set-key! key proc)
-  (if proc
-    (hash-table-put! *key-handlers* key proc)
-    (hash-table-delete! *key-handlers* key)))
+(define (simple-viewer-set-key! . args)
+  (let loop ((args args))
+    (match args
+      [() '()]
+      [(key proc . rest)
+       (if proc
+         (hash-table-put! *key-handlers* key proc)
+         (hash-table-delete! *key-handlers* key))
+       (loop rest)]
+      [else '()])))
 
 (define (simple-viewer-window . keys)
   (let-keywords keys ((mode (logior GLUT_DOUBLE GLUT_DEPTH GLUT_RGB))
@@ -156,10 +163,12 @@
 
       (define (key-fn keycode x y)
         (cond [(hash-table-get *key-handlers* (integer->char keycode) #f)
-               => (cut <> x y)]))
+               => (cut <> x y)])
+        (glut-post-redisplay))
 
       (define (special-fn keycode x y)
-        (cond [(hash-table-get *key-handlers* keycode #f) => (cut <> x y)]))
+        (cond [(hash-table-get *key-handlers* keycode #f) => (cut <> x y)])
+        (glut-post-redisplay))
 
       (glut-display-func  display-fn)
       (glut-reshape-func  reshape-fn)

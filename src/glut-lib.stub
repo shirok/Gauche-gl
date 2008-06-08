@@ -36,31 +36,21 @@
 ;;
 
 ;; glut-init
-;;   Takes list of args instead of C-style argc/argv
-(define-cproc glut-init (args)
-  "
-  int argc, i;
-  char **argv;
-  ScmObj ap;
+;;   Takes list of args instead of C-style argc/argv, and returns
+;;   (possibly modified) args.
 
-  argc = Scm_Length(args);
-  if (argc < 0) Scm_Error(\"list expected, but got %S\", args);
-  argv = SCM_NEW2(char **, argc * sizeof(char*));
-  i = 0;
-  SCM_FOR_EACH(ap, args) {
-    if (!SCM_STRINGP(SCM_CAR(ap))) {
-      Scm_Error(\"string expected, but got %S\", SCM_CAR(ap));
-    }
-    argv[i] = Scm_GetString(SCM_STRING(SCM_CAR(ap)));
-    i++;
-  }
-  glutInit(&argc, argv);
-  SCM_RETURN(Scm_MakeInteger(argc));
-  ")
+(define-cproc glut-init (args)
+  (body <top>
+        (let* ((argc :: int (Scm_Length args))
+               (argv :: char**))
+          (when (< argc 0) (SCM_TYPE_ERROR args "list"))
+          (set! argv (Scm_ListToCStringArray args TRUE NULL))
+          (glutInit (& argc) argv)
+          (result
+           (Scm_CStringArrayToList (cast |const char**| argv) argc 0)))))
 
 (define-cproc glut-init-display-mode (mode::<fixnum>)
-  "glutInitDisplayMode(mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutInitDisplayMode"))
 
 (define-cproc glut-init-display-string (string::<string>)
   "
@@ -70,32 +60,26 @@
   SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc glut-init-window-size (width::<int> height::<int>)
-  "glutInitWindowSize(width, height);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutInitWindowSize"))
 
 (define-cproc glut-init-window-position (x::<int> y::<int>)
-  "glutInitWindowPosition(x, y);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutInitWindowPosition"))
 
 (define-cproc glut-main-loop ()
-  "glutMainLoop();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutMainLoop"))
 
-(define-cproc glut-create-window (name::<string>)
-  "SCM_RETURN(Scm_MakeInteger(glutCreateWindow(Scm_GetStringConst(name))));")
+(define-cproc glut-create-window (name::<const-cstring>)
+  (call <int> "glutCreateWindow"))
 
 (define-cproc glut-create-sub-window (win::<int> x::<int> y::<int>
                                       width::<int> height::<int>)
-  "int win = glutCreateSubWindow(win, x, y, width, height);
-   SCM_RETURN(Scm_MakeInteger(win));")
+  (call <int> "glutCreateSubWindow"))
 
 (define-cproc glut-destroy-window (win::<int>)
-  "glutDestroyWindow(win);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutDestroyWindow"))
 
 (define-cproc glut-post-redisplay ()
-  "glutPostRedisplay();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutPostRedisplay"))
 
 (define-cproc glut-post-window-redisplay (win::<int>)
   "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
@@ -104,51 +88,40 @@
    SCM_RETURN(SCM_UNDEFINED);")
 
 (define-cproc glut-swap-buffers ()
-  "glutSwapBuffers();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutSwapBuffers"))
 
 (define-cproc glut-get-window ()
-  "SCM_RETURN(Scm_MakeInteger(glutGetWindow()));")
+  (call <int> "glutGetWindow"))
 
 (define-cproc glut-set-window (win::<int>)
-  "glutSetWindow(win);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutSetWindow"))
 
-(define-cproc glut-set-window-title (title::<string>)
-  "glutSetWindowTitle(Scm_GetStringConst(title));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-set-window-title (title::<const-cstring>)
+  (call <void> "glutSetWindowTitle"))
 
-(define-cproc glut-set-icon-title (title::<string>)
-  "glutSetIconTitle(Scm_GetStringConst(title));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-set-icon-title (title::<const-cstring>)
+  (call <void> "glutSetIconTitle"))
 
 (define-cproc glut-position-window (x::<int> y::<int>)
-  "glutPositionWindow(x, y);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutPositionWindow"))
 
 (define-cproc glut-reshape-window (width::<int> height::<int>)
-  "glutReshapeWindow(width, height);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutReshapeWindow"))
 
 (define-cproc glut-push-window ()
-  "glutPushWindow();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutPushWindow"))
 
 (define-cproc glut-pop-window ()
-  "glutPopWindow();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutPopWindow"))
 
 (define-cproc glut-iconify-window ()
-  "glutIconifyWindow();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutIconifyWindow"))
 
 (define-cproc glut-show-window ()
-  "glutShowWindow();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutShowWindow"))
 
 (define-cproc glut-hide-window ()
-  "glutHideWindow();
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutHideWindow"))
 
 (define-cproc glut-full-screen ()
   "#if (GLUT_API_VERSION >= 3)
@@ -789,24 +762,23 @@ static ScmObj timer_fn = SCM_FALSE;
 ;;
 
 (define-cproc glut-set-color (index::<int> r::<float> g::<float> b::<float>)
-  (return <void> "glutSetColor"))
+  (call <void> "glutSetColor"))
 
 (define-cproc glut-get-color (index::<int> component::<fixnum>)
   "SCM_RETURN(Scm_MakeFlonum((double)glutGetColor(index, component)));")
 
 (define-cproc glut-copy-colormap (win::<int>)
-  "glutCopyColormap(win);
-   SCM_RETURN(SCM_UNDEFINED);")
+  (call <void> "glutCopyColormap"))
 
 ;;========================================================
 ;; state retrieval
 ;;
 
 (define-cproc glut-get (type::<int>)
-  "SCM_RETURN(Scm_MakeInteger(glutGet(type)));")
+  (call <int> "glutGet"))
 
 (define-cproc glut-device-get (type::<int>)
-  "SCM_RETURN(Scm_MakeInteger(glutDeviceGet(type)));")
+  (call <int> "glutDeviceGet"))
 
 (define-cproc glut-extension-supported (name::<string>)
   "#if (GLUT_API_VERSION >= 2)
@@ -871,62 +843,62 @@ static ScmObj timer_fn = SCM_FALSE;
 ;;
 
 (define-cproc glut-wire-sphere (radius::<real> slices::<int> stacks::<int>)
-  (return <void> "glutWireSphere"))
+  (call <void> "glutWireSphere"))
 
 (define-cproc glut-solid-sphere (radius::<real> slices::<int> stacks::<int>)
-  (return <void> "glutSolidSphere"))
+  (call <void> "glutSolidSphere"))
 
 (define-cproc glut-wire-cone (radius::<real> height::<real>
                               slices::<int> stacks::<int>)
-  (return <void> "glutWireCone"))
+  (call <void> "glutWireCone"))
 
 (define-cproc glut-solid-cone (radius::<real> height::<real>
                                slices::<int> stacks::<int>)
-  (return <void> "glutSolidCone"))
+  (call <void> "glutSolidCone"))
 
 (define-cproc glut-wire-cube (size::<real>)
-  (return <void> "glutWireCube"))
+  (call <void> "glutWireCube"))
 
 (define-cproc glut-solid-cube (size::<real>)
-  (return <void> "glutSolidCube"))
+  (call <void> "glutSolidCube"))
 
 (define-cproc glut-wire-torus (inner::<real> outer::<real>
                                sides::<int> rings::<int>)
-  (return <void> "glutWireTorus"))
+  (call <void> "glutWireTorus"))
 
 (define-cproc glut-solid-torus (inner::<real> outer::<real>
                                 sides::<int> rings::<int>)
-  (return <void> "glutSolidTorus"))
+  (call <void> "glutSolidTorus"))
 
 (define-cproc glut-wire-dodecahedron ()
-  (return <void> "glutWireDodecahedron"))
+  (call <void> "glutWireDodecahedron"))
 
 (define-cproc glut-solid-dodecahedron ()
-  (return <void> "glutSolidDodecahedron"))
+  (call <void> "glutSolidDodecahedron"))
 
 (define-cproc glut-wire-teapot (size::<real>)
-  (return <void> "glutWireTeapot"))
+  (call <void> "glutWireTeapot"))
 
 (define-cproc glut-solid-teapot (size::<real>)
-  (return <void> "glutSolidTeapot"))
+  (call <void> "glutSolidTeapot"))
 
 (define-cproc glut-wire-octahedron ()
-  (return <void> "glutWireOctahedron"))
+  (call <void> "glutWireOctahedron"))
 
 (define-cproc glut-solid-octahedron ()
-  (return <void> "glutSolidOctahedron"))
+  (call <void> "glutSolidOctahedron"))
 
 (define-cproc glut-wire-tetrahedron ()
-  (return <void> "glutWireTetrahedron"))
+  (call <void> "glutWireTetrahedron"))
 
 (define-cproc glut-solid-tetrahedron ()
-  (return <void> "glutSolidTetrahedron"))
+  (call <void> "glutSolidTetrahedron"))
 
 (define-cproc glut-wire-icosahedron ()
-  (return <void> "glutWireIcosahedron"))
+  (call <void> "glutWireIcosahedron"))
 
 (define-cproc glut-solid-icosahedron ()
-  (return <void> "glutSolidIcosahedron"))
+  (call <void> "glutSolidIcosahedron"))
 
 ;;========================================================
 ;; Video resize

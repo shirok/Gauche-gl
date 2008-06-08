@@ -1,3 +1,14 @@
+2008-06-08  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-glut.c (Scm_GlutRegisterCallback),
+	  src/gauche-glut.h,
+	  src/glut-lib.stub (glut-display-func etc): Rewrote to support
+	  per-window callbacks properly---the old version kept one
+	  closure per callback, so it was impossible to register different
+	  callbacks for multiple windows, and also it worked incorrectly
+	  since the last registered closure were called for all windows.
+	  Now we manage closure vectors associated to each window.
+
 2008-06-06  Shiro Kawai  <shiro@acm.org>
 
 	* lib/gl/simple/image.scm, lib/gl/simple-image.scm: Moved

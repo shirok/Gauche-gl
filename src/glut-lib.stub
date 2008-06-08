@@ -261,501 +261,60 @@
 ;; Callbacks
 ;;
 
-;; GLUT callbacks doesn't allow function to carry closure information,
-;; hence static variables.
-
-;; display ---------------
-"static ScmObj display_fn = SCM_FALSE;
- static void display_callback(void)
- {
-   if (SCM_PROCEDUREP(display_fn)) {
-      Scm_ApplyRec(display_fn, SCM_NIL);
-   }
- }"
+;; Most Glut callbacks are associated to the "current window".
+;; Scm_GlutRegisterCallback handles the association.
 
 (define-cproc glut-display-func (fn)
-  "  display_fn = fn;
-  if (SCM_PROCEDUREP(display_fn)) {
-    glutDisplayFunc(display_callback);
-  } else {
-    glutDisplayFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; reshape ---------------
-"static ScmObj reshape_fn = SCM_FALSE;
- static void reshape_callback(int w, int h)
- {
-   if (SCM_PROCEDUREP(reshape_fn)) {
-      Scm_ApplyRec(reshape_fn, SCM_LIST2(SCM_MAKE_INT(w), SCM_MAKE_INT(h)));
-   }
- }"
-
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_DISPLAY fn 0 0)))
+(define-cproc glut-overlay-display-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_OVERLAY_DISPLAY fn 0 0)))
 (define-cproc glut-reshape-func (fn)
-  "  reshape_fn = fn;
-  if (SCM_PROCEDUREP(reshape_fn)) {
-    glutReshapeFunc(reshape_callback);
-  } else {
-    glutReshapeFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; keyboard ---------------
-"static ScmObj keyboard_fn = SCM_FALSE;
- static void keyboard_callback(unsigned char key, int x, int y)
- {
-   if (SCM_PROCEDUREP(keyboard_fn)) {
-      Scm_ApplyRec(keyboard_fn, SCM_LIST3(SCM_MAKE_INT(key),
-                                       SCM_MAKE_INT(x),
-                                       SCM_MAKE_INT(y)));
-   }
- }"
-
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_RESHAPE fn 0 0)))
 (define-cproc glut-keyboard-func (fn)
-  "  keyboard_fn = fn;
-  if (SCM_PROCEDUREP(keyboard_fn)) {
-    glutKeyboardFunc(keyboard_callback);
-  } else {
-    glutKeyboardFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; mouse ---------------
-"static ScmObj mouse_fn = SCM_FALSE;
- static void mouse_callback(int button, int state, int x, int y)
- {
-   if (SCM_PROCEDUREP(mouse_fn)) {
-      Scm_ApplyRec(mouse_fn, SCM_LIST4(SCM_MAKE_INT(button),
-                                    SCM_MAKE_INT(state),
-                                    SCM_MAKE_INT(x),
-                                    SCM_MAKE_INT(y)));
-  }
- }"
-
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_KEYBOARD fn 0 0)))
+(define-cproc glut-keyboard-up-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_KEYBOARD_UP fn 0 0)))
 (define-cproc glut-mouse-func (fn)
-  "  mouse_fn = fn;
-  if (SCM_PROCEDUREP(mouse_fn)) {
-    glutMouseFunc(mouse_callback);
-  } else {
-    glutMouseFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; motion ---------------
-"static ScmObj motion_fn = SCM_FALSE;
- static void motion_callback(int x, int y)
- {
-   if (SCM_PROCEDUREP(motion_fn)) {
-      Scm_ApplyRec(motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
-                                     SCM_MAKE_INT(y)));
-   }
- }"
-
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_MOUSE fn 0 0)))
 (define-cproc glut-motion-func (fn)
-  "  motion_fn = fn;
-  if (SCM_PROCEDUREP(motion_fn)) {
-    glutMotionFunc(motion_callback);
-  } else {
-    glutMotionFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; passiveMotion ---------------
-"static ScmObj passive_motion_fn = SCM_FALSE;
- static void passive_motion_callback(int x, int y)
- {
-   if (SCM_PROCEDUREP(passive_motion_fn)) {
-      Scm_ApplyRec(passive_motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
-                                     SCM_MAKE_INT(y)));
-   }
- }"
-
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_MOTION fn 0 0)))
 (define-cproc glut-passive-motion-func (fn)
-  "  passive_motion_fn = fn;
-  if (SCM_PROCEDUREP(passive_motion_fn)) {
-    glutPassiveMotionFunc(passive_motion_callback);
-  } else {
-    glutPassiveMotionFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; Entry ---------------
-"static ScmObj entry_fn = SCM_FALSE;
- static void entry_callback(int state)
- {
-   if (SCM_PROCEDUREP(entry_fn)) {
-      Scm_ApplyRec(entry_fn, SCM_LIST1(SCM_MAKE_INT(state)));
-   }
- }"
-
-(define-cproc glut-entry-func (fn)
-  "  entry_fn = fn;
-  if (SCM_PROCEDUREP(entry_fn)) {
-    glutEntryFunc(entry_callback);
-  } else {
-    glutEntryFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; Visibility ---------------
-"static ScmObj visibility_fn = SCM_FALSE;
- static void visibility_callback(int state)
- {
-   if (SCM_PROCEDUREP(visibility_fn)) {
-      Scm_ApplyRec(visibility_fn, SCM_LIST1(SCM_MAKE_INT(state)));
-   }
- }"
-
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_PASSIVE_MOTION fn 0 0)))
 (define-cproc glut-visibility-func (fn)
-  "  visibility_fn = fn;
-  if (SCM_PROCEDUREP(visibility_fn)) {
-    glutVisibilityFunc(visibility_callback);
-  } else {
-    glutVisibilityFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_VISIBILITY fn 0 0)))
+(define-cproc glut-entry-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_ENTRY fn 0 0)))
+(define-cproc glut-special-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPECIAL fn 0 0)))
+(define-cproc glut-special-up-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPECIAL_UP fn 0 0)))
+(define-cproc glut-spaceball-motion-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPACEBALL_MOTION fn 0 0)))
+(define-cproc glut-spaceball-rotate-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPACEBALL_ROTATE fn 0 0)))
+(define-cproc glut-spaceball-button-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPACEBALL_BUTTON fn 0 0)))
+(define-cproc glut-button-box-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_BUTTON_BOX fn 0 0)))
+(define-cproc glut-dials (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_DIALS fn 0 0)))
+(define-cproc glut-tablet-motion-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_TABLET_MOTION fn 0 0)))
+(define-cproc glut-tablet-button-func (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_TABLET_BUTTON fn 0 0)))
+(define-cproc glut-menu-status (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_MENU_STATUS fn 0 0)))
+(define-cproc glut-window-status (fn)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_WINDOW_STATUS fn 0 0)))
+(define-cproc glut-joystick-func (fn interval::<int>)
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_JOYSTICK fn interval 0)))
 
-;; Idle ---------------
-"static ScmObj idle_fn = SCM_FALSE;
- static void idle_callback(void)
- {
-   if (SCM_PROCEDUREP(idle_fn)) {
-      Scm_ApplyRec(idle_fn, SCM_NIL);
-   }
- }"
 
 (define-cproc glut-idle-func (fn)
-  " idle_fn = fn;
-  if (SCM_PROCEDUREP(idle_fn)) {
-    glutIdleFunc(idle_callback);
-  } else {
-    glutIdleFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; Timer ---------------
-"/* TODO: glut-timer-func can not use multiple timer entry. This is not correct implementation. */
-static ScmObj timer_fn = SCM_FALSE;
- static void timer_callback(int value)
- {
-   if (SCM_PROCEDUREP(timer_fn)) {
-      Scm_ApplyRec(timer_fn, SCM_LIST1(SCM_MAKE_INT(value)));
-   }
- }"
-
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_IDLE fn 0 0)))
 (define-cproc glut-timer-func (millis::<int> fn value::<int>)
-  "  timer_fn = fn;
-  glutTimerFunc(millis, timer_callback, value);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_IDLE fn millis value)))
 
-;; MenuState ---------------
-"static ScmObj menu_state_fn = SCM_FALSE;
- static void menu_state_callback(int state)
- {
-   if (SCM_PROCEDUREP(menu_state_fn)) {
-      Scm_ApplyRec(menu_state_fn, SCM_LIST1(SCM_MAKE_INT(state)));
-   }
- }"
-
-(define-cproc glut-menu-state-func (fn)
-  "  menu_state_fn = fn;
-  if (SCM_PROCEDUREP(menu_state_fn)) {
-    glutMenuStateFunc(menu_state_callback);
-  } else {
-    glutMenuStateFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; Special ------------------
-"static ScmObj special_fn = SCM_FALSE;
- static void special_callback(int key, int x, int y)
- {
-   if (SCM_PROCEDUREP(special_fn)) {
-      Scm_ApplyRec(special_fn, SCM_LIST3(SCM_MAKE_INT(key),
-                                      SCM_MAKE_INT(x),
-                                      SCM_MAKE_INT(y)));
-   }
- }"
-
-(define-cproc glut-special-func (fn)
-  "  special_fn = fn;
-  if (SCM_PROCEDUREP(special_fn)) {
-    glutSpecialFunc(special_callback);
-  } else {
-    glutSpecialFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; SpaceballMotion -----------
-"static ScmObj spaceball_motion_fn = SCM_FALSE;
- static void spaceball_motion_callback(int x, int y, int z)
- {
-   if (SCM_PROCEDUREP(spaceball_motion_fn)) {
-      Scm_ApplyRec(spaceball_motion_fn, SCM_LIST3(SCM_MAKE_INT(x),
-                                               SCM_MAKE_INT(y),
-                                               SCM_MAKE_INT(z)));
-   }
- }"
-
-(define-cproc glut-spaceball-motion-func (fn)
-  "  spaceball_motion_fn = fn;
-  if (SCM_PROCEDUREP(spaceball_motion_fn)) {
-    glutSpaceballMotionFunc(spaceball_motion_callback);
-  } else {
-    glutSpaceballMotionFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; SpaceballRotate ----------------------
-"static ScmObj spaceball_rotate_fn = SCM_FALSE;
- static void spaceball_rotate_callback(int x, int y, int z)
- {
-   if (SCM_PROCEDUREP(spaceball_rotate_fn)) {
-      Scm_ApplyRec(spaceball_rotate_fn, SCM_LIST3(SCM_MAKE_INT(x),
-                                               SCM_MAKE_INT(y),
-                                               SCM_MAKE_INT(z)));
-   }
- }"
-
-(define-cproc glut-spaceball-rotate-func (fn)
-  "  spaceball_rotate_fn = fn;
-  if (SCM_PROCEDUREP(spaceball_rotate_fn)) {
-    glutSpaceballRotateFunc(spaceball_rotate_callback);
-  } else {
-    glutSpaceballRotateFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; SpaceballButton ----------------------
-"static ScmObj spaceball_button_fn = SCM_FALSE;
- static void spaceball_button_callback(int button, int state)
- {
-   if (SCM_PROCEDUREP(spaceball_button_fn)) {
-      Scm_ApplyRec(spaceball_button_fn, SCM_LIST2(SCM_MAKE_INT(button),
-                                               SCM_MAKE_INT(state)));
-   }
- }"
-
-(define-cproc glut-spaceball-button-func (fn)
-  "  spaceball_button_fn = fn;
-  if (SCM_PROCEDUREP(spaceball_button_fn)) {
-    glutSpaceballButtonFunc(spaceball_button_callback);
-  } else {
-    glutSpaceballButtonFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; ButtonBox ----------------------------
-"static ScmObj button_box_fn = SCM_FALSE;
- static void button_box_callback(int button, int state)
- {
-   if (SCM_PROCEDUREP(button_box_fn)) {
-      Scm_ApplyRec(button_box_fn, SCM_LIST2(SCM_MAKE_INT(button),
-                                         SCM_MAKE_INT(state)));
-   }
- }"
-
-(define-cproc glut-button-box-func (fn)
-  "  button_box_fn = fn;
-  if (SCM_PROCEDUREP(button_box_fn)) {
-    glutButtonBoxFunc(button_box_callback);
-  } else {
-    glutButtonBoxFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; Dials -----------------------------------
-"static ScmObj dials_fn = SCM_FALSE;
- static void dials_callback(int button, int state)
- {
-   if (SCM_PROCEDUREP(dials_fn)) {
-      Scm_ApplyRec(dials_fn, SCM_LIST2(SCM_MAKE_INT(button),
-                                    SCM_MAKE_INT(state)));
-   }
- }"
-
-(define-cproc glut-dials-func (fn)
-  "  dials_fn = fn;
-  if (SCM_PROCEDUREP(dials_fn)) {
-    glutDialsFunc(dials_callback);
-  } else {
-    glutDialsFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; TabletMotion -------------------------
-"static ScmObj tablet_motion_fn = SCM_FALSE;
- static void tablet_motion_callback(int x, int y)
- {
-   if (SCM_PROCEDUREP(tablet_motion_fn)) {
-      Scm_ApplyRec(tablet_motion_fn, SCM_LIST2(SCM_MAKE_INT(x),
-                                            SCM_MAKE_INT(y)));
-   }
- }"
-
-(define-cproc glut-tablet-motion-func (fn)
-  "  tablet_motion_fn = fn;
-  if (SCM_PROCEDUREP(tablet_motion_fn)) {
-    glutTabletMotionFunc(tablet_motion_callback);
-  } else {
-    glutTabletMotionFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; TabletButton -------------------------
-"static ScmObj tablet_button_fn = SCM_FALSE;
- static void tablet_button_callback(int button, int state, int x, int y)
- {
-   if (SCM_PROCEDUREP(tablet_button_fn)) {
-      Scm_ApplyRec(tablet_button_fn, SCM_LIST4(SCM_MAKE_INT(button),
-                                            SCM_MAKE_INT(state),
-                                            SCM_MAKE_INT(x),
-                                            SCM_MAKE_INT(y)));
-   }
- }"
-
-(define-cproc glut-tablet-button-func (fn)
-  "  tablet_button_fn = fn;
-  if (SCM_PROCEDUREP(tablet_button_fn)) {
-    glutTabletButtonFunc(tablet_button_callback);
-  } else {
-    glutTabletButtonFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-
-;; MenuStatus -----------------------------
-"static ScmObj menu_status_fn = SCM_FALSE;
- static void menu_status_callback(int state, int x, int y)
- {
-   if (SCM_PROCEDUREP(menu_status_fn)) {
-      Scm_ApplyRec(menu_status_fn, SCM_LIST3(SCM_MAKE_INT(state),
-                                          SCM_MAKE_INT(x),
-                                          SCM_MAKE_INT(y)));
-   }
- }"
-
-(define-cproc glut-menu-status-func (fn)
-  "  menu_status_fn = fn;
-  if (SCM_PROCEDUREP(menu_status_fn)) {
-    glutMenuStatusFunc(menu_status_callback);
-  } else {
-    glutMenuStatusFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; OverlayDisplay
-"static ScmObj overlay_display_fn = SCM_FALSE;
- static void overlay_display_callback(void)
- {
-   if (SCM_PROCEDUREP(overlay_display_fn)) {
-      Scm_ApplyRec(overlay_display_fn, SCM_NIL);
-   }
- }"
-
-(define-cproc glut-ovelay-display-func (fn)
-  "  overlay_display_fn = fn;
-  if (SCM_PROCEDUREP(overlay_display_fn)) {
-    glutOverlayDisplayFunc(overlay_display_callback);
-  } else {
-    glutOverlayDisplayFunc(NULL);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; WindowStatus ---------------------------------
-"#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
- static ScmObj window_status_fn = SCM_FALSE;
- static void window_status_callback(int state)
- {
-   if (SCM_PROCEDUREP(window_status_fn)) {
-      Scm_ApplyRec(window_status_fn, SCM_LIST1(SCM_MAKE_INT(state)));
-   }
- }
-#endif"
-
-(define-cproc glut-window-status-func (fn)
-  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-  window_status_fn = fn;
-  if (SCM_PROCEDUREP(window_status_fn)) {
-    glutWindowStatusFunc(window_status_callback);
-  } else {
-    glutWindowStatusFunc(NULL);
-  }
-#endif
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; KeyboardUp ----------------------------
-"#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
- static ScmObj keyboard_up_fn = SCM_FALSE;
- static void keyboard_up_callback(unsigned char key, int x, int y)
- {
-   if (SCM_PROCEDUREP(keyboard_up_fn)) {
-      Scm_ApplyRec(keyboard_up_fn, SCM_LIST3(SCM_MAKE_INT(key),
-                                          SCM_MAKE_INT(x),
-                                          SCM_MAKE_INT(y)));
-   }
- }
-#endif"
-
-(define-cproc glut-keyboard-up-func (fn)
-  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-  keyboard_up_fn = fn;
-  if (SCM_PROCEDUREP(keyboard_up_fn)) {
-    glutKeyboardUpFunc(keyboard_up_callback);
-  } else {
-    glutKeyboardUpFunc(NULL);
-  }
-#endif
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; SpecialUp --------------------------------
-"#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
- static ScmObj special_up_fn = SCM_FALSE;
- static void special_up_callback(int key, int x, int y)
- {
-   if (SCM_PROCEDUREP(special_up_fn)) {
-      Scm_ApplyRec(special_up_fn, SCM_LIST3(SCM_MAKE_INT(key),
-                                         SCM_MAKE_INT(x),
-                                         SCM_MAKE_INT(y)));
-   }
- }
-#endif"
-
-(define-cproc glut-special-up-func (fn)
-  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-  special_up_fn = fn;
-  if (SCM_PROCEDUREP(special_up_fn)) {
-    glutSpecialUpFunc(special_up_callback);
-  } else {
-    glutSpecialUpFunc(NULL);
-  }
-#endif
-  SCM_RETURN(SCM_UNDEFINED);")
-
-;; Joystick ------------------------------------
-"#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
- static ScmObj joystick_fn = SCM_FALSE;
- static void joystick_callback(unsigned int mask, int x, int y, int z)
- {
-   if (SCM_PROCEDUREP(joystick_fn)) {
-      Scm_ApplyRec(joystick_fn, SCM_LIST4(Scm_MakeIntegerFromUI(mask),
-                                       SCM_MAKE_INT(x),
-                                       SCM_MAKE_INT(y),
-                                       SCM_MAKE_INT(z)));
-   }
- }
-#endif"
-
-(define-cproc glut-joystick-func (fn interval::<int>)
-  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-  joystick_fn = fn;
-  if (SCM_PROCEDUREP(joystick_fn)) {
-    glutJoystickFunc(joystick_callback, interval);
-  } else {
-    glutJoystickFunc(NULL, interval);
-  }
-#endif
-  SCM_RETURN(SCM_UNDEFINED);")
 
 ;;========================================================
 ;; Colormap

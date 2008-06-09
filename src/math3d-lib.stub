@@ -574,7 +574,7 @@
                                   (aref (SCM_MATRIX4F_D m) 14)
                                   0.0))))
 
-(define-cproc matrix4f->translation! (m::<matrix4f> v::<vector4f>)
+(define-cproc matrix4f->translation! (v::<vector4f> m::<matrix4f>)
   (body <top>
         (set! (SCM_VECTOR4F_REF v 0) (aref (SCM_MATRIX4F_D m) 12))
         (set! (SCM_VECTOR4F_REF v 1) (aref (SCM_MATRIX4F_D m) 13))
@@ -587,7 +587,7 @@
   float angle = Scm_Matrix4fToRotationv(SCM_MATRIX4F_D(m), v);
   SCM_RETURN(Scm_Values2(Scm_MakeVector4fv(v), Scm_MakeFlonum((double)angle)));")
 
-(define-cproc matrix4f->rotation! (m::<matrix4f> v::<vector4f>)
+(define-cproc matrix4f->rotation! (v::<vector4f> m::<matrix4f>)
   "float angle = Scm_Matrix4fToRotationv(SCM_MATRIX4F_D(m),
                                          SCM_VECTOR4F_D(v));
   SCM_RETURN(Scm_Values2(SCM_OBJ(v), Scm_MakeFlonum((double)angle)));")

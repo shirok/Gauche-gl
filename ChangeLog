@@ -1,6 +1,8 @@
 2008-06-09  Shiro Kawai  <shiro@acm.org>
 
 	* src/math3d-lib.stub (f32vector->matrix4f!): added.
+	  (matrix4f->rotation!, matrix4f->translation!): changed the argument
+	  order to be consistent of other linear update APIs.
 
 2008-06-08  Shiro Kawai  <shiro@acm.org>
 

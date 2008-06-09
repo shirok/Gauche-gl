@@ -311,7 +311,7 @@
                                    &optional (start::<fixnum> 0))
   (body <top>
         (let* ((size :: int (SCM_F32VECTOR_SIZE v)))
-          (when (or (< start 0) (> (- size start) 16))
+          (when (or (< start 0) (< (- size start) 16))
             (Scm_Error "f32vector too small: %S (start=%d)" v start))
           (result (Scm_MakeMatrix4fv (+ (SCM_F32VECTOR_ELEMENTS v) start))))))
 
@@ -320,7 +320,7 @@
                                     &optional (start::<fixnum> 0))
   (body <top>
         (let* ((size :: int (SCM_F32VECTOR_SIZE v)))
-          (when (or (< start 0) (> (- size start) 16))
+          (when (or (< start 0) (< (- size start) 16))
             (Scm_Error "f32vector too small: %S (start=%d)" v start))
           (Scm_Matrix4fSetv m (+ (SCM_F32VECTOR_ELEMENTS v) start))
           (result (SCM_OBJ m)))))

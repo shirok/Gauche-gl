@@ -1,3 +1,7 @@
+2008-06-09  Shiro Kawai  <shiro@acm.org>
+
+	* src/math3d-lib.stub (f32vector->matrix4f!): added.
+
 2008-06-08  Shiro Kawai  <shiro@acm.org>
 
 	* lib/gl/simple/viewer.scm: changed to keep callback and local

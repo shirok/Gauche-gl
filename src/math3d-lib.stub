@@ -309,17 +309,29 @@
 
 (define-cproc f32vector->matrix4f (v::<f32vector>
                                    &optional (start::<fixnum> 0))
-  "int size = SCM_F32VECTOR_SIZE(v);
-  if (start < 0 || size-start < 16)
-    Scm_Error(\"f32vector too small: %S (start=%d)\", v, start);
-  SCM_RETURN(Scm_MakeMatrix4fv(SCM_F32VECTOR_ELEMENTS(v)+start));")
+  (body <top>
+        (let* ((size :: int (SCM_F32VECTOR_SIZE v)))
+          (when (or (< start 0) (> (- size start) 16))
+            (Scm_Error "f32vector too small: %S (start=%d)" v start))
+          (result (Scm_MakeMatrix4fv (+ (SCM_F32VECTOR_ELEMENTS v) start))))))
+
+(define-cproc f32vector->matrix4f! (m::<matrix4f>
+                                    v::<f32vector>
+                                    &optional (start::<fixnum> 0))
+  (body <top>
+        (let* ((size :: int (SCM_F32VECTOR_SIZE v)))
+          (when (or (< start 0) (> (- size start) 16))
+            (Scm_Error "f32vector too small: %S (start=%d)" v start))
+          (Scm_Matrix4fSetv m (+ (SCM_F32VECTOR_ELEMENTS v) start))
+          (result (SCM_OBJ m)))))
+
 (define-cproc matrix4f->f32vector (m::<matrix4f>)
-  "SCM_RETURN(Scm_MakeF32VectorFromArray(16, SCM_MATRIX4F_D(m)));")
+  (expr <top> (Scm_MakeF32VectorFromArray 16 (SCM_MATRIX4F_D m))))
 
 (define-cproc matrix4f-copy (m::<matrix4f>)
-  "SCM_RETURN(Scm_MakeMatrix4fv(SCM_MATRIX4F_D(m)));")
+  (expr <top> (Scm_MakeMatrix4fv (SCM_MATRIX4F_D m))))
 (define-cproc matrix4f-copy! (dst::<matrix4f> src::<matrix4f>)
-  "SCM_RETURN(Scm_Matrix4fSetv(dst, SCM_MATRIX4F_D(src)));")
+  (expr <top> (Scm_Matrix4fSetv dst (SCM_MATRIX4F_D src))))
 
 (define-cproc matrix4f-mul (p::<matrix4f> q)
   "if (SCM_MATRIX4FP(q)) SCM_RETURN(Scm_Matrix4fMulMatrix4f(p, SCM_MATRIX4F(q)));

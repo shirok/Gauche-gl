@@ -1,5 +1,11 @@
 2008-06-08  Shiro Kawai  <shiro@acm.org>
 
+	* lib/gl/simple/viewer.scm: changed to keep callback and local
+	  state for each window individually.  APIs may take optional
+	  window name.  Without explicit window name, those APIs touches
+	  the global default settings, which will affect the windows
+	  created after the call.
+
 	* src/gauche-glut.c (Scm_GlutRegisterCallback),
 	  src/gauche-glut.h,
 	  src/glut-lib.stub (glut-display-func etc): Rewrote to support

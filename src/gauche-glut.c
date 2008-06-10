@@ -276,9 +276,7 @@ void Scm_GlutRegisterCallback(int type, ScmObj closure, int xtra1, int xtra2)
         }
     } else {
         timer_closure = closure;
-        if (SCM_FALSEP(closure)) {
-            glutTimerFunc(xtra1, NULL, xtra2);
-        } else {
+        if (!SCM_FALSEP(closure)) {
             glutTimerFunc(xtra1, timer_cb, xtra2);
         }
     }

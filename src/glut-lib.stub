@@ -313,7 +313,7 @@
 (define-cproc glut-idle-func (fn)
   (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_IDLE fn 0 0)))
 (define-cproc glut-timer-func (millis::<int> fn value::<int>)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_IDLE fn millis value)))
+  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_TIMER fn millis value)))
 
 
 ;;========================================================

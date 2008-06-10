@@ -43,6 +43,8 @@
   (use util.list)
   (use srfi-42)
   (export simple-viewer-window
+          simple-viewer-set-window
+          simple-viewer-get-window
           simple-viewer-display
           simple-viewer-reshape
           simple-viewer-grid
@@ -90,7 +92,7 @@
 (define (id->window id)
   (hash-table-get (class-slot-ref <simple-viewer-window> 'id-tab) id #f))
 (define (name->window-id name)
-  (and-let* [(win (name->window))] (ref win'id)))
+  (and-let* [(win (name->window name))] (ref win'id)))
 (define (id->window-name id)
   (and-let* [(win (id->window id))] (ref win'name)))
       

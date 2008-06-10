@@ -309,7 +309,7 @@
          => (cut <> x y)])
   (glut-post-redisplay))
 
-(define (common-special-func keycode x y)
+(define (common-special-func table keycode x y)
   (cond [(hash-table-get table keycode #f) => (cut <> x y)])
   (glut-post-redisplay))
 

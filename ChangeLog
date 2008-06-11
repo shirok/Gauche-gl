@@ -1,3 +1,8 @@
+2008-06-10  Shiro Kawai  <shiro@acm.org>
+
+	* src/gauche-math3d.c (Scm_AxesToQuatfv): clamp the cos(theta) value
+	  to avoid getting NaN from rounding error when we take acosf.
+
 2008-06-09  Shiro Kawai  <shiro@acm.org>
 
 	* src/math3d-lib.stub (f32vector->matrix4f!): added.

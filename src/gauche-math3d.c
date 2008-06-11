@@ -1296,6 +1296,8 @@ void Scm_AxesToQuatfv(float r[],
     SCM_VECTOR4F_CROSSV(axis, wt, w2);
     SCM_VECTOR4F_NORMALIZEV(axis);
     c = SCM_VECTOR4F_DOTV(w2, wt);  /* cos(t) */
+    if (c < -1.0f) c = -1.0f;
+    else if (c > 1.0f)  c = 1.0f;
     t = acosf(c);
     s2 = sinf(t/2);
     q2[0] = axis[0] * s2; q2[1] = axis[1] * s2; q2[2] = axis[2] * s2;

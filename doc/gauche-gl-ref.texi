@@ -59,7 +59,7 @@ This manual is for version @VERSION@.
 * OpenGL API::                  
 * GLUT API::                    
 * Vectors and matrices::        
-* Simple image handling::       
+* Simple utilities::            
 * Indices::                     
 @end menu
 
@@ -84,13 +84,12 @@ optimized for 3D homogeneous coordinates.
 The vector and matrix objects here can be directly passed to
 Gauche-gl functions.
 The functions are descrbied in @ref{Vectors and matrices}.
-@item gl.simple-image
-OpenGL doesn't provide any means of reading/writing image data, and
-it should be covered by other Gauche extensions.  However,
-it is sometimes handy to have simple means to handle external
-image data, so that you can do some experiment with Gauche-gl alone.
-This module provides minimal support for that.
-The functions are descrbied in @ref{Simple image handling}.
+@item gl.simple.*
+These modules provide simple APIs for programmers to
+hack up a very simple OpenGL application.  They are by no
+means intended for general application development, but
+would be handy for throwaway script.
+See @ref{Simple utilities} for the details.
 @end table
 
 @c ======================================================================
@@ -2918,7 +2917,7 @@ f64vector of size 4 or @code{<vector4f>} object.
 
 
 @c ======================================================================
-@node Vectors and matrices, Simple image handling, GLUT API, Top
+@node Vectors and matrices, Simple utilities, GLUT API, Top
 @chapter Vectors and matrices
 
 @deftp {Module} gl.math3d
@@ -3343,6 +3342,12 @@ it specifies the start offset in vector @var{v} to be used as
 initial values.  The f32vector @var{v} must have enough length.
 @end defun
 
+@defun f32vector->matrix4f! m v &optional (start 0)
+Extract 16 flonums in the f32vector @var{v} starting from the
+index @var{start}, and fill the matrix4f @var{m} with them.
+The f32vector @var{v} must have enough length.
+@end defun
+
 @defun matrix4f->f32vector m
 Returns a new f32vector that has elements from matrix4f @var{m}.
 @end defun
@@ -3535,7 +3540,7 @@ Extract the translation component from the given TRS matrix @var{m}
 and returns it as a @code{<vector4f>}.
 @end defun
 
-@defun matrix4f->translation! m v
+@defun matrix4f->translation! v m
 Extract the translation component from the given TRS matrix @var{m}
 and stores the result into a @code{<vector4f>} @var{v}.
 Returns @var{v}.
@@ -3546,7 +3551,7 @@ From given orthogonal matrix @var{m}, extracts and returns
 and rotation axis and angle, as a vector4f and a real number.
 @end defun
 
-@defun matrix4f->rotation! m v
+@defun matrix4f->rotation! v m
 Same as above, except the storage of vector4f @var{v} is reused
 to store the result axis.
 @end defun
@@ -3708,18 +3713,35 @@ to store the result.
 @defunx quatf-slerp! r p q t
 Returns a quaternion that interpolates between two
 unit quaternions @var{p} and @var{q}, by a scalar value @var{t}.
-The destructive version modifies @var{t}.
+The destructive version modifies @var{r}.
 @end defun
 
-
-
-
 @c ======================================================================
-@node Simple image handling, Indices, Vectors and matrices, Top
-@chapter Simple image handling
+@node Simple utilities, Indices, Vectors and matrices, Top
+@chapter Simple utilities
 
-@deftp {Module} gl.simple-image
-@mdindex gl.simple-image
+This chapter covers @code{gl.simple.*} modules.  They are
+provided for the convenience of those who wants quick experiment
+with Gauche-gl alone, without a hassle to install a bunch of
+other modules.  Their features are pretty limited, but you
+may find them handy when you need to hack up some throwaway
+script that need to show some graphics on the screen.
+
+@menu
+* Simple image handling::       
+* Simple viewer::               
+@end menu
+
+@node Simple image handling, Simple viewer, Simple utilities, Simple utilities
+@section Simple image handling
+
+@deftp {Module} gl.simple.image
+@mdindex gl.simple.image
+OpenGL doesn't provide any means of reading/writing image data, and
+it should be covered by other Gauche extensions.  However,
+it is sometimes handy to have simple means to handle external
+image data, so that you can do some experiment with Gauche-gl alone.
+
 This module provides a minimal support to handle external image
 data, so that one can do some experiment in Gauche-gl alone.
 
@@ -3748,10 +3770,140 @@ image data vector is usually huge, and you have to wait long
 for the REPL to display the entire result.
 @end defun
 
+@node Simple viewer,  , Simple image handling, Simple utilities
+@section Simple viewer
+
+@deftp {Module} gl.simple.viewer
+@mdindex gl.simple.viewer
+This module packages common operations to allow users to
+view 3D objects, controlling the camera by the mouse,
+and have some interactions with the keyboard.
+
+A typical way of using the viewer is like the following:
+
+@example
+(use gl)
+(use gl.glut)
+(use gl.simple.viewer)
+
+(define (main args)
+  (glut-init args)
+  (simple-viewer-display <your-display-thunk>)
+  (simple-viewer-set-key! <key> <handler> ...)
+  (simple-viewer-window <name> :title <title> ...)
+  (simple-viewer-run) ; loop forever.  type ESC to exit.
+  0)
+@end example
+
+The viewer handles mouse drag (to move the camera),
+and also draws reference grid and axes by default for
+your convenience.  You have to provide a thunk, which
+must draw your 3D object.
+
+For the keyboard events, you can use a convenient API
+to associate handler to the key (character for normal keys,
+and constants like @code{GL_LEFT_ARROW} for special keys).
+
+The reshape event is handled implicitly, though you can
+override it.
+
+If you call @code{simple-viewer-run}, it enters the event
+loop and never returns.  If you wish to keep REPL and/or
+other parts of your application run concurrently, 
+the convenient way is to run @code{simple-viewer-run}
+in a separate thread.
+
+@example
+(use gauche.threads)
+
+(define (run-viewer)
+  (thread-start! (make-thread simple-viewer-run #f)))
+@end example
+
+See also the code under @file{examples/simple} directory
+of the source tree for more examples.
+@end deftp
+
+@defun simple-viewer-window name &key title mode parent width height x y
+Creates a new GL window with @var{name}, which must be a symbol
+to identify the window later in the simple viewer framework.
+The window won't be shown until @code{simple-viewer-run} is called.
+
+Each window 
+@end defun
+
+
+@defun simple-viewer-display &optional display-thunk
+Gets/sets the display thunk, which is called every time
+the GL window is redrawn.  You can change the display thunk
+any time, even while the viewer thread is running.
+
+If no argument is given, returns the current display thunk.
+It can be @code{#f} if no display thunk is set.
+
+When the display thunk is called, the matrix mode is 
+@code{MODELVIEW} and the camera transformation is already applied.
+The grid and axes are also drawn, unless you've customized them.
+
+In the display thunk you can just write your model in the
+world coordinate system.  It is guaranteed that
+the current color is white and line width is 1.0, but
+the states of other GL contexts are undefined,
+so you have to set them explicitly.
+@end defun
+
+@defun simple-viewer-reshape &optional reshape-proc
+Gets/sets the reshape procedure which is called every
+time the GL window configuration is changed.  (It is
+also called when the GL window is shown first time.)
+You can change the reshape procedure any time,
+even while the viewer thread is running.
+
+If no argument is given, returns the current reshape proc.
+
+A reshape procedure is called with two arguments,
+the width and the height (in pixels) of the new GL
+window configuration.  By default, @code{gl.simple.viewer}
+sets a procedure that changes viewport and
+projection matrix apopropriately; you need to change
+it only if you want a different behavior.
+@end defun
+
+@defun simple-viewer-grid &optional grid-proc
+@defunx simple-viewer-axis &optional axis-proc
+Gets/sets a procedure to draw a grid and axes.  
+You can change these procedures
+any time, even while the viewer thread is running.
+
+The @var{grid-proc} and @var{axis-proc} are called with no arguments
+every time the GL window is redrawn, before the display thunk
+is invoked.
+The matrix mode is @code{MODELVIEW}, the camera transformation
+is already applied, and lighting is disabled.
+
+The default grid proc draws 10x10 grid
+on X-Z plane centered at the origin.  The default axis proc
+draws a red line from origin to +X, a green line from origin to +Y,
+and a blue line from origin to +Z.  
+
+You can pass @code{#f} to disable grid and/or axis display.
+
+If no argument is given, returns the current grid/axis proc,
+respectively.
+@end defun
+
+@defun simple-viewer-set-key! key handler @dots{}
+Even number of arguments must be given; the first of
+every two specifies the key, and the next one
+specifies the action when the key is pressed.
+@end defun
+
+
+
 
 
 @c ======================================================================
-@node Indices,  , Simple image handling, Top
+@node Indices,  , Simple utilities, Top
 @appendix Indices
 @c NODE º÷°ú
 

@@ -642,6 +642,14 @@
   SCM_QUATF_D(q)[i] = (float)val;
   SCM_RETURN(SCM_OBJ(q));")
 
+(define-cproc quatf-set4! (q::<quatf> x::<real> y::<real> z::<real> w::<real>)
+  (body <top>
+        (set! (aref (SCM_QUATF_D q) 0) x
+              (aref (SCM_QUATF_D q) 1) y
+              (aref (SCM_QUATF_D q) 2) z
+              (aref (SCM_QUATF_D q) 3) w)
+        (result (SCM_OBJ q))))
+
 (define-cproc rotation->quatf! (q::<quatf> v angle::<real>)
   "float *qv = SCM_QUATF_D(q), *vv;
   double sint, cost;

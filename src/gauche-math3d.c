@@ -1259,7 +1259,11 @@ void Scm_QuatfSlerp(float r[], const float p[], const float q[], float t)
 
 
 /*
- * vectors -> Quaternion
+ * Vectors -> Quaternion
+ *   Return a quaternion that represents the rotation to rotate V to W.
+ *   NOTE: if V = -W, we can't determine a unique rotation.  This routine
+ *   returns #,(quatf e0 e1 e2 e3) where eN is very small number.
+ *   It's caller's responsibility to detect the case.
  */
 void Scm_VectorsToQuatfv(float r[], const float v[], const float w[])
 {

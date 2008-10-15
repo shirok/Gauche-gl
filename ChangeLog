@@ -1,3 +1,7 @@
+2008-10-15  Shiro Kawai  <shiro@acm.org>
+
+	* src/math3d-lib.stub (quatf-set4!): Added.
+
 2008-06-10  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-math3d.c (Scm_AxesToQuatfv): clamp the cos(theta) value

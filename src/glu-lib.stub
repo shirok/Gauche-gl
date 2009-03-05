@@ -37,15 +37,15 @@
 (define-cproc glu-look-at (eyex::<real> eyey::<real> eyez::<real>
                            ctrx::<real> ctry::<real> ctrz::<real>
                            upx::<real> upy::<real> upz::<real>)
-  (return <void> "gluLookAt"))
+  (call <void> "gluLookAt"))
 
 (define-cproc glu-ortho-2d (left::<real> right::<real>
                             bottom::<real> top::<real>)
-  (return <void> "gluOrtho2D"))
+  (call <void> "gluOrtho2D"))
 
 (define-cproc glu-perspective (fovy::<real> aspect::<real>
                                znear::<real> zfar::<real>)
-  (return <void> "gluPerspective"))
+  (call <void> "gluPerspective"))
 
 (define-cproc glu-pick-matrix (x::<real> y::<real> w::<real> h::<real> vp)
   "if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {

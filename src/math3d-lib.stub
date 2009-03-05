@@ -40,19 +40,19 @@
 
 (define-cproc vector4f
   (x::<real> y::<real> z::<real> &optional (w::<real> 0.0))
-  (return "Scm_MakeVector4f"))
+  (call "Scm_MakeVector4f"))
 
 (define-cproc vector4f? (obj)
-  (return <boolean> "SCM_VECTOR4FP"))
+  (call <boolean> "SCM_VECTOR4FP"))
 
 (define-cproc make-vector4f ()
   "SCM_RETURN(Scm_MakeVector4fv(NULL));")
 
 (define-cproc list->vector4f (l::<list>)
-  (return "Scm_ListToVector4f"))
+  (call "Scm_ListToVector4f"))
 
 (define-cproc vector4f->list (v::<vector4f>)
-  (return "Scm_Vector4fToList"))
+  (call "Scm_Vector4fToList"))
 
 (define-cproc f32vector->vector4f (v::<f32vector>
                                    &optional (start::<fixnum> 0))
@@ -86,22 +86,22 @@
   (setter vector4f-set!))
 
 (define-cproc vector4f-dot (x::<vector4f> y::<vector4f>)
-  (return <float> "Scm_Vector4fDot"))
+  (call <float> "Scm_Vector4fDot"))
 
 (define-cproc vector4f-cross (x::<vector4f> y::<vector4f>)
-  (return "Scm_Vector4fCross"))
+  (call "Scm_Vector4fCross"))
 
 (define-cproc vector4f-norm (v::<vector4f>)
   (expr <real> (SCM_VECTOR4F_NORMV (SCM_VECTOR4F_D v))))
 
 (define-cproc vector4f-normalize (x::<vector4f>)
-  (return "Scm_Vector4fNormalize"))
+  (call "Scm_Vector4fNormalize"))
 
 (define-cproc vector4f-normalize! (x::<vector4f>)
-  (return "Scm_Vector4fNormalizeX"))
+  (call "Scm_Vector4fNormalizeX"))
 
 (define-cproc vector4f-add (x::<vector4f> y::<vector4f>)
-  (return "Scm_Vector4fAdd"))
+  (call "Scm_Vector4fAdd"))
 
 (define-cproc vector4f-add! (x::<vector4f> y::<vector4f>)
   "Scm_Vector4fAddv(SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(x), SCM_VECTOR4F_D(y));
@@ -165,13 +165,13 @@
   SCM_RETURN(va);")
 
 (define-cproc vector4f-array? (obj)
-  (return <boolean> "SCM_VECTOR4F_ARRAY_P"))
+  (call <boolean> "SCM_VECTOR4F_ARRAY_P"))
 
 (define-cproc vector4f-array-length (v::<vector4f-array>)
-  (return <fixnum> "SCM_VECTOR4F_ARRAY_SIZE"))
+  (call <fixnum> "SCM_VECTOR4F_ARRAY_SIZE"))
 
 (define-cproc f32vector->vector4f-array/shared (v::<f32vector>)
-  (return "Scm_MakeVector4fArrayV"))
+  (call "Scm_MakeVector4fArrayV"))
 
 (define-cproc vector4f-array->f32vector (a::<vector4f-array>)
   "SCM_RETURN(Scm_MakeF32VectorFromArray(SCM_VECTOR4F_ARRAY_SIZE(a)*4,
@@ -179,33 +179,33 @@
 
 (define-cproc vector4f-array-set! (a::<vector4f-array>
                                    i::<fixnum> x::<vector4f>)
-  (return <void> "Scm_Vector4fArraySet"))
+  (call <void> "Scm_Vector4fArraySet"))
 
 (define-cproc vector4f-array-ref (a::<vector4f-array>
                                   i::<fixnum> &optional fallback)
-  (return "Scm_Vector4fArrayRef")
+  (call "Scm_Vector4fArrayRef")
   (setter vector4f-array-set!))
 
 (define-cproc vector4f-array-ref/shared (a::<vector4f-array>
                                          i::<fixnum> &optional fallback)
-  (return "Scm_Vector4fArrayRefShared"))
+  (call "Scm_Vector4fArrayRefShared"))
 
 ;; point4f ------------------------------------------------------
 
 (define-cproc point4f (x::<real> y::<real> z::<real> &optional (w::<real> 1.0))
-  (return "Scm_MakePoint4f"))
+  (call "Scm_MakePoint4f"))
 
 (define-cproc point4f? (obj)
-  (return <boolean> "SCM_POINT4FP"))
+  (call <boolean> "SCM_POINT4FP"))
 
 (define-cproc make-point4f ()
   "SCM_RETURN(Scm_MakePoint4fv(NULL));")
 
 (define-cproc list->point4f (l::<list>)
-  (return "Scm_ListToPoint4f"))
+  (call "Scm_ListToPoint4f"))
 
 (define-cproc point4f->list (x::<point4f>)
-  (return "Scm_Point4fToList"))
+  (call "Scm_Point4fToList"))
 
 (define-cproc f32vector->point4f (v::<f32vector> &optional (start::<fixnum> 0))
   "int size = SCM_F32VECTOR_SIZE(v);
@@ -233,14 +233,14 @@
   (setter point4f-set!))
 
 (define-cproc point4f-add (x::<point4f> y::<vector4f>)
-  (return "Scm_Point4fAdd"))
+  (call "Scm_Point4fAdd"))
 
 (define-cproc point4f-add! (x::<point4f> y::<vector4f>)
   "Scm_Vector4fAddv(SCM_POINT4F_D(x), SCM_POINT4F_D(x), SCM_VECTOR4F_D(y));
   SCM_RETURN(SCM_OBJ(x));")
 
 (define-cproc point4f-sub (x::<point4f> y)
-  (return "Scm_Point4fSub"))
+  (call "Scm_Point4fSub"))
 
 ;point4f-sub!
 
@@ -259,13 +259,13 @@
   SCM_RETURN(va);")
 
 (define-cproc point4f-array? (obj)
-  (return <boolean> "SCM_POINT4F_ARRAY_P"))
+  (call <boolean> "SCM_POINT4F_ARRAY_P"))
 
 (define-cproc point4f-array-length (v::<point4f-array>)
-  (return <fixnum> "SCM_POINT4F_ARRAY_SIZE"))
+  (call <fixnum> "SCM_POINT4F_ARRAY_SIZE"))
 
 (define-cproc f32vector->point4f-array/shared (v::<f32vector>)
-  (return "Scm_MakePoint4fArrayV"))
+  (call "Scm_MakePoint4fArrayV"))
 
 (define-cproc point4f-array->f32vector (a::<point4f-array>)
   "SCM_RETURN(Scm_MakeF32VectorFromArray(SCM_POINT4F_ARRAY_SIZE(a)*4,
@@ -274,16 +274,16 @@
 (define-cproc point4f-array-set! (a::<point4f-array>
                                   i::<fixnum>
                                   x::<point4f>)
-  (return <void> "Scm_Point4fArraySet"))
+  (call <void> "Scm_Point4fArraySet"))
 
 (define-cproc point4f-array-ref (a::<point4f-array>
                                  i::<fixnum> &optional fallback)
-  (return "Scm_Point4fArrayRef")
+  (call "Scm_Point4fArrayRef")
   (setter point4f-array-set!))
 
 (define-cproc point4f-array-ref/shared (a::<point4f-array>
                                         i::<fixnum> &optional fallback)
-  (return "Scm_Point4fArrayRefShared"))
+  (call "Scm_Point4fArrayRefShared"))
 
 ;; Matrix4f -------------------------------------------------------
 
@@ -297,15 +297,15 @@
   SCM_RETURN(Scm_MakeMatrix4fv(SCM_F32VECTOR_ELEMENTS(init)));")
 
 (define-cproc matrix4f (&rest args)
-  (return "Scm_ListToMatrix4f"))
+  (call "Scm_ListToMatrix4f"))
 
 (define-cproc matrix4f? (obj)
-  (return <boolean> "SCM_MATRIX4FP"))
+  (call <boolean> "SCM_MATRIX4FP"))
 
 (define-cproc list->matrix4f (l::<list>)
-  (return "Scm_ListToMatrix4f"))
+  (call "Scm_ListToMatrix4f"))
 (define-cproc matrix4f->list (m::<matrix4f>)
-  (return "Scm_Matrix4fToList"))
+  (call "Scm_Matrix4fToList"))
 
 (define-cproc f32vector->matrix4f (v::<f32vector>
                                    &optional (start::<fixnum> 0))
@@ -595,10 +595,10 @@
 ;; Quatf ----------------------------------------------------
 
 (define-cproc quatf (x::<real> y::<real> z::<real> w::<real>)
-  (return "Scm_MakeQuatf"))
+  (call "Scm_MakeQuatf"))
 
 (define-cproc quatf? (obj)
-  (return <boolean> "SCM_QUATFP"))
+  (call <boolean> "SCM_QUATFP"))
 
 (define-cproc make-quatf (&optional vec (angle::<real> 0))
   "if (SCM_UNBOUNDP(vec)) {
@@ -613,9 +613,9 @@
   }")
 
 (define-cproc list->quatf (x)
-  (return "Scm_ListToQuatf"))
+  (call "Scm_ListToQuatf"))
 (define-cproc quatf->list (q::<quatf>)
-  (return "Scm_QuatfToList"))
+  (call "Scm_QuatfToList"))
 (define-cproc f32vector->quatf (x::<f32vector>
                                 &optional (start::<fixnum> 0))
   "int size = SCM_F32VECTOR_SIZE(x);
@@ -660,7 +660,7 @@
   SCM_RETURN(SCM_OBJ(q));")
 
 (define-cproc quatf-add (p::<quatf> q::<quatf>)
-  (return "Scm_QuatfAdd"))
+  (call "Scm_QuatfAdd"))
 (define-cproc quatf-add! (p::<quatf> q::<quatf>)
   "float r[4];
   Scm_QuatfAddv(r, SCM_QUATF_D(p), SCM_QUATF_D(q));
@@ -684,7 +684,7 @@
   SCM_RETURN(SCM_OBJ(q));")
 
 (define-cproc quatf-mul (p::<quatf> q::<quatf>)
-  (return "Scm_QuatfMul"))
+  (call "Scm_QuatfMul"))
 (define-cproc quatf-mul! (p::<quatf> q::<quatf>)
   "float r[4];
   Scm_QuatfMulv(r, SCM_QUATF_D(p), SCM_QUATF_D(q));

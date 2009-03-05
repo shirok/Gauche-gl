@@ -1,3 +1,8 @@
+2009-03-04  Shiro Kawai  <shiro@acm.org>
+
+	* src/*.stub: Updated uses of obsoleted (return "...") to
+	  (call "...").
+
 2008-10-15  Shiro Kawai  <shiro@acm.org>
 
 	* src/math3d-lib.stub (quatf-set4!): Added.

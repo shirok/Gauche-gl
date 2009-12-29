@@ -1450,25 +1450,25 @@
                                     internal-format::<fixnum>
                                     x::<fixnum> y::<fixnum>
                                     width::<fixnum> border::<fixnum>)
-  (call <void> "glCopyTexImage1D"))
+  ::<void> glCopyTexImage1D)
 
 (define-cproc gl-copy-tex-image-2d (target::<fixnum> level::<fixnum>
                                     internal-format::<fixnum>
                                     x::<fixnum> y::<fixnum>
                                     width::<fixnum> height::<fixnum>
                                     border::<fixnum>)
-  (call <void> "glCopyTexImage2D"))
+  ::<void> glCopyTexImage2D)
 
 (define-cproc gl-copy-tex-sub-image-1d (target::<fixnum> level::<fixnum>
                                         xoffset::<fixnum> x::<fixnum>
                                         y::<fixnum> width::<fixnum>)
-  (call <void> "glCopyTexSubImage1D"))
+  ::<void> glCopyTexSubImage1D)
 
 (define-cproc gl-copy-tex-sub-image-2d (target::<fixnum> level::<fixnum>
                                         xoffset::<fixnum> yoffset::<fixnum>
                                         x::<fixnum> y::<fixnum>
                                         width::<fixnum> height::<fixnum>)
-  (call <void> "glCopyTexSubImage2D"))
+  ::<void> glCopyTexSubImage2D)
 
 ;;=============================================================
 ;; Evaluators
@@ -1489,36 +1489,20 @@
 ;; Fog
 ;;
 
-(define-cproc gl-fog (pname::<fixnum> param)
-  "switch (pname) {
-    case GL_FOG_MODE:;
-    case GL_FOG_INDEX:;
-      if (SCM_INTP(param)) {
-        glFogi(pname, SCM_INT_VALUE(param));
-      } else {
-        Scm_Error(\"integer parameter required, but got %S\", param);
-      }
-      break;
-    case GL_FOG_DENSITY:;
-    case GL_FOG_START:;
-    case GL_FOG_END:;
-      if (SCM_REALP(param)) {
-        glFogf(pname, (GLfloat)Scm_GetDouble(param));
-      } else {
-        Scm_Error(\"real number parameter required, but got %S\", param);
-      }
-      break;
-    case GL_FOG_COLOR:
-      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
-        glFogfv(pname, SCM_F32VECTOR_ELEMENTS(param));
-      } else {
-        Scm_Error(\"f32 vector of size 4 is required, but got %S\", param);
-      }
-      break;
-    default:
-      Scm_Error(\"unknown or unsupported glFog pname: %d\", pname);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-fog (pname::<fixnum> param) ::<void>
+  (case pname
+    [(GL_FOG_MODE GL_FOG_INDEX)
+     (if (SCM_INTP param)
+       (glFogi pname (SCM_INT_VALUE param))
+       (Scm_Error "integer parameter required, but got %S" param))]
+    [(GL_FOG_DENSITY GL_FOG_START GL_FOG_END)
+     (if (SCM_REALP param)
+       (glFogf pname (cast GLfloat (Scm_GetDouble param)))
+       (Scm_Error "real number parameter required, but got %S" param))]
+    [(GL_FOG_COLOR)
+     (assert-vector-type&size f32vector 4 param)
+     (glFogfv pname (SCM_F32VECTOR_ELEMENTS param))]
+    [else (Scm_Error "unknown or unsupported glFog pname: %d" pname)]))
 
 ;;=============================================================
 ;; Selection and feedback
@@ -1526,29 +1510,20 @@
 
 (define-cproc gl-feedback-buffer (type::<fixnum>
                                   buffer::<f32vector>)
-  "glFeedbackBuffer(SCM_F32VECTOR_SIZE(buffer), type,
-                    SCM_F32VECTOR_ELEMENTS(buffer));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (glFeedbackBuffer (SCM_F32VECTOR_SIZE buffer) type
+                    (SCM_F32VECTOR_ELEMENTS buffer)))
 
-(define-cproc gl-select-buffer (buffer::<u32vector>)
-  "glSelectBuffer(SCM_U32VECTOR_SIZE(buffer), 
-                  (GLuint*)SCM_U32VECTOR_ELEMENTS(buffer));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-select-buffer (buffer::<u32vector>) ::<void>
+  (glSelectBuffer (SCM_U32VECTOR_SIZE buffer)
+                  (cast GLuint* (SCM_U32VECTOR_ELEMENTS buffer))))
 
-(define-cproc gl-pass-through (token::<float>)
-  (call <void> "glPassThrough"))
+(define-cproc gl-pass-through (token::<float>) ::<void> glPassThrough)
 
-(define-cproc gl-init-names ()
-  (call <void> "glInitNames"))
-
-(define-cproc gl-load-name (name::<int>)
-  (call <void> "glLoadName"))
-
-(define-cproc gl-push-name (name::<int>)
-  (call <void> "glPushName"))
-
-(define-cproc gl-pop-name ()
-  (call <void> "glPopName"))
+(define-cproc gl-init-names () ::<void> glInitNames)
+(define-cproc gl-load-name (name::<int>) ::<void> glLoadName)
+(define-cproc gl-push-name (name::<int>) ::<void> glPushName)
+(define-cproc gl-pop-name () ::<void> glPopName)
 
 ;; Local variables:
 ;; mode: scheme

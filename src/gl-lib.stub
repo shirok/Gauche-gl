@@ -31,6 +31,15 @@
   } while (0)
 "
 
+(define-cise-stmt assert-vector-type&size
+  [(_ type size var)
+   (let* ([TYPE (string-upcase (x->string type))]
+          [pred (string->symbol #`"SCM_,|TYPE|P")]
+          [getsize (string->symbol #`"SCM_,|TYPE|_SIZE")]
+          [msg #`",type of size ,size required,, but got %S"])
+     `(when (or (not (,pred ,var)) (!= (,getsize ,var) ,size))
+        (Scm_Error ,msg ,var)))])
+
 ;; NB: this should be taken care of by genstub.
 (define-type <uvector> "ScmUVector*" "uniform vector"
   "SCM_UVECTORP" "SCM_UVECTOR")
@@ -45,400 +54,294 @@
 ;; <gl-boolean-vector> stuff
 ;;
 
-(define-cproc list->gl-boolean-vector (lis)
-  (call "Scm_ListToGLBooleanVector"))
-
-(define-cproc gl-boolean-vector (&rest lis)
-  (call "Scm_ListToGLBooleanVector"))
-
-(define-cproc gl-boolean-vector? (obj)
-  (call <boolean> "SCM_GL_BOOLEAN_VECTOR_P"))
+(define-cproc list->gl-boolean-vector (lis) Scm_ListToGLBooleanVector)
+(define-cproc gl-boolean-vector (&rest lis) Scm_ListToGLBooleanVector)
+(define-cproc gl-boolean-vector? (obj) ::<boolean> SCM_GL_BOOLEAN_VECTOR_P)
 
 (define-cproc make-gl-boolean-vector (size::<uint>
                                       &optional (init::<boolean> #f))
-  (call "Scm_MakeGLBooleanVector"))
+  Scm_MakeGLBooleanVector)
 
 (define-cproc gl-boolean-vector-copy (bv::<gl-boolean-vector>)
-  "SCM_RETURN(Scm_MakeGLBooleanVectorFromArray(bv->size, bv->elements));")
+  (result (Scm_MakeGLBooleanVectorFromArray (-> bv size) (-> bv elements))))
 
 (define-cproc gl-boolean-vector-ref (bv::<gl-boolean-vector>
                                      k::<int>
                                      &optional fallback)
-  "if (k < 0 || k >= bv->size) {
-    if (SCM_UNBOUNDP(fallback)) {
-      Scm_Error(\"argument out of bound: %d\", k);
-    }
-    SCM_RETURN(fallback);
-  } else {
-    SCM_RETURN(SCM_MAKE_BOOL(bv->elements[k]));
-  }")
+  (cond [(or (< k 0) (>= k (-> bv size)))
+         (when (SCM_UNBOUNDP fallback)
+           (Scm_Error "argument out of bound: %d" k))
+         (result fallback)]
+        [else
+         (result (SCM_MAKE_BOOL (aref (-> bv elements) k)))]))
 
 (define-cproc gl-boolean-vector-set! (bv::<gl-boolean-vector>
                                       k::<int>
                                       value)
-  "if (k < 0 || k >= bv->size) {
-    Scm_Error(\"argument out of bound: %d\", k);
-  } else {
-    bv->elements[k] = SCM_FALSEP(value)? GL_FALSE : GL_TRUE;
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (if (or (< k 0) (>= k (-> bv size)))
+    (Scm_Error "argument out of bound: %d" k)
+    (= (aref (-> bv elements) k) (?: (SCM_FALSEP value) GL_FALSE GL_TRUE))))
 
-(define-cproc gl-boolean-vector-length (bv::<gl-boolean-vector>)
-  "SCM_RETURN(SCM_MAKE_INT(bv->size));")
+(define-cproc gl-boolean-vector-length (bv::<gl-boolean-vector>) ::<int>
+  (result (-> bv size)))
 
 (define-cproc gl-boolean-vector-fill! (bv::<gl-boolean-vector> fill)
-  "int i;
-  GLboolean val = SCM_FALSEP(fill)? GL_FALSE : GL_TRUE;
-  for (i=0; i<bv->size; i++) {
-    bv->elements[i] = val;
-  }
-  SCM_RETURN(SCM_OBJ(bv));")
+  (let* ([val::GLboolean (?: (SCM_FALSEP fill) GL_FALSE GL_TRUE)])
+    (dotimes [i (-> bv size)] (= (aref (-> bv elements) i) val)))
+  (result (SCM_OBJ bv)))
 
 ;;=============================================================
 ;; Miscellaneous
 ;;
 
-(define-cproc gl-clear-index (c::<float>)
-  (call <void> "glClearIndex"))
-
+(define-cproc gl-clear-index (c::<float>) ::<void> glClearIndex)
 (define-cproc gl-clear-color (r::<float> g::<float> b::<float> a::<float>)
-  (call <void> "glClearColor"))
-
-(define-cproc gl-clear (mask::<uint>)
-  (call <void> "glClear"))
-
-(define-cproc gl-index-mask (mask::<uint>)
-  (call <void> "glIndexMask"))
-
+  ::<void> glClearColor)
+(define-cproc gl-clear (mask::<uint>) ::<void> glClear)
+(define-cproc gl-index-mask (mask::<uint>) ::<void> glIndexMask)
 (define-cproc gl-color-mask (r::<boolean> g::<boolean> b::<boolean> a::<boolean>)
-  (call <void> "glColorMask"))
+  ::<void> glColorMask)
 
 (define-cproc gl-alpha-func (func::<fixnum> ref::<float>)
-  (call <void> "glAlphaFunc"))
-
+  ::<void> glAlphaFunc)
 (define-cproc gl-blend-func (sfactor::<fixnum> dfactor::<fixnum>)
-  (call <void> "glBlendFunc"))
-
-(define-cproc gl-logic-op (opcode::<fixnum>)
-  (call <void> "glLogicOp"))
-
-(define-cproc gl-cull-face (mode::<fixnum>)
-  (call <void> "glCullFace"))
-
-(define-cproc gl-front-face (mode::<fixnum>)
-  (call <void> "glFrontFace"))
-
-(define-cproc gl-point-size (size::<float>)
-  (call <void> "glPointSize"))
-
-(define-cproc gl-line-width (width::<float>)
-  (call <void> "glLineWidth"))
-
+  ::<void> glBlendFunc)
+(define-cproc gl-logic-op (opcode::<fixnum>) ::<void> glLogicOp)
+(define-cproc gl-cull-face (mode::<fixnum>) ::<void> glCullFace)
+(define-cproc gl-front-face (mode::<fixnum>) ::<void> glFrontFace)
+(define-cproc gl-point-size (size::<float>) ::<void> glPointSize)
+(define-cproc gl-line-width (width::<float>) ::<void> glLineWidth)
 (define-cproc gl-line-stipple (factor::<fixnum> pat::<ushort>)
-  (call <void> "glLineStipple"))
-
+  ::<void> glLineStipple)
 (define-cproc gl-polygon-mode (face::<fixnum> mode::<fixnum>)
-  (call <void> "glPolygonMode"))
-
+  ::<void> glPolygonMode)
 (define-cproc gl-polygon-offset (factor::<float> units::<float>)
-  (call <void> "glPolygonOffset"))
+  ::<void> glPolygonOffset)
 
-(define-cproc gl-polygon-stipple (mask)
-  "  if (!SCM_U8VECTORP(mask) || SCM_U8VECTOR_SIZE(mask) != 128) {
-    Scm_Error(\"u8vector of size 128 required, but got %S\", mask);
-  }
-  glPolygonStipple(SCM_U8VECTOR_ELEMENTS(mask));
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-polygon-stipple (mask) ::<void>
+  (assert-vector-type&size u8vector 128 mask)
+  (glPolygonStipple (SCM_U8VECTOR_ELEMENTS mask)))
 
-(define-cproc gl-edge-flag (flag)
-  "if (SCM_GL_BOOLEAN_VECTOR_P(flag)) {
-     glEdgeFlagv(SCM_GL_BOOLEAN_VECTOR(flag)->elements);
-   } else {
-     glEdgeFlag(!SCM_FALSEP(flag));
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-edge-flag (flag) ::<void>
+  (if (SCM_GL_BOOLEAN_VECTOR_P flag)
+    (glEdgeFlagv (-> (SCM_GL_BOOLEAN_VECTOR flag) elements))
+    (glEdgeFlag (not (SCM_FALSEP flag)))))
 
 (define-cproc gl-scissor (x::<int> y::<int> width::<int> height::<int>)
-  (call <void> "glScissor"))
+  ::<void> glScissor)
 
-(define-cproc gl-clip-plane (plane::<fixnum> equation)
-  "if (!SCM_F64VECTORP(equation) || SCM_F64VECTOR_SIZE(equation) != 4) {
-   Scm_Error(\"f64vector of size 4 required for EQUATION, but got %S\", equation);
-  }
-  glClipPlane(plane, SCM_F64VECTOR_ELEMENTS(equation));
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-clip-plane (plane::<fixnum> equation) ::<void>
+  (assert-vector-type&size f64vector 4 equation)
+  (glClipPlane plane (SCM_F64VECTOR_ELEMENTS equation)))
 
 (define-cproc gl-get-clip-plane (plane::<fixnum>)
-  "  ScmF64Vector *v = SCM_F64VECTOR(Scm_MakeF64Vector(4, 0.0));
-  glGetClipPlane(plane, SCM_F64VECTOR_ELEMENTS(v));
-  SCM_RETURN(SCM_OBJ(v));")
+  (let* ([v::ScmF64Vector* (SCM_F64VECTOR (Scm_MakeF64Vector 4 0.0))])
+    (glGetClipPlane plane (SCM_F64VECTOR_ELEMENTS v))
+    (result (SCM_OBJ v))))
 
-(define-cproc gl-draw-buffer (mode::<fixnum>)
-  (call <void> "glDrawBuffer"))
+(define-cproc gl-draw-buffer (mode::<fixnum>) ::<void> glDrawBuffer)
+(define-cproc gl-read-buffer (mode::<fixnum>) ::<void> glReadBuffer)
 
-(define-cproc gl-read-buffer (mode::<fixnum>)
-  (call <void> "glReadBuffer"))
-
-(define-cproc gl-enable (cap::<fixnum>)
-  (call <void> "glEnable"))
-  
-(define-cproc gl-disable (cap::<fixnum>)
-  (call <void> "glDisable"))
-
-(define-cproc gl-is-enabled (cap::<fixnum>)
-  (call <boolean> "glIsEnabled"))
+(define-cproc gl-enable (cap::<fixnum>) ::<void> glEnable)
+(define-cproc gl-disable (cap::<fixnum>) ::<void> glDisable)
+(define-cproc gl-is-enabled (cap::<fixnum>) ::<boolean> glIsEnabled)
 
 (define-cproc gl-enable-client-state (cap::<fixnum>)
-  (call <void> "glEnableClientState"))
-
+  ::<void> glEnableClientState)
 (define-cproc gl-disable-client-state (cap::<fixnum>)
-  (call <void> "glDisableClientState"))
+  ::<void> glDisableClientState)
 
 ;; Gauche-gl specific
 (define-cproc gl-state-vector-size (state::<fixnum>)
-  (call <int> "Scm_GLStateInfoSize"))
+  ::<int> Scm_GLStateInfoSize)
+
+(define-cise-stmt with-state-info-size
+  [(_ var state name . body)
+   `(let* ([,var :: int (Scm_GLStateInfoSize ,state)])
+      (when (<= ,var 0)
+        (Scm_Error ,#`"you can't query state %x by ,name" ,state))
+      ,@body)])
 
 (define-cproc gl-get-boolean (state::<fixnum>)
-  "int vsize = Scm_GLStateInfoSize(state);
-  if (vsize <= 0)
-    Scm_Error(\"you can't query state %x by glGetBooleanv\", state);
-  if (vsize == 1) {
-    GLboolean b;
-    glGetBooleanv((GLenum)state, &b);
-    SCM_RETURN(SCM_MAKE_BOOL(b));
-  } else {
-    ScmObj v = Scm_MakeGLBooleanVector(vsize, GL_FALSE);
-    glGetBooleanv((GLenum)state, SCM_GL_BOOLEAN_VECTOR(v)->elements);
-    SCM_RETURN(v);
-  }")
+  (with-state-info-size
+   vsize state gl-get-boolean
+   (if (== vsize 1)
+     (let* ([b::GLboolean])
+       (glGetBooleanv (cast GLenum state) (& b))
+       (result (SCM_MAKE_BOOL b)))
+     (let* ([v (Scm_MakeGLBooleanVector vsize GL_FALSE)])
+       (glGetBooleanv (cast GLenum state)
+                      (-> (SCM_GL_BOOLEAN_VECTOR v) elements))
+       (result v)))))
 
-(define-cproc gl-get-boolean! (vec state::<fixnum>)
-  "int vsize;
-  if (!SCM_GL_BOOLEAN_VECTOR_P(vec))
-     Scm_Error(\"gl-boolean-vector required, but got %S\", vec);
-  vsize = Scm_GLStateInfoSize(state);
-  if (vsize != SCM_GL_BOOLEAN_VECTOR_SIZE(vec))
-    Scm_Error(\"state %x needs a vector of size %d, but got %S\",
-               state, vsize, vec);
-  glGetBooleanv((GLenum)state, SCM_GL_BOOLEAN_VECTOR(vec)->elements);
-  SCM_RETURN(SCM_OBJ(vec));")
+(define-cproc gl-get-boolean! (vec::<gl-boolean-vector> state::<fixnum>)
+  (with-state-info-size
+   vsize state gl-get-boolean!
+   (when (!= vsize (SCM_GL_BOOLEAN_VECTOR_SIZE vec))
+      (Scm_Error "state %x needs a vector of size %d, but got %S"
+                 state vsize (SCM_OBJ vec)))
+   (glGetBooleanv (cast GLenum state) (-> vec elements))
+   (result (SCM_OBJ vec))))
 
 (define-cproc gl-get-integer (state::<fixnum>)
-  "int vsize = Scm_GLStateInfoSize(state);
-  if (vsize <= 0)
-    Scm_Error(\"you can't query state %x by glGetIntegerv\", state);
-  if (vsize == 1) {
-    GLint i;
-    glGetIntegerv((GLenum)state, &i);
-    SCM_RETURN(Scm_MakeInteger(i));
-  } else {
-    ScmS32Vector *v = SCM_S32VECTOR(Scm_MakeS32Vector(vsize, 0));
-    glGetIntegerv((GLenum)state, (GLint*)SCM_S32VECTOR_ELEMENTS(v));
-    SCM_RETURN(SCM_OBJ(v));
-  }")
+  (with-state-info-size
+   vsize state gl-get-integer
+   (if (== vsize 1)
+     (let* ([i::GLint])
+       (glGetIntegerv (cast GLenum state) (& i))
+       (result (Scm_MakeInteger i)))
+     (let* ([v::ScmS32Vector* (SCM_S32VECTOR (Scm_MakeS32Vector vsize 0))])
+       (glGetIntegerv (cast GLenum state)
+                      (cast GLint* (SCM_S32VECTOR_ELEMENTS v)))
+       (result (SCM_OBJ v))))))
 
-(define-cproc gl-get-integer! (vec state::<fixnum>)
-  "int vsize;
-  if (!SCM_S32VECTORP(vec)) Scm_Error(\"s32vector required, but got %S\", vec);
-  vsize = Scm_GLStateInfoSize(state);
-  if (vsize != SCM_S32VECTOR_SIZE(vec))
-    Scm_Error(\"state %x needs a vector of size %d, but got %S\",
-               state, vsize, vec);
-  glGetIntegerv((GLenum)state, (GLint*)SCM_S32VECTOR_ELEMENTS(vec));
-  SCM_RETURN(SCM_OBJ(vec));")
+(define-cproc gl-get-integer! (vec::<s32vector> state::<fixnum>)
+  (with-state-info-size
+   vsize state gl-get-integer!
+   (when (!= vsize (SCM_S32VECTOR_SIZE vec))
+     (Scm_Error "state %x needs a vector of size %d, but got %S"
+                state vsize vec))
+   (glGetIntegerv (cast GLenum state)
+                  (cast GLint* (SCM_S32VECTOR_ELEMENTS vec)))
+   (result (SCM_OBJ vec))))
 
 (define-cproc gl-get-float (state::<fixnum>)
-  "int vsize = Scm_GLStateInfoSize(state);
-  if (vsize <= 0)
-    Scm_Error(\"you can't query state %x by glGetFloatv\", state);
-  if (vsize == 1) {
-    GLfloat v;
-    glGetFloatv((GLenum)state, &v);
-    SCM_RETURN(Scm_MakeFlonum((double)v));
-  } else {
-    ScmF32Vector *v = SCM_F32VECTOR(Scm_MakeF32Vector(vsize, 0));
-    glGetFloatv((GLenum)state, SCM_F32VECTOR_ELEMENTS(v));
-    SCM_RETURN(SCM_OBJ(v));
-  }")
+  (with-state-info-size
+   vsize state gl-get-float
+   (if (== vsize 1)
+     (let* ([v::GLfloat])
+       (glGetFloatv (cast GLenum state) (& v))
+       (result (Scm_MakeFlonum (cast double v))))
+     (let* ([v::ScmF32Vector* (SCM_F32VECTOR (Scm_MakeF32Vector vsize 0))])
+       (glGetFloatv (cast GLenum state) (SCM_F32VECTOR_ELEMENTS v))
+       (result (SCM_OBJ v))))))
 
-(define-cproc gl-get-float! (vec state::<fixnum>)
-  "int vsize;
-  if (!SCM_F32VECTORP(vec)) Scm_Error(\"s32vector required, but got %S\", vec);
-  vsize = Scm_GLStateInfoSize(state);
-  if (vsize != SCM_F32VECTOR_SIZE(vec))
-    Scm_Error(\"state %x needs a vector of size %d, but got %S\",
-               state, vsize, vec);
-  glGetFloatv((GLenum)state, SCM_F32VECTOR_ELEMENTS(vec));
-  SCM_RETURN(SCM_OBJ(vec));")
+(define-cproc gl-get-float! (vec::<f32vector> state::<fixnum>)
+  (with-state-info-size
+   vsize state gl-get-float!
+   (when (!= vsize (SCM_F32VECTOR_SIZE vec))
+     (Scm_Error "state %x needs a vector of size %d, but got %S"
+                state vsize vec))
+   (glGetFloatv (cast GLenum state) (SCM_F32VECTOR_ELEMENTS vec))
+   (result (SCM_OBJ vec))))
 
 (define-cproc gl-get-double (state::<fixnum>)
-  "int vsize = Scm_GLStateInfoSize(state);
-  if (vsize <= 0)
-    Scm_Error(\"you can't query state %x by glGetDoublev\", state);
-  if (vsize == 1) {
-    GLdouble v;
-    glGetDoublev((GLenum)state, &v);
-    SCM_RETURN(Scm_MakeFlonum(v));
-  } else {
-    ScmF64Vector *v = SCM_F64VECTOR(Scm_MakeF64Vector(vsize, 0));
-    glGetDoublev((GLenum)state, SCM_F64VECTOR_ELEMENTS(v));
-    SCM_RETURN(SCM_OBJ(v));
-  }")
+  (with-state-info-size
+   vsize state gl-get-double
+   (if (== vsize 1)
+     (let* ([v::GLdouble])
+       (glGetDoublev (cast GLenum state) (& v))
+       (result (Scm_MakeFlonum v)))
+     (let* ([v::ScmF64Vector* (SCM_F64VECTOR (Scm_MakeF64Vector vsize 0))])
+       (glGetDoublev (cast GLenum state) (SCM_F64VECTOR_ELEMENTS v))
+       (result (SCM_OBJ v))))))
 
-(define-cproc gl-get-double! (vec state::<fixnum>)
-  "int vsize;
-  if (!SCM_F64VECTORP(vec)) Scm_Error(\"s32vector required, but got %S\", vec);
-  vsize = Scm_GLStateInfoSize(state);
-  if (vsize != SCM_F64VECTOR_SIZE(vec))
-    Scm_Error(\"state %x needs a vector of size %d, but got %S\",
-               state, vsize, vec);
-  glGetDoublev((GLenum)state, SCM_F64VECTOR_ELEMENTS(vec));
-  SCM_RETURN(SCM_OBJ(vec));")
+(define-cproc gl-get-double! (vec::<f64vector> state::<fixnum>)
+  (with-state-info-size
+   vsize state gl-get-double!
+   (when (!= vsize (SCM_F64VECTOR_SIZE vec))
+     (Scm_Error "state %x needs a vector of size %d, but got %S"
+                state vsize vec))
+   (glGetDoublev (cast GLenum state) (SCM_F64VECTOR_ELEMENTS vec))
+   (result (SCM_OBJ vec))))
 
 ;; glGetPointerv
 
-(define-cproc gl-push-attrib (mask::<ulong>)
-  (call <void> "glPushAttrib"))
+(define-cproc gl-push-attrib (mask::<ulong>)::<void> glPushAttrib)
+(define-cproc gl-pop-attrib () ::<void> glPopAttrib)
+(define-cproc gl-push-client-attrib (mask::<ulong>)::<void> glPushClientAttrib)
+(define-cproc gl-pop-client-attrib () ::<void> glPopClientAttrib)
 
-(define-cproc gl-pop-attrib ()
-  (call <void> "glPopAttrib"))
+(define-cproc gl-render-mode (mode::<fixnum>) ::<int> glRenderMode)
 
-(define-cproc gl-push-client-attrib (mask::<ulong>)
-  (call <void> "glPushClientAttrib"))
-
-(define-cproc gl-pop-client-attrib ()
-  (call <void> "glPopClientAttrib"))
-
-(define-cproc gl-render-mode (mode::<fixnum>)
-  (call <int> "glRenderMode"))
-
-(define-cproc gl-get-error ()
-  (call <int> "glGetError"))
-
+(define-cproc gl-get-error () ::<int> glGetError)
 (define-cproc gl-get-string (name::<fixnum>)
-  "const GLubyte *s = glGetString(name);
-  if (s) SCM_RETURN(Scm_MakeString((const char*)s, -1, -1, SCM_MAKSTR_COPYING));
-  else   SCM_RETURN(SCM_FALSE);")
+  (let* ([s::(const GLubyte*) (glGetString name)])
+    (if s
+      (result (Scm_MakeString (cast (const char*) s) -1 -1 SCM_MAKSTR_COPYING))
+      (result SCM_FALSE))))
 
-(define-cproc gl-flush ()
-  (call <void> "glFlush"))
-
-(define-cproc gl-finish ()
-  (call <void> "glFinish"))
-
-(define-cproc gl-hint (target::<int> mode::<int>)
-  (call <void> "glHint"))
+(define-cproc gl-flush () ::<void> glFlush)
+(define-cproc gl-finish () ::<void> glFinish)
+(define-cproc gl-hint (target::<int> mode::<int>) ::<void> glHint)
 
 ;;=============================================================
 ;; Depth Buffer
 ;;
 
-(define-cproc gl-clear-depth (depth::<real>)
-  (call <void> "glClearDepth"))
-
-(define-cproc gl-depth-func (func::<fixnum>)
-  (call <void> "glDepthFunc"))
-
-(define-cproc gl-depth-mask (flag::<boolean>)
-  (call <void> "glDepthMask"))
-
-(define-cproc gl-depth-range (nearv::<real> farv::<real>)
-  (call <void> "glDepthRange"))
+(define-cproc gl-clear-depth (depth::<real>)::<void> glClearDepth)
+(define-cproc gl-depth-func (func::<fixnum>)::<void> glDepthFunc)
+(define-cproc gl-depth-mask (flag::<boolean>)::<void> glDepthMask)
+(define-cproc gl-depth-range (nearv::<real> farv::<real>)::<void> glDepthRange)
 
 ;;=============================================================
 ;; Accumulation Buffer
 ;;
 
 (define-cproc gl-clear-accum (r::<real> g::<real> b::<real> a::<real>)
-  (call <void> "glClearAccum"))
-
-(define-cproc gl-accum (op::<fixnum> value::<real>)
-  (call <void> "glAccum"))
+  ::<void> glClearAccum)
+(define-cproc gl-accum (op::<fixnum> value::<real>) ::<void> glAccum)
 
 ;;=============================================================
 ;; Transformation
 ;;
 
-(define-cproc gl-matrix-mode (mode::<fixnum>)
-  (call <void> "glMatrixMode"))
+(define-cproc gl-matrix-mode (mode::<fixnum>) ::<void> glMatrixMode)
 
 (define-cproc gl-ortho (left::<real> right::<real>
                         bottom::<real> top::<real>
                         nearv::<real> farv::<real>)
-  (call <void> "glOrtho"))
+  ::<void> glOrtho)
 
 (define-cproc gl-frustum (left::<real> right::<real>
                           bottom::<real> top::<real>
                           nearv::<real> farv::<real>)
-  (call <void> "glFrustum"))
+  ::<void> glFrustum)
 
 (define-cproc gl-viewport (x::<fixnum> y::<fixnum>
                            width::<fixnum> height::<fixnum>)
-  (call <void> "glViewport"))
+  ::<void> glViewport)
 
-(define-cproc gl-push-matrix ()
-  (call <void> "glPushMatrix"))
+(define-cproc gl-push-matrix () ::<void> glPushMatrix)
+(define-cproc gl-pop-matrix () ::<void> glPopMatrix)
+(define-cproc gl-load-identity () ::<void> glLoadIdentity)
 
-(define-cproc gl-pop-matrix ()
-  (call <void> "glPopMatrix"))
+(define-cproc gl-load-matrix (m) ::<void>
+  (cond [(SCM_MATRIX4FP m) (glLoadMatrixf (SCM_MATRIX4F_D m))]
+        [(and (SCM_F32VECTORP m) (== (SCM_F32VECTOR_SIZE m) 16))
+         (glLoadMatrixf (SCM_F32VECTOR_ELEMENTS m))]
+        [(and (SCM_F64VECTORP m) (== (SCM_F64VECTOR_SIZE m) 16))
+         (glLoadMatrixd (SCM_F64VECTOR_ELEMENTS m))]
+        [else (Scm_Error "matrix4f, or f32vector or f64vector of length 16 \
+                         is required, but got %S" m)]))
 
-(define-cproc gl-load-identity ()
-  (call <void> "glLoadIdentity"))
-
-(define-cproc gl-load-matrix (m)
-  "if (SCM_MATRIX4FP(m)) {
-     glLoadMatrixf(SCM_MATRIX4F_D(m));
-  } else if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
-     glLoadMatrixf(SCM_F32VECTOR_ELEMENTS(m));
-  } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
-     glLoadMatrixd(SCM_F64VECTOR_ELEMENTS(m));
-  } else {
-     Scm_Error(\"matrix4f, or f32vector or f64vector of length 16 is required, but got %S\", m);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc gl-mult-matrix (m)
-  "if (SCM_MATRIX4FP(m)) {
-     glMultMatrixf(SCM_MATRIX4F_D(m));
-  } else if (SCM_F32VECTORP(m) && SCM_F32VECTOR_SIZE(m) == 16) {
-     glMultMatrixf(SCM_F32VECTOR_ELEMENTS(m));
-  } else if (SCM_F64VECTORP(m) && SCM_F64VECTOR_SIZE(m) == 16) {
-     glMultMatrixd(SCM_F64VECTOR_ELEMENTS(m));
-  } else {
-     Scm_Error(\"matrix4f, or f32vector or f64vector of length 16 is required, but got %S\", m);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-mult-matrix (m) ::<void>
+  (cond [(SCM_MATRIX4FP m) (glMultMatrixf (SCM_MATRIX4F_D m))]
+        [(and (SCM_F32VECTORP m) (== (SCM_F32VECTOR_SIZE m) 16))
+         (glMultMatrixf (SCM_F32VECTOR_ELEMENTS m))]
+        [(and (SCM_F64VECTORP m) (== (SCM_F64VECTOR_SIZE m) 16))
+         (glMultMatrixd (SCM_F64VECTOR_ELEMENTS m))]
+        [else (Scm_Error "matrix4f, or f32vector or f64vector of length 16 \
+                          is required, but got %S" m)]))
 
 (define-cproc gl-rotate (angle::<real> x::<real> y::<real> z::<real>)
-  (call <void> "glRotated"))
-
+  ::<void> glRotated)
 (define-cproc gl-scale (x::<real> y::<real> z::<real>)
-  (call <void> "glScaled"))
-
+  ::<void> glScaled)
 (define-cproc gl-translate (x::<real> y::<real> z::<real>)
-  (call <void> "glTranslated"))
+  ::<void> glTranslated)
 
 ;;=============================================================
 ;; Display lists
 ;;
 
-(define-cproc gl-is-list (list::<int>)
-  (call <boolean> "glIsList"))
-
-(define-cproc gl-delete-lists (list::<int> range::<int>)
-  (call <void> "glDeleteLists"))
-
-(define-cproc gl-gen-lists (range::<int>)
-  (call <ulong> "glGenLists"))
-
-(define-cproc gl-new-list (list::<int> mode::<int>)
-  (call <void> "glNewList"))
-
-(define-cproc gl-end-list ()
-  (call <void> "glEndList"))
-
-(define-cproc gl-call-list (list::<int>)
-  (call <void> "glCallList"))
+(define-cproc gl-is-list (list::<int>)::<boolean> glIsList)
+(define-cproc gl-delete-lists (list::<int> range::<int>) ::<void> glDeleteLists)
+(define-cproc gl-gen-lists (range::<int>) ::<ulong> glGenLists)
+(define-cproc gl-new-list (list::<int> mode::<int>) ::<void> glNewList)
+(define-cproc gl-end-list () ::<void> glEndList)
+(define-cproc gl-call-list (list::<int>) ::<void> glCallList)
 
 ;; this may be called as
 ;;  (gl-call-lists array)

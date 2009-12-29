@@ -439,18 +439,14 @@
    Scm_Error(\"given type %d doesn't match the passed array (u8vector)\", type);
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-list-base (base::<int>)
-  (call <void> "glListBase"))
+(define-cproc gl-list-base (base::<int>) ::<void> glListBase)
 
 ;;=============================================================
 ;; Drawing functions
 ;;
 
-(define-cproc gl-begin (mode::<int>)
-  (call <void> "glBegin"))
-
-(define-cproc gl-end ()
-  (call <void> "glEnd"))
+(define-cproc gl-begin (mode::<int>) ::<void> glBegin)
+(define-cproc gl-end () ::<void> glEnd)
 
 (define-cproc gl-vertex (v &rest args)
   "if (SCM_POINT4FP(v) || SCM_VECTOR4FP(v)) {
@@ -909,7 +905,7 @@
 
 
 (define-cproc gl-draw-arrays (mode::<fixnum> first::<fixnum> count::<fixnum>)
-  (call <void> "glDrawArrays"))
+  ::<void> glDrawArrays)
 
 ;; Note: we don't allow non-uniform vector for the interleaved arrays, so
 ;; the color component must be float.
@@ -931,8 +927,7 @@
 ;; Lighting
 ;;
 
-(define-cproc gl-shade-model (mode::<fixnum>)
-  (call <void> "glShadeModel"))
+(define-cproc gl-shade-model (mode::<fixnum>) ::<void> glShadeModel)
 
 (define-cproc gl-light (light::<fixnum> pname::<fixnum> param)
   "switch (pname) {
@@ -1065,14 +1060,14 @@
    }")
 
 (define-cproc gl-color-material (face::<fixnum> mode::<fixnum>)
-  (call <void> "glColorMaterial"))
+  ::<void> glColorMaterial)
 
 ;;=============================================================
 ;; Raster functions
 ;;
 
 (define-cproc gl-pixel-zoom (xfactor::<real> yfactor::<real>)
-  (call <void> "glPixelZoom"))
+  ::<void> glPixelZoom)
 
 (define-cproc gl-pixel-store (pname::<fixnum> param)
   "if (SCM_EXACTP(param)) {
@@ -1176,31 +1171,29 @@
 
 (define-cproc gl-draw-pixels (width::<fixnum> height::<fixnum>
                               format::<fixnum> type::<fixnum> pixels)
-  "  int elttype, size, packed;
-  size = Scm_GLPixelDataSize(width, height, format, type, &elttype, &packed);
-  glDrawPixels(width, height, format, type,
-               Scm_GLPixelDataCheck(pixels, elttype, size));
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::int] [packed::int]
+         [size::int (Scm_GLPixelDataSize width height format type
+                                         (& elttype) (& packed))])
+    (glDrawPixels width height format type
+                  (Scm_GLPixelDataCheck pixels elttype size))))
 
 (define-cproc gl-copy-pixels (x::<fixnum> y::<fixnum>
                               width::<fixnum> height::<fixnum> type::<fixnum>)
-  (call <void> "glCopyPixels"))
+  ::<void> glCopyPixels)
 
 ;;=============================================================
 ;; Stenciling
 ;;
 
 (define-cproc gl-stencil-func (func::<fixnum> ref::<int> mask::<uint>)
-  (call <void> "glStencilFunc"))
-
+  ::<void> glStencilFunc)
 (define-cproc gl-stencil-mask (mask::<uint>)
-  (call <void> "glStencilMask"))
-
+  ::<void> glStencilMask)
 (define-cproc gl-stencil-op (func::<fixnum> zfail::<fixnum> zpass::<fixnum>)
-  (call <void> "glStencilOp"))
-
+  ::<void> glStencilOp)
 (define-cproc gl-clear-stencil (s::<int>)
-  (call <void> "glClearStencil"))
+  ::<void> glClearStencil)
 
 ;;=============================================================
 ;; Texture mapping
@@ -1384,67 +1377,62 @@
 ; gl-get-tex-image
 
 (define-cproc gl-gen-textures (size::<fixnum>)
-  "ScmObj vec;
-  if (size <= 0) Scm_Error(\"size must be a positive integer, but got %d\", size);
-  vec = Scm_MakeU32Vector(size, 0);
-  glGenTextures(size, (GLuint*)SCM_U32VECTOR_ELEMENTS(vec));
-  SCM_RETURN(vec);")
+  (when (<= size 0)
+    (Scm_Error "size must be a positive integer, but got %d" size))
+  (let* ([vec (Scm_MakeU32Vector size 0)])
+    (glGenTextures size (cast GLuint* (SCM_U32VECTOR_ELEMENTS vec)))
+    (result vec)))
 
-(define-cproc gl-delete-textures (names)
-  "if (!SCM_U32VECTORP(names)) Scm_Error(\"texture names must be an u32vector, but got %S\", names);
-  glDeleteTextures(SCM_U32VECTOR_SIZE(names),
-                   (GLuint*)SCM_U32VECTOR_ELEMENTS(names));
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-delete-textures (names::<u32vector>) ::<void>
+  (glDeleteTextures (SCM_U32VECTOR_SIZE names)
+                    (cast GLuint* (SCM_U32VECTOR_ELEMENTS names))))
 
-(define-cproc gl-bind-texture (target::<fixnum> name::<int>)
-  "glBindTexture(target, name);
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-bind-texture (target::<fixnum> name::<int>) ::<void>
+  glBindTexture)
 
 (define-cproc gl-prioritize-textures (names::<u32vector>
                                       priorities::<f32vector>)
-  "int n = SCM_U32VECTOR_SIZE(names);
-  if (n != SCM_F32VECTOR_SIZE(priorities)) {
-    Scm_Error(\"priority vector length doesn't match the names vector length %d: %S\", n, priorities);
-  }
-  glPrioritizeTextures(n, (GLuint*)SCM_U32VECTOR_ELEMENTS(names), 
-                       SCM_F32VECTOR_ELEMENTS(priorities));
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([n::int (SCM_U32VECTOR_SIZE names)])
+    (when (!= n (SCM_F32VECTOR_SIZE priorities))
+      (Scm_Error "priority vector length doesn't match \
+                  the names vector length %d: %S" n priorities))
+    (glPrioritizeTextures n (cast GLuint* (SCM_U32VECTOR_ELEMENTS names))
+                          (SCM_F32VECTOR_ELEMENTS priorities))))
 
 (define-cproc gl-are-textures-resident! (names::<u32vector>
                                          res::<gl-boolean-vector>)
-  "GLboolean b; int n;
-   n = SCM_U32VECTOR_SIZE(names);
-   b = glAreTexturesResident(n, (GLuint*)SCM_U32VECTOR_ELEMENTS(names), 
-                             SCM_GL_BOOLEAN_VECTOR_ELEMENTS(res));
-   SCM_RETURN(SCM_MAKE_BOOL(b));")
+  ::<boolean>
+  (glAreTexturesResident (SCM_U32VECTOR_SIZE names)
+                         (cast GLuint* (SCM_U32VECTOR_ELEMENTS names))
+                         (SCM_GL_BOOLEAN_VECTOR_ELEMENTS res)))
 
-(define-cproc gl-is-texture (name::<int>)
-  "SCM_RETURN(SCM_MAKE_INT(glIsTexture(name)));")
+(define-cproc gl-is-texture (name::<int>) ::<int> glIsTexture)
 
 (define-cproc gl-tex-sub-image-1d (target::<fixnum> level::<fixnum>
                                    xoffset::<fixnum> width::<fixnum>
                                    format::<fixnum> type::<fixnum>
                                    texels)
-  "int elttype, size; void *texelptr;
-   size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, NULL);
-   texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-   if (texelptr) {
-     glTexSubImage1D(target, level, xoffset, width, format, type, texelptr);
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::int]
+         [size::int (Scm_GLPixelDataSize width 1 format type (& elttype) NULL)]
+         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+    (when texelptr
+      (glTexSubImage1D target level xoffset width format type texelptr))))
 
 (define-cproc gl-tex-sub-image-2d (target::<fixnum> level::<fixnum>
                                    xoffset::<fixnum> yoffset::<fixnum>
                                    width::<fixnum> height::<fixnum>
                                    format::<fixnum> type::<fixnum>
                                    texels)
-  "int elttype, size; void *texelptr;
-   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
-   texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-   if (texelptr) {
-     glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, texelptr);
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::int]
+         [size::int
+          (Scm_GLPixelDataSize width height format type (& elttype) NULL)]
+         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+    (when texelptr
+      (glTexSubImage2D target level xoffset yoffset width height
+                       format type texelptr))))
 
 (define-cproc gl-copy-tex-image-1d (target::<fixnum> level::<fixnum>
                                     internal-format::<fixnum>

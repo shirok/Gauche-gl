@@ -46,7 +46,7 @@
         (print-3d-color-vertex buffer count) (inc! count 8))
        ((= token GL_LINE_TOKEN)
         (print "GL_LINE_TOKEN")
-        (aprint-3d-color-vertex buffer count) (inc! count 8)
+        (print-3d-color-vertex buffer count) (inc! count 8)
         (print-3d-color-vertex buffer count) (inc! count 8))
        ((= token GL_LINE_RESET_TOKEN)
         (print "GL_LINE_RESET_TOKEN")

@@ -105,7 +105,7 @@ AC_CHECK_PROGS(GZIP_PROGRAM, gzip)
 
 # on cygwin, we need several extra -l flags.
 case "$target" in
-  *-*-cygwin*)
+  *-*-cygwin*|*-*-mingw*)
     LIBS="-lgauche-uvector $LIBS"
     GL_EXTRALIBS="-L. -lgauche-math3d"
     GLUT_EXTRALIBS="-L. -lgauche-gl -lgauche-math3d"

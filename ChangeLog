@@ -1,3 +1,7 @@
+2010-11-21  Shiro Kawai  <shiro@acm.org>
+
+	* configure.in: Check for MinGW.
+
 2010-11-20  Shiro Kawai  <shiro@acm.org>
 
 	* AUTOCONF, DIST: Removed AUTOCONF; it does harm on windows where

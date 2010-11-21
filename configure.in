@@ -85,7 +85,7 @@ AC_CHECK_HEADERS(GLUT/glut.h, [
 
 if test "$GL_LIBS" = ""; then
   case $target in
-    *-*-cygwin*)
+    *-*-cygwin*|*-*-mingw*)
       GL_LIBS='-lglu32 -lopengl32' ;;
     *)
       GL_LIBS='-lGLU -lGL' ;;

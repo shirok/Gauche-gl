@@ -31,8 +31,8 @@
     (gl-enable GL_LIGHTING)
     (gl-enable GL_DEPTH_TEST)
 
-    (gl-clear-stencil 0)
-    (gl-enable GL_STENCIL_TEST)
+    ;(gl-clear-stencil 0)
+    ;(gl-enable GL_STENCIL_TEST)
     ))
 
 (define (display-proc)
@@ -55,6 +55,7 @@
   (glut-solid-torus 0.275 0.85 30 30)
   (gl-pop-matrix)
   (gl-pop-matrix)
+  (gl-flush)
   )
 
 (define (reshape-proc w h)

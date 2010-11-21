@@ -25,6 +25,7 @@
     (gl-normal 0.0 0.0 1.0)
     (gl-vertex 50.0 50.0 0.0)
     )
+  (gl-flush)
   )
 
 (define (print-3d-color-vertex buffer count)

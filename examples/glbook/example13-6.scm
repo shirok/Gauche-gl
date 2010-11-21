@@ -27,6 +27,7 @@
     (gl-color 1.0 0.0 1.0)
     (gl-vertex 0 2 -2) (gl-vertex 0 7 -2) (gl-vertex 5 7 -2) (gl-vertex 5 2 -2)
     )
+  (gl-flush)
   )
 
 (define (process-hits hits vec)

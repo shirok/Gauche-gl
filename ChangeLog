@@ -1,5 +1,8 @@
 2010-11-20  Shiro Kawai  <shiro@acm.org>
 
+	* AUTOCONF, DIST: Removed AUTOCONF; it does harm on windows where
+	  command search is case insensitive.  './DIST gen' runs autoconf.
+
 	* examples/glbook/example10-1.scm, examples/glbook/example13-6.scm,
 	  examples/glbook/example13-7.scm: Added missing gl-flush; lacking
 	  of it may cause some systems to hang.

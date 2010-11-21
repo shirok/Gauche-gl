@@ -7,11 +7,16 @@ while [ $# -gt 0 ]; do
   case $1 in
     doc) docs=yes; shift ;;
     tgz) tgz=yes; shift ;;
+    gen) gen=yes; shift ;;
     test) test=yes; shift ;;
     testclean) testclean=yes; shift ;;
-    *) echo "DIST [doc][tgz][test][testclean]"; exit 0;;
+    *) echo "DIST [doc][tgz][gen][test][testclean]"; exit 0;;
   esac
 done
+
+if [ "$gen" = "yes" ]; then
+  autoconf -I `gauche-config --ac`
+fi
 
 if [ "$tgz" = "yes" ]; then
   if [ -f Makefile ]; then make maintainer-clean; fi

@@ -6,3 +6,12 @@ installation instructions.
 Under doc/, you can find texinfo file of the documentation.
 It is incomplete but may be of some use.
 
+Under win32/, there are some auxiliary libraries required for
+win32 platform.   Things under this directory has its own
+copyright notices; check each subdirectories.
+
+Currently it only contains freeglut-2.6.0-3, a precompiled binary
+of Pawel W. Olszta's FreeGlut, build for MinGW by Martin Payne.
+The package can be obtained from:
+http://www.transmissionzero.co.uk/computing/using-glut-with-mingw/
+

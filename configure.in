@@ -25,12 +25,17 @@ esac
 # options for configure scripts
 GLUT_LIB="-l$LIBGLUT"
 AC_ARG_WITH(glut, [  --with-glut[=PATH]:      Use GLUT library installed under PATH.
-                          By default, Gauche-gl assumes GLUT is installed in
-                          the system standard location.  If you do not want to
-                          use GLUT support, specify --with-glut=no.], [
+    By default, Gauche-gl assumes GLUT is installed in the system standard 
+    location.  If you do not want to use GLUT support, specify --with-glut=no. 
+    On MinGW you can statically link freeglut included in the source.
+    If you want to choose so, say --with-glut=mingw-static.], [
   case $with_glut in
     no)  GLUT_LIB= ;;
     yes) GLUT_LIB="-l$LIBGLUT";;
+    mingw-static)
+         GLUT_LIB="-lfreeglut_static -lgdi32 -lwinmm"
+         GLUT_INCDIR="-I../win32/freeglut-2.6.0-3/include -DFREEGLUT_STATIC"
+         GLUT_LIBDIR="-L../win32/freeglut-2.6.0-3/lib";;
     *)   GLUT_LIB="-l$LIBGLUT"
          GLUT_INCDIR="-I$with_glut/include"
          GLUT_LIBDIR="-L$with_glut/lib";;

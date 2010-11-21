@@ -1,5 +1,11 @@
 2010-11-21  Shiro Kawai  <shiro@acm.org>
 
+	* win32/freeglut-2.6.0-3: Included precompiled binary of freeglut
+	  for MinGW, for the convenience.  By
+	  ./configure --with-glut=mingw-static, you can build gl.glut with
+	  freeglut statically linked to libgauche-glut.dll.  This will
+	  free you from carrying around freeglut.dll.
+
 	* configure.in: Check for MinGW.
 
 2010-11-20  Shiro Kawai  <shiro@acm.org>

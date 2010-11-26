@@ -1,3 +1,8 @@
+2010-11-25  Shiro Kawai  <shiro@acm.org>
+
+	* */Makefile.in, configure.in: Quote $GAUCHE_CONFIG etc, so that
+	  they work even spaces are included in the path of these programs.
+
 2010-11-21  Shiro Kawai  <shiro@acm.org>
 
 	* win32/freeglut-2.6.0-3: Included precompiled binary of freeglut

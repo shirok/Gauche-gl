@@ -2,6 +2,10 @@
 
 	* */Makefile.in, configure.in: Quote $GAUCHE_CONFIG etc, so that
 	  they work even spaces are included in the path of these programs.
+	* Makefile.in: Added install-examples target that installs some
+	  examples into ${prefix}/examples.  This is not normally called,
+	  but on MinGW, it will be useful to include examples in the
+	  binary distribution.
 
 2010-11-21  Shiro Kawai  <shiro@acm.org>
 

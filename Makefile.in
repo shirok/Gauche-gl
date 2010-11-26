@@ -3,10 +3,11 @@ CONFIG_GENERATED = Makefile Gauche-gl.gpd \
 .PHONY: all check clean distclean install maintainer-clean
 
 GAUCHE_CONFIG = "@GAUCHE_CONFIG@"
-INSTALL = "@GAUCHE_INSTALL@"
+INSTALL       = "@GAUCHE_INSTALL@"
 DESTDIR = 
 
 SCM_INSTALL_DIR = "$(DESTDIR)`$(GAUCHE_CONFIG) --syslibdir`"
+INSTALL_ROOT    = "$(DESTDIR)`$(GAUCHE_CONFIG) --prefix`"
 
 ENABLE_CG = @ENABLE_CG@
 
@@ -54,3 +55,10 @@ maintainer-clean : clean
 	cd cg;  $(MAKE) maintainer-clean
 	cd doc; $(MAKE) maintainer-clean
 	rm -rf configure VERSION $(CONFIG_GENERATED)
+
+# We don't normally install examples.  On MinGW, it will be useful to
+# include examples in the bindary distribution.
+install-examples : install
+	$(INSTALL) -T $(INSTALL_ROOT) -m 444 \
+	           examples/gears.scm examples/mandelbrot.scm \
+	           examples/glbook/*.scm examples/glbook/README

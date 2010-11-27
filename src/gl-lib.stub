@@ -511,7 +511,19 @@
   }
   SCM_RETURN(SCM_UNDEFINED);")
 
-;; glIndex*
+(define-cproc gl-index (v) ::<void>
+  (cond
+   [(SCM_REALP v)      (glIndexd (Scm_GetDouble v))]
+   [(and (SCM_UVECTORP v) (>= (SCM_UVECTOR_SIZE v) 1))
+    (cond
+     [(SCM_S16VECTORP v) (glIndexsv (SCM_S16VECTOR_ELEMENTS v))]
+     [(SCM_S32VECTORP v) (glIndexiv (SCM_S32VECTOR_ELEMENTS v))]
+     [(SCM_F32VECTORP v) (glIndexfv (SCM_F32VECTOR_ELEMENTS v))]
+     [(SCM_F64VECTORP v) (glIndexdv (SCM_F64VECTOR_ELEMENTS v))]
+     [(SCM_U8VECTORP v)  (glIndexubv (SCM_U8VECTOR_ELEMENTS v))]
+     [else (SCM_TYPE_ERROR v "s16, s32, f32, f64 or u8vector")])]
+   [else
+    (SCM_TYPE_ERROR v "real number or s16, s32, f32, f64 or u8vector of at least one element")]))
 
 (define-cproc gl-color (v &rest args)
   "if (SCM_F32VECTORP(v)) {

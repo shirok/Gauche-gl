@@ -9,7 +9,7 @@ top_srcdir   = @top_srcdir@
 GAUCHE_CONFIG  = "@GAUCHE_CONFIG@"
 GAUCHE_INSTALL = "@GAUCHE_INSTALL@"
 
-SCM_INSTALL_DIR = "$(DESTDIR)`$(GAUCHE_CONFIG) --syslibdir`"
+SCM_INSTALL_DIR = "$(DESTDIR)`$(GAUCHE_CONFIG) --sitelibdir`"
 
 SCMFILES = gl.scm        \
 	   gl/math3d.scm \

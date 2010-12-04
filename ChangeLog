@@ -1,3 +1,9 @@
+2010-12-03  Shiro Kawai  <shiro@acm.org>
+
+	* */Makefile.in: Install to site-specific directories instead of
+	  Gauche system directories (the new policy since Gauche 0.9.x).
+	* INSTALL.in: Updated.
+
 2010-11-26  Shiro Kawai  <shiro@acm.org>
 
 	* src/gl-lib.stub (gl-index): This one was missing.  Added.

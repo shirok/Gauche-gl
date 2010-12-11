@@ -1,3 +1,7 @@
+2010-12-11  Shiro Kawai  <shiro@acm.org>
+
+	* release 0.5
+
 2010-12-03  Shiro Kawai  <shiro@acm.org>
 
 	* */Makefile.in: Install to site-specific directories instead of

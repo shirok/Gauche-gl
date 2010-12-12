@@ -26,7 +26,7 @@ Prerequisites
 * GLUT 3.7以降が必要です。(ただし、MinGW上でのコンパイル時には
   必要ありません。以下で説明します)
 @c EN
-* Gauche 0.8.5 or later must be installed.
+* Gauche 0.9.1 or later must be installed.
 * OpenGL 1.1 or later, or Mesa 3.0 or later, required.
 * GLUT 3.7 or later is required (except when you compile
   on MinGW; see below.)

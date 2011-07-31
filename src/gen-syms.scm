@@ -48,6 +48,7 @@
    ))
 
 (define (main args)
+  (cgen-decl "#include <gauche.h>")
   (cgen-init "  ScmModule *m = SCM_MODULE(SCM_FIND_MODULE(\"gl\", TRUE));")
   (with-input-from-file *glext-abi*
     (cut port-for-each gen read))

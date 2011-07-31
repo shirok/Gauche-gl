@@ -48,7 +48,8 @@
    ))
 
 (define (main args)
-  (cgen-decl "#ifndef APIENTRY" "#define APIENTRY  /*empty*/" "#endif"
+  (cgen-decl "#include <gauche.h>"
+             "#ifndef APIENTRY" "#define APIENTRY  /*empty*/" "#endif"
              "#ifndef APIENTRYP" "#define APIENTRYP APIENTRY*" "#endif"
              "#ifndef GL_VERSION_2_0"
              "typedef char GLchar;"

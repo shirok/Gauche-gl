@@ -1,3 +1,8 @@
+2011-07-31  Shiro Kawai  <shiro@acm.org>
+
+	* src/gen-ptrs.scm, src/gen-syms.scm: Adapted to the change of
+	  gauche.cgen in Gauche 0.9.2.
+
 2011-02-28  Shiro Kawai  <shiro@acm.org>
 
 	* Repository moved to git.

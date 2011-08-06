@@ -1,3 +1,7 @@
+2011-08-05  Shiro Kawai  <shiro@acm.org>
+
+	* release 0.5.1
+
 2011-07-31  Shiro Kawai  <shiro@acm.org>
 
 	* src/gen-ptrs.scm, src/gen-syms.scm: Adapted to the change of

@@ -3039,7 +3039,7 @@ respectively.
 @defun f32vector->vector4f v &optional start
 @defunx f32vector->point4f v &optional start
 Creates a vector4f or a point4f, initializing by the elements of
-f32vector @var{v}.   @var{V} must be longer than 4, and the first
+f32vector @var{v}.   @var{V} must be at least 4 elements long, and the first
 four elements are used to initialize the created vector or point.
 
 If optional @var{start} argument is given, it specifies an index

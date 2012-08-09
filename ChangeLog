@@ -1,3 +1,7 @@
+2012-08-09  Shiro Kawai  <shiro@acm.org>
+
+	* src/glext-lib.stub (gl-get-convolution-parameter): Added.
+
 2011-08-05  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.5.1

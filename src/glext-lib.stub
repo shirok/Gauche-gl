@@ -57,14 +57,16 @@
                                depth::<fixnum> border::<fixnum>
                                format::<fixnum> type::<fixnum>
                                texels)
-  "int elttype, size; void *texelptr;
-   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
-   texelptr = Scm_GLPixelDataCheck(texels, elttype, size*depth);
-   if (texelptr) {
-     ENSURE(glTexImage3D);
-     glTexImage3D(target, level, internal_format, width, height, depth, border, format, type, texelptr);
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::int]
+         [size::int
+          (Scm_GLPixelDataSize width height format type (& elttype) NULL)]
+         [texelptr::void*
+          (Scm_GLPixelDataCheck texels elttype (* size depth))])
+    (when texelptr
+      (ENSURE glTexImage3D)
+      (glTexImage3D target level internal_format width height depth
+                    border format type texelptr))))
 
 (define-cproc gl-tex-sub-image-3d (target::<fixnum> level::<fixnum>
                                    xoffset::<fixnum> yoffset::<fixnum>
@@ -73,44 +75,46 @@
                                    depth::<fixnum>
                                    format::<fixnum> type::<fixnum>
                                    texels)
-  "int elttype, size; void *texelptr;
-   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
-   texelptr = Scm_GLPixelDataCheck(texels, elttype, size*depth);
-   if (texelptr) {
-     ENSURE(glTexSubImage3D);
-     glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, texelptr);
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::int]
+         [size::int
+          (Scm_GLPixelDataSize width height format type (& elttype) NULL)]
+         [texelptr::void*
+          (Scm_GLPixelDataCheck texels elttype (* size depth))])
+    (when texelptr
+      (ENSURE glTexSubImage3D)
+      (glTexSubImage3D target level xoffset yoffset zoffset
+                       width height depth format type texelptr))))
 
 (define-cproc gl-copy-tex-sub-image-3d (target::<fixnum> level::<fixnum>
                                         xoffset::<fixnum> yoffset::<fixnum>
                                         zoffset::<fixnum>
                                         x::<fixnum> y::<fixnum>
                                         width::<fixnum> height::<fixnum>)
-  "ENSURE(glCopyTexSubImage3D);
-   glCopyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glCopyTexSubImage3D)
+  (glCopyTexSubImage3D target level xoffset yoffset zoffset x y width height))
 
 (define-cproc gl-draw-range-elements (mode::<fixnum>
                                       start::<uint> end::<uint>
                                       indices)
-  "ENSURE(glDrawRangeElements);
-   if (SCM_U8VECTORP(indices)) {
-     glDrawRangeElements(mode, start, end, 
-                         SCM_U8VECTOR_SIZE(indices), GL_UNSIGNED_BYTE,
-                         SCM_U8VECTOR_ELEMENTS(indices));
-   } else if (SCM_U16VECTORP(indices)) {
-     glDrawRangeElements(mode, start, end,
-                         SCM_U16VECTOR_SIZE(indices), GL_UNSIGNED_SHORT,
-                         SCM_U16VECTOR_ELEMENTS(indices));
-   } else if (SCM_U32VECTORP(indices)) {
-     glDrawRangeElements(mode, start, end,
-                         SCM_U32VECTOR_SIZE(indices), GL_UNSIGNED_INT,
-                         SCM_U32VECTOR_ELEMENTS(indices));
-   } else {
-     Scm_Error(\"bad argument for indices: %S, must be u8, u16 or u32vector\", indices);
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glDrawRangeElements)
+  (cond
+   [(SCM_U8VECTORP indices)
+    (glDrawRangeElements mode start end 
+                         (SCM_U8VECTOR_SIZE indices) GL_UNSIGNED_BYTE
+                         (SCM_U8VECTOR_ELEMENTS indices))]
+   [(SCM_U16VECTORP indices)
+    (glDrawRangeElements mode start end
+                         (SCM_U16VECTOR_SIZE indices) GL_UNSIGNED_SHORT
+                         (SCM_U16VECTOR_ELEMENTS indices))]
+   [(SCM_U32VECTORP indices)
+    (glDrawRangeElements mode start end
+                         (SCM_U32VECTOR_SIZE indices) GL_UNSIGNED_INT
+                         (SCM_U32VECTOR_ELEMENTS indices))]
+   [else
+    (Scm_Error "bad argument for indices; must be u8, u16 or u32vector, but got %S" indices)]))
 
 ;;=============================================================
 ;; GL_ARB_imaging
@@ -119,79 +123,83 @@
 (define-cproc gl-color-table (target::<fixnum> internal-format::<fixnum>
                               width::<int> format::<int> type::<int>
                               data)
-  "int elttype, size, packed;
-   size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, &packed);
-   ENSURE(glColorTable);
-   glColorTable(target, internal_format, width, format, type,
-                Scm_GLPixelDataCheck(data, elttype, size));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::int] [packed::int]
+         [size::int
+          (Scm_GLPixelDataSize width 1 format type (& elttype) (& packed))])
+    (ENSURE glColorTable)
+    (glColorTable target internal_format width format type
+                  (Scm_GLPixelDataCheck data elttype size))))
 
 (define-cproc gl-color-sub-table (target::<fixnum> start::<int> count::<int>
                                   format::<int> type::<int>
                                   data)
-  "int elttype, size, packed;
-   size = Scm_GLPixelDataSize(count, 1, format, type, &elttype, &packed);
-   ENSURE(glColorSubTable);
-   glColorSubTable(target, start, count, format, type,
-                   Scm_GLPixelDataCheck(data, elttype, size));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::int] [packed::int]
+         [size::int
+          (Scm_GLPixelDataSize count 1 format type (& elttype) (& packed))])
+    (ENSURE glColorSubTable)
+    (glColorSubTable target start count format type
+                     (Scm_GLPixelDataCheck data elttype size))))
 
 (define-cproc gl-color-table-parameter (target::<fixnum> pname::<fixnum>
                                         param)
-  "if (SCM_F32VECTORP(param)) {
-    if (SCM_F32VECTOR_SIZE(param) != 4) goto err;
-    ENSURE(glColorTableParameterfv);
-    glColorTableParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
-  } else if (SCM_S32VECTORP(param)) {
-    if (SCM_S32VECTOR_SIZE(param) != 4) goto err;
-    ENSURE(glColorTableParameteriv);
-    glColorTableParameteriv(target, pname, SCM_S32VECTOR_ELEMENTS(param));
-  } else goto err;
-  SCM_RETURN(SCM_UNDEFINED);
- err:
-  Scm_Error(\"f32 or s32 vector of size 4 required, but got %S\", param);
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (cond 
+   [(SCM_F32VECTORP param)
+    (unless (== (SCM_F32VECTOR_SIZE param) 4) (goto err))
+    (ENSURE glColorTableParameterfv)
+    (glColorTableParameterfv target pname (SCM_F32VECTOR_ELEMENTS param))]
+   [(SCM_S32VECTORP param)
+    (unless (== (SCM_S32VECTOR_SIZE param) 4) (goto err))
+    (ENSURE glColorTableParameteriv)
+    (glColorTableParameteriv target pname (SCM_S32VECTOR_ELEMENTS param))]
+   [else
+    (label err)
+    (Scm_Error "f32 or s32 vector of size 4 required, but got %S" param)]))
+
 
 (define-cproc gl-copy-color-sub-table (target::<fixnum> start::<fixnum>
                                        x::<int> y::<int> width::<int>)
-  "ENSURE(glCopyColorSubTable);
-   glCopyColorSubTable(target, start, x, y, width);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glCopyColorSubTable)
+  (glCopyColorSubTable target start x y width))
+
 
 (define-cproc gl-copy-color-table (target::<fixnum> internal-format::<fixnum>
                                    x::<int> y::<int> width::<int>)
-  "ENSURE(glCopyColorTable);
-   glCopyColorTable(target, internal_format, x, y, width);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glCopyColorTable)
+  (glCopyColorTable target internal_format x y width))
 
 (define-cproc gl-get-color-table! (target::<fixnum> format::<fixnum>
                                    type::<fixnum> data::<uvector>)
   ;; TODO: check the type and size vailidity of data
-  "ENSURE(glGetColorTable);
-   glGetColorTable(target, format, type, SCM_UVECTOR_ELEMENTS(data));
-   SCM_RETURN(SCM_OBJ(data));")
+  (ENSURE glGetColorTable)
+  (glGetColorTable target format type (SCM_UVECTOR_ELEMENTS data))
+  (result (SCM_OBJ data)))
 
 ; gl-get-color-table-parameter
 
 (define-cproc gl-blend-equation (mode::<fixnum>)
-  "ENSURE(glBlendEquation);
-   glBlendEquation(mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glBlendEquation)
+  (glBlendEquation mode))
 
 (define-cproc gl-blend-color (red::<float> green::<float> blue::<float> alpha::<float>)
-  "ENSURE(glBlendColor);
-   glBlendColor(red, green, blue, alpha);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glBlendColor)
+  (glBlendColor red green blue alpha))
 
 (define-cproc gl-histogram (target::<fixnum> width::<int> internal-format::<fixnum> sink::<boolean>)
-  "ENSURE(glHistogram);
-   glHistogram(target, width, internal_format, sink);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glHistogram)
+  (glHistogram target width internal_format sink))
 
 (define-cproc gl-reset-histogram (target::<fixnum>)
-  "ENSURE(glResetHistogram);
-   glResetHistogram(target);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glResetHistogram)
+  (glResetHistogram target))
 
 (define-cproc gl-get-histogram (target::<fixnum> reset::<boolean>
                                 format::<fixnum> type::<fixnum>)
@@ -314,31 +322,84 @@
    glCopyConvolutionFilter1D(target, internal_format, x, y, width);
    SCM_RETURN(SCM_UNDEFINED);")
 
+(define-cfn gl-convolution-parameter-1 (target::int
+                                        pname::int
+                                        pname-string::(const char*)
+                                        param)
+  ::void
+  (unless (SCM_INTP param)
+    (Scm_Error "bad type of param value for %s (int required): %S"
+               pname-string param))
+  (ENSURE glConvolutionParameteri)
+  (glConvolutionParameteri target pname (SCM_INT_VALUE param)))
+
+(define-cfn gl-convolution-parameter-4 (target::int
+                                        pname::int
+                                        pname-string::(const char*)
+                                        param)
+  ::void
+  (cond
+   [(and (SCM_F32VECTORP param) (== (SCM_F32VECTOR_SIZE param) 4))
+    (ENSURE glConvolutionParameterfv)
+    (glConvolutionParameterfv target pname (SCM_F32VECTOR_ELEMENTS param))]
+   [(and (SCM_S32VECTORP param) (== (SCM_S32VECTOR_SIZE param) 4))
+    (ENSURE glConvolutionParameteriv)
+    (glConvolutionParameteriv target pname (SCM_S32VECTOR_ELEMENTS param))]
+   [else
+    (Scm_Error "bad type of param value for %s (s32 or f32vector of size 4 required), but got: %S" pname-string param)]))
+
+(define-cise-expr gl-convolution-parameter-dispatch
+  [(_ (enum-name type) ...)
+   (define (gen-call enum-name type)
+     (ecase type
+       [(s) ; scalar
+        `((,enum-name)
+          (gl-convolution-parameter-1
+           target ,enum-name ,(x->string enum-name) param))]
+       [(v) ; vector
+        `((,enum-name)
+          (gl-convolution-parameter-4
+           target ,enum-name ,(x->string enum-name) param))]))
+   `(case pname
+      ,@(map gen-call enum-name type)
+      [else (Scm_Error "Invalid pname parameter for gl-convolution-parameter: %d" pname)])])
+
 (define-cproc gl-convolution-parameter (target::<fixnum>
                                         pname::<fixnum>
                                         param)
-  "switch (pname) {
-     case GL_CONVOLUTION_BORDER_MODE:
-       if (!SCM_INTP(param)) {
-          Scm_Error(\"bad type of param value for GL_CONVOLUTION_BORDER_MODE (enum required): %S\", param);
-       }
-       glConvolutionParameteri(target, pname, SCM_INT_VALUE(param));
-       break;
-     case GL_CONVOLUTION_FILTER_SCALE:;
-     case GL_CONVOLUTION_FILTER_BIAS:
-       if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
-         glConvolutionParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
-       } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-         glConvolutionParameteriv(target, pname, SCM_S32VECTOR_ELEMENTS(param));
-       } else {
-          Scm_Error(\"bad type of param value for GL_CONVOLUTION_FILTER_SCALE/GL_CONVOLUTION_FILTER_BIAS (s32 or f32vector of size 4 required): %S\", param);
-       }
-       break;
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
-  
+  ::<void>
+  (gl-convolution-parameter-dispatch
+   (GL_CONVOLUTION_BORDER_MODE s)
+   (GL_CONVOLUTION_BORDER_COLOR v)
+   (GL_CONVOLUTION_FILTER_SCALE v)
+   (GL_CONVOLUTION_FILTER_BIAS v)
+   ))
+
 ; gl-get-convolution-filter
-; gl-get-convolution-parameter
+
+(define-cproc gl-get-convolution-parameter (target::<fixnum>
+                                            pname::<fixnum>)
+  (case pname
+    [(GL_CONVOLUTION_BORDER_MODE
+      GL_CONVOLUTION_FORMAT
+      GL_CONVOLUTION_WIDTH
+      GL_CONVOLUTION_HEIGHT
+      GL_MAX_CONVOLUTION_WIDTH
+      GL_MAX_CONVOLUTION_HEIGHT)
+     (ENSURE glGetConvolutionParameteriv)
+     (let* ([r::GLint])
+       (glGetConvolutionParameteriv target pname (& r))
+       (result (Scm_MakeInteger r)))]
+    [(GL_CONVOLUTION_BORDER_COLOR
+      GL_CONVOLUTION_FILTER_SCALE
+      GL_CONVOLUTION_FILTER_BIAS)
+     (ENSURE glGetConvolutionParameterfv)
+     (let* ([v (Scm_MakeF32Vector 4 0)])
+       (glGetConvolutionParameterfv target pname (SCM_F32VECTOR_ELEMENTS v))
+       (result v))]
+    [else
+     (Scm_Error "Invalid pname parameter for gl-get-convolution-parameter: %d" pname)]))
+
 ; gl-get-separable-filter
 
 ;;=============================================================

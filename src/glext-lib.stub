@@ -203,124 +203,120 @@
 
 (define-cproc gl-get-histogram (target::<fixnum> reset::<boolean>
                                 format::<fixnum> type::<fixnum>)
-  "int elttype, size; GLint width; ScmObj vec;
-   ENSURE(glGetHistogramParameteriv);
-   ENSURE(glGetHistogram);
-   glGetHistogramParameteriv(GL_HISTOGRAM, GL_HISTOGRAM_WIDTH, &width);
-   size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, NULL);
-   vec = Scm_GLAllocUVector(elttype, size);
-   if (!SCM_UVECTORP(vec)) {
-     Scm_Error(\"invalid format or type (%S, %S)\", format, type);
-   }
-   glGetHistogram(target, reset, format, type, SCM_UVECTOR_ELEMENTS(vec));
-   SCM_RETURN(vec);")
+  (ENSURE glGetHistogramParameteriv)
+  (ENSURE glGetHistogram)
+  (let* ([elttype::int] [width::GLint])
+    (glGetHistogramParameteriv GL_HISTOGRAM GL_HISTOGRAM_WIDTH (& width))
+    (let* ([size::int
+            (Scm_GLPixelDataSize width 1 format type (& elttype) NULL)]
+           [vec (Scm_GLAllocUVector elttype size)])
+      (unless (SCM_UVECTORP vec)
+        (Scm_Error "invalid format or type (%S, %S)" format type))
+      (glGetHistogram target reset format type (SCM_UVECTOR_ELEMENTS vec))
+      (result vec))))
 
 (define-cproc gl-get-histogram-parameter (target::<fixnum>
                                           pname::<fixnum>)
-  "GLint param;
-   ENSURE(glGetHistogramParameteriv);
-   switch (pname) {
-     case GL_HISTOGRAM_SINK:
-       glGetHistogramParameteriv(target, pname, &param);
-       SCM_RETURN(SCM_MAKE_BOOL(param));
-     default:
-       glGetHistogramParameteriv(target, pname, &param);
-       SCM_RETURN(Scm_MakeInteger(param));
-   }")
+  (ENSURE glGetHistogramParameteriv)
+  (let* ([param::GLint])
+    (case pname
+      [(GL_HISTOGRAM_SINK)
+       (glGetHistogramParameteriv target pname (& param))
+       (result (SCM_MAKE_BOOL param))]
+      [else
+       (glGetHistogramParameteriv target pname (& param))
+       (result (Scm_MakeInteger param))])))
 
-(define-cproc gl-minmax (target::<fixnum> internal-format::<fixnum> sink::<boolean>)
-  "ENSURE(glMinmax);
-   glMinmax(target, internal_format, sink);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-minmax (target::<fixnum> internal-format::<fixnum> sink::<boolean>) ::<void>
+  (ENSURE glMinmax)
+  (glMinmax target internal_format sink))
 
-(define-cproc gl-reset-minmax (target::<fixnum>)
-  "ENSURE(glResetMinmax);
-   glResetMinmax(target);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-reset-minmax (target::<fixnum>) ::<void>
+  (ENSURE glResetMinmax)
+  (glResetMinmax target))
 
 (define-cproc gl-get-minmax (target::<fixnum> reset::<boolean>
                              format::<fixnum> type::<fixnum>)
-  "int elttype, size; ScmObj vec;
-   ENSURE(glGetMinmax);
-   size = Scm_GLPixelDataSize(2, 1, format, type, &elttype, NULL);
-   vec = Scm_GLAllocUVector(elttype, size);
-   if (!SCM_UVECTORP(vec)) {
-     Scm_Error(\"invalid format or type (%S, %S)\", format, type);
-   }
-   glGetMinmax(target, reset, format, type, SCM_UVECTOR_ELEMENTS(vec));
-   SCM_RETURN(vec);")
+  (let* ([elttype::GLint]
+         [size::int
+          (Scm_GLPixelDataSize 2 1 format type (& elttype) NULL)]
+         [vec (Scm_GLAllocUVector elttype size)])
+    (unless (SCM_UVECTORP vec)
+      (Scm_Error "invalid format or type (%S, %S)" format type))
+    (ENSURE glGetMinmax)
+    (glGetMinmax target reset format type (SCM_UVECTOR_ELEMENTS vec))
+    (result vec)))
    
 (define-cproc gl-get-minmax-parameter (target::<fixnum>
                                        pname::<fixnum>)
-  "GLint param;
-   ENSURE(glGetMinmaxParameteriv);
-   switch (pname) {
-     case GL_MINMAX_SINK:
-       glGetMinmaxParameteriv(target, pname, &param);
-       SCM_RETURN(SCM_MAKE_BOOL(param));
-     default:
-       glGetMinmaxParameteriv(target, pname, &param);
-       SCM_RETURN(Scm_MakeInteger(param));
-   }")
+  (ENSURE glGetMinmaxParameteriv)
+  (let* ([param::GLint])
+    (case pname
+      [(GL_MINMAX_SINK)
+       (glGetMinmaxParameteriv target pname (& param))
+       (result (SCM_MAKE_BOOL param))]
+      [else
+       (glGetMinmaxParameteriv target pname (& param))
+       (result (Scm_MakeInteger param))])))
 
 (define-cproc gl-convolution-filter-2d (target::<fixnum>
                                         internal-format::<fixnum>
                                         width::<fixnum> height::<fixnum>
                                         format::<fixnum> type::<fixnum>
                                         data::<uvector>)
-  "int elttype, size;
-   size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
-   if (SCM_UVECTOR_SIZE(data) < size) {
-     Scm_Error(\"given vector is too short (minimum %d elements): %S\",
-               size, data);
-   }
-   ENSURE(glConvolutionFilter2D);
-   glConvolutionFilter2D(target, internal_format, width, height, 
-                         format, type, SCM_UVECTOR_ELEMENTS(data));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::GLint]
+         [size::int
+          (Scm_GLPixelDataSize width height format type (& elttype) NULL)])
+    (when (< (SCM_UVECTOR_SIZE data) size)
+      (Scm_Error "given vector is too short (minimum %d elements): %S"
+                 size data))
+    (ENSURE glConvolutionFilter2D)
+    (glConvolutionFilter2D target internal_format width height 
+                           format type (SCM_UVECTOR_ELEMENTS data))))
 
 (define-cproc gl-copy-convolution-filter-2d (target::<fixnum>
                                              internal-format::<fixnum>
                                              x::<fixnum> y::<fixnum>
                                              width::<fixnum> height::<fixnum>)
-  "ENSURE(glCopyConvolutionFilter2D);
-   glCopyConvolutionFilter2D(target, internal_format, x, y, width, height);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glCopyConvolutionFilter2D)
+  (glCopyConvolutionFilter2D target internal_format x y width height))
 
 (define-cproc gl-separable-filter-2d (target::<fixnum>
                                       internal-format::<fixnum>
                                       width::<fixnum> height::<fixnum>
                                       format::<fixnum> type::<fixnum>
                                       row::<uvector> column::<uvector>)
-  "ENSURE(glSeparableFilter2D);
-   glSeparableFilter2D(target, internal_format, width, height, format, type,
-                       SCM_UVECTOR_ELEMENTS(row),
-                       SCM_UVECTOR_ELEMENTS(column));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glSeparableFilter2D)
+  (glSeparableFilter2D target internal_format width height format type
+                       (SCM_UVECTOR_ELEMENTS row)
+                       (SCM_UVECTOR_ELEMENTS column)))
 
 (define-cproc gl-convolution-filter-1d (target::<fixnum>
                                         internal-format::<fixnum>
                                         width::<fixnum>
                                         format::<fixnum> type::<fixnum>
                                         data::<uvector>)
-  "int elttype, size;
-   size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, NULL);
-   if (SCM_UVECTOR_SIZE(data) < size) {
-     Scm_Error(\"given vector is too short (minimum %d elements): %S\",
-               size, data);
-   }
-   ENSURE(glConvolutionFilter1D);
-   glConvolutionFilter1D(target, internal_format, width, 
-                         format, type, SCM_UVECTOR_ELEMENTS(data));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::GLint]
+         [size::int
+          (Scm_GLPixelDataSize width 1 format type (& elttype) NULL)])
+    (when (< (SCM_UVECTOR_SIZE data) size)
+      (Scm_Error "given vector is too short (minimum %d elements): %S"
+                 size data))
+    (ENSURE glConvolutionFilter1D)
+    (glConvolutionFilter1D target internal_format width 
+                           format type (SCM_UVECTOR_ELEMENTS data))))
 
 (define-cproc gl-copy-convolution-filter-1d (target::<fixnum>
                                              internal-format::<fixnum>
                                              x::<fixnum> y::<fixnum>
                                              width::<fixnum>)
-  "ENSURE(glCopyConvolutionFilter1D);
-   glCopyConvolutionFilter1D(target, internal_format, x, y, width);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glCopyConvolutionFilter1D)
+  (glCopyConvolutionFilter1D target internal_format x y width))
 
 (define-cfn gl-convolution-parameter-1 (target::int
                                         pname::int
@@ -427,117 +423,90 @@
 ;;
 
 (define-cproc gl-sample-coverage-arb (value::<float> invert::<boolean>)
-  "ENSURE(glSampleCoverageARB);
-   glSampleCoverageARB(value, invert);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glSampleCoverageARB)
+  (glSampleCoverageARB value invert))
 
 ;;=============================================================
 ;; GL_ARB_multitexture
 ;;
 
-(define-cproc gl-active-texture-arb (texture::<int>)
-  (body <void>
-        "ENSURE(glActiveTextureARB);"
-        "glActiveTextureARB(texture);"))
+(define-cproc gl-active-texture-arb (texture::<int>) ::<void>
+  (ENSURE glActiveTextureARB)
+  (glActiveTextureARB texture))
 
-(define-cproc gl-active-texture (texture::<int>)  ; GL 1.3
-  (body <void>
-        "ENSURE(glActiveTexture);"
-        "glActiveTexture(texture);"))
+(define-cproc gl-active-texture (texture::<int>) ::<void> ; GL 1.3
+  (ENSURE glActiveTexture)
+  (glActiveTexture texture))
 
-(define-cproc gl-client-active-texture-arb (texture::<int>)
-  (body <void>
-        "ENSURE(glClientActiveTextureARB);"
-        "glClientActiveTextureARB(texture);"))
+(define-cproc gl-client-active-texture-arb (texture::<int>) ::<void>
+  (ENSURE glClientActiveTextureARB)
+  (glClientActiveTextureARB texture))
 
-(define-cproc gl-client-active-texture (texture::<int>) ; GL 1.3
-  (body <void>
-        "ENSURE(glClientActiveTexture);"
-        "glClientActiveTexture(texture);"))
+(define-cproc gl-client-active-texture (texture::<int>) ::<void>; GL 1.3
+  (ENSURE glClientActiveTexture)
+  (glClientActiveTexture texture))
 
-(define-cproc gl-multi-tex-coord-arb (texunit::<int> v &rest args)
-  "if (SCM_F32VECTORP(v)) {
-     switch (SCM_F32VECTOR_SIZE(v)) {
-       case 2: ENSURE(glMultiTexCoord2fvARB);
-               glMultiTexCoord2fvARB(texunit, SCM_F32VECTOR_ELEMENTS(v)); 
-               break;
-       case 1: ENSURE(glMultiTexCoord1fvARB);
-               glMultiTexCoord1fvARB(texunit, SCM_F32VECTOR_ELEMENTS(v));
-               break;
-       case 3: ENSURE(glMultiTexCoord3fvARB);
-               glMultiTexCoord3fvARB(texunit, SCM_F32VECTOR_ELEMENTS(v));
-               break;
-       case 4: ENSURE(glMultiTexCoord4fvARB); 
-               glMultiTexCoord4fvARB(texunit, SCM_F32VECTOR_ELEMENTS(v));
-               break;
-       default: goto badarg;
-     }
-  } else if (SCM_F64VECTORP(v)) {
-     switch (SCM_F64VECTOR_SIZE(v)) {
-       case 2: ENSURE(glMultiTexCoord2dvARB);
-               glMultiTexCoord2dvARB(texunit, SCM_F64VECTOR_ELEMENTS(v));
-               break;
-       case 1: ENSURE(glMultiTexCoord1dvARB);  
-               glMultiTexCoord1dvARB(texunit, SCM_F64VECTOR_ELEMENTS(v));
-               break;
-       case 3: ENSURE(glMultiTexCoord3dvARB);
-               glMultiTexCoord3dvARB(texunit, SCM_F64VECTOR_ELEMENTS(v));
-               break;
-       case 4: ENSURE(glMultiTexCoord4dvARB);
-               glMultiTexCoord4dvARB(texunit, SCM_F64VECTOR_ELEMENTS(v));
-               break;
-       default: goto badarg;
-     }
-  } else if (SCM_S32VECTORP(v)) {
-     switch (SCM_S32VECTOR_SIZE(v)) {
-       case 2: ENSURE(glMultiTexCoord2ivARB);
-               glMultiTexCoord2ivARB(texunit, SCM_S32VECTOR_ELEMENTS(v));
-               break;
-       case 1: ENSURE(glMultiTexCoord2ivARB);
-               glMultiTexCoord2ivARB(texunit, SCM_S32VECTOR_ELEMENTS(v));
-               break;
-       case 3: ENSURE(glMultiTexCoord3ivARB);
-               glMultiTexCoord3ivARB(texunit, SCM_S32VECTOR_ELEMENTS(v));
-               break;
-       case 4: ENSURE(glMultiTexCoord4ivARB);
-               glMultiTexCoord4ivARB(texunit, SCM_S32VECTOR_ELEMENTS(v));
-               break;
-       default: goto badarg;
-     }
-  } else if (SCM_S16VECTORP(v)) {
-     switch (SCM_S16VECTOR_SIZE(v)) {
-       case 2: ENSURE(glMultiTexCoord2svARB);
-               glMultiTexCoord2svARB(texunit, SCM_S16VECTOR_ELEMENTS(v));
-               break;
-       case 1: ENSURE(glMultiTexCoord1svARB);
-               glMultiTexCoord1svARB(texunit, SCM_S16VECTOR_ELEMENTS(v));
-               break;
-       case 3: ENSURE(glMultiTexCoord3svARB);
-               glMultiTexCoord3svARB(texunit, SCM_S16VECTOR_ELEMENTS(v));
-               break;
-       case 4: ENSURE(glMultiTexCoord4svARB);
-               glMultiTexCoord4svARB(texunit, SCM_S16VECTOR_ELEMENTS(v));
-               break;
-       default: goto badarg;
-     }
-  } else {
-     double val[4];
-     int nvals = Scm_GLGetDoubles(v, args, val, 4, 1);
-     switch (nvals) {
-       case 2: ENSURE(glMultiTexCoord2dvARB);
-               glMultiTexCoord2dvARB(texunit, val); break;
-       case 1: ENSURE(glMultiTexCoord1dvARB);
-               glMultiTexCoord1dvARB(texunit, val); break;
-       case 3: ENSURE(glMultiTexCoord3dvARB);
-               glMultiTexCoord3dvARB(texunit, val); break;
-       case 4: ENSURE(glMultiTexCoord4dvARB);
-               glMultiTexCoord4dvARB(texunit, val); break;
-     }
-  }
-  SCM_RETURN(SCM_UNDEFINED);
- badarg:
-  Scm_Error(\"bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 1, 2, 3, or 4.\", v);
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-multi-tex-coord-arb (texunit::<int> v &rest args) ::<void>
+  (cond 
+   [(SCM_F32VECTORP v)
+    (case (SCM_F32VECTOR_SIZE v)
+      [(2) (ENSURE glMultiTexCoord2fvARB)
+           (glMultiTexCoord2fvARB texunit (SCM_F32VECTOR_ELEMENTS v))]
+      [(1) (ENSURE glMultiTexCoord1fvARB)
+           (glMultiTexCoord1fvARB texunit (SCM_F32VECTOR_ELEMENTS v))]
+      [(3) (ENSURE glMultiTexCoord3fvARB)
+           (glMultiTexCoord3fvARB texunit (SCM_F32VECTOR_ELEMENTS v))]
+      [(4) (ENSURE glMultiTexCoord4fvARB)
+           (glMultiTexCoord4fvARB texunit (SCM_F32VECTOR_ELEMENTS v))]
+      [else (goto badarg)])]
+   [(SCM_F64VECTORP v)
+    (case (SCM_F64VECTOR_SIZE v)
+      [(2) (ENSURE glMultiTexCoord2dvARB)
+           (glMultiTexCoord2dvARB texunit (SCM_F64VECTOR_ELEMENTS v))]
+      [(1) (ENSURE glMultiTexCoord1dvARB)
+           (glMultiTexCoord1dvARB texunit (SCM_F64VECTOR_ELEMENTS v))]
+      [(3) (ENSURE glMultiTexCoord3dvARB)
+           (glMultiTexCoord3dvARB texunit (SCM_F64VECTOR_ELEMENTS v))]
+      [(4) (ENSURE glMultiTexCoord4dvARB)
+           (glMultiTexCoord4dvARB texunit (SCM_F64VECTOR_ELEMENTS v))]
+      [else (goto badarg)])]
+   [(SCM_S32VECTORP v)
+    (case (SCM_S32VECTOR_SIZE v)
+      [(2) (ENSURE glMultiTexCoord2ivARB)
+           (glMultiTexCoord2ivARB texunit (SCM_S32VECTOR_ELEMENTS v))]
+      [(1) (ENSURE glMultiTexCoord2ivARB)
+           (glMultiTexCoord2ivARB texunit (SCM_S32VECTOR_ELEMENTS v))]
+      [(3) (ENSURE glMultiTexCoord3ivARB)
+           (glMultiTexCoord3ivARB texunit (SCM_S32VECTOR_ELEMENTS v))]
+      [(4) (ENSURE glMultiTexCoord4ivARB)
+           (glMultiTexCoord4ivARB texunit (SCM_S32VECTOR_ELEMENTS v))]
+      [else (goto badarg)])]
+   [(SCM_S16VECTORP v)
+    (case (SCM_S16VECTOR_SIZE v)
+      [(2) (ENSURE glMultiTexCoord2svARB)
+           (glMultiTexCoord2svARB texunit (SCM_S16VECTOR_ELEMENTS v))]
+      [(1) (ENSURE glMultiTexCoord1svARB)
+           (glMultiTexCoord1svARB texunit (SCM_S16VECTOR_ELEMENTS v))]
+      [(3) (ENSURE glMultiTexCoord3svARB)
+           (glMultiTexCoord3svARB texunit (SCM_S16VECTOR_ELEMENTS v))]
+      [(4) (ENSURE glMultiTexCoord4svARB)
+           (glMultiTexCoord4svARB texunit (SCM_S16VECTOR_ELEMENTS v))]
+      [else (goto badarg)])]
+   [else
+    (let* ([vals::(.array double (4))]
+           [nvals::int (Scm_GLGetDoubles v args vals 4 1)])
+      (case nvals
+        [(2) (ENSURE glMultiTexCoord2dvARB)
+             (glMultiTexCoord2dvARB texunit vals)]
+        [(1) (ENSURE glMultiTexCoord1dvARB)
+             (glMultiTexCoord1dvARB texunit vals)]
+        [(3) (ENSURE glMultiTexCoord3dvARB)
+             (glMultiTexCoord3dvARB texunit vals)]
+        [(4) (ENSURE glMultiTexCoord4dvARB)
+             (glMultiTexCoord4dvARB texunit vals)]
+        [else (label badarg)
+              (Scm_Error "bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 1, 2, 3, or 4." v)]))]))
 
 ;;=============================================================
 ;; GL_ARB_occlusion_query
@@ -546,21 +515,19 @@
 ;; gl-genqueries-arb
 ;; gl-delete-queries-arb
 
-(define-cproc gl-is-query-arb (query::<uint>)
-  "ENSURE(glIsQueryARB);
-   SCM_RETURN(SCM_MAKE_BOOL(glIsQueryARB(query)));")
+(define-cproc gl-is-query-arb (query::<uint>) ::<boolean>
+  (ENSURE glIsQueryARB)
+  (result (glIsQueryARB query)))
 
-(define-cproc gl-begin-query-arb (op::<uint> query::<uint>)
-  "ENSURE(glBeginQueryARB);
-   glBeginQueryARB(op, query);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-begin-query-arb (op::<uint> query::<uint>) ::<void>
+  (ENSURE glBeginQueryARB)
+  (glBeginQueryARB op query))
 
-(define-cproc gl-end-query-arb (op::<uint>)
-  "ENSURE(glEndQueryARB);
-   glEndQueryARB(op);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-end-query-arb (op::<uint>) ::<void>
+  (ENSURE glEndQueryARB)
+  (glEndQueryARB op))
 
-;; gl-get-query-rab
+;; gl-get-query-arb
 ;; gl-get-query-object-arb
 
 ;;=============================================================
@@ -578,207 +545,202 @@
 (define-type <gl-handle> "GLhandleARB" "glhandle"
   "SCM_GL_HANDLE_P" "SCM_GL_HANDLE_VALUE" "SCM_MAKE_GL_HANDLE")
 
-(define-cproc gl-delete-object-arb (h::<gl-handle>)
-  "ENSURE(glDeleteObjectARB);
-   glDeleteObjectARB(h);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-delete-object-arb (h::<gl-handle>) ::<void>
+  (ENSURE glDeleteObjectARB)
+  (glDeleteObjectARB h))
 
-(define-cproc gl-get-handle-arb (type::<uint>)
-  "ENSURE(glGetHandleARB);
-   SCM_RETURN(SCM_MAKE_GL_HANDLE(glGetHandleARB(type)));")
+(define-cproc gl-get-handle-arb (type::<uint>) ::<gl-handle>
+  (ENSURE glGetHandleARB)
+  (result (glGetHandleARB type)))
 
-(define-cproc gl-create-shader-object-arb (type::<uint>)
-  "ENSURE(glCreateShaderObjectARB);
-   SCM_RETURN(SCM_MAKE_GL_HANDLE(glCreateShaderObjectARB(type)));")
+(define-cproc gl-create-shader-object-arb (type::<uint>) ::<gl-handle>
+  (ENSURE glCreateShaderObjectARB)
+  (result (glCreateShaderObjectARB type)))
 
-(define-cproc gl-shader-source-arb (shader::<gl-handle> strings)
-  "GLint nstrings = Scm_Length(strings); int i = 0;
-  GLint *lengths;
-  GLcharARB **ss;
-  ScmObj sp;
-  ENSURE(glShaderSourceARB);
-  if (nstrings < 0) goto einval;
-  lengths = SCM_NEW_ATOMIC2(GLint*, nstrings*sizeof(GLint));
-  /* NB: we can use atomic here, since all strings are pointed by the
-     input parameter, and we don't need this array after calling
-     glShaderSourceARB. */
-  ss = SCM_NEW_ATOMIC2(GLcharARB**, nstrings*sizeof(GLcharARB*));
-  SCM_FOR_EACH(sp, strings) {
-    if (!SCM_STRINGP(SCM_CAR(sp))) goto einval;
-    lengths[i] = SCM_STRING_SIZE(SCM_CAR(sp));
-    ss[i] = (GLcharARB*)SCM_STRING_START(SCM_CAR(sp));
-    i++;
-  }
-  glShaderSourceARB(shader, nstrings, (const GLcharARB**)ss, lengths);
-  SCM_RETURN(SCM_UNDEFINED);
- einval:
-  Scm_Error(\"list of strings required, but got %S\", strings);
-  SCM_RETURN(SCM_UNDEFINED);
- ")
+(define-cproc gl-shader-source-arb (shader::<gl-handle> strings) ::<void>
+  (let* ([nstrings::GLint (Scm_Length strings)]
+         [i::int 0])
+    (ENSURE glShaderSourceARB)
+    (when (< nstrings 0)
+      (label einval)
+      (Scm_Error "list of strings required, but got %S" strings))
+    (let* ([lengths::GLint*
+            (SCM_NEW_ATOMIC2 (C: GLint*) (* nstrings (sizeof GLint)))]
+           ;; NB: we can use atomic here, since all strings are pointed by the
+           ;; input parameter, and we don't need this array after calling
+           ;; glShaderSourceARB.
+           [ss::GLcharARB**
+            (SCM_NEW_ATOMIC2 (C: GLcharARB**) (* nstrings (sizeof (C: GLcharARB*))))])
+      (dolist [s strings]
+        (unless (SCM_STRINGP s) (goto einval))
+        (set! (aref lengths i) (SCM_STRING_SIZE s))
+        (set! (aref ss i) (cast GLcharARB* (SCM_STRING_START s)))
+        (inc! i))
+      (glShaderSourceARB shader nstrings (cast (const GLcharARB**) ss)
+                         lengths))))
 
-(define-cproc gl-compile-shader-arb (shader::<gl-handle>)
-  "ENSURE(glCompileShaderARB);
-   glCompileShaderARB(shader);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-compile-shader-arb (shader::<gl-handle>) ::<void>
+  (ENSURE glCompileShaderARB)
+  (glCompileShaderARB shader))
 
-(define-cproc gl-create-program-object-arb ()
-  "ENSURE(glCreateProgramObjectARB);
-   SCM_RETURN(SCM_MAKE_GL_HANDLE(glCreateProgramObjectARB()));")
+(define-cproc gl-create-program-object-arb () ::<gl-handle>
+  (ENSURE glCreateProgramObjectARB)
+  (result (glCreateProgramObjectARB)))
 
 (define-cproc gl-attach-object-arb (program::<gl-handle> shader::<gl-handle>)
-  "ENSURE(glAttachObjectARB);
-   glAttachObjectARB(program, shader);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glAttachObjectARB)
+  (glAttachObjectARB program shader))
 
 (define-cproc gl-detach-object-arb (program::<gl-handle> shader::<gl-handle>)
-  "ENSURE(glDetachObjectARB);
-   glDetachObjectARB(program, shader);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glDetachObjectARB)
+  (glDetachObjectARB program shader))
 
-(define-cproc gl-link-program-arb (program::<gl-handle>)
-  "ENSURE(glLinkProgramARB);
-   glLinkProgramARB(program);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-link-program-arb (program::<gl-handle>) ::<void>
+  (ENSURE glLinkProgramARB)
+  (glLinkProgramARB program))
 
-(define-cproc gl-use-program-object-arb (program::<gl-handle>)
-  "ENSURE(glUseProgramObjectARB);
-   glUseProgramObjectARB(program);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-use-program-object-arb (program::<gl-handle>) ::<void>
+  (ENSURE glUseProgramObjectARB)
+  (glUseProgramObjectARB program))
 
-(define-cproc gl-validate-program-arb (program::<gl-handle>)
-  "ENSURE(glValidateProgramARB);
-   glValidateProgramARB(program);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-validate-program-arb (program::<gl-handle>) ::<void>
+  (ENSURE glValidateProgramARB)
+  (glValidateProgramARB program))
 
-(define-cproc gl-uniform1-arb (location::<int> v0)
-  "if (SCM_F32VECTORP(v0)) {
-     int count = SCM_F32VECTOR_SIZE(v0);
-     ENSURE(glUniform1fvARB);
-     glUniform1fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v0));
-   } else if (SCM_S32VECTORP(v0)) {
-     int count = SCM_S32VECTOR_SIZE(v0);
-     ENSURE(glUniform1ivARB);
-     glUniform1ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v0));
-   } else {
-     ENSURE(glUniform1fARB);
-     glUniform1fARB(location, (GLfloat)Scm_GetDouble(v0));
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform2-arb (location::<int> v0 &optional v1)
-  "if (SCM_F32VECTORP(v0)) {
-     int count = SCM_F32VECTOR_SIZE(v0)/2;
-     ENSURE(glUniform2fvARB);
-     glUniform2fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v0));
-   } else if (SCM_S32VECTORP(v0)) {
-     int count = SCM_S32VECTOR_SIZE(v0)/2;
-     ENSURE(glUniform2ivARB);
-     glUniform2ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v0));
-   } else if (SCM_UNBOUNDP(v1)) {
-     Scm_Error(\"Not enough arguments for gl-uniform2-arb\");
-   } else {
-     ENSURE(glUniform2fARB);
-     glUniform2fARB(location, (GLfloat)Scm_GetDouble(v0),
-                              (GLfloat)Scm_GetDouble(v1));
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform3-arb (location::<int> v0 &optional v1 v2)
-  "if (SCM_F32VECTORP(v0)) {
-     int count = SCM_F32VECTOR_SIZE(v0)/3;
-     ENSURE(glUniform3fvARB);
-     glUniform3fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v0));
-   } else if (SCM_S32VECTORP(v0)) {
-     int count = SCM_S32VECTOR_SIZE(v0)/3;
-     ENSURE(glUniform3ivARB);
-     glUniform3ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v0));
-   } else if (SCM_UNBOUNDP(v2)) {
-     Scm_Error(\"Not enough arguments for gl-uniform3-arb\");
-   } else {
-     ENSURE(glUniform3fARB);
-     glUniform3fARB(location, (GLfloat)Scm_GetDouble(v0),
-                    (GLfloat)Scm_GetDouble(v1),
-                    (GLfloat)Scm_GetDouble(v2));
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
-(define-cproc gl-uniform4-arb (location::<int> v0 &optional v1 v2 v3)
-  "if (SCM_F32VECTORP(v0)) {
-     int count = SCM_F32VECTOR_SIZE(v0)/4;
-     ENSURE(glUniform4fvARB);
-     glUniform4fvARB(location, count, SCM_F32VECTOR_ELEMENTS(v0));
-   } else if (SCM_S32VECTORP(v0)) {
-     int count = SCM_S32VECTOR_SIZE(v0)/4;
-     ENSURE(glUniform4ivARB);
-     glUniform4ivARB(location, count, SCM_S32VECTOR_ELEMENTS(v0));
-   } else if (SCM_UNBOUNDP(v3)) {
-     Scm_Error(\"Not enough arguments for gl-uniform4-arb\");
-   } else {
-     ENSURE(glUniform4fARB);
-     glUniform4fARB(location, (GLfloat)Scm_GetDouble(v0),
-                    (GLfloat)Scm_GetDouble(v1),
-                    (GLfloat)Scm_GetDouble(v2),
-                    (GLfloat)Scm_GetDouble(v3));
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-uniform1-arb (location::<int> v0) ::<void>
+  (cond
+   [(SCM_F32VECTORP v0)
+    (let* ([count::int (SCM_F32VECTOR_SIZE v0)])
+      (ENSURE glUniform1fvARB)
+      (glUniform1fvARB location count (SCM_F32VECTOR_ELEMENTS v0)))]
+   [(SCM_S32VECTORP v0)
+    (let* ([count::int (SCM_S32VECTOR_SIZE v0)])
+      (ENSURE glUniform1ivARB)
+      (glUniform1ivARB location count (SCM_S32VECTOR_ELEMENTS v0)))]
+   [else
+    (ENSURE glUniform1fARB)
+    (glUniform1fARB location (cast GLfloat (Scm_GetDouble v0)))]))
+
+(define-cproc gl-uniform2-arb (location::<int> v0 &optional v1) ::<void>
+  (cond
+   [(SCM_F32VECTORP v0)
+    (let* ([count::int (/ (SCM_F32VECTOR_SIZE v0) 2)])
+      (ENSURE glUniform2fvARB)
+      (glUniform2fvARB location count (SCM_F32VECTOR_ELEMENTS v0)))]
+   [(SCM_S32VECTORP v0)
+    (let* ([count::int (/ (SCM_S32VECTOR_SIZE v0) 2)])
+      (ENSURE glUniform2ivARB)
+      (glUniform2ivARB location count (SCM_S32VECTOR_ELEMENTS v0)))]
+   [(SCM_UNBOUNDP v1)
+    (Scm_Error "Not enough arguments for gl-uniform2-arb")]
+   [else
+    (ENSURE glUniform2fARB)
+    (glUniform2fARB location
+                    (cast GLfloat (Scm_GetDouble v0))
+                    (cast GLfloat (Scm_GetDouble v1)))]))
+
+(define-cproc gl-uniform3-arb (location::<int> v0 &optional v1 v2) ::<void>
+  (cond
+   [(SCM_F32VECTORP v0)
+    (let* ([count::int (/ (SCM_F32VECTOR_SIZE v0) 3)])
+      (ENSURE glUniform3fvARB)
+      (glUniform3fvARB location count (SCM_F32VECTOR_ELEMENTS v0)))]
+   [(SCM_S32VECTORP v0)
+    (let* ([count::int (/ (SCM_S32VECTOR_SIZE v0) 3)])
+      (ENSURE glUniform3ivARB)
+      (glUniform3ivARB location count (SCM_S32VECTOR_ELEMENTS v0)))]
+   [(SCM_UNBOUNDP v2)
+    (Scm_Error "Not enough arguments for gl-uniform3-arb")]
+   [else
+    (ENSURE glUniform3fARB)
+    (glUniform3fARB location (cast GLfloat (Scm_GetDouble v0))
+                    (cast GLfloat (Scm_GetDouble v1))
+                    (cast GLfloat (Scm_GetDouble v2)))]))
+
+(define-cproc gl-uniform4-arb (location::<int> v0 &optional v1 v2 v3) ::<void>
+  (cond
+   [(SCM_F32VECTORP v0)
+    (let* ([count::int (/ (SCM_F32VECTOR_SIZE v0) 4)])
+      (ENSURE glUniform4fvARB)
+      (glUniform4fvARB location count (SCM_F32VECTOR_ELEMENTS v0)))]
+   [(SCM_S32VECTORP v0)
+    (let* ([count::int (/ (SCM_S32VECTOR_SIZE v0) 4)])
+      (ENSURE glUniform4ivARB)
+      (glUniform4ivARB location count (SCM_S32VECTOR_ELEMENTS v0)))]
+   [(SCM_UNBOUNDP v3)
+    (Scm_Error "Not enough arguments for gl-uniform4-arb")]
+   [else
+    (ENSURE glUniform4fARB)
+    (glUniform4fARB location (cast GLfloat (Scm_GetDouble v0))
+                    (cast GLfloat (Scm_GetDouble v1))
+                    (cast GLfloat (Scm_GetDouble v2))
+                    (cast GLfloat (Scm_GetDouble v3)))]))
 
 (define-cproc gl-uniform-matrix2-arb (location::<int>
                                       transpose::<boolean>
                                       v::<f32vector>)
-  "int count = SCM_F32VECTOR_SIZE(v)/4;
-   ENSURE(glUniformMatrix2fvARB);
-   glUniformMatrix2fvARB(location, count, transpose, 
-                         SCM_F32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([count::int (/ (SCM_F32VECTOR_SIZE v) 4)])
+    (ENSURE glUniformMatrix2fvARB)
+    (glUniformMatrix2fvARB location count transpose 
+                           (SCM_F32VECTOR_ELEMENTS v))))
+
 (define-cproc gl-uniform-matrix3-arb (location::<int>
                                       transpose::<boolean>
                                       v::<f32vector>)
-  "int count = SCM_F32VECTOR_SIZE(v)/9;
-   ENSURE(glUniformMatrix3fvARB);
-   glUniformMatrix3fvARB(location, count, transpose, 
-                         SCM_F32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([count::int (/ (SCM_F32VECTOR_SIZE v) 9)])
+    (ENSURE glUniformMatrix3fvARB)
+    (glUniformMatrix3fvARB location count transpose 
+                           (SCM_F32VECTOR_ELEMENTS v))))
+
 (define-cproc gl-uniform-matrix4-arb (location::<int>
                                       transpose::<boolean>
                                       v::<f32vector>)
-  "int count = SCM_F32VECTOR_SIZE(v)/16;
-   ENSURE(glUniformMatrix4fvARB);
-   glUniformMatrix4fvARB(location, count, transpose, 
-                         SCM_F32VECTOR_ELEMENTS(v));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([count::int (/ (SCM_F32VECTOR_SIZE v) 16)])
+    (ENSURE glUniformMatrix4fvARB)
+    (glUniformMatrix4fvARB location count transpose 
+                           (SCM_F32VECTOR_ELEMENTS v))))
 
 (define-cproc gl-get-object-parameter-arb (object::<gl-handle>
                                            pname::<uint>)
-  "GLint i;
-   ENSURE(glGetObjectParameterfvARB);
-   ENSURE(glGetObjectParameterivARB);
-   switch (pname) {
-     case GL_OBJECT_TYPE_ARB:;
-     case GL_OBJECT_SUBTYPE_ARB:;
-     case GL_OBJECT_DELETE_STATUS_ARB:;
-     case GL_OBJECT_COMPILE_STATUS_ARB:;
-     case GL_OBJECT_LINK_STATUS_ARB:;
-     case GL_OBJECT_VALIDATE_STATUS_ARB:;
-     case GL_OBJECT_INFO_LOG_LENGTH_ARB:;
-     case GL_OBJECT_ATTACHED_OBJECTS_ARB:;
-     case GL_OBJECT_ACTIVE_ATTRIBUTES_ARB:; 
-     case GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB:;
-     case GL_OBJECT_ACTIVE_UNIFORMS_ARB:;
-     case GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB:;
-     case GL_OBJECT_SHADER_SOURCE_LENGTH_ARB:;
-       glGetObjectParameterivARB(object, pname, &i);
-       SCM_RETURN(Scm_MakeInteger(i));
-     default:
-       Scm_Error(\"invalid pname for gl-get-object-parameter-arb: %d\", pname);
-       SCM_RETURN(SCM_UNDEFINED);
-  }")
+  (ENSURE glGetObjectParameterfvARB)
+  (ENSURE glGetObjectParameterivARB)
+  (case pname
+    [(GL_OBJECT_TYPE_ARB
+      GL_OBJECT_SUBTYPE_ARB
+      GL_OBJECT_DELETE_STATUS_ARB
+      GL_OBJECT_COMPILE_STATUS_ARB
+      GL_OBJECT_LINK_STATUS_ARB
+      GL_OBJECT_VALIDATE_STATUS_ARB
+      GL_OBJECT_INFO_LOG_LENGTH_ARB
+      GL_OBJECT_ATTACHED_OBJECTS_ARB
+      GL_OBJECT_ACTIVE_ATTRIBUTES_ARB
+      GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB
+      GL_OBJECT_ACTIVE_UNIFORMS_ARB
+      GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB
+      GL_OBJECT_SHADER_SOURCE_LENGTH_ARB)
+     (let* ([i::GLint])
+       (glGetObjectParameterivARB object pname (& i))
+       (result (Scm_MakeInteger i)))]
+    [else
+     (Scm_Error "invalid pname for gl-get-object-parameter-arb: %d" pname)]))
 
 (define-cproc gl-get-info-log-arb (object::<gl-handle>)
-  "GLint loglen = 0; GLcharARB *logstr;
-   ENSURE(glGetObjectParameterivARB);
-   ENSURE(glGetInfoLogARB);
-   glGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &loglen);
-   logstr = SCM_NEW_ATOMIC2(char*, (loglen+1)*sizeof(GLcharARB));
-   glGetInfoLogARB(object, loglen, NULL, logstr);
-   CHECK_ERROR(\"glGetInfoLogARB\");
-   SCM_RETURN(Scm_MakeString((const char*)logstr, loglen-1, -1, 0));")
+  (let* ([loglen::GLint 0])
+    (ENSURE glGetObjectParameterivARB)
+    (ENSURE glGetInfoLogARB)
+    (glGetObjectParameterivARB object GL_OBJECT_INFO_LOG_LENGTH_ARB
+                               (& loglen))
+    (let* ([logstr::GLcharARB*
+            (SCM_NEW_ATOMIC2 (C: char*)
+                             (* (+ loglen 1) (sizeof GLcharARB)))])
+      (glGetInfoLogARB object loglen NULL logstr)
+      (CHECK_ERROR glGetInfoLogARB)
+      (result (Scm_MakeString (cast (const char*) logstr) (- loglen 1) -1 0)))))
 
 (define-cproc gl-get-attached-objects-arb (program::<gl-handle>)
   "GLint numobjs = 0; GLhandleARB *objs; ScmObj r; int i;
@@ -1243,7 +1205,7 @@
 
 ; target should be GL_FRAGMENT_PROGRAM_ARB or GL_VERTEX_PROGRAM_ARB
 (define-cproc gl-program-env-parameter-arb 
-  (target::<int> param-id::<int> arg0 &rest args)
+  (target::<int> param-id::<int> arg0 &rest args) ::<void>
   "if(SCM_VECTOR4FP(arg0)) {
     ENSURE(glProgramEnvParameter4fvARB);
     glProgramEnvParameter4fvARB(target, param_id, SCM_VECTOR4F_D(arg0));
@@ -1274,33 +1236,31 @@
 
 ; target should be GL_FRAGMENT_PROGRAM_ARB or GL_VERTEX_PROGRAM_ARB
 (define-cproc gl-program-local-parameter-arb
-  (target::<int> param-id::<int> arg0 &rest args)
-  "if(SCM_VECTOR4FP(arg0)) {
-    ENSURE(glProgramLocalParameter4fvARB);
-    glProgramLocalParameter4fvARB(target, param_id, SCM_VECTOR4F_D(arg0));
-  }
-  else if(SCM_F32VECTORP(arg0)) {
-    if(SCM_F32VECTOR_SIZE(arg0)!=4) { goto err; }
-    ENSURE(glProgramLocalParameter4fvARB);
-    glProgramLocalParameter4fvARB(target, param_id, SCM_F32VECTOR_ELEMENTS(arg0));
-  }
-  else if(SCM_F64VECTORP(arg0)) {
-    if(SCM_F64VECTOR_SIZE(arg0)!=4) { goto err; }
-    ENSURE(glProgramLocalParameter4dvARB);
-    glProgramLocalParameter4dvARB(target, param_id, SCM_F64VECTOR_ELEMENTS(arg0));
-  } else {
-    if(1+Scm_Length(args)!=4) { goto err; }
-    ENSURE(glProgramLocalParameter4dARB);
-    glProgramLocalParameter4dARB(target, param_id, 
-      Scm_GetDouble(arg0),
-      Scm_GetDouble(SCM_CAR(args)),
-      Scm_GetDouble(SCM_CADR(args)),
-      Scm_GetDouble(SCM_CAR(SCM_CDDR(args))));
-  }
-  SCM_RETURN(SCM_UNDEFINED);
- err:
-  Scm_Error(\"bad arguments for gl-program-local-parameter-arb: %S\", arg0);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (target::<int> param-id::<int> arg0 &rest args) ::<void>
+  (cond
+   [(SCM_VECTOR4FP arg0)
+    (ENSURE glProgramLocalParameter4fvARB)
+    (glProgramLocalParameter4fvARB target param_id (SCM_VECTOR4F_D arg0))]
+   [(SCM_F32VECTORP arg0)
+    (unless (== (SCM_F32VECTOR_SIZE arg0) 4)
+      (label err)
+      (Scm_Error "bad arguments for gl-program-local-parameter-arb: %S" arg0))
+    (ENSURE glProgramLocalParameter4fvARB)
+    (glProgramLocalParameter4fvARB target param_id
+                                   (SCM_F32VECTOR_ELEMENTS arg0))]
+   [(SCM_F64VECTORP arg0)
+    (unless (== (SCM_F64VECTOR_SIZE arg0) 4) (goto err))
+    (ENSURE glProgramLocalParameter4dvARB)
+    (glProgramLocalParameter4dvARB target param_id
+                                   (SCM_F64VECTOR_ELEMENTS arg0))]
+   [else
+    (unless (== (+ 1 (Scm_Length args)) 4) (goto err))
+    (ENSURE glProgramLocalParameter4dARB)
+    (glProgramLocalParameter4dARB target param_id
+                                  (Scm_GetDouble arg0)
+                                  (Scm_GetDouble (SCM_CAR args))
+                                  (Scm_GetDouble (SCM_CADR args))
+                                  (Scm_GetDouble (SCM_CAR (SCM_CDDR args))))]))
 
 ; gl-get-program-env-parameter-arb
 ; gl-get-program-local-parameter-arb
@@ -1316,88 +1276,77 @@
 (define-cproc gl-bind-attrib-location-arb (program::<gl-handle>
                                            index::<uint>
                                            name::<string>)
-  "ENSURE(glBindAttribLocationARB);
-   glBindAttribLocationARB(program, index, Scm_GetStringConst(name));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glBindAttribLocationARB)
+  (glBindAttribLocationARB program index (Scm_GetStringConst name)))
+
+;; NB: should be dynamically adjusted, using GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB
+"#define MAXNAMEBUFLEN 1024"
 
 ;; returns three values: size, type and name
 (define-cproc gl-get-active-attrib-arb (program::<gl-handle>
                                         index::<uint>)
-  "
-#define MAXNAMEBUFLEN 1024 /* NB: should be dynamically adjusted, using GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB */
-  GLcharARB namebuf[MAXNAMEBUFLEN];
-  GLint attrsize = 0; GLenum attrtype = 0;
-  ENSURE(glGetActiveAttribARB);
-  glGetActiveAttribARB(program, index, MAXNAMEBUFLEN-1, NULL,
-                       &attrsize, &attrtype, namebuf);
-  SCM_RETURN(Scm_Values3(Scm_MakeInteger(attrsize), Scm_MakeInteger(attrtype),
-                         SCM_MAKE_STR_COPYING(namebuf)));
-#undef MAXNAMEBUFLEN
-   ")
+  ::(<int> <int> <top>)
+  (let* ([namebuf::(.array GLcharARB (MAXNAMEBUFLEN))]
+         (attrsize::GLint 0)
+         (attrtype::GLenum 0))
+    (ENSURE glGetActiveAttribARB)
+    (glGetActiveAttribARB program index (- MAXNAMEBUFLEN 1) NULL
+                          (& attrsize) (& attrtype) namebuf)
+    (result attrsize attrtype (SCM_MAKE_STR_COPYING namebuf))))
 
 (define-cproc gl-get-attrib-location-arb (program::<gl-handle>
                                           name::<string>)
-  "GLint r;
-   ENSURE(glGetAttribLocationARB);
-   r = glGetAttribLocationARB(program, Scm_GetStringConst(name));
-   SCM_RETURN(Scm_MakeInteger(r));")
+  ::<int>
+  (ENSURE glGetAttribLocationARB)
+  (result (glGetAttribLocationARB program (Scm_GetStringConst name))))
 
 ;;=============================================================
 ;; GL_ARB_window_pos
 ;;
 
-(define-cproc gl-window-pos-arb (arg0 &rest args)
-  "if (SCM_F32VECTORP(arg0)) {
-    switch (SCM_F32VECTOR_SIZE(arg0)) {
-     case 2: ENSURE(glWindowPos2fvARB);
-             glWindowPos2fvARB(SCM_F32VECTOR_ELEMENTS(arg0)); break;
-     case 3: ENSURE(glWindowPos3fvARB); 
-             glWindowPos3fvARB(SCM_F32VECTOR_ELEMENTS(arg0)); break;
-     default: goto err;
-    }
-  } else if (SCM_S32VECTORP(arg0)) {
-    switch (SCM_S32VECTOR_SIZE(arg0)) {
-     case 2: ENSURE(glWindowPos2ivARB);
-             glWindowPos2ivARB(SCM_S32VECTOR_ELEMENTS(arg0)); break;
-     case 3: ENSURE(glWindowPos3ivARB);
-             glWindowPos3ivARB(SCM_S32VECTOR_ELEMENTS(arg0)); break;
-     default: goto err;
-    }
-  } else if (SCM_S16VECTORP(arg0)) {
-    switch (SCM_S16VECTOR_SIZE(arg0)) {
-     case 2: ENSURE(glWindowPos2svARB);
-             glWindowPos2svARB(SCM_S16VECTOR_ELEMENTS(arg0)); break;
-     case 3: ENSURE(glWindowPos3svARB);
-             glWindowPos3svARB(SCM_S16VECTOR_ELEMENTS(arg0)); break;
-     default: goto err;
-    }
-  } else if (SCM_F64VECTORP(arg0)) {
-    switch (SCM_F64VECTOR_SIZE(arg0)) {
-     case 2: ENSURE(glWindowPos2dvARB);
-             glWindowPos2dvARB(SCM_F64VECTOR_ELEMENTS(arg0)); break;
-     case 3: ENSURE(glWindowPos3dvARB);
-             glWindowPos3dvARB(SCM_F64VECTOR_ELEMENTS(arg0)); break;
-     default: goto err;
-    }
-  } else {
-    int len = Scm_Length(args) + 1;
-    switch (len) {
-     case 2: ENSURE(glWindowPos2dARB);
-             glWindowPos2dARB(Scm_GetDouble(arg0), 
-                              Scm_GetDouble(SCM_CAR(args)));
-             break;
-     case 3: ENSURE(glWindowPos3dARB);
-             glWindowPos3dARB(Scm_GetDouble(arg0), 
-                              Scm_GetDouble(SCM_CAR(args)),
-                              Scm_GetDouble(SCM_CADR(args)));
-             break;
-     default: arg0 = Scm_Cons(arg0, args); goto err;
-    }
-  }
-  SCM_RETURN(SCM_UNDEFINED);
- err:
-  Scm_Error(\"bad arguments for gl-window-pos: %S\", arg0);
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-window-pos-arb (arg0 &rest args) ::<void>
+  (cond
+   [(SCM_F32VECTORP arg0)
+    (case (SCM_F32VECTOR_SIZE arg0)
+      [(2) (ENSURE glWindowPos2fvARB)
+           (glWindowPos2fvARB (SCM_F32VECTOR_ELEMENTS arg0))]
+      [(3) (ENSURE glWindowPos3fvARB)
+           (glWindowPos3fvARB (SCM_F32VECTOR_ELEMENTS arg0))]
+      [else (label err)
+            (Scm_Error "bad arguments for gl-window-pos: %S" arg0)])]
+   [(SCM_S32VECTORP arg0)
+    (case (SCM_S32VECTOR_SIZE arg0)
+      [(2) (ENSURE glWindowPos2ivARB)
+           (glWindowPos2ivARB (SCM_S32VECTOR_ELEMENTS arg0))]
+      [(3) (ENSURE glWindowPos3ivARB)
+           (glWindowPos3ivARB (SCM_S32VECTOR_ELEMENTS arg0))]
+      [else (goto err)])]
+   [(SCM_S16VECTORP arg0)
+    (case (SCM_S16VECTOR_SIZE arg0)
+      [(2) (ENSURE glWindowPos2svARB)
+           (glWindowPos2svARB (SCM_S16VECTOR_ELEMENTS arg0))]
+      [(3) (ENSURE glWindowPos3svARB)
+           (glWindowPos3svARB (SCM_S16VECTOR_ELEMENTS arg0))]
+      [else (goto err)])]
+   [(SCM_F64VECTORP arg0)
+    (case (SCM_F64VECTOR_SIZE arg0)
+      [(2) (ENSURE glWindowPos2dvARB)
+           (glWindowPos2dvARB (SCM_F64VECTOR_ELEMENTS arg0))]
+      [(3) (ENSURE glWindowPos3dvARB)
+           (glWindowPos3dvARB (SCM_F64VECTOR_ELEMENTS arg0))]
+      [else (goto err)])]
+   [else
+    (let* ([len::int (+ (Scm_Length args) 1)])
+      (case len
+        [(2) (ENSURE glWindowPos2dARB)
+             (glWindowPos2dARB (Scm_GetDouble arg0)
+                               (Scm_GetDouble (SCM_CAR args)))]
+        [(3) (ENSURE glWindowPos3dARB)
+             (glWindowPos3dARB (Scm_GetDouble arg0)
+                               (Scm_GetDouble (SCM_CAR args))
+                               (Scm_GetDouble (SCM_CADR args)))]
+        [else (set! arg0 (Scm_Cons arg0 args)) (goto err)]))]))
 
 ;;=============================================================
 ;; GL_ATI_texture_float
@@ -1407,11 +1356,10 @@
 ;; GL_ATI_draw_buffers
 ;;
 
-(define-cproc gl-draw-buffers-ati (bufs::<s32vector>)
-  "ENSURE(glDrawBuffersATI);
-   glDrawBuffersATI(SCM_S32VECTOR_SIZE(bufs), 
-                    (const GLenum *)SCM_S32VECTOR_ELEMENTS(bufs));
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-draw-buffers-ati (bufs::<s32vector>) ::<void>
+  (ENSURE glDrawBuffersATI)
+  (glDrawBuffersATI (SCM_S32VECTOR_SIZE bufs)
+                    (cast (const GLenum*) (SCM_S32VECTOR_ELEMENTS bufs))))
 
 ;;=============================================================
 ;; GL_EXT_422_pixels
@@ -1431,9 +1379,9 @@
 
 (define-cproc gl-blend-color-ext (red::<float> green::<float>
                                   blue::<float> alpha::<float>)
-  "ENSURE(glBlendColorEXT);
-   glBlendColorEXT(red, green, blue, alpha);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glBlendColorEXT)
+  (glBlendColorEXT red green blue alpha))
 
 ;;=============================================================
 ;; GL_EXT_blend_equation_separate
@@ -1441,9 +1389,9 @@
 
 (define-cproc gl-blend-equation-separate-ext (mode-rgb::<int>
                                               mode-alpha::<int>)
-  "ENSURE(glBlendEquationSeparateEXT);
-   glBlendEquationSeparateEXT(mode_rgb, mode_alpha);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glBlendEquationSeparateEXT)
+  (glBlendEquationSeparateEXT mode_rgb mode_alpha))
 
 ;;=============================================================
 ;; GL_EXT_blend_func_separate
@@ -1453,9 +1401,9 @@
                                           dfactor-rgb::<int>
                                           sfactor-alpha::<int>
                                           dfactor-alpha::<int>)
-  "ENSURE(glBlendFuncSeparateEXT);
-   glBlendFuncSeparateEXT(sfactor_rgb, dfactor_rgb, sfactor_alpha, dfactor_alpha);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (ENSURE glBlendFuncSeparateEXT)
+  (glBlendFuncSeparateEXT sfactor_rgb dfactor_rgb sfactor_alpha dfactor_alpha))
 
 ;;=============================================================
 ;; GL_EXT_blend_logic_op
@@ -1465,10 +1413,9 @@
 ;; GL_EXT_blend_minmax
 ;;
 
-(define-cproc gl-blend-equation-ext (mode::<int>)
-  "ENSURE(glBlendEquationEXT);
-   glBlendEquationEXT(mode);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-blend-equation-ext (mode::<int>) ::<void>
+  (ENSURE glBlendEquationEXT)
+  (glBlendEquationEXT mode))
 
 ;;=============================================================
 ;; GL_EXT_blend_subtract
@@ -1498,15 +1445,13 @@
 ;; GL_EXT_compiled_vertex_array
 ;;
 
-(define-cproc gl-lock-arrays-ext (first::<int> count::<uint>)
-  "ENSURE(glLockArraysEXT);
-   glLockArraysEXT(first, count);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-lock-arrays-ext (first::<int> count::<uint>) ::<void>
+  (ENSURE glLockArraysEXT)
+  (glLockArraysEXT first count))
 
-(define-cproc gl-unlock-arrays-ext ()
-  "ENSURE(glUnlockArraysEXT);
-   glUnlockArraysEXT();
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-unlock-arrays-ext () ::<void>
+  (ENSURE glUnlockArraysEXT)
+  (glUnlockArraysEXT))
 
 ;;=============================================================
 ;; GL_EXT_convolution
@@ -1524,10 +1469,9 @@
 ;; GL_EXT_depth_bounds_test
 ;;
 
-(define-cproc gl-depth-bounds-ext (zmin::<double> zmax::<double>)
-  "ENSURE(glDepthBoundsEXT);
-   glDepthBoundsEXT(zmin, zmax);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-depth-bounds-ext (zmin::<double> zmax::<double>) ::<void>
+  (ENSURE glDepthBoundsEXT)
+  (glDepthBoundsEXT zmin zmax))
 
 ;;=============================================================
 ;; GL_EXT_draw_range_elements
@@ -1856,94 +1800,89 @@
 ;; GL_EXT_framebuffer_object
 ;;
 
-(define-cproc gl-is-renderbuffer-ext (renderbuffer::<uint>)
-  (body <boolean>
-        "ENSURE(glIsRenderbufferEXT);"
-        "SCM_RESULT = glIsRenderbufferEXT(renderbuffer);"))
+(define-cproc gl-is-renderbuffer-ext (renderbuffer::<uint>) ::<boolean>
+  (ENSURE glIsRenderbufferEXT)
+  (result (glIsRenderbufferEXT renderbuffer)))
 
 (define-cproc gl-bind-renderbuffer-ext (target::<int> renderbuffer::<uint>)
-  (body <void>
-        "ENSURE(glBindRenderbufferEXT);"
-        "glBindRenderbufferEXT(target, renderbuffer);"))
+  ::<void>
+  (ENSURE glBindRenderbufferEXT)
+  (glBindRenderbufferEXT target renderbuffer))
 
 (define-cproc gl-gen-renderbuffers-ext (size::<int>)
-  (body "ScmObj vec;"
-        "ENSURE(glGenRenderbuffersEXT);"
-        "if (size <= 0) Scm_Error(\"size must be a positive integer, but got %d\", size);"
-        "vec = Scm_MakeU32Vector(size, 0);"
-        "glGenRenderbuffersEXT(size, (GLuint*)SCM_U32VECTOR_ELEMENTS(vec));"
-        "SCM_RESULT = vec;"))
+  (ENSURE glGenRenderbuffersEXT)
+  (when (<= size 0)
+    (Scm_Error "size must be a positive integer, but got %d" size))
+  (let* ([vec (Scm_MakeU32Vector size 0)])
+    (glGenRenderbuffersEXT size (cast GLuint* (SCM_U32VECTOR_ELEMENTS vec)))
+    (result vec)))
 
 (define-cproc gl-renderbuffer-storage-ext (target::<int>
                                            internalformat::<int>
                                            width::<uint> height::<uint>)
-  (body <void>
-        "ENSURE(glRenderbufferStorageEXT);"
-        "glRenderbufferStorageEXT(target, internalformat, width, height);"))
+  ::<void>
+  (ENSURE glRenderbufferStorageEXT)
+  (glRenderbufferStorageEXT target internalformat width height))
 
 (define-cproc gl-get-renderbuffer-parameter-ext (target::<int>
                                                  pname::<int>)
-  (body "GLint val;"
-        "ENSURE(glGetRenderbufferParameterivEXT);"
-        "switch (pname) {"
-        "case GL_RENDERBUFFER_WIDTH_EXT:"
-        "case GL_RENDERBUFFER_HEIGHT_EXT:"
-        "case GL_RENDERBUFFER_INTERNAL_FORMAT_EXT:"
-        "case GL_RENDERBUFFER_RED_SIZE_EXT:"
-        "case GL_RENDERBUFFER_GREEN_SIZE_EXT:"
-        "case GL_RENDERBUFFER_BLUE_SIZE_EXT:"
-        "case GL_RENDERBUFFER_ALPHA_SIZE_EXT:"
-        "case GL_RENDERBUFFER_DEPTH_SIZE_EXT:"
-        "case GL_RENDERBUFFER_STENCIL_SIZE_EXT:"
-        "  glGetRenderbufferParameterivEXT(target, pname, &val);"
-        "  SCM_RESULT = Scm_MakeInteger(val);"
-        "  break;"
-        "default:"
-        "  Scm_Error(\"unsupported pname for gl-get-renderbuffer-parameter-ext: %S\", pname);"
-        "  SCM_RESULT = SCM_UNDEFINED;"
-        "}"))
+  (ENSURE glGetRenderbufferParameterivEXT)
+  (case pname
+    [(GL_RENDERBUFFER_WIDTH_EXT
+      GL_RENDERBUFFER_HEIGHT_EXT
+      GL_RENDERBUFFER_INTERNAL_FORMAT_EXT
+      GL_RENDERBUFFER_RED_SIZE_EXT
+      GL_RENDERBUFFER_GREEN_SIZE_EXT
+      GL_RENDERBUFFER_BLUE_SIZE_EXT
+      GL_RENDERBUFFER_ALPHA_SIZE_EXT
+      GL_RENDERBUFFER_DEPTH_SIZE_EXT
+      GL_RENDERBUFFER_STENCIL_SIZE_EXT)
+     (let* ([val::GLint])
+       (glGetRenderbufferParameterivEXT target pname (& val))
+       (result (Scm_MakeInteger val)))]
+    [else
+     (Scm_Error "unsupported pname for gl-get-renderbuffer-parameter-ext: %S"
+                pname)]))
 
 (define-cproc gl-bind-framebuffer-ext (target::<int> framebuffer::<uint>)
-  (body <void>
-        "ENSURE(glBindFramebufferEXT);"
-        "glBindFramebufferEXT(target, framebuffer);"))
+  ::<void>
+  (ENSURE glBindFramebufferEXT)
+  (glBindFramebufferEXT target framebuffer))
 
-(define-cproc gl-delete-framebuffers-ext (fbs::<u32vector>)
-  (body <void>
-        "ENSURE(glDeleteFramebuffersEXT);"
-        "glDeleteFramebuffersEXT(SCM_U32VECTOR_SIZE(fbs),"
-        "                        (GLuint*)SCM_U32VECTOR_ELEMENTS(fbs));"))
+(define-cproc gl-delete-framebuffers-ext (fbs::<u32vector>) ::<void>
+  (ENSURE glDeleteFramebuffersEXT)
+  (glDeleteFramebuffersEXT (SCM_U32VECTOR_SIZE fbs)
+                           (cast GLuint* (SCM_U32VECTOR_ELEMENTS fbs))))
        
 (define-cproc gl-gen-framebuffers-ext (size::<int>)
-  (body "ScmObj vec;"
-        "ENSURE(glGenFramebuffersEXT);"
-        "if (size <= 0) Scm_Error(\"size must be a positive integer, but got %d\", size);"
-        "vec = Scm_MakeU32Vector(size, 0);"
-        "glGenFramebuffersEXT(size, (GLuint*)SCM_U32VECTOR_ELEMENTS(vec));"
-        "SCM_RESULT = vec;"))
+  (ENSURE glGenFramebuffersEXT)
+  (when (<= size 0)
+    (Scm_Error "size must be a positive integer, but got %d" size))
+  (let* ([vec (Scm_MakeU32Vector size 0)])
+    (glGenFramebuffersEXT size (cast GLuint* (SCM_U32VECTOR_ELEMENTS vec)))
+    (result vec)))
 
-(define-cproc gl-check-framebuffer-status-ext (target::<int>)
-  (body <int>
-        "ENSURE(glCheckFramebufferStatusEXT);"
-        "SCM_RESULT = glCheckFramebufferStatusEXT(target);"))
+(define-cproc gl-check-framebuffer-status-ext (target::<int>) ::<int>
+  (ENSURE glCheckFramebufferStatusEXT)
+  (result (glCheckFramebufferStatusEXT target)))
 
 (define-cproc gl-framebuffer-texture-1d-ext (target::<int>
                                              attachment::<int>
                                              textarget::<int>
                                              texture::<uint>
                                              level::<int>)
-  (body <void>
-        "ENSURE(glFramebufferTexture1DEXT);"
-        "glFramebufferTexture1DEXT(target, attachment, textarget, texture, level);"))
+  ::<void>
+  (ENSURE glFramebufferTexture1DEXT)
+  (glFramebufferTexture1DEXT target attachment textarget texture level))
   
 (define-cproc gl-framebuffer-texture-2d-ext (target::<int>
                                              attachment::<int>
                                              textarget::<int>
                                              texture::<uint>
                                              level::<int>)
-  (body <void>
-        "ENSURE(glFramebufferTexture2DEXT);"
-        "glFramebufferTexture2DEXT(target, attachment, textarget, texture, level);"))
+  ::<void>
+  (ENSURE glFramebufferTexture2DEXT)
+  (glFramebufferTexture2DEXT target attachment textarget texture level))
   
 (define-cproc gl-framebuffer-texture-3d-ext (target::<int>
                                              attachment::<int>
@@ -1951,42 +1890,41 @@
                                              texture::<uint>
                                              level::<int>
                                              zoffset::<int>)
-  (body <void>
-        "ENSURE(glFramebufferTexture3DEXT);"
-        "glFramebufferTexture3DEXT(target, attachment, textarget, texture, level, zoffset);"))
+  ::<void>
+  (ENSURE glFramebufferTexture3DEXT)
+  (glFramebufferTexture3DEXT target attachment textarget texture
+                             level zoffset))
   
 (define-cproc gl-framebuffer-renderbuffer-ext (target::<int>
                                                attachment::<int>
                                                renderbuffertarget::<int>
                                                renderbuffer::<uint>)
-  (body <void>
-        "ENSURE(glFramebufferRenderbufferEXT);"
-        "glFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer);"))
+  ::<void>
+  (ENSURE glFramebufferRenderbufferEXT)
+  (glFramebufferRenderbufferEXT target attachment
+                                renderbuffertarget renderbuffer))
 
 (define-cproc gl-get-framebuffer-attachment-parameter-ext (target::<int>
                                                            attachment::<int>
                                                            pname::<int>)
-  (body "GLint val;"
-        "ENSURE(glGetFramebufferAttachmentParameterivEXT);"
-        "switch (pname) {"
-        "case GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT:"
-        "case GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT:"
-        "case GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL_EXT:"
-        "case GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE_EXT:"
-        "case GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT:"
-        "  glGetFramebufferAttachmentParameterivEXT(target, attachment, pname, &val);"
-        "  SCM_RESULT = Scm_MakeInteger(val);"
-        "  break;"
-        "default:"
-        "  Scm_Error(\"unsupported pname for gl-get-renderbuffer-parameter-ext: %S\", pname);"
-        "  SCM_RESULT = SCM_UNDEFINED;"
-        "}"))
+  (ENSURE glGetFramebufferAttachmentParameterivEXT)
+  (case pname
+    [(GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT
+      GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT
+      GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL_EXT
+      GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE_EXT
+      GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT)
+     (let* ([val::GLint])
+       (glGetFramebufferAttachmentParameterivEXT target attachment pname
+                                                 (& val))
+       (result (Scm_MakeInteger val)))]
+    [else
+     (Scm_Error "unsupported pname for gl-get-renderbuffer-parameter-ext: %S"
+                pname)]))
 
-(define-cproc gl-generate-mipmap-ext (target::<int>)
-  (body <void>
-        "ENSURE(glGenerateMipmapEXT);"
-        "glGenerateMipmapEXT(target);"))
-
+(define-cproc gl-generate-mipmap-ext (target::<int>) ::<void>
+  (ENSURE glGenerateMipmapEXT)
+  (glGenerateMipmapEXT target))
 
 ;; Local variables:
 ;; mode: scheme

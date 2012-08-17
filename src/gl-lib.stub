@@ -15,6 +15,8 @@
 ;;;  $Id: gl-lib.stub,v 1.47 2008-06-04 11:50:43 shirok Exp $
 ;;;
 
+(include "glcase.scm")
+
 "
 #include \"gauche-gl.h\"
 #include \"gl-syms.h\"
@@ -308,22 +310,14 @@
 (define-cproc gl-load-identity () ::<void> glLoadIdentity)
 
 (define-cproc gl-load-matrix (m) ::<void>
-  (cond [(SCM_MATRIX4FP m) (glLoadMatrixf (SCM_MATRIX4F_D m))]
-        [(and (SCM_F32VECTORP m) (== (SCM_F32VECTOR_SIZE m) 16))
-         (glLoadMatrixf (SCM_F32VECTOR_ELEMENTS m))]
-        [(and (SCM_F64VECTORP m) (== (SCM_F64VECTOR_SIZE m) 16))
-         (glLoadMatrixd (SCM_F64VECTOR_ELEMENTS m))]
-        [else (Scm_Error "matrix4f, or f32vector or f64vector of length 16 \
-                         is required, but got %S" m)]))
+  (gl-case (m) "glLoadMatrix~t"
+           ((m4f) (f32 16) (f64 16))
+           "matrix4f, or f32vector or f64vector of length 16 is required, but got %S"))
 
 (define-cproc gl-mult-matrix (m) ::<void>
-  (cond [(SCM_MATRIX4FP m) (glMultMatrixf (SCM_MATRIX4F_D m))]
-        [(and (SCM_F32VECTORP m) (== (SCM_F32VECTOR_SIZE m) 16))
-         (glMultMatrixf (SCM_F32VECTOR_ELEMENTS m))]
-        [(and (SCM_F64VECTORP m) (== (SCM_F64VECTOR_SIZE m) 16))
-         (glMultMatrixd (SCM_F64VECTOR_ELEMENTS m))]
-        [else (Scm_Error "matrix4f, or f32vector or f64vector of length 16 \
-                          is required, but got %S" m)]))
+  (gl-case (m) "glMultMatrix~t"
+           ((m4f) (f32 16) (f64 16))
+           "matrix4f, or f32vector or f64vector of length 16 is required, but got %S"))
 
 (define-cproc gl-rotate (angle::<real> x::<real> y::<real> z::<real>)
   ::<void> glRotated)
@@ -449,234 +443,46 @@
 (define-cproc gl-end () ::<void> glEnd)
 
 (define-cproc gl-vertex (v &rest args)
-  "if (SCM_POINT4FP(v) || SCM_VECTOR4FP(v)) {
-     glVertex3fv(SCM_VECTOR4F_D(v));
-  } else if (SCM_F32VECTORP(v)) {
-     switch (SCM_F32VECTOR_SIZE(v)) {
-       case 3: glVertex3fv((GLfloat*)SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 2: glVertex2fv((GLfloat*)SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 4: glVertex4fv((GLfloat*)SCM_F32VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_F64VECTORP(v)) {
-     switch (SCM_F64VECTOR_SIZE(v)) {
-       case 3: glVertex3dv((GLdouble*)SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 2: glVertex2dv((GLdouble*)SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 4: glVertex4dv((GLdouble*)SCM_F64VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_S32VECTORP(v)) {
-     switch (SCM_S32VECTOR_SIZE(v)) {
-       case 3: glVertex3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 2: glVertex2iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 4: glVertex4iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_S16VECTORP(v)) {
-     switch (SCM_S16VECTOR_SIZE(v)) {
-       case 3: glVertex3sv((GLshort*)SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 2: glVertex2sv((GLshort*)SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 4: glVertex4sv((GLshort*)SCM_S16VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else {
-     double val[4];
-     int nvals = Scm_GLGetDoubles(v, args, val, 4, 2);
-     switch (nvals) {
-       case 3: glVertex3dv(val); break;
-       case 2: glVertex2dv(val); break;
-       case 4: glVertex4dv(val); break;
-     }
-  }
-  SCM_RETURN(SCM_UNDEFINED);
- badarg:
-  Scm_Error(\"bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 2, 3, or 4.\", v);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (gl-case (v args) "glVertex~n~v"
+           ((p4f 3) (v4f 3) (f32 3 2 4) (f64 3 2 4) (s32 3 2 4) (s16 3 2 4)
+            (args 3 2 4))
+           "bad argument for v: %S, must be one of point4f, vector4f, \
+            or f32, f64, s32 or s16 vector of length 2, 3, or 4."))
 
 (define-cproc gl-normal (v &rest args)
-  "if (SCM_VECTOR4FP(v)) {
-     glNormal3fv(SCM_VECTOR4F_D(v));
-  } else if (SCM_F32VECTORP(v) && SCM_F32VECTOR_SIZE(v) == 3) {
-     glNormal3fv((GLfloat*)SCM_F32VECTOR_ELEMENTS(v));
-  } else if (SCM_F64VECTORP(v) && SCM_F64VECTOR_SIZE(v) == 3) {
-     glNormal3dv((GLdouble*)SCM_F64VECTOR_ELEMENTS(v));
-  } else if (SCM_S32VECTORP(v) && SCM_S32VECTOR_SIZE(v) == 3) {
-     glNormal3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v));
-  } else if (SCM_S16VECTORP(v) && SCM_S16VECTOR_SIZE(v) == 3) {
-     glNormal3sv((GLshort*)SCM_S16VECTOR_ELEMENTS(v));
-  } else {
-     double val[3];
-     Scm_GLGetDoubles(v, args, val, 3, 3);
-     glNormal3dv(val);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  (gl-case (v args) "glNormal3~v"
+           ((v4f 3) (f32 3) (f64 3) (s32 3) (s16 3) (args 3))
+           "bad argument for v: %S, must be one of vector4f, \
+            or f32, f64, s32 or s16 vector of length 3."))
 
 (define-cproc gl-index (v) ::<void>
   (cond
    [(SCM_REALP v)      (glIndexd (Scm_GetDouble v))]
    [(and (SCM_UVECTORP v) (>= (SCM_UVECTOR_SIZE v) 1))
-    (cond
-     [(SCM_S16VECTORP v) (glIndexsv (SCM_S16VECTOR_ELEMENTS v))]
-     [(SCM_S32VECTORP v) (glIndexiv (SCM_S32VECTOR_ELEMENTS v))]
-     [(SCM_F32VECTORP v) (glIndexfv (SCM_F32VECTOR_ELEMENTS v))]
-     [(SCM_F64VECTORP v) (glIndexdv (SCM_F64VECTOR_ELEMENTS v))]
-     [(SCM_U8VECTORP v)  (glIndexubv (SCM_U8VECTOR_ELEMENTS v))]
-     [else (SCM_TYPE_ERROR v "s16, s32, f32, f64 or u8vector")])]
+    (gl-case (v) "glIndex~v"
+             ((s16) (s32) (f32) (f64))
+             "s16, s32, f32, f64 or u8vector is required, but got %S")]
    [else
     (SCM_TYPE_ERROR v "real number or s16, s32, f32, f64 or u8vector of at least one element")]))
 
-(define-cproc gl-color (v &rest args)
-  "if (SCM_F32VECTORP(v)) {
-     switch (SCM_F32VECTOR_SIZE(v)) {
-       case 3: glColor3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_F64VECTORP(v)) {
-     switch (SCM_F64VECTOR_SIZE(v)) {
-       case 3: glColor3dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_U8VECTORP(v)) {
-     switch (SCM_U8VECTOR_SIZE(v)) {
-       case 3: glColor3ubv(SCM_U8VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4ubv(SCM_U8VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_U16VECTORP(v)) {
-     switch (SCM_U16VECTOR_SIZE(v)) {
-       case 3: glColor3usv(SCM_U16VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4usv(SCM_U16VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_U32VECTORP(v)) {
-     switch (SCM_U32VECTOR_SIZE(v)) {
-       case 3: glColor3uiv((GLuint*)SCM_U32VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4uiv((GLuint*)SCM_U32VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_S8VECTORP(v)) {
-     switch (SCM_S8VECTOR_SIZE(v)) {
-       case 3: glColor3bv(SCM_S8VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4bv(SCM_S8VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_S16VECTORP(v)) {
-     switch (SCM_S16VECTOR_SIZE(v)) {
-       case 3: glColor3sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_S32VECTORP(v)) {
-     switch (SCM_S32VECTOR_SIZE(v)) {
-       case 3: glColor3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 4: glColor4iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else {
-     double val[4];
-     int nvals = Scm_GLGetDoubles(v, args, val, 4, 3);
-     switch (nvals) {
-       case 3: glColor3dv(val); break;
-       case 4: glColor4dv(val); break;
-     }
-  }
-  SCM_RETURN(SCM_UNDEFINED);
- badarg:
-  Scm_Error(\"bad argument for color: %S, must be an uniform vector of length 3 or 4\", v);
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-color (v &rest args) ::<void>
+  (gl-case (v args) "glColor~n~v"
+           ((f32 3 4) (f64 3 4) (u8 3 4) (u16 3 4) (u32 3 4)
+            (s8 3 4) (s16 3 4) (s32 3 4) (args 3 4))
+           "bad argument for color: %S, must be an uniform vector of \
+            length 3 or 4"))
+            
 
-(define-cproc gl-tex-coord (v &rest args)
-  "if (SCM_F32VECTORP(v)) {
-     switch (SCM_F32VECTOR_SIZE(v)) {
-       case 2: glTexCoord2fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 1: glTexCoord1fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 3: glTexCoord3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 4: glTexCoord4fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_F64VECTORP(v)) {
-     switch (SCM_F64VECTOR_SIZE(v)) {
-       case 2: glTexCoord2dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 1: glTexCoord1dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 3: glTexCoord3dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 4: glTexCoord4dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_S32VECTORP(v)) {
-     switch (SCM_S32VECTOR_SIZE(v)) {
-       case 2: glTexCoord2iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 1: glTexCoord2iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 3: glTexCoord3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 4: glTexCoord4iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_S16VECTORP(v)) {
-     switch (SCM_S16VECTOR_SIZE(v)) {
-       case 2: glTexCoord2sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 1: glTexCoord1sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 3: glTexCoord3sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 4: glTexCoord4sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else {
-     double val[4];
-     int nvals = Scm_GLGetDoubles(v, args, val, 4, 1);
-     switch (nvals) {
-       case 2: glTexCoord2dv(val); break;
-       case 1: glTexCoord1dv(val); break;
-       case 3: glTexCoord3dv(val); break;
-       case 4: glTexCoord4dv(val); break;
-     }
-  }
-  SCM_RETURN(SCM_UNDEFINED);
- badarg:
-  Scm_Error(\"bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 1, 2, 3, or 4.\", v);
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-tex-coord (v &rest args) ::<void>
+  (gl-case (v args) "glTexCoord~n~v"
+           ((f32 2 1 3 4) (f64 2 1 3 4) (s32 2 1 3 4) (s16 2 1 3 4)
+            (args 2 1 3 4))
+           "bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 1, 2, 3, or 4."))
 
 (define-cproc gl-raster-pos (v &rest args)
-  "if (SCM_F32VECTORP(v)) {
-     switch (SCM_F32VECTOR_SIZE(v)) {
-       case 3: glRasterPos3fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 2: glRasterPos2fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       case 4: glRasterPos4fv(SCM_F32VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_F64VECTORP(v)) {
-     switch (SCM_F64VECTOR_SIZE(v)) {
-       case 3: glRasterPos3dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 2: glRasterPos2dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       case 4: glRasterPos4dv(SCM_F64VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_S32VECTORP(v)) {
-     switch (SCM_S32VECTOR_SIZE(v)) {
-       case 3: glRasterPos3iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 2: glRasterPos2iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       case 4: glRasterPos4iv((GLint*)SCM_S32VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else if (SCM_S16VECTORP(v)) {
-     switch (SCM_S16VECTOR_SIZE(v)) {
-       case 3: glRasterPos3sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 2: glRasterPos2sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       case 4: glRasterPos4sv(SCM_S16VECTOR_ELEMENTS(v)); break;
-       default: goto badarg;
-     }
-  } else {
-     double val[4];
-     int nvals = Scm_GLGetDoubles(v, args, val, 4, 2);
-     switch (nvals) {
-       case 3: glRasterPos3dv(val); break;
-       case 2: glRasterPos2dv(val); break;
-       case 4: glRasterPos4dv(val); break;
-     }
-  }
-  SCM_RETURN(SCM_UNDEFINED);
- badarg:
-  Scm_Error(\"bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 2, 3, or 4.\", v);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (gl-case (v args) "glRasterPos~n~v"
+           ((f32 3 2 4) (f64 3 2 4) (s32 3 2 4) (s16 3 2 4) (args 3 2 4))
+           "bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 2, 3, or 4."))
 
 (define-cproc gl-rect (v1 v2 &rest args)
   "if (SCM_POINT4FP(v1)) {

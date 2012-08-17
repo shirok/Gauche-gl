@@ -65,7 +65,7 @@ gl_SRCS     = gauche-gl.c gl-syms.c gl-lib.stub glu-lib.stub glext-lib.stub
 gl_LIBS     = @GL_EXTRALIBS@ $(LIBS) 
 gl_HDRS     = gauche-gl.h gl-syms.h gl-ptrs.h gauche/math3d.h
 
-libgauche-gl.$(SOEXT) : $(gl_SRCS) gettype-sizes.c $(gl_HDRS)
+libgauche-gl.$(SOEXT) : $(gl_SRCS) gettype-sizes.c glcase.scm $(gl_HDRS)
 	$(GAUCHE_PACKAGE) compile --verbose \
 	   --cflags="$(CFLAGS)" --ldflags="$(LDFLAGS)" --libs="$(gl_LIBS)" \
 	   libgauche-gl $(gl_SRCS)

@@ -341,97 +341,71 @@
 ;;  (gl-call-lists array)
 ;;  (gl-call-lists size array)
 ;;  (gl-call-lists size type array)
-(define-cproc gl-call-lists (arg0 &optional arg1 arg2)
-  "GLsizei size = 0;  
-   int type = -1;
-   ScmObj array, bad;
-   if (SCM_UNBOUNDP(arg2)) {
-     if (SCM_UNBOUNDP(arg1)) {
-       /* single arg case */
-       array = arg0;
-     } else {
-       /* double arg case */
-       if (!SCM_INTP(arg0)) {
-         bad = arg0; goto badarg;
-       }
-       size = SCM_INT_VALUE(arg0);
-       array = arg1;
-     }
-   } else {
-     /* triple arg case */
-     if (!SCM_INTP(arg0)) {
-       bad = arg0; goto badarg;
-     }
-     size = SCM_INT_VALUE(arg0);
-     if (!SCM_INTP(arg1)) {
-       bad = arg1; goto badarg;
-     }
-     type = SCM_INT_VALUE(arg1);
-     array = arg2;
-   }
+(define-cproc gl-call-lists (arg0 &optional arg1 arg2) ::<void>
+  (let* ([size::GLsizei 0] [type::int -1] [array] [bad])
+    (if (SCM_UNBOUNDP arg2)
+      (if (SCM_UNBOUNDP arg1)
+        (set! array arg0)               ; 1arg
+        (if (not (SCM_INTP arg0))
+          (begin (set! bad arg0) (goto badarg))
+          (begin (set! size (SCM_INT_VALUE arg0)) (set! array arg1)))) ; 2args
+      (begin                            ; 3args
+        (unless (SCM_INTP arg0) (set! bad arg0) (goto badarg))
+        (set! size (SCM_INT_VALUE arg0))
+        (unless (SCM_INTP arg1) (set! bad arg1) (goto badarg))
+        (set! type (SCM_INT_VALUE arg1))
+        (set! array arg2)))
 
-   if (SCM_U8VECTORP(array)) {
-     switch (type) {
-       case -1:
-         if (size == 0) size = SCM_U8VECTOR_SIZE(array);
-         else if (SCM_U8VECTOR_SIZE(array) < size) goto nee;
-         glCallLists(size, GL_UNSIGNED_BYTE, SCM_U8VECTOR_ELEMENTS(array));
-         break;
-       case GL_2_BYTES:
-         if (size == 0) size = SCM_U8VECTOR_SIZE(array)/2;
-         else if (SCM_U8VECTOR_SIZE(array)/2 < size) goto nee;
-         glCallLists(size, GL_2_BYTES, SCM_U8VECTOR_ELEMENTS(array));
-         break;
-       case GL_3_BYTES:
-         if (size == 0) size = SCM_U8VECTOR_SIZE(array)/3;
-         else if (SCM_U8VECTOR_SIZE(array)/3 < size) goto nee;
-         glCallLists(size, GL_3_BYTES, SCM_U8VECTOR_ELEMENTS(array));
-         break;
-       case GL_4_BYTES:
-         if (size == 0) size = SCM_U8VECTOR_SIZE(array)/4;
-         else if (SCM_U8VECTOR_SIZE(array)/4 < size) goto nee;
-         glCallLists(size, GL_4_BYTES, SCM_U8VECTOR_ELEMENTS(array));
-         break;
-       default:
-         goto badtype;
-     }
-   } else if (SCM_STRINGP(array)) {
-     if (size == 0) size = SCM_STRING_SIZE(array);
-     else if (SCM_STRING_SIZE(array) < size) goto nee;
-     glCallLists(size, GL_UNSIGNED_BYTE, SCM_STRING_START(array));
-   } else if (SCM_S8VECTORP(array)) {
-     if (size == 0) size = SCM_S8VECTOR_SIZE(array);
-     else if (SCM_S8VECTOR_SIZE(array) < size) goto nee;
-     glCallLists(size, GL_BYTE, SCM_S8VECTOR_ELEMENTS(array));
-   } else if (SCM_S16VECTORP(array)) {
-     if (size == 0) size = SCM_S16VECTOR_SIZE(array);
-     else if (SCM_S16VECTOR_SIZE(array) < size) goto nee;
-     glCallLists(size, GL_SHORT, SCM_S16VECTOR_ELEMENTS(array));
-   } else if (SCM_U16VECTORP(array)) {
-     if (size == 0) size = SCM_U16VECTOR_SIZE(array);
-     else if (SCM_U16VECTOR_SIZE(array) < size) goto nee;
-     glCallLists(size, GL_UNSIGNED_SHORT, SCM_U16VECTOR_ELEMENTS(array));
-   } else if (SCM_S32VECTORP(array)) {
-     if (size == 0) size = SCM_S32VECTOR_SIZE(array);
-     else if (SCM_S32VECTOR_SIZE(array) < size) goto nee;
-     glCallLists(size, GL_INT, SCM_S32VECTOR_ELEMENTS(array));
-   } else if (SCM_U32VECTORP(array)) {
-     if (size == 0) size = SCM_U32VECTOR_SIZE(array);
-     else if (SCM_U32VECTOR_SIZE(array) < size) goto nee;
-     glCallLists(size, GL_UNSIGNED_INT, SCM_U32VECTOR_ELEMENTS(array));
-   } else if (SCM_F32VECTORP(array)) {
-     if (size == 0) size = SCM_F32VECTOR_SIZE(array);
-     else if (SCM_F32VECTOR_SIZE(array) < size) goto nee;
-     glCallLists(size, GL_INT, SCM_U32VECTOR_ELEMENTS(array));
-   }
-   SCM_RETURN(SCM_UNDEFINED);
-  badarg:
-   Scm_Error(\"bad argument to gl-call-lists: %S\", bad);
-  nee:
-   Scm_Error(\"not enough elements passed to gl-call-lists: %S\", array);
-  badtype:
-   Scm_Error(\"given type %d doesn't match the passed array (u8vector)\", type);
-   SCM_RETURN(SCM_UNDEFINED);")
+    (cond [(SCM_U8VECTORP array)
+           (case type
+             [(-1)
+              (if (== size 0)
+                (set! size (SCM_U8VECTOR_SIZE array))
+                (when (< (SCM_U8VECTOR_SIZE array) size) (goto nee)))
+              (glCallLists size GL_UNSIGNED_BYTE (SCM_U8VECTOR_ELEMENTS array))]
+             [(GL_2_BYTES)
+              (if (== size 0)
+                (set! size (/ (SCM_U8VECTOR_SIZE array) 2))
+                (when (< (/ (SCM_U8VECTOR_SIZE array) 2) size) (goto nee)))
+              (glCallLists size GL_2_BYTES (SCM_U8VECTOR_ELEMENTS array))]
+             [(GL_3_BYTES)
+              (if (== size 0)
+                (set! size (/ (SCM_U8VECTOR_SIZE array) 3))
+                (when (< (/ (SCM_U8VECTOR_SIZE array) 3) size) (goto nee)))
+              (glCallLists size GL_3_BYTES (SCM_U8VECTOR_ELEMENTS array))]
+             [(GL_4_BYTES)
+              (if (== size 0)
+                (set! size (/ (SCM_U8VECTOR_SIZE array) 4))
+                (when (< (/ (SCM_U8VECTOR_SIZE array) 4) size) (goto nee)))
+              (glCallLists size GL_4_BYTES (SCM_U8VECTOR_ELEMENTS array))]
+             [else (goto badtype)])]
+          [(SCM_STRINGP array)
+           ;; TODO: for MT safety, we should extract stringbody first
+           (if (== size 0)
+             (set! size (SCM_STRING_SIZE array))
+             (when (< (SCM_STRING_SIZE array) size) (goto nee)))
+           (glCallLists size GL_UNSIGNED_BYTE (SCM_STRING_START array))]
+          [else
+           (gl-case (array)
+                    (begin
+                      (if (== size 0)
+                        (set! size (SCM_UVECTOR_SIZE array))
+                        (when (< (SCM_UVECTOR_SIZE array) size) (goto nee)))
+                      (glCallLists size ~E ~X))
+                    ((s8) (s16) (u16) (s32) (u32) (f32))
+                    "bad argument to gl-call-lists: %S")])
+    (when 0
+      (label badarg)
+      (Scm_Error "bad argument to gl-call-lists: %S" bad))
+    (when 0
+      (label nee)
+      (Scm_Error "not enough elements passed to gl-call-lists: %S" array))
+    (when 0
+      (label badtype)
+      (Scm_Error "given type %d doesn't match the passed array (u8vector)"
+                 type))
+    ))
+
 
 (define-cproc gl-list-base (base::<int>) ::<void> glListBase)
 
@@ -451,7 +425,7 @@
 
 (define-cproc gl-normal (v &rest args)
   (gl-case (v args) "glNormal3~v"
-           ((v4f 3) (f32 3) (f64 3) (s32 3) (s16 3) (args 3))
+           ((v4f) (f32 3) (f64 3) (s32 3) (s16 3) (args 3))
            "bad argument for v: %S, must be one of vector4f, \
             or f32, f64, s32 or s16 vector of length 3."))
 
@@ -531,196 +505,96 @@
 (define-cproc gl-vertex-pointer (size::<fixnum> vec
                                  &optional (stride::<fixnum> 0)
                                            (offset::<fixnum> 0))
-  "if (size < 2 || size > 4) {
-    Scm_Error(\"bad argument for size: %d, must be 2, 3 or 4\", size);
-  }
-  if (stride < 0) {
-    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
-  }
-  if (offset < 0) {
-    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
-  }
-  if (SCM_POINT4F_ARRAY_P(vec)) {
-    glVertexPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
-                    (void*)(SCM_POINT4F_ARRAY_D(vec)+offset));
-  } else if (SCM_F32VECTORP(vec)) {
-    glVertexPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
-                    (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_F64VECTORP(vec)) {
-    glVertexPointer(size, GL_DOUBLE, stride*sizeof(GLdouble),
-                    (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S32VECTORP(vec)) {
-    glVertexPointer(size, GL_INT, stride*sizeof(GLint),
-                    (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S16VECTORP(vec)) {
-    glVertexPointer(size, GL_SHORT, stride*sizeof(GLshort),
-                    (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
-  } else {
-    Scm_Error(\"bad argument for vec: %S, must be f32, f64, s32 or s16vector\", vec);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (when (or (< size 2) (> size 4))
+    (Scm_Error "bad argument for size: %d, must be 2, 3 or 4" size))
+  (when (< stride 0)
+    (Scm_Error "bad argument for stride: %d, must be 0 or positive" stride))
+  (when (< offset 0)
+    (Scm_Error "bad argument for offset: %d, must be 0 or positive" offset))
+  (gl-case (vec)
+           ("glVertexPointer" size ~E (* stride (sizeof ~T))
+            (cast void* (+ ~X offset)))
+           ((p4farray) (f32) (f64) (s32) (s16))
+           "bad argument for vec: %S, must be f32, f64, s32 or s16vector"))
 
 (define-cproc gl-normal-pointer (vec
                                  &optional (stride::<fixnum> 0)
                                            (offset::<fixnum> 0))
-  "if (stride < 0) {
-    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
-  }
-  if (offset < 0) {
-    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
-  }
-  if (SCM_VECTOR4F_ARRAY_P(vec)) {
-    glNormalPointer(GL_FLOAT, stride*sizeof(GLfloat),
-                    (void*)(SCM_VECTOR4F_ARRAY_D(vec)+offset));
-  } else if (SCM_F32VECTORP(vec)) {
-    glNormalPointer(GL_FLOAT, stride*sizeof(GLfloat),
-                    (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_F64VECTORP(vec)) {
-    glNormalPointer(GL_DOUBLE, stride*sizeof(GLdouble),
-                    (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S32VECTORP(vec)) {
-    glNormalPointer(GL_INT, stride*sizeof(GLint),
-                    (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S16VECTORP(vec)) {
-    glNormalPointer(GL_SHORT, stride*sizeof(GLshort),
-                    (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S8VECTORP(vec)) {
-    glNormalPointer(GL_BYTE, stride*sizeof(GLbyte),
-                    (void*)(SCM_S8VECTOR_ELEMENTS(vec)+offset));
-  } else {
-    Scm_Error(\"bad argument for vec: %S, must be f32, f64, s8, s16 or s32vector\", vec);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (when (< stride 0)
+    (Scm_Error "bad argument for stride: %d, must be 0 or positive" stride))
+  (when (< offset 0)
+    (Scm_Error "bad argument for offset: %d, must be 0 or positive" offset))
+  (gl-case (vec)
+           ("glNormalPointer" ~E (* stride (sizeof ~T))
+            (cast void* (+ ~X offset)))
+           ((v4farray) (f32) (f64) (s32) (s16) (s8))
+           "bad argument for vec: %S, must be f32, f64, s8, s16 or s32vector"))
 
 (define-cproc gl-color-pointer (size::<fixnum> vec
                                 &optional (stride::<fixnum> 0)
                                           (offset::<fixnum> 0))
-  "  if (size < 3 || size > 4) {
-    Scm_Error(\"bad argument for size: %d, must be 2, 3 or 4\", size);
-  }
-  if (stride < 0) {
-    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
-  }
-  if (offset < 0) {
-    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
-  }
-  if (SCM_F32VECTORP(vec)) {
-    glColorPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
-                  (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_F64VECTORP(vec)) {
-    glColorPointer(size, GL_DOUBLE, stride*sizeof(GLdouble),
-                   (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_U32VECTORP(vec)) {
-    glColorPointer(size, GL_UNSIGNED_INT, stride*sizeof(GLuint),
-                   (void*)(SCM_U32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_U16VECTORP(vec)) {
-    glColorPointer(size, GL_UNSIGNED_SHORT, stride*sizeof(GLushort),
-                   (void*)(SCM_U16VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_U8VECTORP(vec)) {
-    glColorPointer(size, GL_UNSIGNED_BYTE, stride*sizeof(GLubyte),
-                   (void*)(SCM_U8VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S32VECTORP(vec)) {
-    glColorPointer(size, GL_INT, stride*sizeof(GLint),
-                   (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S16VECTORP(vec)) {
-    glColorPointer(size, GL_SHORT, stride*sizeof(GLshort),
-                   (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S8VECTORP(vec)) {
-    glColorPointer(size, GL_BYTE, stride*sizeof(GLbyte),
-                   (void*)(SCM_S8VECTOR_ELEMENTS(vec)+offset));
-  } else {
-    Scm_Error(\"bad argument for vec: %S, must be f32, f64, s8, u8, s16, u16, s32 or u32vector\", vec);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (when (or (< size 2) (> size 4))
+    (Scm_Error "bad argument for size: %d, must be 2, 3 or 4" size))
+  (when (< stride 0)
+    (Scm_Error "bad argument for stride: %d, must be 0 or positive" stride))
+  (when (< offset 0)
+    (Scm_Error "bad argument for offset: %d, must be 0 or positive" offset))
+  (gl-case (vec)
+           ("glColorPointer" size ~E (* stride (sizeof ~T))
+            (cast void* (+ ~X offset)))
+           ((f32) (f64) (u32) (u16) (u8) (s32) (s16) (s8))
+           "bad argument for vec: %S, must be f32, f64, s8, u8, s16, u16, s32 or u32vector"))
 
 (define-cproc gl-index-pointer (vec
                                 &optional (stride::<fixnum> 0)
                                           (offset::<fixnum> 0))
-  "if (stride < 0) {
-    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
-  }
-  if (offset < 0) {
-    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
-  }
-  if (SCM_S32VECTORP(vec)) {
-    glIndexPointer(GL_INT, stride*sizeof(GLint),
-                   (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S16VECTORP(vec)) {
-    glIndexPointer(GL_SHORT, stride*sizeof(GLshort),
-                   (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_U8VECTORP(vec)) {
-    glIndexPointer(GL_UNSIGNED_BYTE, stride*sizeof(GLubyte),
-                   (void*)(SCM_U8VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_F32VECTORP(vec)) {
-    glIndexPointer(GL_FLOAT, stride*sizeof(GLfloat),
-                   (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_F64VECTORP(vec)) {
-    glIndexPointer(GL_DOUBLE, stride*sizeof(GLdouble),
-                   (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
-  } else {
-    Scm_Error(\"bad argument for vec: %S, must be f32, f64, u8, s16 or s32 vector\", vec);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (when (< stride 0)
+    (Scm_Error "bad argument for stride: %d, must be 0 or positive" stride))
+  (when (< offset 0)
+    (Scm_Error "bad argument for offset: %d, must be 0 or positive" offset))
+  (gl-case (vec)
+           ("glIndexPointer" ~E (* stride (sizeof ~T))
+            (cast void* (+ ~X offset)))
+           ((s32) (s16) (u8) (f32) (f64))
+           "bad argument for vec: %S, must be f32, f64, u8, s16 or s32 vector"))
 
 (define-cproc gl-tex-coord-pointer (size::<fixnum> vec
                                     &optional (stride::<fixnum> 0)
                                               (offset::<fixnum> 0))
-  "  if (size < 1 || size > 4) {
-    Scm_Error(\"bad argument for size: %d, must be 1, 2, 3 or 4\", size);
-  }
-  if (stride < 0) {
-    Scm_Error(\"bad argument for stride: %d, must be 0 or positive\", stride);
-  }
-  if (offset < 0) {
-    Scm_Error(\"bad argument for offset: %d, must be 0 or positive\", offset);
-  }
-  if (SCM_F32VECTORP(vec)) {
-    glTexCoordPointer(size, GL_FLOAT, stride*sizeof(GLfloat),
-                     (void*)(SCM_F32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_F64VECTORP(vec)) {
-    glTexCoordPointer(size, GL_DOUBLE, stride*sizeof(GLdouble),
-                      (void*)(SCM_F64VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S32VECTORP(vec)) {
-    glTexCoordPointer(size, GL_INT, stride*sizeof(GLint),
-                      (void*)(SCM_S32VECTOR_ELEMENTS(vec)+offset));
-  } else if (SCM_S16VECTORP(vec)) {
-    glTexCoordPointer(size, GL_SHORT, stride*sizeof(GLshort),
-                      (void*)(SCM_S16VECTOR_ELEMENTS(vec)+offset));
-  } else {
-    Scm_Error(\"bad argument for vec: %S, must be f32, f64, s16 or s32vector\", vec);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (when (or (< size 1) (> size 4))
+    (Scm_Error "bad argument for size: %d, must be 1, 2, 3 or 4" size))
+  (when (< stride 0)
+    (Scm_Error "bad argument for stride: %d, must be 0 or positive" stride))
+  (when (< offset 0)
+    (Scm_Error "bad argument for offset: %d, must be 0 or positive" offset))
+  (gl-case (vec)
+           ("glTexCoordPointer" size ~E (* stride (sizeof ~T))
+            (cast void* (+ ~X offset)))
+           ((f32) (f64) (s32) (s16))
+           "bad argument for vec: %S, must be f32, f64, s16 or s32vector"))
 
 (define-cproc gl-edge-flag-pointer (vec
                                     &optional (stride::<fixnum> 0)
                                               (offset::<fixnum> 0))
-  "if (SCM_GL_BOOLEAN_VECTOR_P(vec)) {
-     glEdgeFlagPointer(stride, SCM_GL_BOOLEAN_VECTOR_ELEMENTS(vec) + offset);
-   } else {
-     Scm_Error(\"gl-boolean-vector required for vec, but got %S\", vec);
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (if (SCM_GL_BOOLEAN_VECTOR_P vec)
+    (glEdgeFlagPointer stride (+ (SCM_GL_BOOLEAN_VECTOR_ELEMENTS vec) offset))
+    (Scm_Error "gl-boolean-vector required for vec, but got %S" vec)))
 
-(define-cproc gl-array-element (ith::<fixnum>)
-  "glArrayElement(ith);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-array-element (ith::<fixnum>) ::<void>
+  (glArrayElement ith))
 
 ;; count and type is derived from indices vector
-(define-cproc gl-draw-elements (mode::<fixnum> indices)
-  "if (SCM_U8VECTORP(indices)) {
-    glDrawElements(mode, SCM_U8VECTOR_SIZE(indices), GL_UNSIGNED_BYTE,
-                   SCM_U8VECTOR_ELEMENTS(indices));
-  } else if (SCM_U16VECTORP(indices)) {
-    glDrawElements(mode, SCM_U16VECTOR_SIZE(indices), GL_UNSIGNED_SHORT,
-                   SCM_U16VECTOR_ELEMENTS(indices));
-  } else if (SCM_U32VECTORP(indices)) {
-    glDrawElements(mode, SCM_U32VECTOR_SIZE(indices), GL_UNSIGNED_INT,
-                   SCM_U32VECTOR_ELEMENTS(indices));
-  } else {
-    Scm_Error(\"bad argument for indices: %S, must be u8, u16 or u32vector\", indices);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
+(define-cproc gl-draw-elements (mode::<fixnum> indices) ::<void>
+  (gl-case (indices)
+           ("glDrawElements" mode (SCM_UVECTOR_SIZE indices) ~E ~X)
+           ((u8) (u16) (u32))
+           "bad argument for indices: %S, must be u8, u16 or u32vector"))
 
 (define-cproc gl-draw-arrays (mode::<fixnum> first::<fixnum> count::<fixnum>)
   ::<void> glDrawArrays)

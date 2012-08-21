@@ -48,16 +48,74 @@
 ;;     switch (SCM_F64VECTOR_SIZE(arg)) {
 ;;     ...
 ;;
-;; (gl-case (v) "glFoo~n~v"
-;;          "blah blah blah, but got %S"
-;;          ((f32 3 4) (f64 3 4)))
+;; The gl-case cise macro generates this pattern from a concise description,
+;; as follows:
 ;;
-;;  ~n : replaced with the number of elements
-;;  ~t : replaced with type suffix, e.g. 'i' or 'f'
-;;  ~v : replaced with type suffix plus v, e.g. 'iv' or 'fv'
+;; (gl-case (v) "glFoo~n~v"
+;;          ((f32 3 4) (f64 3 4)))
+;;          "blah blah blah, but got %S"
+;;
+;; Here's the detailed spec:
+;;
+;; (gl-case <dispatch-variables>
+;;          <call-pattern>
+;;          <dispatches>
+;;          <error-format-string>)
+;;
+;; <dispatch-variables> : (<variable>)
+;;                      | (<variable> <restvar>)
+;;
+;;    This specifies which C variable gl-case should dispatch upon.
+;;    The simplest case is a single-variable one, just the varaible
+;;    we dispatch on.
+;; 
+;;    The second form is used for variable-arity api such as gl-vertex;
+;;    it accepts vector argument, e.g. (gl-vertex #f32(1.0 1.0 1.0)), and
+;;    individual real arguments, e.g. (gl-vertex 1.0 1.0 1.0).  If more than
+;;    one argument are given, we gather the arguments as real numbers, and
+;;    handles it according to 'args' dispatch (see belop).  Otherwise
+;;    we dispatch on the type of first variable.
+;;
+;; <call-pattern> : <function-template>
+;;                | (<function-template> <template> ...)
+;;
+;;    <function-template> is a string of the name of GL function.  It may
+;;    contain sequences like ~n, which will be substituted according to the
+;;    actual type of <variable>.   The following sequences are recognized:
+;;      ~n : the number of elements, e.g. '3' in glVertex3f.
+;;      ~t : the type suffix, e.g. 'f' in glVertex3f.
+;;      ~v : the type suffix for vector argument, e.g. 'fv' in glVertex3fv.
+;;
+;;    In the second form you can write a cise form of calling the gl function.
+;;    <template>s are cise expressions, but the following symbols are
+;;    substituted according to the actual type of <variable>.
+;;
+;;      ~n : the number of elements, e.g. '3' in glVertex3f.
+;;      ~E : the GL type enum, e.g. GL_FLOAT
+;;      ~T : the C type, e.g. GLfloat
+;;      ~X : the function/macro to extract the pointer to the actual data,
+;;           e.g. SCM_F32VECTOR_ELEMENTS.
+;;
+;; <dispatches> : ((<type-tag> <count> ...) ...)
+;; <type-tag> : u8 | s8 | u16 | s16 | u32 | s32 | f32 | f64
+;;            | m4f | p4f | v4f | p4farray | v4farray | qf | args
+;;
+;;    u8 - f64  : uvector
+;;    m4f : ScmMatrix4f
+;;    p4f : ScmPoint4f
+;;    v4f : ScmVector4f
+;;    p4farray : ScmPoint4fArray
+;;    v4farray : ScmVector4fArray
+;;    qf  : ScmQuatf
+;;    args : indicates to handle :rest type.  All args are coerced to
+;;           doubles, put into an array of double and passed to gl*dv API.
+;;
+;; <count> : Specifies the # of elements in the <variable>.  m4f, p4f,
+;;           v4f and qf have fixed size, but you can specify <count>
+;;           if you want to give a different value to ~n.
 
 (define-cise-stmt gl-case
-  [(_ (var ...) fname-fmt dispatches error-fmt)
+  [(_ (var ...) template dispatches error-fmt)
    (define (type-pred tag)
      (string->symbol
       (ecase tag
@@ -66,6 +124,8 @@
         [(m4f) "SCM_MATRIX4FP"]
         [(p4f) "SCM_POINT4FP"]
         [(v4f) "SCM_VECTOR4FP"]
+        [(p4farray) "SCM_POINT4F_ARRAY_P"]
+        [(v4farray) "SCM_VECTOR4F_ARRAY_P"]
         [(qf) "SCM_QUATFP"])))
    (define (do-cast tag expr)
      `(cast ,(string->symbol #`",(tag->ctype tag)*")
@@ -74,40 +134,69 @@
      (ecase tag
        [(u8)  'GLubyte] [(s8) 'GLbyte] [(u16) 'GLushort] [(s16) 'GLshort]
        [(u32) 'GLuint] [(s32) 'GLint]
-       [(f32 m4f p4f v4f qf) 'GLfloat] [(f64 args) 'GLdouble]))
+       [(f32 m4f p4f v4f p4farray v4farray qf) 'GLfloat]
+       [(f64 args) 'GLdouble]))
    (define (tag->suffix tag)
      (ecase tag
        [(s8) "b"] [(u8) "ub"] [(s16) "s"] [(u16) "us"]
-       [(s32) "i"] [(u32) "ui"] [(f32 m4f p4f v4f qf) "f"] [(f64 args) "d"]))
+       [(s32) "i"] [(u32) "ui"]
+       [(f32 m4f p4f v4f p4farray v4farray qf) "f"] [(f64 args) "d"]))
    (define (tag->enum tag)
      (ecase tag
-       [(u8)  GL_UBYTE] [(s8) GL_BYTE] [(u16) GL_USHORT] [(s16) GL_SHORT]
-       [(u32) GL_UINT] [(s32) GL_INT]
-       [(f32 m4f p4f v4f qf) GL_FLOAT] [(f64 args) GL_DOUBLE]))
+       [(u8)  'GL_UNSIGNED_BYTE] [(s8) 'GL_BYTE]
+       [(u16) 'GL_UNSIGNED_SHORT] [(s16) 'GL_SHORT]
+       [(u32) 'GL_UNSIGNED_INT] [(s32) 'GL_INT]
+       [(f32 m4f p4f v4f p4farray v4farray qf) 'GL_FLOAT]
+       [(f64 args) 'GL_DOUBLE]))
    (define (tag->accessor tag expr)
      (ecase tag
        [(u8 s8 u16 s16 u32 s32 f32 f64) `(SCM_UVECTOR_ELEMENTS ,expr)]
        [(m4f)     `(SCM_MATRIX4F_D ,expr)]
        [(p4f v4f) `(SCM_VECTOR4F_D ,expr)]
+       [(p4farray) `(SCM_POINT4F_ARRAY_D ,expr)]
+       [(v4farray) `(SCM_VECTOR4F_ARRAY_D ,expr)]
        [(qf)      `(SCM_QUATF_D ,expr)]
        [(args)     expr]))
-   (define (gen-call tag nelems)
+   (define (gen-fname tag nelems fname-template)
      (string->symbol
-      (regexp-replace-all* fname-fmt
+      (regexp-replace-all* fname-template
                            #/~n/ (^_ (if nelems (x->string nelems) ""))
                            #/~t/ (^_ (tag->suffix tag))
                            #/~v/ (^_ #`",(tag->suffix tag)v"))))
+   (define (subst-template s tag nelems var)
+     (match s
+       ['~n nelems]
+       ['~E (tag->enum tag)]
+       ['~T (tag->ctype tag)]
+       ['~X (tag->accessor tag var)]
+       [(a . b) (cons (subst-template a tag nelems var)
+                      (subst-template b tag nelems var))]
+       [(? string? fname) (gen-fname tag nelems fname)]
+       [else s]))
+   (define (gen-call tag nelems var)
+     (match template
+       [(? string? template)
+        `(,(gen-fname tag nelems template) ,(do-cast tag var))]
+       [exprs (subst-template exprs tag nelems var)]))
    (define (gen-dispatch-case tag nelems var)
-     `[(,nelems) (,(gen-call tag nelems) ,(do-cast tag var))])
+     `[(,nelems) ,(gen-call tag nelems var)])
+   (define (gen-error var)
+     (if (string? error-fmt)
+       `(Scm_Error ,error-fmt ,var)
+       error-fmt))
    (define (gen-dispatch-tag tag nelems-list)
      (match nelems-list
        [() `[(,(type-pred tag) ,(car var))
-             (,(gen-call tag #f) ,(do-cast tag (car var)))]]
+             ,(gen-call tag (case tag
+                              [(m4f) 16]
+                              [(p4f v4f qf) 4]
+                              [else #f])
+                         (car var))]]
        [(nelems . nelems*)
         (case tag
-          [(m4f p4f v4f qf)
-          `[(,(type-pred tag) ,(car var))
-            (,(gen-call tag nelems) ,(do-cast tag (car var)))]]
+          [(m4f p4f v4f p4farray v4farray qf)
+           `[(,(type-pred tag) ,(car var))
+             ,(gen-call tag nelems (car var))]]
           [(args)
            (let ([val (gensym)] [nvals (gensym)])
              `[else
@@ -123,12 +212,12 @@
            `[(,(type-pred tag) ,(car var))
              (case (SCM_UVECTOR_SIZE ,(car var))
                ,@(map (cut gen-dispatch-case tag <> (car var)) nelems-list)
-               (else (Scm_Error ,error-fmt ,(car var))))]])]))
+               (else ,(gen-error (car var))))]])]))
    `(cond
      ,@(map (^d (gen-dispatch-tag (car d) (cdr d))) dispatches)
      ,@(if (assq 'args dispatches)
          '()
-         `((else (Scm_Error ,error-fmt ,(car var))))))])
+         `((else ,(gen-error (car var))))))])
 
        
 

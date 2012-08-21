@@ -15,6 +15,8 @@
 ;;;  $Id: glext-lib.stub,v 1.20 2008-06-05 09:38:51 shirok Exp $
 ;;;
 
+(include "glcase.scm")
+
 "
 #include \"gauche-gl.h\"
 #include \"gl-syms.h\"
@@ -100,22 +102,10 @@
                                       indices)
   ::<void>
   (ENSURE glDrawRangeElements)
-  (cond
-   [(SCM_U8VECTORP indices)
-    (glDrawRangeElements mode start end 
-                         (SCM_U8VECTOR_SIZE indices) GL_UNSIGNED_BYTE
-                         (SCM_U8VECTOR_ELEMENTS indices))]
-   [(SCM_U16VECTORP indices)
-    (glDrawRangeElements mode start end
-                         (SCM_U16VECTOR_SIZE indices) GL_UNSIGNED_SHORT
-                         (SCM_U16VECTOR_ELEMENTS indices))]
-   [(SCM_U32VECTORP indices)
-    (glDrawRangeElements mode start end
-                         (SCM_U32VECTOR_SIZE indices) GL_UNSIGNED_INT
-                         (SCM_U32VECTOR_ELEMENTS indices))]
-   [else
-    (Scm_Error "bad argument for indices; must be u8, u16 or u32vector, but got %S" indices)]))
-
+  (gl-case (indices)
+           (glDrawRangeElements mode start end (SCM_UVECTOR_SIZE indices) ~E ~X)
+           ((u8) (u16) (u32))
+           "bad argument for indices; must be u8, u16 or u32vector, but got %S"))
 ;;=============================================================
 ;; GL_ARB_imaging
 ;;
@@ -145,19 +135,16 @@
 (define-cproc gl-color-table-parameter (target::<fixnum> pname::<fixnum>
                                         param)
   ::<void>
-  (cond 
-   [(SCM_F32VECTORP param)
-    (unless (== (SCM_F32VECTOR_SIZE param) 4) (goto err))
-    (ENSURE glColorTableParameterfv)
-    (glColorTableParameterfv target pname (SCM_F32VECTOR_ELEMENTS param))]
-   [(SCM_S32VECTORP param)
-    (unless (== (SCM_S32VECTOR_SIZE param) 4) (goto err))
-    (ENSURE glColorTableParameteriv)
-    (glColorTableParameteriv target pname (SCM_S32VECTOR_ELEMENTS param))]
-   [else
+  (gl-case (param)
+           (begin
+             (unless (== (SCM_UVECTOR_SIZE param) 4) (goto err))
+             (ENSURE "glColorTableParameter~v")
+             ("glColorTableParameter~v" target pname ~X))
+           ((f32) (s32))
+           "f32 or s32 vector of size 4 required, but got %S")
+  (when 0
     (label err)
-    (Scm_Error "f32 or s32 vector of size 4 required, but got %S" param)]))
-
+    (Scm_Error "vector size must be 4, but got %S" param)))
 
 (define-cproc gl-copy-color-sub-table (target::<fixnum> start::<fixnum>
                                        x::<int> y::<int> width::<int>)
@@ -334,15 +321,12 @@
                                         pname-string::(const char*)
                                         param)
   ::void
-  (cond
-   [(and (SCM_F32VECTORP param) (== (SCM_F32VECTOR_SIZE param) 4))
-    (ENSURE glConvolutionParameterfv)
-    (glConvolutionParameterfv target pname (SCM_F32VECTOR_ELEMENTS param))]
-   [(and (SCM_S32VECTORP param) (== (SCM_S32VECTOR_SIZE param) 4))
-    (ENSURE glConvolutionParameteriv)
-    (glConvolutionParameteriv target pname (SCM_S32VECTOR_ELEMENTS param))]
-   [else
-    (Scm_Error "bad type of param value for %s (s32 or f32vector of size 4 required), but got: %S" pname-string param)]))
+  (gl-case (param)
+           (begin
+             (ENSURE "glConvolutionParameter~v")
+             ("glConvolutionParameter~v" target pname ~X))
+           ((f32 4) (s32 4))
+           (Scm_Error "bad type of param value for %s (s32 or f32vector of size 4 required), but got: %S" pname-string param)))
 
 (define-cise-expr gl-convolution-parameter-dispatch
   [(_ (enum-name type) ...)
@@ -448,65 +432,13 @@
   (glClientActiveTexture texture))
 
 (define-cproc gl-multi-tex-coord-arb (texunit::<int> v &rest args) ::<void>
-  (cond 
-   [(SCM_F32VECTORP v)
-    (case (SCM_F32VECTOR_SIZE v)
-      [(2) (ENSURE glMultiTexCoord2fvARB)
-           (glMultiTexCoord2fvARB texunit (SCM_F32VECTOR_ELEMENTS v))]
-      [(1) (ENSURE glMultiTexCoord1fvARB)
-           (glMultiTexCoord1fvARB texunit (SCM_F32VECTOR_ELEMENTS v))]
-      [(3) (ENSURE glMultiTexCoord3fvARB)
-           (glMultiTexCoord3fvARB texunit (SCM_F32VECTOR_ELEMENTS v))]
-      [(4) (ENSURE glMultiTexCoord4fvARB)
-           (glMultiTexCoord4fvARB texunit (SCM_F32VECTOR_ELEMENTS v))]
-      [else (goto badarg)])]
-   [(SCM_F64VECTORP v)
-    (case (SCM_F64VECTOR_SIZE v)
-      [(2) (ENSURE glMultiTexCoord2dvARB)
-           (glMultiTexCoord2dvARB texunit (SCM_F64VECTOR_ELEMENTS v))]
-      [(1) (ENSURE glMultiTexCoord1dvARB)
-           (glMultiTexCoord1dvARB texunit (SCM_F64VECTOR_ELEMENTS v))]
-      [(3) (ENSURE glMultiTexCoord3dvARB)
-           (glMultiTexCoord3dvARB texunit (SCM_F64VECTOR_ELEMENTS v))]
-      [(4) (ENSURE glMultiTexCoord4dvARB)
-           (glMultiTexCoord4dvARB texunit (SCM_F64VECTOR_ELEMENTS v))]
-      [else (goto badarg)])]
-   [(SCM_S32VECTORP v)
-    (case (SCM_S32VECTOR_SIZE v)
-      [(2) (ENSURE glMultiTexCoord2ivARB)
-           (glMultiTexCoord2ivARB texunit (SCM_S32VECTOR_ELEMENTS v))]
-      [(1) (ENSURE glMultiTexCoord2ivARB)
-           (glMultiTexCoord2ivARB texunit (SCM_S32VECTOR_ELEMENTS v))]
-      [(3) (ENSURE glMultiTexCoord3ivARB)
-           (glMultiTexCoord3ivARB texunit (SCM_S32VECTOR_ELEMENTS v))]
-      [(4) (ENSURE glMultiTexCoord4ivARB)
-           (glMultiTexCoord4ivARB texunit (SCM_S32VECTOR_ELEMENTS v))]
-      [else (goto badarg)])]
-   [(SCM_S16VECTORP v)
-    (case (SCM_S16VECTOR_SIZE v)
-      [(2) (ENSURE glMultiTexCoord2svARB)
-           (glMultiTexCoord2svARB texunit (SCM_S16VECTOR_ELEMENTS v))]
-      [(1) (ENSURE glMultiTexCoord1svARB)
-           (glMultiTexCoord1svARB texunit (SCM_S16VECTOR_ELEMENTS v))]
-      [(3) (ENSURE glMultiTexCoord3svARB)
-           (glMultiTexCoord3svARB texunit (SCM_S16VECTOR_ELEMENTS v))]
-      [(4) (ENSURE glMultiTexCoord4svARB)
-           (glMultiTexCoord4svARB texunit (SCM_S16VECTOR_ELEMENTS v))]
-      [else (goto badarg)])]
-   [else
-    (let* ([vals::(.array double (4))]
-           [nvals::int (Scm_GLGetDoubles v args vals 4 1)])
-      (case nvals
-        [(2) (ENSURE glMultiTexCoord2dvARB)
-             (glMultiTexCoord2dvARB texunit vals)]
-        [(1) (ENSURE glMultiTexCoord1dvARB)
-             (glMultiTexCoord1dvARB texunit vals)]
-        [(3) (ENSURE glMultiTexCoord3dvARB)
-             (glMultiTexCoord3dvARB texunit vals)]
-        [(4) (ENSURE glMultiTexCoord4dvARB)
-             (glMultiTexCoord4dvARB texunit vals)]
-        [else (label badarg)
-              (Scm_Error "bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 1, 2, 3, or 4." v)]))]))
+  (gl-case (v args)
+           (begin
+             (ENSURE "glMultiTexCoord~n~vARB")
+             ("glMultiTexCoord~n~vARB" texunit ~X))
+           ((f32 2 1 3 4) (f64 2 1 3 4) (s32 2 1 3 4) (s16 2 1 3 4)
+            (args 2 1 3 4))
+           "bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 1, 2, 3, or 4."))
 
 ;;=============================================================
 ;; GL_ARB_occlusion_query
@@ -1156,112 +1088,68 @@
    }
    SCM_RETURN(SCM_UNDEFINED);")
 
-(define-cproc gl-is-program-arb (prog-id::<int>)
-  "ENSURE(glIsProgramARB);
-  SCM_RETURN(SCM_MAKE_BOOL(glIsProgramARB(prog_id)));")
+(define-cproc gl-is-program-arb (prog-id::<int>) ::<boolean>
+  (ENSURE glIsProgramARB)
+  (result (glIsProgramARB prog_id)))
 
-(define-cproc gl-enable-vertex-attrib-array-arb (index::<uint>)
-  "ENSURE(glEnableVertexAttribArrayARB);
-   glEnableVertexAttribArrayARB(index);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-enable-vertex-attrib-array-arb (index::<uint>) ::<void>
+  (ENSURE glEnableVertexAttribArrayARB)
+  (glEnableVertexAttribArrayARB index))
 
-(define-cproc gl-disable-vertex-attrib-array-arb (index::<uint>)
-  "ENSURE(glDisableVertexAttribArrayARB);
-   glDisableVertexAttribArrayARB(index);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-disable-vertex-attrib-array-arb (index::<uint>) ::<void>
+  (ENSURE glDisableVertexAttribArrayARB)
+  (glDisableVertexAttribArrayARB index))
 
-(define-cproc gl-program-string-arb (target::<int> format::<int> text::<string>)
-   "GLint errorPos;
-    char* str=(char*)SCM_STRING_START(text);
-    ENSURE(glProgramStringARB);
-    glProgramStringARB(target, format, strlen(str), str);
-    glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorPos);
-    if(errorPos!=-1) {
-        Scm_Error(\"Error in shader: %s\", glGetString(GL_PROGRAM_ERROR_STRING_ARB));
-    }
-    SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-program-string-arb (target::<int> format::<int>
+                                                   text::<const-cstring>)
+  ::<void>
+  (let* ([errorPos::GLint])
+    (ENSURE glProgramStringARB)
+    (glProgramStringARB target format (strlen text) text)
+    (glGetIntegerv GL_PROGRAM_ERROR_POSITION_ARB (& errorPos))
+    (unless (== errorPos -1)
+      (Scm_Error "Error in shader: %s"
+                 (glGetString GL_PROGRAM_ERROR_STRING_ARB)))))
 
-(define-cproc gl-bind-program-arb (target::<int> id::<int>)
-  "ENSURE(glBindProgramARB);
-   glBindProgramARB(target, id);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-bind-program-arb (target::<int> id::<int>) ::<void>
+  (ENSURE glBindProgramARB)
+  (glBindProgramARB target id))
 
-(define-cproc gl-delete-programs-arb (arg0)
-  "if(SCM_INTEGERP(arg0)) {
-     GLuint prog = Scm_GetInteger(arg0);
-     ENSURE(glDeleteProgramsARB);
-     glDeleteProgramsARB(1,&prog);
-   } else if(SCM_U32VECTORP(arg0)) {
-     ENSURE(glDeleteProgramsARB);
-     glDeleteProgramsARB(SCM_S32VECTOR_SIZE(arg0), SCM_U32VECTOR_ELEMENTS(arg0));
-   }
-   SCM_RETURN(SCM_UNDEFINED); ")
+(define-cproc gl-delete-programs-arb (arg0) ::<void>
+  (cond [(SCM_INTEGERP arg0)
+         (let* ([prog::GLuint (Scm_GetInteger arg0)])
+           (ENSURE glDeleteProgramsARB)
+           (glDeleteProgramsARB 1 (& prog)))]
+        [(SCM_U32VECTORP arg0)
+         (ENSURE glDeleteProgramsARB)
+         (glDeleteProgramsARB (SCM_S32VECTOR_SIZE arg0)
+                              (SCM_U32VECTOR_ELEMENTS arg0))]))
 
 (define-cproc gl-gen-programs-arb (n::<int>)
-  "ScmU32Vector *v = SCM_U32VECTOR(Scm_MakeU32Vector(n, 0));
-  ENSURE(glGenProgramsARB);
-  glGenProgramsARB(n, SCM_U32VECTOR_ELEMENTS(v));
-  SCM_RETURN(SCM_OBJ(v));")
+  (let* ([v::ScmU32Vector* (SCM_U32VECTOR (Scm_MakeU32Vector n 0))])
+    (ENSURE glGenProgramsARB)
+    (glGenProgramsARB n (SCM_U32VECTOR_ELEMENTS v))
+    (result (SCM_OBJ v))))
 
 ; target should be GL_FRAGMENT_PROGRAM_ARB or GL_VERTEX_PROGRAM_ARB
 (define-cproc gl-program-env-parameter-arb 
   (target::<int> param-id::<int> arg0 &rest args) ::<void>
-  "if(SCM_VECTOR4FP(arg0)) {
-    ENSURE(glProgramEnvParameter4fvARB);
-    glProgramEnvParameter4fvARB(target, param_id, SCM_VECTOR4F_D(arg0));
-  }
-  else if(SCM_F32VECTORP(arg0)) {
-    if(SCM_F32VECTOR_SIZE(arg0)!=4) { goto err; }
-    ENSURE(glProgramEnvParameter4fvARB);
-    glProgramEnvParameter4fvARB(target, param_id, SCM_F32VECTOR_ELEMENTS(arg0));
-  }
-  else if(SCM_F64VECTORP(arg0)) {
-    if(SCM_F64VECTOR_SIZE(arg0)!=4) { goto err; }
-    ENSURE(glProgramEnvParameter4dvARB);
-    glProgramEnvParameter4dvARB(target, param_id, SCM_F64VECTOR_ELEMENTS(arg0));
-  } 
-  else {
-    if(1+Scm_Length(args)!=4) { goto err; }
-    ENSURE(glProgramEnvParameter4dARB);
-    glProgramEnvParameter4dARB(target, param_id, 
-      Scm_GetDouble(arg0),
-      Scm_GetDouble(SCM_CAR(args)),
-      Scm_GetDouble(SCM_CADR(args)),
-      Scm_GetDouble(SCM_CAR(SCM_CDDR(args))));
-  }
-  SCM_RETURN(SCM_UNDEFINED);
- err:
-  Scm_Error(\"bad arguments for gl-program-env-parameter-arb: %S\", arg0);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (gl-case (arg0 args)
+           (begin
+             (ENSURE "glProgramEnvParameter~n~vARB")
+             ("glProgramEnvParameter~n~vARB" target param_id ~X))
+           ((v4f) (f32 4) (f64 4) (args 4))
+           "bad argument for gl-program-env-parameter-arb: %S"))
 
 ; target should be GL_FRAGMENT_PROGRAM_ARB or GL_VERTEX_PROGRAM_ARB
 (define-cproc gl-program-local-parameter-arb
   (target::<int> param-id::<int> arg0 &rest args) ::<void>
-  (cond
-   [(SCM_VECTOR4FP arg0)
-    (ENSURE glProgramLocalParameter4fvARB)
-    (glProgramLocalParameter4fvARB target param_id (SCM_VECTOR4F_D arg0))]
-   [(SCM_F32VECTORP arg0)
-    (unless (== (SCM_F32VECTOR_SIZE arg0) 4)
-      (label err)
-      (Scm_Error "bad arguments for gl-program-local-parameter-arb: %S" arg0))
-    (ENSURE glProgramLocalParameter4fvARB)
-    (glProgramLocalParameter4fvARB target param_id
-                                   (SCM_F32VECTOR_ELEMENTS arg0))]
-   [(SCM_F64VECTORP arg0)
-    (unless (== (SCM_F64VECTOR_SIZE arg0) 4) (goto err))
-    (ENSURE glProgramLocalParameter4dvARB)
-    (glProgramLocalParameter4dvARB target param_id
-                                   (SCM_F64VECTOR_ELEMENTS arg0))]
-   [else
-    (unless (== (+ 1 (Scm_Length args)) 4) (goto err))
-    (ENSURE glProgramLocalParameter4dARB)
-    (glProgramLocalParameter4dARB target param_id
-                                  (Scm_GetDouble arg0)
-                                  (Scm_GetDouble (SCM_CAR args))
-                                  (Scm_GetDouble (SCM_CADR args))
-                                  (Scm_GetDouble (SCM_CAR (SCM_CDDR args))))]))
-
+  (gl-case (arg0 args)
+           (begin
+             (ENSURE "glProgramLocalParameter~n~vARB")
+             ("glProgramLocalParameter~n~vARB" target param_id ~X))
+           ((v4f) (f32 4) (f64 4) (args 4))
+           "vector4f, f32vector or f64vector of length 4 required, but got: %S"))
 ; gl-get-program-env-parameter-arb
 ; gl-get-program-local-parameter-arb
 ; gl-get-program-arb

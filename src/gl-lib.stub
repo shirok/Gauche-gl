@@ -604,16 +604,14 @@
 (define-cproc gl-interleaved-arrays (format::<fixnum> vec
                                      &optional (stride::<fixnum> 0)
                                                (offset::<fixnum> 0))
-  "  switch (format) {
-     case GL_C4UB_V2F:; case GL_C4UB_V3F:; case GL_T2F_C4UB_V3F:
-       Scm_Error(\"interleaved arrays with integer color component is not supported.\");
-  }
-  if (!SCM_F32VECTORP(vec)) {
-    Scm_Error(\"bad argument for vec: %S, must be f32vector.\", vec);
-  }
-  glInterleavedArrays(format, stride * sizeof(GLfloat),
-                      SCM_F32VECTOR_ELEMENTS(vec));
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (case format
+    [(GL_C4UB_V2F GL_C4UB_V3F GL_T2F_C4UB_V3F)
+     (Scm_Error "interleaved arrays with integer color component is not supported.")])
+  (unless (SCM_F32VECTORP vec)
+    (Scm_Error "bad argument for vec: %S, must be f32vector." vec))
+  (glInterleavedArrays format (* stride (sizeof GLfloat))
+                       (SCM_F32VECTOR_ELEMENTS vec)))
 
 ;;=============================================================
 ;; Lighting
@@ -621,135 +619,73 @@
 
 (define-cproc gl-shade-model (mode::<fixnum>) ::<void> glShadeModel)
 
-(define-cproc gl-light (light::<fixnum> pname::<fixnum> param)
-  "switch (pname) {
-   case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_POSITION:;
-     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
-       glLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(param));
-     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-       glLightiv(light, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
-     } else {
-       Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 4\", param);
-     }
-     break;
-   case GL_SPOT_DIRECTION:
-     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 3) {
-       glLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(param));
-     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 3) {
-       glLightiv(light, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
-     } else {
-       Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 3\", param);
-     }
-     break;
-   default:
-     if (SCM_REALP(param)) {
-       glLightf(light, pname, (GLfloat)Scm_GetDouble(param));
-     } else {
-       Scm_Error(\"bad parameter: %S, must be a real number.\", param);
-     }
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-light (light::<fixnum> pname::<fixnum> param) ::<void>
+  (case pname
+    [(GL_AMBIENT GL_DIFFUSE GL_SPECULAR GL_POSITION)
+     (gl-case (param) ("glLight~v" light pname ~X) ((f32 4) (s32 4))
+              "f32 or s32 vector of length 4 expected, but got %S")]
+    [(GL_SPOT_DIRECTION)
+     (gl-case (param) ("glLight~v" light pname ~X) ((f32 3) (s32 3))
+              "f32 or s32 vector of length 3 expected, but got %S")]
+    [else
+     (if (SCM_REALP param)
+       (glLightf light pname (cast GLfloat (Scm_GetDouble param)))
+       (Scm_Error "real number required, but got %S" param))]))
 
 (define-cproc gl-get-light (light::<fixnum> pname::<fixnum>)
-  "switch (pname) {
-   case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_POSITION:
-     {
-       ScmF32Vector *v = SCM_F32VECTOR(Scm_MakeF32Vector(4, 0.0));
-       glGetLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(v));
-       SCM_RETURN(SCM_OBJ(v));
-     }
-   case GL_SPOT_DIRECTION:
-     {
-       ScmF32Vector *v = SCM_F32VECTOR(Scm_MakeF32Vector(3, 0.0));
-       glGetLightfv(light, pname, SCM_F32VECTOR_ELEMENTS(v));
-       SCM_RETURN(SCM_OBJ(v));
-     }
-   default:
-     {
-       float v;
-       glGetLightfv(light, pname, &v);
-       SCM_RETURN(Scm_MakeFlonum((double)v));
-     }
-   }")
+  (case pname
+    [(GL_AMBIENT GL_DIFFUSE GL_SPECULAR GL_POSITION)
+     (let* ([v (Scm_MakeF32Vector 4 0.0)])
+       (glGetLightfv light pname (SCM_F32VECTOR_ELEMENTS v))
+       (result v))]
+    [(GL_SPOT_DIRECTION)
+     (let* ([v (Scm_MakeF32Vector 3 0.0)])
+       (glGetLightfv light pname (SCM_F32VECTOR_ELEMENTS v))
+       (result v))]
+    [else
+     (let* ([f::GLfloat])
+       (glGetLightfv light pname (& f))
+       (result (Scm_MakeFlonum (cast double f))))]))
 
-(define-cproc gl-light-model (pname::<fixnum> param)
-  "switch (pname) {
-    case GL_LIGHT_MODEL_AMBIENT:
-     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
-       glLightModelfv(pname, SCM_F32VECTOR_ELEMENTS(param));
-     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-       glLightModeliv(pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
-     } else {
-       Scm_Error(\"bad parameter for GL_LIGHT_MODEL_AMBIENT: %S, must be f32 or s32 vector of length 4\", param);
-     }
-     break;
-    case GL_LIGHT_MODEL_COLOR_CONTROL:
-     if (SCM_INTP(param)) {
-       glLightModeli(pname, SCM_INT_VALUE(param));
-     } else {
-       Scm_Error(\"bad parameter for GL_LIGHT_MODEL_COLOR_CONTROL: %S, must be an exact small integer\", param);
-     }
-     break;
-    default:
-     glLightModeli(pname, !SCM_FALSEP(param));
-     break;
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-light-model (pname::<fixnum> param) ::<void>
+  (case pname
+    [(GL_LIGHT_MODEL_AMBIENT)
+     (gl-case (param) ("glLightModel~v" pname ~X) ((f32 4) (s32 4))
+              "bad parameter for GL_LIGHT_MODEL_AMBIENT: f32 or s32 vector of length 4 is expected, but got %S")]
+    [(GL_LIGHT_MODEL_COLOR_CONTROL)
+     (if (SCM_INTP param)
+       (glLightModeli pname (SCM_INT_VALUE param))
+       (Scm_Error "bad parameter for GL_LIGHT_MODEL_COLOR_CONTROL: an exact small integer is expected, but got %S" param))]
+    [else (glLightModeli pname (not (SCM_FALSEP param)))]))
 
-(define-cproc gl-material (face::<fixnum> pname::<fixnum> param)
-  "switch (pname) {
-   case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_EMISSION:;
-   case GL_AMBIENT_AND_DIFFUSE:;
-     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
-       glMaterialfv(face, pname, SCM_F32VECTOR_ELEMENTS(param));
-     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-       glMaterialiv(face, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
-     } else {
-       Scm_Error(\"bad parameter: %S, must be f32 or s32 vector of length 4\", param);
-     }
-     break;
-   case GL_COLOR_INDEXES:
-     if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 3) {
-       glMaterialfv(face, pname, SCM_F32VECTOR_ELEMENTS(param));
-     } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 3) {
-       glMaterialiv(face, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
-     } else {
-       Scm_Error(\"bad parameter: %S, must be f32 or s32vector of length 3\", param);
-     }
-     break;
-   default:
-     if (SCM_REALP(param)) {
-       glMaterialf(face, pname, (GLfloat)Scm_GetDouble(param));
-     } else {
-       Scm_Error(\"bad parameter: %S, must be a real number.\", param);
-     }
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-material (face::<fixnum> pname::<fixnum> param) ::<void>
+  (case pname
+    [(GL_AMBIENT GL_DIFFUSE GL_SPECULAR GL_EMISSION GL_AMBIENT_AND_DIFFUSE)
+     (gl-case (param) ("glMaterial~v" face pname ~X) ((f32 4) (s32 4))
+              "f32 or s32 vector of length 4 expected, but got %S")]
+    [(GL_COLOR_INDEXES)
+     (gl-case (param) ("glMaterial~v" face pname ~X) ((f32 3) (s32 3))
+              "f32 or s32 vector of length 3 expected, but got %S")]
+    [else
+     (if (SCM_REALP param)
+       (glMaterialf face pname (cast GLfloat (Scm_GetDouble param)))
+       (Scm_Error "real number expected, but got %S" param))]))
 
 (define-cproc gl-get-material (face::<fixnum> pname::<fixnum>)
-  "switch (pname) {
-   case GL_AMBIENT:; case GL_DIFFUSE:; case GL_SPECULAR:; case GL_EMISSION:;
-     {
-       ScmF32Vector *v = SCM_F32VECTOR(Scm_MakeF32Vector(4, 0.0));
-       glGetMaterialfv(face, pname, SCM_F32VECTOR_ELEMENTS(v));
-       SCM_RETURN(SCM_OBJ(v));
-     }
-   case GL_COLOR_INDEXES:
-     {
-       ScmS32Vector *v = SCM_S32VECTOR(Scm_MakeS32Vector(3, 0.0));
-       glGetMaterialiv(face, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(v));
-       SCM_RETURN(SCM_OBJ(v));
-     }
-   case GL_SHININESS:
-     {
-       float v;
-       glGetMaterialfv(face, pname, &v);
-       SCM_RETURN(Scm_MakeFlonum((double)v));
-     }
-   default:
-     Scm_Error(\"bad pname: %d\", pname);
-     SCM_RETURN(SCM_UNDEFINED);
-   }")
+  (case pname
+    [(GL_AMBIENT GL_DIFFUSE GL_SPECULAR GL_EMISSION)
+     (let* ([v (Scm_MakeF32Vector 4 0.0)])
+       (glGetMaterialfv face pname (SCM_F32VECTOR_ELEMENTS v))
+       (result v))]
+    [(GL_COLOR_INDEXES)
+     (let* ([v (Scm_MakeS32Vector 4 0.0)])
+       (glGetMaterialiv face pname (SCM_S32VECTOR_ELEMENTS v))
+       (result v))]
+    [(GL_SHININESS)
+     (let* ([v::GLfloat])
+       (glGetMaterialfv face pname (& v))
+       (result (Scm_MakeFlonum (cast double v))))]
+    [else (Scm_Error "bad pname: %d" pname)]))
 
 (define-cproc gl-color-material (face::<fixnum> mode::<fixnum>)
   ::<void> glColorMaterial)
@@ -761,103 +697,75 @@
 (define-cproc gl-pixel-zoom (xfactor::<real> yfactor::<real>)
   ::<void> glPixelZoom)
 
-(define-cproc gl-pixel-store (pname::<fixnum> param)
-  "if (SCM_EXACTP(param)) {
-     glPixelStorei(pname, Scm_GetInteger(param));
-   } else if (SCM_FLONUMP(param)) {
-     glPixelStoref(pname, (float)SCM_FLONUM_VALUE(param));
-   } else {
-     Scm_Error(\"real number required for param, but got %S\", param);
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-pixel-store (pname::<fixnum> param) ::<void>
+  (cond [(SCM_INTP param) (glPixelStorei pname (Scm_GetInteger param))]
+        [(SCM_REALP param)
+         (glPixelStoref pname (cast GLfloat (Scm_GetDouble param)))]
+        [else (Scm_Error "real number required for param, but got %S" param)]))
 
-(define-cproc gl-pixel-transfer (pname::<fixnum> param)
-  "if (SCM_BOOLP(param)) {
-     glPixelTransferi(pname, SCM_BOOL_VALUE(param));
-   } else if (SCM_EXACTP(param)) {
-     glPixelTransferi(pname, Scm_GetInteger(param));
-   } else if (SCM_FLONUMP(param)) {
-     glPixelTransferf(pname, (GLfloat)SCM_FLONUM_VALUE(param));
-   } else {
-     Scm_Error(\"real number or boolean required for param, but got %S\", param);
-   }
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-pixel-transfer (pname::<fixnum> param) ::<void>
+  (cond [(SCM_BOOLP param) (glPixelTransferi pname (SCM_BOOL_VALUE param))]
+        [(SCM_INTP param) (glPixelTransferi pname (Scm_GetInteger param))]
+        [(SCM_REALP param)
+         (glPixelTransferf pname (cast GLfloat (Scm_GetDouble param)))]
+        [else (Scm_Error "real number or boolean required for param, but got %S" param)]))
 
-(define-cproc gl-pixel-map (map::<fixnum> values)
-  "if (SCM_U32VECTORP(values)) {
-    glPixelMapuiv(map, SCM_U32VECTOR_SIZE(values),
-                  (GLuint*)SCM_U32VECTOR_ELEMENTS(values));
-  } else if (SCM_U16VECTORP(values)) {
-    glPixelMapusv(map, SCM_U16VECTOR_SIZE(values),
-                  SCM_U16VECTOR_ELEMENTS(values));
-  } else if (SCM_F32VECTORP(values)) {
-    glPixelMapfv(map, SCM_F32VECTOR_SIZE(values),
-                 SCM_F32VECTOR_ELEMENTS(values));
-  } else {
-     Scm_Error(\"map value vector must be u16, u32 or f32 vector, but got %S\",
-               values);
-  }
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-pixel-map (map::<fixnum> values) ::<void>
+  (gl-case (values) ("glPixelMap~v" map (SCM_UVECTOR_SIZE values) ~X)
+           ((u32) (u16) (f32))
+           "map value vector must be u16, u32 or f32 vector, but got %S"))
 
 ;; values must have enough size
 (define-cproc gl-get-pixel-map! (map::<fixnum> values)
-  "if (SCM_U32VECTORP(values)) {
-    glGetPixelMapuiv(map, (GLuint*)SCM_U32VECTOR_ELEMENTS(values));
-  } else if (SCM_U16VECTORP(values)) {
-    glGetPixelMapusv(map, SCM_U16VECTOR_ELEMENTS(values));
-  } else if (SCM_F32VECTORP(values)) {
-    glGetPixelMapfv(map, SCM_F32VECTOR_ELEMENTS(values));
-  } else {
-     Scm_Error(\"map value vector must be u16, u32 or f32 vector, but got %S\",
-               values);
-  }
-  SCM_RETURN(values);")
+  (gl-case (values) ("glGetPixelMap~v" map ~X) ((u32) (u16) (f32))
+           "map value vector must be u16, u32 or f32 vector, but got %S")
+  (result values))
 
 ;; allocate the vector in it.  type can be a class 
 ;; <u32vector> (default), <u16vector> or <f32vector>
 (define-cproc gl-get-pixel-map (map::<fixnum> &optional type)
-  " int size; ScmObj vec = SCM_UNDEFINED;
-  glGetIntegerv(map, &size);
-  CHECK_ERROR(\"couldn't get pixel map size\");
-  SCM_ASSERT(size >= 0);
-  if (SCM_UNBOUNDP(type) || type == SCM_OBJ(SCM_CLASS_U32VECTOR)) {
-    vec = Scm_MakeU32Vector(size, 0);
-    glGetPixelMapuiv(map, (GLuint*)SCM_U32VECTOR_ELEMENTS(vec));
-  } else if (type == SCM_OBJ(SCM_CLASS_U16VECTOR)) {
-    vec = Scm_MakeU16Vector(size, 0);
-    glGetPixelMapusv(map, SCM_U16VECTOR_ELEMENTS(vec));
-  } else if (type == SCM_OBJ(SCM_CLASS_F32VECTOR)) {
-    vec = Scm_MakeF32Vector(size, 0);
-    glGetPixelMapfv(map, SCM_F32VECTOR_ELEMENTS(vec));
-  } else {
-     Scm_Error(\"pixel map vector class must be either <u32vector>, <u16vector> or <f32vector>, but got %S\", type);
-  }
-  SCM_RETURN(vec);")
+  (let* ([size::int])
+    (glGetIntegerv map (& size))
+    (CHECK_ERROR "couldn't get pixel map size")
+    (SCM_ASSERT (>= size 0))
+    (cond
+     [(or (SCM_UNBOUNDP type) (== type (SCM_OBJ SCM_CLASS_U32VECTOR)))
+      (let* ([vec (Scm_MakeU32Vector size 0)])
+        (glGetPixelMapuiv map (cast GLuint* (SCM_U32VECTOR_ELEMENTS vec)))
+        (result vec))]
+     [(== type (SCM_OBJ SCM_CLASS_U16VECTOR))
+      (let* ([vec (Scm_MakeU16Vector size 0)])
+        (glGetPixelMapusv map (cast GLushort* (SCM_U16VECTOR_ELEMENTS vec)))
+        (result vec))]
+     [(== type (SCM_OBJ SCM_CLASS_F32VECTOR))
+      (let* ([vec (Scm_MakeF32Vector size 0)])
+        (glGetPixelMapfv map (cast GLfloat* (SCM_F32VECTOR_ELEMENTS vec)))
+        (result vec))]
+     [else
+      (Scm_Error "pixel map vector class must be either <u32vector>, <u16vector> or <f32vector>, but got %S" type)])))
 
 (define-cproc gl-bitmap (width::<int> height::<int>
                          xbo::<float> ybo::<float>
                          xbi::<float> ybi::<float> bitmap)
-  "if (!SCM_U8VECTORP(bitmap)) {
-    Scm_Error(\"bitmap must be an u8vector, but got %S\", bitmap);
-  }
-  if (SCM_U8VECTOR_SIZE(bitmap) != ((width+7)/8)*height) {
-    Scm_Error(\"size (width=%d, height=%d) doesn't match bitmap vector %S\",
-              width, height, bitmap);
-  }
-  glBitmap(width, height, xbo, ybo, xbi, ybi, SCM_U8VECTOR_ELEMENTS(bitmap));
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (unless (SCM_U8VECTORP bitmap)
+    (Scm_Error "bitmap must be an u8vector, but got %S" bitmap))
+  (unless (== (SCM_U8VECTOR_SIZE bitmap) (* height (/ (+ width 7) 8)))
+    (Scm_Error "size (width=%d, height=%d) doesn't match bitmap vector %S"
+               width height bitmap))
+  (glBitmap width height xbo ybo xbi ybi (SCM_U8VECTOR_ELEMENTS bitmap)))
 
 (define-cproc gl-read-pixels (x::<fixnum> y::<fixnum>
                               width::<fixnum> height::<fixnum>
                               format::<fixnum> type::<fixnum>)
-  "  int elttype, size, packed; ScmObj vec = SCM_UNDEFINED;
-  size = Scm_GLPixelDataSize(width, height, format, type, &elttype, &packed);
-  vec = Scm_GLAllocUVector(elttype, size);
-  if (!SCM_UVECTORP(vec)) {
-    Scm_Error(\"invalid format or type (%S, %S)\", format, type);
-  }
-  glReadPixels(x, y, width, height, format, type, SCM_UVECTOR_ELEMENTS(vec));
-  SCM_RETURN(vec);")
+  (let* ([elttype::int] [packed::int]
+         [size::int (Scm_GLPixelDataSize width height format type
+                                         (& elttype) (& packed))]
+         [vec (Scm_GLAllocUVector elttype size)])
+    (unless (SCM_UVECTORP vec)
+      (Scm_Error "invalid format or type (%S, %S)" format type))
+    (glReadPixels x y width height format type (SCM_UVECTOR_ELEMENTS vec))
+    (result vec)))
 
 ; gl-read-pixels!
 
@@ -891,93 +799,65 @@
 ;; Texture mapping
 ;;
 
-(define-cproc gl-tex-gen (coord::<fixnum> pname::<fixnum> param)
-  "switch (pname) {
-    case GL_TEXTURE_GEN_MODE:
-      if (!SCM_INTP(param)) {
-        Scm_Error(\"integer parameter required for GL_TEXTURE_GEN_MODE, but got %S\", param);
-      }
-      glTexGeni(coord, pname, SCM_INT_VALUE(param));
-      break;
-    case GL_OBJECT_PLANE:;
-    case GL_EYE_PLANE:;
-      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
-        glTexGenfv(coord, pname, SCM_F32VECTOR_ELEMENTS(param));
-      } else if (SCM_F64VECTORP(param) && SCM_F64VECTOR_SIZE(param) == 4) {
-        glTexGendv(coord, pname, SCM_F64VECTOR_ELEMENTS(param));
-      } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-        glTexGeniv(coord, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
-      } else {
-        Scm_Error(\"s32, f32 or f64 vector of size 4 is required for parameter, but got %S\", param);
-      }
-      break;
-     default:
-      Scm_Error(\"unknown or unsupported glTexGen pname: %d\", pname);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-tex-gen (coord::<fixnum> pname::<fixnum> param) ::<void>
+  (case pname
+    [(GL_TEXTURE_GEN_MODE)
+     (unless (SCM_INTP param)
+       (Scm_Error "integer parameter required for GL_TEXTURE_GEN_MODE, but got %S" param))
+     (glTexGeni coord pname (SCM_INT_VALUE param))]
+    [(GL_OBJECT_PLANE GL_EYE_PLANE)
+     (gl-case (param) ("glTexGen~v" coord pname ~X)
+              ((f32 4) (f64 4) (s32 4))
+              "s32, f32 or f64 vector of size 4 is required for parameter, but got %S")]
+    [else (Scm_Error "unknown or unsupported glTexGen pname: %d" pname)]))
 
-(define-cproc gl-tex-env (target::<fixnum> pname::<fixnum> param)
-  "switch (pname) {
-    case GL_TEXTURE_ENV_MODE:
-      if (SCM_INTP(param)) {
-        glTexEnvi(target, pname, SCM_INT_VALUE(param));
-      } else {
-        Scm_Error(\"integer parameter required for GL_TEXTURE_ENV_MODE, but got %S\", param);
-      }
-      break;
-    case GL_TEXTURE_ENV_COLOR:
-      if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
-        glTexEnvfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
-      } else {
-        Scm_Error(\"f32 vector of size 4 is required for GL_TEXTURE_ENV_COLOR parameter, but got %S\", param);
-      }
-      break;
-    default:
-      Scm_Error(\"unknown or unsupported glTexEnv pname: %d\", pname);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc gl-tex-env (target::<fixnum> pname::<fixnum> param) ::<void>
+  (case pname
+    [(GL_TEXTURE_ENV_MODE)
+     (if (SCM_INTP param)
+       (glTexEnvi target pname (SCM_INT_VALUE param))
+       (Scm_Error "integer parameter required for GL_TEXTURE_ENV_MODE, but got %S" param))]
+    [(GL_TEXTURE_ENV_COLOR)
+     (gl-case (param) ("glTexEnv~v" target pname ~X) ((f32 4))
+              "f32 vector of size 4 is required for GL_TEXTURE_ENV_COLOR parameter, but got %S")]
+    [else (Scm_Error "unknown or unsupported glTexEnv pname: %d" pname)]))
 
-(define-cproc gl-tex-parameter (target::<fixnum> pname::<fixnum> param)
-  "switch (pname) {
-     case GL_TEXTURE_WRAP_S:;
-     case GL_TEXTURE_WRAP_T:;
-#if !defined(__CYGWIN__)
-     case GL_TEXTURE_WRAP_R:;
-     case GL_TEXTURE_BASE_LEVEL:;
-     case GL_TEXTURE_MAX_LEVEL:;
-#endif /*!defined(__CYGWIN__)*/
-     case GL_TEXTURE_MAG_FILTER:;
-     case GL_TEXTURE_MIN_FILTER:;
-       if (SCM_INTP(param)) {
-         glTexParameteri(target, pname, Scm_GetInteger(param));
-       } else {
-         Scm_Error(\"integer parameter required, but got %S\", param);
-       }
-       break;
-     case GL_TEXTURE_PRIORITY:;
-#if !defined(__CYGWIN__)
-     case GL_TEXTURE_MIN_LOD:;
-     case GL_TEXTURE_MAX_LOD:;
-#endif /*!defined(__CYGWIN__)*/
-       if (SCM_REALP(param)) {
-         glTexParameterf(target, pname, (GLfloat)Scm_GetDouble(param));
-       } else {
-         Scm_Error(\"real parameter required, but got %S\", param);
-       }
-       break;
-     case GL_TEXTURE_BORDER_COLOR:
-       if (SCM_F32VECTORP(param) && SCM_F32VECTOR_SIZE(param) == 4) {
-         glTexParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(param));
-       } else if (SCM_S32VECTORP(param) && SCM_S32VECTOR_SIZE(param) == 4) {
-         glTexParameteriv(target, pname, (GLint*)SCM_S32VECTOR_ELEMENTS(param));
-       } else {
-         Scm_Error(\"f32 or s32 vector parameter of size 4 required, but got %S\", param);
-       }
-       break;
-     default:
-       Scm_Error(\"unknown or unsupported glTexParameter pname: %d\", pname);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+;; Trick: CYGWIN GL missing some parameters.  We define dummy here---even
+;; with correct values, they'll fail at runtime anyway.
+"#ifndef GL_TEXTURE_WRAP_R
+#define GL_TEXTURE_WRAP_R 0
+#endif
+#ifndef GL_TEXTURE_WRAP_BASE_LEVEL
+#define GL_TEXTURE_WRAP_BASE_LEVEL 0
+#endif
+#ifndef GL_TEXTURE_WRAP_MAX_LEVEL
+#define GL_TEXTURE_WRAP_MAX_LEVEL 0
+#endif
+#ifndef GL_TEXTURE_MIN_LOD
+#define GL_TEXTURE_MIN_LOD 0
+#endif
+#ifndef GL_TEXTURE_MAX_LOD
+#define GL_TEXTURE_MAX_LOD 0
+#endif
+"
+
+(define-cproc gl-tex-parameter (target::<fixnum> pname::<fixnum> param)::<void>
+  (case pname
+    [(GL_TEXTURE_WRAP_S GL_TEXTURE_WRAP_T GL_TEXTURE_WRAP_R
+      GL_TEXTURE_BASE_LEVEL GL_TEXTURE_MAX_LEVEL
+      GL_TEXTURE_MAG_FILTER GL_TEXTURE_MIN_FILTER)
+     (if (SCM_INTP param)
+       (glTexParameteri target pname (Scm_GetInteger param))
+       (Scm_Error "integer parameter required, but got %S" param))]
+    [(GL_TEXTURE_PRIORITY GL_TEXTURE_MIN_LOD GL_TEXTURE_MAX_LOD)
+     (if (SCM_REALP param)
+       (glTexParameterf target pname (cast GLfloat (Scm_GetDouble param)))
+       (Scm_Error "real parameter required, but got %S" param))]
+    [(GL_TEXTURE_BORDER_COLOR)
+     (gl-case (param) ("glTexParameter~v" target pname ~X) ((f32 4) (s32 4))
+              "f32 or s32 vector parameter of size 4 required, but got %S")]
+    [else
+     (Scm_Error "unknown or unsupported glTexParameter pname: %d" pname)]))
 
 (define-cproc gl-get-tex-parameter (target::<fixnum> pname::<fixnum>)
   " ScmObj vec; GLint i; GLfloat f;

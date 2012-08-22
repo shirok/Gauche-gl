@@ -60,7 +60,8 @@
 ;; (gl-case <dispatch-variables>
 ;;          <call-pattern>
 ;;          <dispatches>
-;;          <error-format-string>)
+;;          <error-format-string>
+;;          [<fallback-case>])
 ;;
 ;; <dispatch-variables> : (<variable>)
 ;;                      | (<variable> <restvar>)
@@ -113,9 +114,13 @@
 ;; <count> : Specifies the # of elements in the <variable>.  m4f, p4f,
 ;;           v4f and qf have fixed size, but you can specify <count>
 ;;           if you want to give a different value to ~n.
+;;
+;; <fallback-case> : This code fragment is executed if the argument
+;;           doesn't match any <type-tag>s, and no 'args' type tag
+;;           is specified.
 
 (define-cise-stmt gl-case
-  [(_ (var ...) template dispatches error-fmt)
+  [(_ (var ...) template dispatches error-fmt . maybe-fallback)
    (define (type-pred tag)
      (string->symbol
       (ecase tag
@@ -215,10 +220,11 @@
                (else ,(gen-error (car var))))]])]))
    `(cond
      ,@(map (^d (gen-dispatch-tag (car d) (cdr d))) dispatches)
-     ,@(if (assq 'args dispatches)
-         '()
-         `((else ,(gen-error (car var))))))])
-
+     ,@(cond [(assq 'args dispatches) '()]
+             [(null? maybe-fallback)
+              `((else ,(gen-error (car var))))]
+             [else
+              `((else ,(car maybe-fallback)))]))])
        
 
 

@@ -459,37 +459,40 @@
            "bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 2, 3, or 4."))
 
 (define-cproc gl-rect (v1 v2 &rest args)
-  "if (SCM_POINT4FP(v1)) {
-     if (!SCM_POINT4FP(v2)) goto badarg2;
-     glRectfv(SCM_POINT4F_D(v1), SCM_POINT4F_D(v2));
-  } else if (SCM_F32VECTORP(v1)) {
-     if (SCM_F32VECTOR_SIZE(v1) != 2) goto badarg1;
-     if (!SCM_F32VECTORP(v2) || SCM_F32VECTOR_SIZE(v2) != 2) goto badarg2;
-     glRectfv(SCM_F32VECTOR_ELEMENTS(v1), SCM_F32VECTOR_ELEMENTS(v2));
-  } else if (SCM_F64VECTORP(v1)) {
-     if (SCM_F64VECTOR_SIZE(v1) != 2) goto badarg1;
-     if (!SCM_F64VECTORP(v2) || SCM_F64VECTOR_SIZE(v2) != 2) goto badarg2;
-     glRectdv(SCM_F64VECTOR_ELEMENTS(v1), SCM_F64VECTOR_ELEMENTS(v2));
-  } else if (SCM_S32VECTORP(v1)) {
-     if (SCM_S32VECTOR_SIZE(v1) != 2) goto badarg1;
-     if (!SCM_S32VECTORP(v2) || SCM_S32VECTOR_SIZE(v2) != 2) goto badarg2;
-     glRectiv((GLint*)SCM_S32VECTOR_ELEMENTS(v1), (GLint*)SCM_S32VECTOR_ELEMENTS(v2));
-  } else if (SCM_S16VECTORP(v1)) {
-     if (SCM_S16VECTOR_SIZE(v1) != 2) goto badarg1;
-     if (!SCM_S16VECTORP(v2) || SCM_S16VECTOR_SIZE(v2) != 2) goto badarg2;
-     glRectsv(SCM_S16VECTOR_ELEMENTS(v1), SCM_S16VECTOR_ELEMENTS(v2));
-  } else {
-     double val[4];
-     Scm_GLGetDoubles(v1, Scm_Cons(v2, args), val, 4, 4);
-     glRectd(val[0], val[1], val[2], val[3]);
-  }
-  SCM_RETURN(SCM_UNDEFINED);
- badarg1:
-  Scm_Error(\"bad argument for v1: %S, must be one of f32, f64, s32 or s16 vector of length 2\", v1);
-  SCM_RETURN(SCM_UNDEFINED);
- badarg2:
-  Scm_Error(\"bad argument for v2: %S, must be one of f32, f64, s32 or s16 vector of length 2\", v2);
-  SCM_RETURN(SCM_UNDEFINED);")
+  (cond
+   [(SCM_POINT4FP v1)
+    (unless (SCM_POINT4FP v2) (goto badarg2))
+    (glRectfv (SCM_POINT4F_D v1) (SCM_POINT4F_D v2))]
+   [(SCM_F32VECTORP v1)
+    (unless (== (SCM_F32VECTOR_SIZE v1) 2) (goto badarg1))
+    (unless (and (SCM_F32VECTORP v2) (== (SCM_F32VECTOR_SIZE v2) 2))
+      (goto badarg2))
+    (glRectfv (SCM_F32VECTOR_ELEMENTS v1) (SCM_F32VECTOR_ELEMENTS v2))]
+   [(SCM_F64VECTOR_SIZE v1)
+    (unless (== (SCM_F64VECTOR_SIZE v1) 2) (goto badarg1))
+    (unless (and (SCM_F64VECTORP v2) (== (SCM_F64VECTOR_SIZE v2) 2))
+      (goto badarg2))
+    (glRectdv (SCM_F64VECTOR_ELEMENTS v1) (SCM_F64VECTOR_ELEMENTS v2))]
+   [(SCM_S32VECTOR_SIZE v1)
+    (unless (== (SCM_S32VECTOR_SIZE v1) 2) (goto badarg1))
+    (unless (and (SCM_S32VECTORP v2) (== (SCM_S32VECTOR_SIZE v2) 2))
+      (goto badarg2))
+    (glRectiv (SCM_S32VECTOR_ELEMENTS v1) (SCM_S32VECTOR_ELEMENTS v2))]
+   [(SCM_S16VECTOR_SIZE v1)
+    (unless (== (SCM_S16VECTOR_SIZE v1) 2) (goto badarg1))
+    (unless (and (SCM_S16VECTORP v2) (== (SCM_S16VECTOR_SIZE v2) 2))
+      (goto badarg2))
+    (glRectsv (SCM_S16VECTOR_ELEMENTS v1) (SCM_S16VECTOR_ELEMENTS v2))]
+   [else
+    (let* ([val::(.array double (4))])
+      (Scm_GLGetDoubles v1 (Scm_Cons v2 args) val 4 4)
+      (glRectd (aref val 0) (aref val 1) (aref val 2) (aref val 3)))])
+  (when 0
+    (label badarg1)
+    (Scm_Error "bad argument for v1: %S, must be one of f32, f64, s32 or s16 vector of length 2" v1))
+  (when 0
+    (label badarg2)
+    (Scm_Error "bad argument for v2: %S, must be one of f32, f64, s32 or s16 vector of length 2" v2)))
 
 ;;=============================================================
 ;; Vertex Arrays
@@ -860,52 +863,36 @@
      (Scm_Error "unknown or unsupported glTexParameter pname: %d" pname)]))
 
 (define-cproc gl-get-tex-parameter (target::<fixnum> pname::<fixnum>)
-  " ScmObj vec; GLint i; GLfloat f;
-  switch (pname) {
-     case GL_TEXTURE_WRAP_S:;
-     case GL_TEXTURE_WRAP_T:;
-     case GL_TEXTURE_WRAP_R:;
-     case GL_TEXTURE_BASE_LEVEL:;
-     case GL_TEXTURE_MAX_LEVEL:;
-     case GL_TEXTURE_MAG_FILTER:;
-     case GL_TEXTURE_MIN_FILTER:;
-       glGetTexParameteriv(target, pname, &i);
-       SCM_RETURN(Scm_MakeInteger(i));
-     case GL_TEXTURE_PRIORITY:;
-     case GL_TEXTURE_MIN_LOD:;
-     case GL_TEXTURE_MAX_LOD:;
-       glGetTexParameterfv(target, pname, &f);
-       SCM_RETURN(Scm_MakeFlonum((double)f));
-     case GL_TEXTURE_BORDER_COLOR:
-       vec = Scm_MakeF32Vector(4, 0.0);
-       glGetTexParameterfv(target, pname, SCM_F32VECTOR_ELEMENTS(vec));
-       SCM_RETURN(vec);
-     default:
-       Scm_Error(\"unknown or unsupported glTexParameter pname: %d\", pname);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  (case pname
+    [(GL_TEXTURE_WRAP_S GL_TEXTURE_WRAP_T GL_TEXTURE_WRAP_R
+      GL_TEXTURE_BASE_LEVEL GL_TEXTURE_MAX_LEVEL
+      GL_TEXTURE_MAG_FILTER GL_TEXTURE_MIN_FILTER)
+     (let* ([i::GLint])
+       (glGetTexParameteriv target pname (& i))
+       (result (Scm_MakeInteger i)))]
+    [(GL_TEXTURE_PRIORITY GL_TEXTURE_MIN_LOD GL_TEXTURE_MAX_LOD)
+     (let* ([f::GLfloat])
+       (glGetTexParameterfv target pname (& f))
+       (result (Scm_MakeFlonum (cast double f))))]
+    [(GL_TEXTURE_BORDER_COLOR)
+     (let* ([vec (Scm_MakeF32Vector 4 0.0)])
+       (glGetTexParameterfv target pname (SCM_F32VECTOR_ELEMENTS vec))
+       (result vec))]
+    [else
+     (Scm_Error "unknown or unsupported glTexParameter pname: %d" pname)]))
 
 (define-cproc gl-get-tex-level-parameter (target::<fixnum> level::<fixnum>
                                           pname::<fixnum>)
-  "GLint i;
-   switch (pname) {
-     case GL_TEXTURE_WIDTH:;
-     case GL_TEXTURE_HEIGHT:;
-     case GL_TEXTURE_DEPTH:;
-     case GL_TEXTURE_BORDER:;
-     case GL_TEXTURE_INTERNAL_FORMAT:;
-     case GL_TEXTURE_RED_SIZE:;
-     case GL_TEXTURE_GREEN_SIZE:;
-     case GL_TEXTURE_BLUE_SIZE:;
-     case GL_TEXTURE_ALPHA_SIZE:;
-     case GL_TEXTURE_LUMINANCE_SIZE:;
-     case GL_TEXTURE_INTENSITY_SIZE:;
-       glGetTexLevelParameteriv(target, level, pname, &i);
-       SCM_RETURN(Scm_MakeInteger(i));
-     default:
-       Scm_Error(\"unknown or unsupported glTexLevelParameter pname: %d\", pname);
-       SCM_RETURN(SCM_UNDEFINED);
-   }")
+  (case pname
+    [(GL_TEXTURE_WIDTH GL_TEXTURE_HEIGHT GL_TEXTURE_DEPTH
+      GL_TEXTURE_BORDER GL_TEXTURE_INTERNAL_FORMAT
+      GL_TEXTURE_RED_SIZE GL_TEXTURE_GREEN_SIZE GL_TEXTURE_BLUE_SIZE
+      GL_TEXTURE_ALPHA_SIZE GL_TEXTURE_LUMINANCE_SIZE GL_TEXTURE_INTENSITY_SIZE)
+     (let* ([i::GLint])
+       (glGetTexLevelParameteriv target level pname (& i))
+       (result (Scm_MakeInteger i)))]
+    [else
+     (Scm_Error "unknown or unsupported glTexLevelParameter pname: %d" pname)]))
 
 ;; Caller must ensure vector has enough length, since we need to get
 ;; pixel store parameters to check that, which is expensive.
@@ -915,17 +902,13 @@
                                internalformat::<fixnum>
                                width::<fixnum> border::<fixnum>
                                format::<fixnum> type::<fixnum> texels)
-  "int elttype, size; void *texelptr;
-  size = Scm_GLPixelDataSize(width, 1, format, type, &elttype, NULL);
-  if (SCM_FALSEP(texels)) {
-    texelptr = NULL;
-  } else {
-    texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-    glTexImage1D(target, level, internalformat, width, border, format, type,
-                 texelptr);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
-
+  ::<void>
+  (let* ([elttype::int]
+         [size::int (Scm_GLPixelDataSize width 1 format type (& elttype) NULL)]
+         [data::void* NULL])
+    (unless (SCM_FALSEP texels)
+      (set! data (Scm_GLPixelDataCheck texels elttype size)))
+    (glTexImage1D target level internalformat width border format type data)))
 
 ;; Caller must ensure vector has enough length, since we need to get
 ;; pixel store parameters to check that, which is expensive.
@@ -936,15 +919,15 @@
                                width::<fixnum> height::<fixnum>
                                border::<fixnum> format::<fixnum>
                                type::<fixnum> texels)
-  "int elttype, size; void *texelptr;
-  size = Scm_GLPixelDataSize(width, height, format, type, &elttype, NULL);
-  if (SCM_FALSEP(texels)) {
-    texelptr = NULL;
-  } else {
-    texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-    glTexImage2D(target, level, internalformat, width, height, border, format, type, texelptr);
-  }
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([elttype::int]
+         [size::int (Scm_GLPixelDataSize width height format type
+                                         (& elttype) NULL)]
+         [data::void* NULL])
+    (unless (SCM_FALSEP texels)
+      (set! data (Scm_GLPixelDataCheck texels elttype size)))
+    (glTexImage2D target level internalformat width height border format
+                  type data)))
 
 ; gl-get-tex-image
 

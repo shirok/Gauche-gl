@@ -15,13 +15,13 @@
 ;;;  $Id: glext-lib.stub,v 1.20 2008-06-05 09:38:51 shirok Exp $
 ;;;
 
-(include "glcase.scm")
-
 "
 #include \"gauche-gl.h\"
 #include \"gl-syms.h\"
 #include \"gl-ptrs.h\"
 "
+
+(include "glcase.scm")
 
 "#define CHECK_ERROR(msg__)                            \\
   do {                                                 \\
@@ -135,16 +135,10 @@
 (define-cproc gl-color-table-parameter (target::<fixnum> pname::<fixnum>
                                         param)
   ::<void>
-  (gl-case (param)
-           (begin
-             (unless (== (SCM_UVECTOR_SIZE param) 4) (goto err))
-             (ENSURE "glColorTableParameter~v")
-             ("glColorTableParameter~v" target pname ~X))
-           ((f32) (s32))
-           "f32 or s32 vector of size 4 required, but got %S")
-  (when 0
-    (label err)
-    (Scm_Error "vector size must be 4, but got %S" param)))
+  (gl-case (param) (begin (ENSURE "glColorTableParameter~v")
+                          ("glColorTableParameter~v" target pname ~X))
+           ((f32 4) (s32 4))
+           "f32 or s32 vector of size 4 required, but got %S"))
 
 (define-cproc gl-copy-color-sub-table (target::<fixnum> start::<fixnum>
                                        x::<int> y::<int> width::<int>)

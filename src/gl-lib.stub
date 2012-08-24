@@ -15,12 +15,12 @@
 ;;;  $Id: gl-lib.stub,v 1.47 2008-06-04 11:50:43 shirok Exp $
 ;;;
 
-(include "glcase.scm")
-
 "
 #include \"gauche-gl.h\"
 #include \"gl-syms.h\"
 "
+
+(include "glcase.scm")
 
 ;; The functions are ordered in the same way as Mesa's header file.
 
@@ -32,15 +32,6 @@
     }                                                  \\
   } while (0)
 "
-
-(define-cise-stmt assert-vector-type&size
-  [(_ type size var)
-   (let* ([TYPE (string-upcase (x->string type))]
-          [pred (string->symbol #`"SCM_,|TYPE|P")]
-          [getsize (string->symbol #`"SCM_,|TYPE|_SIZE")]
-          [msg #`",type of size ,size required,, but got %S"])
-     `(when (or (not (,pred ,var)) (!= (,getsize ,var) ,size))
-        (Scm_Error ,msg ,var)))])
 
 ;; NB: this should be taken care of by genstub.
 (define-type <uvector> "ScmUVector*" "uniform vector"
@@ -122,7 +113,7 @@
   ::<void> glPolygonOffset)
 
 (define-cproc gl-polygon-stipple (mask) ::<void>
-  (assert-vector-type&size u8vector 128 mask)
+  (assert-vector-type&size u8 128 mask)
   (glPolygonStipple (SCM_U8VECTOR_ELEMENTS mask)))
 
 (define-cproc gl-edge-flag (flag) ::<void>
@@ -134,7 +125,7 @@
   ::<void> glScissor)
 
 (define-cproc gl-clip-plane (plane::<fixnum> equation) ::<void>
-  (assert-vector-type&size f64vector 4 equation)
+  (assert-vector-type&size f64 4 equation)
   (glClipPlane plane (SCM_F64VECTOR_ELEMENTS equation)))
 
 (define-cproc gl-get-clip-plane (plane::<fixnum>)
@@ -1043,7 +1034,7 @@
        (glFogf pname (cast GLfloat (Scm_GetDouble param)))
        (Scm_Error "real number parameter required, but got %S" param))]
     [(GL_FOG_COLOR)
-     (assert-vector-type&size f32vector 4 param)
+     (assert-vector-type&size f32 4 param)
      (glFogfv pname (SCM_F32VECTOR_ELEMENTS param))]
     [else (Scm_Error "unknown or unsupported glFog pname: %d" pname)]))
 

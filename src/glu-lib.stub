@@ -1,7 +1,7 @@
 ;;;
 ;;; glu-lib.stub - glue functions for GLU
 ;;;
-;;;  Copyright (c) 2001-2008  Shiro Kawai  <shiro@acm.org>
+;;;  Copyright (c) 2001-2012  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Permission to use, copy, modify, distribute this software and
 ;;;  accompanying documentation for any purpose is hereby granted,
@@ -12,8 +12,7 @@
 ;;;  warranty.  In no circumstances the author(s) shall be liable
 ;;;  for any damages arising out of the use of this software.
 ;;;
-;;;  $Id: glu-lib.stub,v 1.14 2008-06-04 11:51:00 shirok Exp $
-;;;
+
 
 "
 #if  MacOSX
@@ -26,6 +25,7 @@
 #include <gauche/uvector.h>
 #include \"gauche-gl.h\"
 "
+(include "glcase.scm")
 
 (define-type <uvector> "ScmUVector*" "uniform vector"
   "SCM_UVECTORP" "SCM_UVECTOR")
@@ -37,128 +37,96 @@
 (define-cproc glu-look-at (eyex::<real> eyey::<real> eyez::<real>
                            ctrx::<real> ctry::<real> ctrz::<real>
                            upx::<real> upy::<real> upz::<real>)
-  (call <void> "gluLookAt"))
+  ::<void> gluLookAt)
 
 (define-cproc glu-ortho-2d (left::<real> right::<real>
                             bottom::<real> top::<real>)
-  (call <void> "gluOrtho2D"))
+  ::<void> gluOrtho2D)
 
 (define-cproc glu-perspective (fovy::<real> aspect::<real>
                                znear::<real> zfar::<real>)
-  (call <void> "gluPerspective"))
+  ::<void> gluPerspective)
 
 (define-cproc glu-pick-matrix (x::<real> y::<real> w::<real> h::<real> vp)
-  "if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
-     Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
-   }
-  gluPickMatrix((GLdouble)x, (GLdouble)y, (GLdouble)w, (GLdouble)h,
-                 (GLint*)SCM_S32VECTOR_ELEMENTS(vp));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> (gl-case (vp) (gluPickMatrix x y w h ~X) ((s32 4))
+                    "s32 vector of size 4 required for vp, but got %S"))
 
 (define-cproc glu-error-string (code::<int>)
-  "  const GLubyte *s = gluErrorString(code);
-  if (s) SCM_RETURN(Scm_MakeString((const char *)s, -1, -1, 0));
-  else   SCM_RETURN(SCM_FALSE);")
+  (let* ([s::(const GLubyte*) (gluErrorString code)])
+    (if s
+      (result (Scm_MakeString (cast (const char*) s) -1 -1 0))
+      (result SCM_FALSE))))
 
 ;; common routine for glu-project and glu-un-project
-"static ScmObj glu_xproject(double srcx, double srcy, double srcz,
-                            ScmObj model_mat, ScmObj proj_mat, ScmObj vp,
-                            GLint (*fn)(GLdouble, GLdouble, GLdouble, const GLdouble*, const GLdouble*, const GLint*, GLdouble*, GLdouble*, GLdouble*))
- {
-   int r; GLdouble dstx, dsty, dstz;
-   if (!SCM_F64VECTORP(model_mat) || SCM_F64VECTOR_SIZE(model_mat) != 16) {
-     Scm_Error(\"f64 vector of size 16 required for model-mat, but got %S\",
-               model_mat);
-   }
-   if (!SCM_F64VECTORP(proj_mat) || SCM_F64VECTOR_SIZE(proj_mat) != 16) {
-     Scm_Error(\"f64 vector of size 16 required for proj-mat, but got %S\",
-               proj_mat);
-   }
-   if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
-     Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
-   }
-   r = fn(srcx, srcy, srcz,
-          SCM_F64VECTOR_ELEMENTS(model_mat),
-          SCM_F64VECTOR_ELEMENTS(proj_mat),
-          (GLint*)SCM_S32VECTOR_ELEMENTS(vp),
-          &dstx, &dsty, &dstz);
-   if (r == GL_TRUE) {
-     SCM_RETURN(Scm_Values3(Scm_MakeFlonum(dstx),
-                            Scm_MakeFlonum(dsty),
-                            Scm_MakeFlonum(dstz)));
-   } else {
-     SCM_RETURN(Scm_Values3(SCM_FALSE, SCM_FALSE, SCM_FALSE));
-   }
- }"
+(define-cise-stmt glu-xproject
+  [(_ fn srcx srcy srcz)
+   `(let* ([dstx::GLdouble] [dsty::GLdouble] [dstz::GLdouble])
+      (assert-vector-type&size f64 16 model-mat)
+      (assert-vector-type&size f64 16 proj-mat)
+      (assert-vector-type&size s32 4 vp)
+      (if (== GL_TRUE (,fn ,srcx ,srcy ,srcz
+                           (SCM_F64VECTOR_ELEMENTS model-mat)
+                           (SCM_F64VECTOR_ELEMENTS proj-mat)
+                           (cast GLint* (SCM_S32VECTOR_ELEMENTS vp))
+                           (& dstx) (& dsty) (& dstz)))
+        (result (Scm_MakeFlonum dstx)(Scm_MakeFlonum dsty)(Scm_MakeFlonum dstz))
+        (result '#f '#f '#f)))])
 
 (define-cproc glu-project (objx::<real> objy::<real> objz::<real>
                            model-mat proj-mat vp)
-  "SCM_RETURN(glu_xproject(objx, objy, objz, model_mat, proj_mat, vp, gluProject));")
+  ::(<top> <top> <top>)
+  (glu-xproject gluProject objx objy objz))
 
 (define-cproc glu-un-project (winx::<real> winy::<real> winz::<real>
                               model-mat proj-mat vp)
-  "SCM_RETURN(glu_xproject(winx, winy, winz, model_mat, proj_mat, vp, gluUnProject));")
+  ::(<top> <top> <top>)
+  (glu-xproject gluUnProject winx winy winz))
 
 ;; common routine for glu-project! and glu-un-project!
-"static ScmObj glu_xprojectX(ScmObj dst, ScmObj src,
-                             ScmObj model_mat, ScmObj proj_mat, ScmObj vp,
-                             GLint (*fn)(GLdouble, GLdouble, GLdouble, const GLdouble*, const GLdouble*, const GLint*, GLdouble*, GLdouble*, GLdouble*))
- {
-   int r;
-   float *dstfp = NULL, *srcfp = NULL;
-   double *dstdp = NULL, *srcdp = NULL;
-   GLdouble dstx, dsty, dstz;
-   if (SCM_F64VECTORP(dst) && SCM_F64VECTOR_SIZE(dst) == 4) {
-     dstdp = SCM_F64VECTOR_ELEMENTS(dst);
-   } else {
-     SCM_MATH3D_X4FP(dstfp, dst);
-   }
-   if (SCM_F64VECTORP(src) && SCM_F64VECTOR_SIZE(src) == 4) {
-     srcdp = SCM_F64VECTOR_ELEMENTS(src);
-   } else {
-     SCM_MATH3D_X4FP(srcfp, src);
-   }
-   if (!SCM_F64VECTORP(model_mat) || SCM_F64VECTOR_SIZE(model_mat) != 16) {
-     Scm_Error(\"f64 vector of size 16 required for model-mat, but got %S\",
-               model_mat);
-   }
-   if (!SCM_F64VECTORP(proj_mat) || SCM_F64VECTOR_SIZE(proj_mat) != 16) {
-     Scm_Error(\"f64 vector of size 16 required for proj-mat, but got %S\",
-               proj_mat);
-   }
-   if (!SCM_S32VECTORP(vp) || SCM_S32VECTOR_SIZE(vp) != 4) {
-     Scm_Error(\"s32 vector of size 4 required for vp, but got %S\", vp);
-   }
-   if (srcfp) {
-     r = fn((GLdouble)srcfp[0], (GLdouble)srcfp[1], (GLdouble)srcfp[2],
-            SCM_F64VECTOR_ELEMENTS(model_mat),
-            SCM_F64VECTOR_ELEMENTS(proj_mat),
-            (GLint*)SCM_S32VECTOR_ELEMENTS(vp),
-            &dstx, &dsty, &dstz);
-   } else {
-     r = fn((GLdouble)srcdp[0], (GLdouble)srcdp[1], (GLdouble)srcdp[2],
-            SCM_F64VECTOR_ELEMENTS(model_mat),
-            SCM_F64VECTOR_ELEMENTS(proj_mat),
-            (GLint*)SCM_S32VECTOR_ELEMENTS(vp),
-            &dstx, &dsty, &dstz);
-   }
-   if (r == GL_TRUE) {
-     if (dstfp) {
-       dstfp[0] = (float)dstx, dstfp[1] = (float)dsty, dstfp[2] = (float)dstz;
-     } else {
-       dstdp[0] = dstx, dstdp[1] = dsty, dstdp[2] = dstz;
-     }
-     SCM_RETURN(SCM_OBJ(dst));
-   } else {
-     SCM_RETURN(SCM_FALSE);
-   }
- }"
+(define-cise-stmt glu-xproject!
+  [(_ fn dst src)
+   `(let* ([dstfp::float* NULL] [srcfp::float* NULL]
+           [dstdp::double* NULL] [srcdp::double* NULL]
+           [dstx::GLdouble] [dsty::GLdouble] [dstz::GLdouble])
+      ;; We allow f64 vector as well as float vector-likes (f32, point4f,
+      ;; vector4f, quatf), so it's a bit complicated here.
+      (if (and (SCM_F64VECTORP ,dst) (== (SCM_F64VECTOR_SIZE ,dst) 4))
+        (set! dstdp (SCM_F64VECTOR_ELEMENTS ,dst))
+        (SCM_MATH3D_X4FP dstfp ,dst))
+      (if (and (SCM_F64VECTORP ,src) (== (SCM_F64VECTOR_SIZE ,src) 4))
+        (set! srcdp (SCM_F64VECTOR_ELEMENTS ,src))
+        (SCM_MATH3D_X4FP srcfp ,src))
+      (assert-vector-type&size f64 16 model-mat)
+      (assert-vector-type&size f64 16 proj-mat)
+      (assert-vector-type&size s32 4 vp)
+      (if (== GL_TRUE
+              (?: srcfp
+                  (,fn (aref srcfp 0) (aref srcfp 1) (aref srcfp 2)
+                       (SCM_F64VECTOR_ELEMENTS model-mat)
+                       (SCM_F64VECTOR_ELEMENTS proj-mat)
+                       (cast GLint* (SCM_S32VECTOR_ELEMENTS vp))
+                       (& dstx) (& dsty) (& dstz))
+                  (,fn (aref srcdp 0) (aref srcdp 1) (aref srcdp 2)
+                       (SCM_F64VECTOR_ELEMENTS model-mat)
+                       (SCM_F64VECTOR_ELEMENTS proj-mat)
+                       (cast GLint* (SCM_S32VECTOR_ELEMENTS vp))
+                       (& dstx) (& dsty) (& dstz))))
+        (begin
+          (if dstfp
+            (set! (aref dstfp 0) dstx
+                  (aref dstfp 1) dsty
+                  (aref dstfp 2) dstz)
+            (set! (aref dstdp 0) dstx
+                  (aref dstdp 1) dsty
+                  (aref dstdp 2) dstz))
+          (result (SCM_OBJ ,dst)))
+        (result '#f)))])
 
 (define-cproc glu-project! (win obj model-mat proj-mat vp)
-  "SCM_RETURN(glu_xprojectX(win, obj, model_mat, proj_mat, vp, gluProject));")
+  (glu-xproject! gluProject win obj))
 
 (define-cproc glu-un-project! (obj win model-mat proj-mat vp)
-  "SCM_RETURN(glu_xprojectX(obj, win, model_mat, proj_mat, vp, gluUnProject));")
+  (glu-xproject! gluUnProject obj win))
 
 ;;=============================================================
 ;; Mipmapping and image scaling
@@ -182,20 +150,16 @@
 ;; gluDeleteQuadric : GC takes care of this
 
 (define-cproc glu-quadric-draw-style (quad::<glu-quadric> style::<fixnum>)
-  "gluQuadricDrawStyle(quad->quadric, style);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> (gluQuadricDrawStyle (-> quad quadric) style))
 
 (define-cproc glu-quadric-orientation (quad::<glu-quadric> orientation::<fixnum>)
-  "gluQuadricOrientation(quad->quadric, orientation);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> (gluQuadricOrientation (-> quad quadric) orientation))
 
 (define-cproc glu-quadric-normals (quad::<glu-quadric> normals::<fixnum>)
-  "gluQuadricNormals(quad->quadric, normals);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> (gluQuadricNormals (-> quad quadric) normals))
 
 (define-cproc glu-quadric-texture (quad::<glu-quadric> texcoords::<fixnum>)
-  "gluQuadricTexture(quad->quadric, texcoords);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> (gluQuadricTexture (-> quad quadric) texcoords))
 
 ;; glu-quadric-callback - gluQuadricCallback doesn't pass the closure
 ;;   information, so it is practially impossible to implement this in
@@ -204,27 +168,27 @@
 (define-cproc glu-cylinder (quad::<glu-quadric> base-radius::<real>
                             top-radius::<real> height::<real>
                             slices::<fixnum> stacks::<fixnum>)
-  "gluCylinder(quad->quadric, base_radius, top_radius, height, slices, stacks);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (gluCylinder (-> quad quadric) base_radius top_radius height slices stacks))
 
 (define-cproc glu-sphere (quad::<glu-quadric> radius::<real>
                           slices::<fixnum> stacks::<fixnum>)
-  "gluSphere(quad->quadric, radius, slices, stacks);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (gluSphere (-> quad quadric) radius slices stacks))
 
 (define-cproc glu-disk (quad::<glu-quadric>
                         inner-radius::<real> outer-radius::<real>
                         slices::<fixnum> loops::<fixnum>)
-  "gluDisk(quad->quadric, inner_radius, outer_radius, slices, loops);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (gluDisk (-> quad quadric) inner_radius outer_radius slices loops))
 
 (define-cproc glu-partial-disk (quad::<glu-quadric>
                                 inner-radius::<real> outer-radius::<real>
                                 slices::<fixnum> loops::<fixnum>
                                 start-angle::<real> sweep-angle::<real>)
-  "gluPartialDisk(quad->quadric, inner_radius, outer_radius, slices, loops,
-                  start_angle, sweep_angle);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (gluPartialDisk (-> quad quadric) inner_radius outer_radius slices loops
+                  start_angle sweep_angle))
 
 
 ;;=============================================================
@@ -239,65 +203,46 @@
 
 (define-cproc glu-load-sampling-matrices (nurbs::<glu-nurbs>
                                           model-matrix proj-matrix viewport)
-  "if (!SCM_F32VECTORP(model_matrix)
-       || SCM_F32VECTOR_SIZE(model_matrix) != 16) {
-     Scm_Error(\"f32vector of length 16 required for model-matrix, but got %S\", model_matrix);
-   }
-   if (!SCM_F32VECTORP(proj_matrix)
-       || SCM_F32VECTOR_SIZE(proj_matrix) != 16) {
-     Scm_Error(\"f32vector of length 16 required for proj-matrix, but got %S\", proj_matrix);
-   }
-   if (!SCM_S32VECTORP(viewport)
-       || SCM_S32VECTOR_SIZE(viewport) != 4) {
-     Scm_Error(\"s32vector of length 4 required for viewport, but got %S\", viewport);
-   }
-   gluLoadSamplingMatrices(nurbs->nurbs,
-                           SCM_F32VECTOR_ELEMENTS(model_matrix),
-                           SCM_F32VECTOR_ELEMENTS(proj_matrix),
-                           (GLint*)SCM_S32VECTOR_ELEMENTS(viewport));
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (assert-vector-type&size f32 16 model-matrix)
+  (assert-vector-type&size f32 16 proj-matrix)
+  (assert-vector-type&size s32 4 viewport)
+  (gluLoadSamplingMatrices (-> nurbs nurbs)
+                           (SCM_F32VECTOR_ELEMENTS model_matrix)
+                           (SCM_F32VECTOR_ELEMENTS proj_matrix)
+                           (cast GLint* (SCM_S32VECTOR_ELEMENTS viewport))))
 
 (define-cproc glu-nurbs-property (nurbs::<glu-nurbs>
                                   property::<fixnum> value::<real>)
-  "gluNurbsProperty(nurbs->nurbs, (GLenum)property, (GLfloat)value);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> (gluNurbsProperty (-> nurbs nurbs) property value))
 
 (define-cproc glu-get-nurbs-property (nurbs::<glu-nurbs> property::<fixnum>)
-  "GLfloat value;
-   gluGetNurbsProperty(nurbs->nurbs, (GLenum)property, &value);
-   SCM_RETURN(Scm_MakeFlonum((double)value));")
+  ::<float>
+  (let* ([value::GLfloat])
+    (gluGetNurbsProperty (-> nurbs nurbs) property (& value))
+    (result value)))
 
-(define-cproc glu-begin-curve (nurbs::<glu-nurbs>)
-  "gluBeginCurve(nurbs->nurbs);
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc glu-end-curve (nurbs::<glu-nurbs>)
-  "gluEndCurve(nurbs->nurbs);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glu-begin-curve (nurbs::<glu-nurbs>) ::<void>
+  (gluBeginCurve (-> nurbs nurbs)))
+(define-cproc glu-end-curve (nurbs::<glu-nurbs>) ::<void>
+  (gluEndCurve (-> nurbs nurbs)))
 
 (define-cproc glu-nurbs-curve (nurbs::<glu-nurbs>
-                               knot stride::<fixnum> ctlarray
+                               knot::<f32vector> stride::<fixnum>
+                               ctlarray::<f32vector>
                                order::<fixnum> type::<fixnum>)
-  "int nknots, nctlarray;
-  if (!SCM_F32VECTORP(knot)) {
-    Scm_Error(\"f32vector required for knot, but got %S\", knot);
-  }
-  nknots = SCM_F32VECTOR_SIZE(knot);
-  nctlarray = (nknots - order) * stride;
-  if (!SCM_F32VECTORP(ctlarray) || SCM_F32VECTOR_SIZE(ctlarray) != nctlarray) {
-    Scm_Error(\"f32vector of length %d is required for control points, but got %S\", nctlarray, ctlarray);
-  }
-  gluNurbsCurve(nurbs->nurbs, nknots, SCM_F32VECTOR_ELEMENTS(knot),
-                stride, SCM_F32VECTOR_ELEMENTS(ctlarray), order, type);
-  SCM_RETURN(SCM_UNDEFINED);")
+  ::<void>
+  (let* ([nknots::int (SCM_F32VECTOR_SIZE knot)]
+         [nctlarray::int (* stride (- nknots order))])
+    (unless (== nctlarray (SCM_F32VECTOR_SIZE ctlarray))
+      (Scm_Error "f32vector of length %d is required for control points, but got %S" nctlarray ctlarray))
+    (gluNurbsCurve (-> nurbs nurbs) nknots (SCM_F32VECTOR_ELEMENTS knot)
+                   stride (SCM_F32VECTOR_ELEMENTS ctlarray) order type)))
 
-(define-cproc glu-begin-surface (nurbs::<glu-nurbs>)
-  "gluBeginSurface(nurbs->nurbs);
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc glu-end-surface (nurbs::<glu-nurbs>)
-  "gluEndSurface(nurbs->nurbs);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glu-begin-surface (nurbs::<glu-nurbs>) ::<void>
+  (gluBeginSurface (-> nurbs nurbs)))
+(define-cproc glu-end-surface (nurbs::<glu-nurbs>) ::<void>
+  (gluEndSurface (-> nurbs nurbs)))
 
 ;;================================================================
 ;; Polygon tesselation
@@ -316,26 +261,25 @@
                                     width::<fixnum>
                                     format::<fixnum> type::<fixnum>
                                     texels)
-  "int elttype, size, r; void *texelptr;
-  size = Scm_GLPixelDataSize(width, 1, format, type, &elttype,
-NULL);
-  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-  r = gluBuild1DMipmaps(target, internalformat, width, format,
-                        type, texelptr);
-  SCM_RETURN(SCM_MAKE_INT(r));")
+  ::<int>
+  (let* ([elttype::int]
+         [size::int (Scm_GLPixelDataSize width 1 format type (& elttype) NULL)]
+         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+    (result (gluBuild1DMipmaps target internalformat width format
+                               type texelptr))))
 
 (define-cproc glu-build-2d-mipmaps (target::<fixnum>
                                     internalformat::<fixnum>
                                     width::<fixnum> height::<fixnum>
                                     format::<fixnum>
                                     type::<fixnum> texels)
-  "int elttype, size, r; void *texelptr;
-  size = Scm_GLPixelDataSize(width, height, format, type, &elttype,
-NULL);
-  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-  r = gluBuild2DMipmaps(target, internalformat, width, height, format,
-                        type, texelptr);
-  SCM_RETURN(SCM_MAKE_INT(r));")
+  ::<int>
+  (let* ([elttype::int]
+         [size::int (Scm_GLPixelDataSize width height format type
+                                         (& elttype) NULL)]
+         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+    (result (gluBuild2DMipmaps target internalformat width height format
+                               type texelptr))))
 
 (if "defined(GL_VERSION_1_2)" (begin
 
@@ -344,15 +288,15 @@ NULL);
                                     width::<fixnum> height::<fixnum>
                                     depth::<fixnum> format::<fixnum>
                                     type::<fixnum> texels)
+  ::<int>
   ;; NB: does Scm_GLPxielDataSize work to pass height*depth as height?
   ;; need to think over it.
-  "int elttype, size, r; void *texelptr;
-  size = Scm_GLPixelDataSize(width, height*depth, format, type, &elttype,
-NULL);
-  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-  r = gluBuild3DMipmaps(target, internalformat, width, height, depth, format,
-                        type, texelptr);
-  SCM_RETURN(SCM_MAKE_INT(r));")
+  (let* ([elttype::int]
+         [size::int (Scm_GLPixelDataSize width (* height depth) format type
+                                         (& elttype) NULL)]
+         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+    (result (gluBuild3DMipmaps target internalformat width height depth format
+                               type texelptr))))
 
 (define-cproc glu-build-1d-mipmap-levels (target::<fixnum>
                                           internalformat::<fixnum>
@@ -361,13 +305,12 @@ NULL);
                                           level::<fixnum> base::<fixnum>
                                           max::<fixnum>
                                           texels)
-  "int elttype, size, r; void *texelptr;
-  size = Scm_GLPixelDataSize(width, 1, format, type, &elttype,
-NULL);
-  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-  r = gluBuild1DMipmapLevels(target, internalformat, width, format,
-                             type, level, base, max, texelptr);
-  SCM_RETURN(SCM_MAKE_INT(r));")
+  ::<int>
+  (let* ([elttype::int]
+         [size::int (Scm_GLPixelDataSize width 1 format type (& elttype) NULL)]
+         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+    (result (gluBuild1DMipmapLevels target internalformat width format
+                                    type level base max texelptr))))
 
 (define-cproc glu-build-2d-mipmap-levels (target::<fixnum>
                                           internalformat::<fixnum>
@@ -376,13 +319,13 @@ NULL);
                                           level::<fixnum> base::<fixnum>
                                           max::<fixnum>
                                           texels)
-  "int elttype, size, r; void *texelptr;
-  size = Scm_GLPixelDataSize(width, height, format, type, &elttype,
-NULL);
-  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-  r = gluBuild2DMipmapLevels(target, internalformat, width, height, format,
-                             type, level, base, max, texelptr);
-  SCM_RETURN(SCM_MAKE_INT(r));")
+  ::<int>
+  (let* ([elttype::int]
+         [size::int (Scm_GLPixelDataSize width height format type
+                                         (& elttype) NULL)]
+         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+    (result (gluBuild2DMipmapLevels target internalformat width height format
+                                    type level base max texelptr))))
 
 (define-cproc glu-build-3d-mipmap-levels (target::<fixnum>
                                           internalformat::<fixnum>
@@ -391,15 +334,15 @@ NULL);
                                           type::<fixnum> level::<fixnum>
                                           base::<fixnum> max::<fixnum>
                                           texels)
+  ::<int>
   ;; NB: does Scm_GLPxielDataSize work to pass height*depth as height?
   ;; need to think over it.
-  "int elttype, size, r; void *texelptr;
-  size = Scm_GLPixelDataSize(width, height*depth, format, type, &elttype,
-NULL);
-  texelptr = Scm_GLPixelDataCheck(texels, elttype, size);
-  r = gluBuild3DMipmapLevels(target, internalformat, width, height, depth, 
-                             format, type, level, base, max, texelptr);
-  SCM_RETURN(SCM_MAKE_INT(r));")
+  (let* ([elttype::int]
+         [size::int (Scm_GLPixelDataSize width (* height depth) format type
+                                         (& elttype) NULL)]
+         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+    (result (gluBuild3DMipmapLevels target internalformat width height depth
+                                    format type level base max texelptr))))
 
 )) ;; if defined(GL_VERSION_1_2)
 
@@ -408,9 +351,10 @@ NULL);
 ;;
 
 (define-cproc glu-get-string (name::<fixnum>)
-  "  const GLubyte *p = gluGetString(name);
-  if (p) SCM_RETURN(Scm_MakeString((const char*)p, -1, -1, 0));
-  else SCM_RETURN(SCM_FALSE);")
+  (let* ([p::(const GLubyte*) (gluGetString name)])
+    (if p
+      (result (Scm_MakeString (cast (const char*) p) -1 -1 0))
+      (result SCM_FALSE))))
 
 ;;================================================================
 ;; Constants

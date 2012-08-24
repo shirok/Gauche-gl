@@ -226,5 +226,15 @@
              [else
               `((else ,(car maybe-fallback)))]))])
        
+;; Other useful macros.
 
+;; Check if var is a proper type of uvector with desired size
 
+(define-cise-stmt assert-vector-type&size
+  [(_ type size var)
+   (let* ([TYPE (string-upcase (x->string type))]
+          [pred (string->symbol #`"SCM_,|TYPE|VECTORP")]
+          [getsize (string->symbol #`"SCM_,|TYPE|VECTOR_SIZE")]
+          [msg #`",type of size ,size required,, but got %S"])
+     `(when (or (not (,pred ,var)) (!= (,getsize ,var) ,size))
+        (Scm_Error ,msg ,var)))])

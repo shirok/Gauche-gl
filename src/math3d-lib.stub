@@ -20,6 +20,8 @@
 #include \"gauche/math3d.h\"
 "
 
+(include "glcase.scm")
+
 (define-type <vector4f> "ScmVector4f*" #f "SCM_VECTOR4FP" "SCM_VECTOR4F")
 (define-type <vector4f-array> "ScmVector4fArray*" #f
   "SCM_VECTOR4F_ARRAY_P" "SCM_VECTOR4F_ARRAY")
@@ -255,10 +257,10 @@
 "static float matrix4f_unit[] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };"
 
 (define-cproc make-matrix4f (&optional init)
-  (cond [(SCM_UNBOUNDP init) (result (Scm_MakeMatrix4fv matrix4f_unit))]
-        [(and (SCM_F32VECTORP init) (== (SCM_F32VECTOR_SIZE init) 16))
-         (result (Scm_MakeMatrix4fv (SCM_F32VECTOR_ELEMENTS init)))]
-        [else (Scm_Error "f32vector of size 16 required, but got %S" init)]))
+  (if (SCM_UNBOUNDP init)
+    (result (Scm_MakeMatrix4fv matrix4f_unit))
+    (begin (assert-vector-type&size f32 16 init)
+           (result (Scm_MakeMatrix4fv (SCM_F32VECTOR_ELEMENTS init))))))
 
 (define-cproc matrix4f (&rest args) Scm_ListToMatrix4f)
 (define-cproc matrix4f? (obj)::<boolean> SCM_MATRIX4FP)

@@ -1,8 +1,6 @@
 ;;;
 ;;; Contributed by Issac Trotts
 ;;;
-;;; $Id: gl-plot.scm,v 1.1 2006-11-09 10:43:55 shirok Exp $
-;;;
 
 (use gl)
 (use gl.glut)

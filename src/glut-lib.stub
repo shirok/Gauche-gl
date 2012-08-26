@@ -47,6 +47,8 @@
 #include \"gauche-glut.h\"
 "
 
+(include "glcase.scm")
+
 ;;========================================================
 ;; Window manipulation
 ;;
@@ -56,106 +58,87 @@
 ;;   (possibly modified) args.
 
 (define-cproc glut-init (args)
-  (body <top>
-        (let* ((argc :: int (Scm_Length args))
-               (argv :: char**))
-          (when (< argc 0) (SCM_TYPE_ERROR args "list"))
-          (set! argv (Scm_ListToCStringArray args TRUE NULL))
-          (glutInit (& argc) argv)
-          (result
-           (Scm_CStringArrayToList (cast |const char**| argv) argc 0)))))
+  (let* ([argc::int (Scm_Length args)]
+         [argv::char**])
+    (when (< argc 0) (SCM_TYPE_ERROR args "list"))
+    (set! argv (Scm_ListToCStringArray args TRUE NULL))
+    (glutInit (& argc) argv)
+    (result (Scm_CStringArrayToList (cast (const char**) argv) argc 0))))
 
 (define-cproc glut-init-display-mode (mode::<fixnum>)
-  (call <void> "glutInitDisplayMode"))
+  ::<void> glutInitDisplayMode)
 
-(define-cproc glut-init-display-string (string::<string>)
-  "
-#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-  glutInitDisplayString(Scm_GetStringConst(string));
-#endif
-  SCM_RETURN(SCM_UNDEFINED);")
+(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
+  "#define glutInitDisplayString(x) /*ignore*/")
+  
+(define-cproc glut-init-display-string (string::<const-cstring>)
+  ::<void> glutInitDisplayString)
 
 (define-cproc glut-init-window-size (width::<int> height::<int>)
-  (call <void> "glutInitWindowSize"))
+  ::<void> glutInitWindowSize)
 
 (define-cproc glut-init-window-position (x::<int> y::<int>)
-  (call <void> "glutInitWindowPosition"))
+  ::<void> glutInitWindowPosition)
 
-(define-cproc glut-main-loop ()
-  (call <void> "glutMainLoop"))
+(define-cproc glut-main-loop () ::<void> glutMainLoop)
 
 (define-cproc glut-create-window (name::<const-cstring>)
-  (call <int> "glutCreateWindow"))
+  ::<int> glutCreateWindow)
 
 (define-cproc glut-create-sub-window (win::<int> x::<int> y::<int>
                                       width::<int> height::<int>)
-  (call <int> "glutCreateSubWindow"))
+  ::<int> glutCreateSubWindow)
 
 (define-cproc glut-destroy-window (win::<int>)
-  (call <void> "glutDestroyWindow"))
+  ::<void> glutDestroyWindow)
 
 (define-cproc glut-post-redisplay ()
-  (call <void> "glutPostRedisplay"))
+  ::<void> glutPostRedisplay)
+
+(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)"
+  "#define glutPostWindowRedisplay(win) /*ignore*/")
 
 (define-cproc glut-post-window-redisplay (win::<int>)
-  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
-   glutPostWindowRedisplay(win);
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> glutPostWindowRedisplay)
 
-(define-cproc glut-swap-buffers ()
-  (call <void> "glutSwapBuffers"))
+(define-cproc glut-swap-buffers () ::<void> glutSwapBuffers)
 
-(define-cproc glut-get-window ()
-  (call <int> "glutGetWindow"))
+(define-cproc glut-get-window () ::<int> glutGetWindow)
 
-(define-cproc glut-set-window (win::<int>)
-  (call <void> "glutSetWindow"))
+(define-cproc glut-set-window (win::<int>) ::<void> glutSetWindow)
 
 (define-cproc glut-set-window-title (title::<const-cstring>)
-  (call <void> "glutSetWindowTitle"))
+  ::<void> glutSetWindowTitle)
 
 (define-cproc glut-set-icon-title (title::<const-cstring>)
-  (call <void> "glutSetIconTitle"))
+  ::<void> glutSetIconTitle)
 
 (define-cproc glut-position-window (x::<int> y::<int>)
-  (call <void> "glutPositionWindow"))
+  ::<void> glutPositionWindow)
 
 (define-cproc glut-reshape-window (width::<int> height::<int>)
-  (call <void> "glutReshapeWindow"))
+  ::<void> glutReshapeWindow)
 
-(define-cproc glut-push-window ()
-  (call <void> "glutPushWindow"))
+(define-cproc glut-push-window () ::<void> glutPushWindow)
+(define-cproc glut-pop-window () ::<void> glutPopWindow)
+(define-cproc glut-iconify-window () ::<void> glutIconifyWindow)
+(define-cproc glut-show-window () ::<void> glutShowWindow)
+(define-cproc glut-hide-window () ::<void> glutHideWindow)
 
-(define-cproc glut-pop-window ()
-  (call <void> "glutPopWindow"))
+(if "!(GLUT_API_VERSION >= 3)"
+  "#define glutFullScreen(x) /*ignore*/")
 
-(define-cproc glut-iconify-window ()
-  (call <void> "glutIconifyWindow"))
+(define-cproc glut-full-screen () ::<void> glutFullScreen)
 
-(define-cproc glut-show-window ()
-  (call <void> "glutShowWindow"))
+(if "!(GLUT_API_VERSION >= 3)"
+  "#define glutSetCursor(x) /*ignore*/")
 
-(define-cproc glut-hide-window ()
-  (call <void> "glutHideWindow"))
+(define-cproc glut-set-cursor (cursor::<int>) ::<void> glutSetCursor)
 
-(define-cproc glut-full-screen ()
-  "#if (GLUT_API_VERSION >= 3)
-   glutFullScreen();
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
+  "#define glutWarpPointer(x, y) /*ignore*/")
 
-(define-cproc glut-set-cursor (cursor::<int>)
-  "#if (GLUT_API_VERSION >= 3)
-   glutSetCursor(cursor);
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc glut-warp-pointer (x::<int> y::<int>)
-  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-   glutWarpPointer(x, y);
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-warp-pointer (x::<int> y::<int>) ::<void> glutWarpPointer)
 
 ;;========================================================
 ;; Overlay APIs
@@ -211,67 +194,45 @@
 ;; it is invoked.  We need to keep an assoc list of menu id and
 ;; callback fn.
 
-"static ScmObj menu_fn_assoc = SCM_NIL;
- static void menu_callback(int item)
- {
-    int menu = glutGetMenu();
-    ScmObj p = Scm_Assoc(SCM_MAKE_INT(menu), menu_fn_assoc, SCM_CMP_EQV);
-    if (SCM_PAIRP(p) && SCM_PROCEDUREP(SCM_CDR(p))) {
-      Scm_ApplyRec(SCM_CDR(p), SCM_LIST1(SCM_MAKE_INT(item)));
-    }
- }"
+"static ScmObj menu_fn_assoc = SCM_NIL;"
+
+(define-cfn menu-callback (item::int) ::void
+  (let* ([menu::int (glutGetMenu)]
+         [p (Scm_Assoc (SCM_MAKE_INT menu) menu_fn_assoc SCM_CMP_EQV)])
+    (when (and (SCM_PAIRP p) (SCM_PROCEDUREP (SCM_CDR p)))
+      (Scm_ApplyRec (SCM_CDR p) (SCM_LIST1 (SCM_MAKE_INT item))))))
 
 (define-cproc glut-create-menu (callback::<procedure>)
-  "  int menu = glutCreateMenu(menu_callback);
-  if (menu >= 0) {
-    menu_fn_assoc = Scm_Acons(SCM_MAKE_INT(menu), SCM_OBJ(callback), menu_fn_assoc);
-    SCM_RETURN(SCM_MAKE_INT(menu));
-  } else {
-    SCM_RETURN(SCM_FALSE);
-  }")
+  (let* ([menu::int (glutCreateMenu menu_callback)])
+    (if (>= menu 0)
+      (begin (set! menu_fn_assoc (Scm_Acons (SCM_MAKE_INT menu)
+                                            (SCM_OBJ callback)
+                                            menu_fn_assoc))
+             (result (SCM_MAKE_INT menu)))
+      (result '#f))))
 
-(define-cproc glut-destroy-menu (menu::<fixnum>)
-  "  menu_fn_assoc =
-       Scm_AssocDelete(SCM_MAKE_INT(menu), menu_fn_assoc, SCM_CMP_EQV);
-  glutDestroyMenu(menu);
-  SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-destroy-menu (menu::<fixnum>) ::<void>
+  (set! menu_fn_assoc
+        (Scm_AssocDelete (SCM_MAKE_INT menu) menu_fn_assoc SCM_CMP_EQV))
+  (glutDestroyMenu menu))
 
-(define-cproc glut-get-menu ()
-  "SCM_RETURN(Scm_MakeInteger(glutGetMenu()));")
+(define-cproc glut-get-menu () ::<int> glutGetMenu)
+(define-cproc glut-set-menu (menu::<fixnum>)::<void> glutSetMenu)
 
-(define-cproc glut-set-menu (menu::<fixnum>)
-  "glutSetMenu(menu);
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc glut-add-menu-entry (label::<string> value::<int>)
-  "glutAddMenuEntry(Scm_GetStringConst(label), value);
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc glut-add-sub-menu (label::<string> submenu::<int>)
-  "glutAddSubMenu(Scm_GetStringConst(label), submenu);
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc glut-change-to-menu-entry (item::<int> label::<string>
+(define-cproc glut-add-menu-entry (label::<const-cstring> value::<int>)::<void>
+  glutAddMenuEntry)
+(define-cproc glut-add-sub-menu (label::<const-cstring> submenu::<int>)::<void>
+  glutAddSubMenu)
+(define-cproc glut-change-to-menu-entry (item::<int> label::<const-cstring>
                                          value::<int>)
-  "glutChangeToMenuEntry(item, Scm_GetStringConst(label), value);
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc glut-change-to-sub-menu (item::<int> label::<string>
+  ::<void> glutChangeToMenuEntry)
+(define-cproc glut-change-to-sub-menu (item::<int> label::<const-cstring>
                                        submenu::<int>)
-  "glutChangeToSubMenu(item, Scm_GetStringConst(label), submenu);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> glutChangeToSubMenu)
 
-(define-cproc glut-remove-menu-item (item::<int>)
-  "glutRemoveMenuItem(item);
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc glut-attach-menu (button::<int>)
-  "glutAttachMenu(button);
-   SCM_RETURN(SCM_UNDEFINED);")
-
-(define-cproc glut-detach-menu (button::<int>)
-  "glutDetachMenu(button);
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-remove-menu-item (item::<int>) ::<void> glutRemoveMenuItem)
+(define-cproc glut-attach-menu (button::<int>) ::<void> glutAttachMenu)
+(define-cproc glut-detach-menu (button::<int>) ::<void> glutDetachMenu)
 
 ;;========================================================
 ;; Callbacks
@@ -280,56 +241,56 @@
 ;; Most Glut callbacks are associated to the "current window".
 ;; Scm_GlutRegisterCallback handles the association.
 
-(define-cproc glut-display-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_DISPLAY fn 0 0)))
-(define-cproc glut-overlay-display-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_OVERLAY_DISPLAY fn 0 0)))
-(define-cproc glut-reshape-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_RESHAPE fn 0 0)))
-(define-cproc glut-keyboard-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_KEYBOARD fn 0 0)))
-(define-cproc glut-keyboard-up-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_KEYBOARD_UP fn 0 0)))
-(define-cproc glut-mouse-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_MOUSE fn 0 0)))
-(define-cproc glut-motion-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_MOTION fn 0 0)))
-(define-cproc glut-passive-motion-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_PASSIVE_MOTION fn 0 0)))
-(define-cproc glut-visibility-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_VISIBILITY fn 0 0)))
-(define-cproc glut-entry-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_ENTRY fn 0 0)))
-(define-cproc glut-special-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPECIAL fn 0 0)))
-(define-cproc glut-special-up-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPECIAL_UP fn 0 0)))
-(define-cproc glut-spaceball-motion-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPACEBALL_MOTION fn 0 0)))
-(define-cproc glut-spaceball-rotate-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPACEBALL_ROTATE fn 0 0)))
-(define-cproc glut-spaceball-button-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_SPACEBALL_BUTTON fn 0 0)))
-(define-cproc glut-button-box-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_BUTTON_BOX fn 0 0)))
-(define-cproc glut-dials (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_DIALS fn 0 0)))
-(define-cproc glut-tablet-motion-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_TABLET_MOTION fn 0 0)))
-(define-cproc glut-tablet-button-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_TABLET_BUTTON fn 0 0)))
-(define-cproc glut-menu-status (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_MENU_STATUS fn 0 0)))
-(define-cproc glut-window-status (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_WINDOW_STATUS fn 0 0)))
-(define-cproc glut-joystick-func (fn interval::<int>)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_JOYSTICK fn interval 0)))
+(define-cproc glut-display-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_DISPLAY fn 0 0))
+(define-cproc glut-overlay-display-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_OVERLAY_DISPLAY fn 0 0))
+(define-cproc glut-reshape-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_RESHAPE fn 0 0))
+(define-cproc glut-keyboard-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_KEYBOARD fn 0 0))
+(define-cproc glut-keyboard-up-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_KEYBOARD_UP fn 0 0))
+(define-cproc glut-mouse-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_MOUSE fn 0 0))
+(define-cproc glut-motion-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_MOTION fn 0 0))
+(define-cproc glut-passive-motion-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_PASSIVE_MOTION fn 0 0))
+(define-cproc glut-visibility-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_VISIBILITY fn 0 0))
+(define-cproc glut-entry-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_ENTRY fn 0 0))
+(define-cproc glut-special-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_SPECIAL fn 0 0))
+(define-cproc glut-special-up-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_SPECIAL_UP fn 0 0))
+(define-cproc glut-spaceball-motion-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_SPACEBALL_MOTION fn 0 0))
+(define-cproc glut-spaceball-rotate-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_SPACEBALL_ROTATE fn 0 0))
+(define-cproc glut-spaceball-button-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_SPACEBALL_BUTTON fn 0 0))
+(define-cproc glut-button-box-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_BUTTON_BOX fn 0 0))
+(define-cproc glut-dials (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_DIALS fn 0 0))
+(define-cproc glut-tablet-motion-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_TABLET_MOTION fn 0 0))
+(define-cproc glut-tablet-button-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_TABLET_BUTTON fn 0 0))
+(define-cproc glut-menu-status (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_MENU_STATUS fn 0 0))
+(define-cproc glut-window-status (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_WINDOW_STATUS fn 0 0))
+(define-cproc glut-joystick-func (fn interval::<int>) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_JOYSTICK fn interval 0))
 
 
-(define-cproc glut-idle-func (fn)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_IDLE fn 0 0)))
-(define-cproc glut-timer-func (millis::<int> fn value::<int>)
-  (body <void> (Scm_GlutRegisterCallback SCM_GLUT_CB_TIMER fn millis value)))
+(define-cproc glut-idle-func (fn) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_IDLE fn 0 0))
+(define-cproc glut-timer-func (millis::<int> fn value::<int>) ::<void>
+  (Scm_GlutRegisterCallback SCM_GLUT_CB_TIMER fn millis value))
 
 
 ;;========================================================
@@ -337,44 +298,36 @@
 ;;
 
 (define-cproc glut-set-color (index::<int> r::<float> g::<float> b::<float>)
-  (call <void> "glutSetColor"))
+  ::<void> glutSetColor)
 
 (define-cproc glut-get-color (index::<int> component::<fixnum>)
-  "SCM_RETURN(Scm_MakeFlonum((double)glutGetColor(index, component)));")
+  ::<double> (result (cast double (glutGetColor index component))))
 
-(define-cproc glut-copy-colormap (win::<int>)
-  (call <void> "glutCopyColormap"))
+(define-cproc glut-copy-colormap (win::<int>) ::<void> glutCopyColormap)
 
 ;;========================================================
 ;; state retrieval
 ;;
 
-(define-cproc glut-get (type::<int>)
-  (call <int> "glutGet"))
+(define-cproc glut-get (type::<int>) ::<int> glutGet)
 
-(define-cproc glut-device-get (type::<int>)
-  (call <int> "glutDeviceGet"))
+(define-cproc glut-device-get (type::<int>) ::<int> glutDeviceGet)
 
-(define-cproc glut-extension-supported (name::<string>)
-  "#if (GLUT_API_VERSION >= 2)
-   SCM_RETURN(SCM_MAKE_BOOL(glutExtensionSupported(Scm_GetStringConst(name))));
-#else
-   SCM_RETURN(SCM_FALSE);
-#endif")
+(if "!(GLUT_API_VERSION >= 2)"
+  "#define glutExtensionSupported(x) FALSE")
 
-(define-cproc glut-get-modifiers ()
-  "#if (GLUT_API_VERSION >= 3)
-   SCM_RETURN(Scm_MakeInteger(glutGetModifiers()));
-#else
-   SCM_RETURN(SCM_MAKE_INT(0));
-#endif")
+(define-cproc glut-extension-supported (name::<const-cstring>) ::<boolean>
+  glutExtensionSupported)
 
-(define-cproc glut-layer-get (type::<int>)
-  "#if (GLUT_API_VERSION >= 3)
-   SCM_RETURN(Scm_MakeInteger(glutLayerGet(type)));
-#else
-   SCM_RETURN(SCM_MAKE_INT(0));
-#endif")
+(if "!(GLUT_API_VERSION >= 3)"
+  "#define glutGetModifiers() 0")
+
+(define-cproc glut-get-modifiers () ::<int> glutGetModifiers)
+
+(if "!(GLUT_API_VERSION >= 3)"
+  "#define glutLayerGet(x) 0")
+
+(define-cproc glut-layer-get (type::<int>) ::<int> glutLayerGet)
 
 ;;========================================================
 ;; Font
@@ -384,96 +337,71 @@
   "SCM_GLUT_FONT_P" "SCM_GLUT_FONT")
 
 (define-cproc glut-bitmap-character (font::<glut-font> character::<int>)
-  "glutBitmapCharacter(font->font, character);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> (glutBitmapCharacter (-> font font) character))
 
-(define-cproc glut-bitmap-width (font::<glut-font> character::<int>)
-  "SCM_RETURN(Scm_MakeInteger(glutBitmapWidth(font->font, character)));")
+(define-cproc glut-bitmap-width (font::<glut-font> character::<int>) ::<int>
+  (result (glutBitmapWidth (-> font font) character)))
 
 (define-cproc glut-stroke-character (font::<glut-font> character::<int>)
-  "glutStrokeCharacter(font->font, character);
-   SCM_RETURN(SCM_UNDEFINED);")
+  ::<void> (glutStrokeCharacter (-> font font) character))
 
 (define-cproc glut-stroke-width (font::<glut-font> character::<int>)
-  "SCM_RETURN(Scm_MakeInteger(glutStrokeWidth(font->font, character)));")
+  ::<int> (result (glutStrokeWidth (-> font font) character)))
 
-(define-cproc glut-bitmap-length (font::<glut-font> string::<string>)
-  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-  SCM_RETURN(Scm_MakeInteger(glutBitmapLength(font->font,
-                                              (const unsigned char*)Scm_GetStringConst(string))));
-#else
-  SCM_RETURN(SCM_MAKE_INT(0));
-#endif")
+(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
+  "#define glutBitmapLength(x, y) 0")
 
-(define-cproc glut-stroke-length (font::<glut-font> string::<string>)
-  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-  SCM_RETURN(Scm_MakeInteger(glutStrokeLength(font->font,
-                                              (const unsigned char*)Scm_GetStringConst(string))));
-#else
-  SCM_RETURN(SCM_MAKE_INT(0));
-#endif")
+(define-cproc glut-bitmap-length (font::<glut-font> string::<const-cstring>)
+  ::<int> (result (glutBitmapLength (-> font font)
+                                    (cast (const unsigned char*) string))))
+
+(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
+  "#define glutStrokeLength(x, y) 0")
+
+(define-cproc glut-stroke-length (font::<glut-font> string::<const-cstring>)
+  ::<int> (result (glutStrokeLength (-> font font)
+                                    (cast (const unsigned char*) string))))
 
 ;;========================================================
 ;; pre-built models
 ;;
 
 (define-cproc glut-wire-sphere (radius::<real> slices::<int> stacks::<int>)
-  (call <void> "glutWireSphere"))
-
+  ::<void> glutWireSphere)
 (define-cproc glut-solid-sphere (radius::<real> slices::<int> stacks::<int>)
-  (call <void> "glutSolidSphere"))
+  ::<void> glutSolidSphere)
 
 (define-cproc glut-wire-cone (radius::<real> height::<real>
                               slices::<int> stacks::<int>)
-  (call <void> "glutWireCone"))
-
+  ::<void> glutWireCone)
 (define-cproc glut-solid-cone (radius::<real> height::<real>
                                slices::<int> stacks::<int>)
-  (call <void> "glutSolidCone"))
+  ::<void> glutSolidCone)
 
-(define-cproc glut-wire-cube (size::<real>)
-  (call <void> "glutWireCube"))
-
-(define-cproc glut-solid-cube (size::<real>)
-  (call <void> "glutSolidCube"))
+(define-cproc glut-wire-cube (size::<real>) ::<void> glutWireCube)
+(define-cproc glut-solid-cube (size::<real>) ::<void> glutSolidCube)
 
 (define-cproc glut-wire-torus (inner::<real> outer::<real>
                                sides::<int> rings::<int>)
-  (call <void> "glutWireTorus"))
-
+  ::<void> glutWireTorus)
 (define-cproc glut-solid-torus (inner::<real> outer::<real>
                                 sides::<int> rings::<int>)
-  (call <void> "glutSolidTorus"))
+  ::<void> glutSolidTorus)
 
-(define-cproc glut-wire-dodecahedron ()
-  (call <void> "glutWireDodecahedron"))
+(define-cproc glut-wire-dodecahedron () ::<void> glutWireDodecahedron)
+(define-cproc glut-solid-dodecahedron () ::<void> glutSolidDodecahedron)
 
-(define-cproc glut-solid-dodecahedron ()
-  (call <void> "glutSolidDodecahedron"))
+(define-cproc glut-wire-teapot (size::<real>) ::<void> glutWireTeapot)
+(define-cproc glut-solid-teapot (size::<real>) ::<void> glutSolidTeapot)
 
-(define-cproc glut-wire-teapot (size::<real>)
-  (call <void> "glutWireTeapot"))
+(define-cproc glut-wire-octahedron () ::<void> glutWireOctahedron)
+(define-cproc glut-solid-octahedron () ::<void> glutSolidOctahedron)
 
-(define-cproc glut-solid-teapot (size::<real>)
-  (call <void> "glutSolidTeapot"))
+(define-cproc glut-wire-tetrahedron () ::<void> glutWireTetrahedron)
+(define-cproc glut-solid-tetrahedron () ::<void> glutSolidTetrahedron)
 
-(define-cproc glut-wire-octahedron ()
-  (call <void> "glutWireOctahedron"))
-
-(define-cproc glut-solid-octahedron ()
-  (call <void> "glutSolidOctahedron"))
-
-(define-cproc glut-wire-tetrahedron ()
-  (call <void> "glutWireTetrahedron"))
-
-(define-cproc glut-solid-tetrahedron ()
-  (call <void> "glutSolidTetrahedron"))
-
-(define-cproc glut-wire-icosahedron ()
-  (call <void> "glutWireIcosahedron"))
-
-(define-cproc glut-solid-icosahedron ()
-  (call <void> "glutSolidIcosahedron"))
+(define-cproc glut-wire-icosahedron () ::<void> glutWireIcosahedron)
+(define-cproc glut-solid-icosahedron () ::<void> glutSolidIcosahedron)
 
 ;;========================================================
 ;; Video resize

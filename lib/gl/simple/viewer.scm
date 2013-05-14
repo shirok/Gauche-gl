@@ -57,9 +57,9 @@
 
 (define *default-key-handlers* (make-hash-table 'eqv?))
 (define *default-display-proc* #f)
-(define *default-grid-proc*    (lambda () (default-grid)))
-(define *default-axis-proc*    (lambda () (default-axis)))
-(define *default-reshape-proc* (lambda (w h) (default-reshape w h)))
+(define *default-grid-proc*    (^[] (default-grid)))
+(define *default-axis-proc*    (^[] (default-axis)))
+(define *default-reshape-proc* (^[w h] (default-reshape w h)))
 
 ;;=============================================================
 ;; Wrapper of GLUT window
@@ -97,118 +97,118 @@
   (and-let* [(win (id->window id))] (ref win'name)))
       
 ;; Creates a GL window.
-(define (simple-viewer-window name . keys)
-  (let-keywords keys ((parent #f)
-                      (mode (logior GLUT_DOUBLE GLUT_DEPTH GLUT_RGB))
-                      (title  (x->string name))
-                      (width  300)
-                      (height 300)
-                      (x      #f)
-                      (y      #f))
-    ;; Internal state
-    (define prev-x -1)
-    (define prev-y -1)
-    (define prev-b #f)
-    (define rotx 20.0)
-    (define roty -30.0)
-    (define rotz 0.0)
-    (define xlatx 0.0)
-    (define xlaty 0.0)
-    (define zoom  1.0)
+(define (simple-viewer-window name :key
+                              (parent #f)
+                              (mode (logior GLUT_DOUBLE GLUT_DEPTH GLUT_RGB))
+                              (title  (x->string name))
+                              (width  300)
+                              (height 300)
+                              (x      #f)
+                              (y      #f))
+  ;; Internal state
+  (define prev-x -1)
+  (define prev-y -1)
+  (define prev-b #f)
+  (define rotx 20.0)
+  (define roty -30.0)
+  (define rotz 0.0)
+  (define xlatx 0.0)
+  (define xlaty 0.0)
+  (define zoom  1.0)
 
-    (define key-handlers (%hash-table-copy *default-key-handlers*))
-    (define grid-proc    *default-grid-proc*)
-    (define axis-proc    *default-axis-proc*)
-    (define display-proc *default-display-proc*)
-    (define reshape-proc *default-reshape-proc*)
+  (define key-handlers (hash-table-copy *default-key-handlers*))
+  (define grid-proc    *default-grid-proc*)
+  (define axis-proc    *default-axis-proc*)
+  (define display-proc *default-display-proc*)
+  (define reshape-proc *default-reshape-proc*)
 
-    ;; Callback closures
-    (define (display-fn)
-      (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
-      (gl-push-matrix)
-      (gl-scale zoom zoom zoom)
-      (gl-translate xlatx xlaty 0.0)
-      (gl-rotate rotx 1.0 0.0 0.0)
-      (gl-rotate roty 0.0 1.0 0.0)
-      (gl-rotate rotz 0.0 0.0 1.0)
+  ;; Callback closures
+  (define (display-fn)
+    (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+    (gl-push-matrix)
+    (gl-scale zoom zoom zoom)
+    (gl-translate xlatx xlaty 0.0)
+    (gl-rotate rotx 1.0 0.0 0.0)
+    (gl-rotate roty 0.0 1.0 0.0)
+    (gl-rotate rotz 0.0 0.0 1.0)
 
-      (gl-disable GL_LIGHTING)
-      (and grid-proc (grid-proc))
-      (and axis-proc (axis-proc))
-      (gl-color 1.0 1.0 1.0 0.0)
-      (gl-line-width 1.0)
-      (and display-proc (display-proc))
-      (gl-pop-matrix)
-      (glut-swap-buffers))
+    (gl-disable GL_LIGHTING)
+    (and grid-proc (grid-proc))
+    (and axis-proc (axis-proc))
+    (gl-color 1.0 1.0 1.0 0.0)
+    (gl-line-width 1.0)
+    (and display-proc (display-proc))
+    (gl-pop-matrix)
+    (glut-swap-buffers))
 
-    (define (reshape-fn w h)
-      (set! height h) (set! width w)
-      (and reshape-proc (reshape-proc w h)))
+  (define (reshape-fn w h)
+    (set! height h) (set! width w)
+    (and reshape-proc (reshape-proc w h)))
 
-    (define (mouse-fn button state x y)
-      (cond [(= state GLUT_UP)
-             (set! prev-x -1) (set! prev-y -1) (set! prev-b #f)]
-            [else
-             (set! prev-x x) (set! prev-y y) (set! prev-b button)]))
+  (define (mouse-fn button state x y)
+    (cond [(= state GLUT_UP)
+           (set! prev-x -1) (set! prev-y -1) (set! prev-b #f)]
+          [else
+           (set! prev-x x) (set! prev-y y) (set! prev-b button)]))
 
-    (define (motion-fn x y)
-      (cond [(= prev-b GLUT_LEFT_BUTTON)
-             (inc! rotx (* (/. (- y prev-y) height) 90.0))
-             (inc! roty (* (/. (- x prev-x) width) 90.0))]
-            [(= prev-b GLUT_MIDDLE_BUTTON)
-             (inc! xlatx (* (/. (- x prev-x) width (sqrt zoom)) 12.0))
-             (inc! xlaty (* (/. (- prev-y y) height (sqrt zoom)) 12.0))]
-            [(= prev-b GLUT_RIGHT_BUTTON)
-             (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
-                                  zoom)
-                               0.1 1000.0))])
-      (set! prev-x x) (set! prev-y y)
-      (glut-post-redisplay))
+  (define (motion-fn x y)
+    (cond [(= prev-b GLUT_LEFT_BUTTON)
+           (inc! rotx (* (/. (- y prev-y) height) 90.0))
+           (inc! roty (* (/. (- x prev-x) width) 90.0))]
+          [(= prev-b GLUT_MIDDLE_BUTTON)
+           (inc! xlatx (* (/. (- x prev-x) width (sqrt zoom)) 12.0))
+           (inc! xlaty (* (/. (- prev-y y) height (sqrt zoom)) 12.0))]
+          [(= prev-b GLUT_RIGHT_BUTTON)
+           (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
+                                zoom)
+                             0.1 1000.0))])
+    (set! prev-x x) (set! prev-y y)
+    (glut-post-redisplay))
 
-    (define (keyboard-fn key x y)
-      (common-keyboard-func key-handlers key x y))
-    (define (special-fn key x y)
-      (common-special-func key-handlers key x y))
+  (define (keyboard-fn key x y)
+    (common-keyboard-func key-handlers key x y))
+  (define (special-fn key x y)
+    (common-special-func key-handlers key x y))
 
-    (define (closure . args)
-      (match args
-        [('grid proc)    (set! grid-proc proc)]
-        [('axis proc)    (set! axis-proc proc)]
-        [('display proc) (set! display-proc proc)]
-        [('reshape proc) (set! reshape-proc proc)]
-        [('key-handlers) key-handlers]
-        [_ (error "unrecognized simple-viewer-window message:" args)]))
-    
-    (glut-init-display-mode mode)
-    ;; Register GLUT window id.
-    (let* ((pwin (and parent (name->window parent)))
-           (id   (cond [pwin
-                        (glut-create-sub-window (ref pwin'id )
-                                                (or x 0) (or y 0)
-                                                width height)]
-                       [else
-                        (glut-init-window-size width height)
-                        (when (and x y)
-                          (glut-init-window-position x y))
-                        (glut-create-window title)])))
-      (make <simple-viewer-window>
-        :name name :id id :parent pwin :closure closure))
+  (define (closure . args)
+    (match args
+      [('grid proc)    (set! grid-proc proc)]
+      [('axis proc)    (set! axis-proc proc)]
+      [('display proc) (set! display-proc proc)]
+      [('reshape proc) (set! reshape-proc proc)]
+      [('key-handlers) key-handlers]
+      [_ (error "unrecognized simple-viewer-window message:" args)]))
+  
+  (glut-init-display-mode mode)
+  ;; Register GLUT window id.
+  (let* ([pwin (and parent (name->window parent))]
+         [id   (cond [pwin
+                      (glut-create-sub-window (ref pwin'id )
+                                              (or x 0) (or y 0)
+                                              width height)]
+                     [else
+                      (glut-init-window-size width height)
+                      (when (and x y)
+                        (glut-init-window-position x y))
+                      (glut-create-window title)])])
+    (make <simple-viewer-window>
+      :name name :id id :parent pwin :closure closure))
 
-    ;; Set up handlers.
-    (glut-display-func  display-fn)
-    (glut-reshape-func  reshape-fn)
-    (glut-mouse-func    mouse-fn)
-    (glut-motion-func   motion-fn)
-    (glut-keyboard-func keyboard-fn)
-    (glut-special-func  special-fn)
+  ;; Set up handlers.
+  (glut-display-func  display-fn)
+  (glut-reshape-func  reshape-fn)
+  (glut-mouse-func    mouse-fn)
+  (glut-motion-func   motion-fn)
+  (glut-keyboard-func keyboard-fn)
+  (glut-special-func  special-fn)
 
-    ;; Enable some commonly used stuff
-    ;; TODO: make them customizable
-    (gl-enable GL_CULL_FACE)
-    (gl-enable GL_DEPTH_TEST)
-    (gl-enable GL_NORMALIZE)
+  ;; Enable some commonly used stuff
+  ;; TODO: make them customizable
+  (gl-enable GL_CULL_FACE)
+  (gl-enable GL_DEPTH_TEST)
+  (gl-enable GL_NORMALIZE)
 
-    name))
+  name)
 
 (define (simple-viewer-get-window)
   (id->window-name (glut-get-window)))
@@ -224,8 +224,7 @@
        (match opts
          [() (set! default-var proc)]
          [(name)
-          (cond [(name->window name) => (lambda (win)
-                                          (ref win'closure) 'key proc)]
+          (cond [(name->window name) => (^[win] (ref win'closure) 'key proc)]
                 [else
                  (errorf "~a: no such window with name: ~a" 'varname name)])]
          ))]))
@@ -240,7 +239,7 @@
                   [(name->window window) => (cut ref <> 'key-handlers)]
                   [else
                    (error "simple-viewer-set-key!: no such window:" window)])
-    (let loop ((args args))
+    (let loop ([args args])
       (match args
         [() '()]
         [(key proc . rest)
@@ -250,18 +249,15 @@
          (loop rest)]
         [else '()]))))
 
-(define (simple-viewer-run . keys)
-  (let-keywords keys ((rescue-errors #t)
-                      )
-    (if rescue-errors
-      (let1 eport (current-error-port)
-        (let loop ()
-          (guard (e [else (format eport "*** SIMPLE-VIEWER: ~a\n"
-                                  (ref e'message))])
-            (glut-main-loop))
-          (loop)))
-      (glut-main-loop))
-    ))
+(define (simple-viewer-run :key (rescue-errors #t))
+  (if rescue-errors
+    (let1 eport (current-error-port)
+      (let loop ()
+        (guard (e [else (format eport "*** SIMPLE-VIEWER: ~a\n"
+                                (ref e'message))])
+          (glut-main-loop))
+        (loop)))
+    (glut-main-loop)))
 
 ;;
 ;; Default handlers (private)
@@ -307,8 +303,7 @@
 
 ;; common key handler
 (define (common-keyboard-func table keycode x y)
-  (cond [(hash-table-get table (integer->char keycode) #f)
-         => (cut <> x y)])
+  (cond [(hash-table-get table (integer->char keycode) #f) => (cut <> x y)])
   (glut-post-redisplay))
 
 (define (common-special-func table keycode x y)
@@ -320,16 +315,3 @@
 ;;
 
 (simple-viewer-set-key! #f #\escape (lambda _ (quit-loop)))
-
-;; oops, Gauche 0.8.13 is missing hash-table-copy.  This is a workaround.
-
-(define %hash-table-copy
-  (global-variable-ref (find-module 'gauche) 'hash-table-copy
-                       (lambda (src)
-                         (rlet1 dst (make-hash-table (hash-table-type src))
-                           (hash-table-for-each src
-                                                (lambda (k v)
-                                                  (hash-table-put! dst k v)))))
-                       ))
-
-(provide "gl/simple/viewer")

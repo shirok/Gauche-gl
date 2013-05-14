@@ -1,3 +1,5 @@
+#!/bin/sh
+:; exec gosh -I../../src -I../../lib $0 "$@"
 ;; A minimum demo to use gl.simple.viewer
 
 (use gl)

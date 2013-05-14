@@ -34,11 +34,8 @@
 (define-module gl.math3d
   (use gauche.uvector)
   (use gauche.sequence)
-  (export-all)
-  )
-
+  (export-all))
 (select-module gl.math3d)
-
 (dynamic-load "libgauche-math3d" :export-symbols #t)
 
 (define-reader-ctor 'vector4f vector4f)
@@ -47,24 +44,22 @@
 (define-reader-ctor 'quatf    quatf)
 
 (define-reader-ctor 'vector4f-array
-  (lambda (length . vectors)
-    (let1 arr (make-vector4f-array length)
-      (let loop ((i 0)
-                 (v vectors))
+  (^[length . vectors]
+    (rlet1 arr (make-vector4f-array length)
+      (let loop ([i 0]
+                 [v vectors])
         (when (< i length)
           (vector4f-array-set! arr i (list->vector4f (car v)))
-          (loop (+ i 1) (cdr v))))
-      arr)))
+          (loop (+ i 1) (cdr v)))))))
 
 (define-reader-ctor 'point4f-array
-  (lambda (length . points)
-    (let1 arr (make-point4f-array length)
+  (^[length . points]
+    (rlet1 arr (make-point4f-array length)
       (let loop ((i 0)
                  (p points))
         (when (< i length)
           (point4f-array-set! arr i (list->point4f (car p)))
-          (loop (+ i 1) (cdr p))))
-      arr)))
+          (loop (+ i 1) (cdr p)))))))
 
 ;;=================================================================
 ;; Auxiliary fns
@@ -79,27 +74,25 @@
   (f32vector->point4f-array/shared (f32vector-copy v)))
 
 (define (list->vector4f-array l)
-  (let* ((len (length l))
-         (a   (make-vector4f-array len))
-         (i   0))
-    (for-each (lambda (elt)
-                (unless (vector4f? elt)
-                  (error "vector4f required, but got" elt))
-                (vector4f-array-set! a i elt)
-                (inc! i))
-              l)
+  (let* ([len (length l)]
+         [a   (make-vector4f-array len)]
+         [i   0])
+    (dolist [elt l]
+      (unless (vector4f? elt)
+        (error "vector4f required, but got" elt))
+      (vector4f-array-set! a i elt)
+      (inc! i))
     a))
 
 (define (list->point4f-array l)
-  (let* ((len (length l))
-         (a   (make-point4f-array len))
-         (i   0))
-    (for-each (lambda (elt)
-                (unless (point4f? elt)
-                  (error "point4f required, but got" elt))
-                (point4f-array-set! a i elt)
-                (inc! i))
-              l)
+  (let* ([len (length l)]
+         [a   (make-point4f-array len)]
+         [i   0])
+    (dolist [elt l]
+      (unless (point4f? elt)
+        (error "point4f required, but got" elt))
+      (point4f-array-set! a i elt)
+      (inc! i))
     a))
 
 ;;=================================================================
@@ -213,15 +206,15 @@
 ;; generate more efficient code.
 (define-syntax %math3dobj-iterator
   (syntax-rules ()
-    ((_ (size-expr . args) ref obj proc)
+    [(_ (size-expr . args) ref obj proc)
      (let ((len (size-expr . args))
            (i 0))
-       (proc (lambda () (>= i len))
-             (lambda () (begin0 (ref obj i) (inc! i))))))
-    ((_ len ref obj proc)
+       (proc (^[] (>= i len))
+             (^[] (begin0 (ref obj i) (inc! i)))))]
+    [(_ len ref obj proc)
      (let ((i 0))
-       (proc (lambda () (>= i len))
-             (lambda () (begin0 (ref obj i) (inc! i))))))
+       (proc (^[] (>= i len))
+             (^[] (begin0 (ref obj i) (inc! i)))))]
     ))
 
 (define-method call-with-iterator ((v <vector4f>) proc . args)
@@ -246,9 +239,9 @@
 (define-syntax %math3dobj-builder
   (syntax-rules ()
     ((_ len new set proc)
-     (let ((v (new)) (i 0))
-       (proc (lambda (item) (when (>= i len) (set v i item) (inc! i)))
-             (lambda () v))))))
+     (let ([v (new)] [i 0])
+       (proc (^[item] (when (>= i len) (set v i item) (inc! i)))
+             (^[] v))))))
      
 (define-method call-with-builder ((class <vector4f-meta>) proc . args)
   (%math3dobj-builder 4 make-vector4f vector4f-set! proc))
@@ -264,16 +257,14 @@
 
 (define-syntax %math3dobj-builder*
   (syntax-rules ()
-    ((_ new list-> set proc args)
-     (let ((size (get-keyword :size args #f)))
-       (if size
-           (let ((v (new size)) (i 0))
-             (proc (lambda (item)
-                     (when (< i size) (set v i item) (inc! i)))
-                   (lambda () v)))
-           (let ((r '()))
-             (proc (lambda (item) (push! r item))
-                   (lambda () (list-> r)))))))))
+    [(_ new list-> set proc args)
+     (if-let1 size (get-keyword :size args #f)
+       (let ([v (new size)] [i 0])
+         (proc (^[item] (when (< i size) (set v i item) (inc! i)))
+               (^[] v)))
+       (let ([r '()])
+         (proc (^[item] (push! r item))
+               (^[] (list-> r)))))]))
 
 (define-method call-with-builder ((class <vector4f-array-meta>) proc . args)
   (%math3dobj-builder* make-vector4f-array list->vector4f-array
@@ -326,6 +317,3 @@
   (matrix4f-mul m s))
 (define-method object-* ((x <quatf>) (y <quatf>))
   (quatf-mul x y))
-
-
-(provide "gl/math3d")

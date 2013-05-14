@@ -54,24 +54,23 @@
   (gl-boolean-vector-set! vec k value))
 
 (define-method call-with-iterator ((vec <gl-boolean-vector>) proc . args)
-  (let ((len (gl-boolean-vector-length vec))
-        (i   (get-keyword :start args 0)))
+  (let ([len (gl-boolean-vector-length vec)]
+        [i   (get-keyword :start args 0)])
     (proc (cut >= i len)
-          (lambda () (begin0 (gl-boolean-vector-ref vec i) (inc! i))))))
+          (^[] (begin0 (gl-boolean-vector-ref vec i) (inc! i))))))
 
 (define-method call-with-builder ((vec <gl-boolean-vector-meta>) proc . args)
-  (let ((size (get-keyword :size args #f)))
-    (if size
-      (let ((v (make-gl-boolean-vector size))
-            (i 0))
-        (proc (lambda (item)
-                (when (< i size)
-                  (gl-boolean-vector-set! v i item)
-                  (inc! i)))
-              (lambda () v)))
-      (let ((q (make-queue)))
-        (proc (cut enqueue! q <>)
-              (cut list->gl-boolean-vector (dequeue-all! q)))))))
+  (if-let1 size (get-keyword :size args #f)
+    (let ([v (make-gl-boolean-vector size)]
+          [i 0])
+      (proc (^[item]
+              (when (< i size)
+                (gl-boolean-vector-set! v i item)
+                (inc! i)))
+            (^[] v)))
+    (let1 q (make-queue)
+      (proc (cut enqueue! q <>)
+            (cut list->gl-boolean-vector (dequeue-all! q))))))
 
 (define-method size-of ((vec <gl-boolean-vector>))
   (gl-boolean-vector-length vec))
@@ -84,15 +83,15 @@
 
 (define-syntax gl-begin*
   (syntax-rules ()
-    ((_ mode commands ...)
+    [(_ mode commands ...)
      (begin
-       (gl-begin mode) commands ... (gl-end)))
+       (gl-begin mode) commands ... (gl-end))]
     ))
 
 (define-syntax gl-push-matrix*
   (syntax-rules ()
-    ((_ commands ...)
-     (begin (gl-push-matrix) commands ... (gl-pop-matrix)))
+    [(_ commands ...)
+     (begin (gl-push-matrix) commands ... (gl-pop-matrix))]
     ))
 
 ;; Check GL version and extensions
@@ -100,41 +99,36 @@
 (define-values
   (gl-extension-available?
    gl-version<? gl-version<=? gl-version>? gl-version>=? gl-version=?)
-  (let ((gl-vers #f)
-        (gl-exts #f))
+  (let ([gl-vers #f]
+        [gl-exts #f])
     (define (ensure-version)
       (or gl-vers
-          (let1 v (and-let* ((verstr (gl-get-string GL_VERSION))
-                            (m      (#/^\d+\.\d+\.\d+/ verstr)))
-                    (m 0))
-            (set! gl-vers v)
-            v)))
+          (rlet1 v (and-let* ([verstr (gl-get-string GL_VERSION)]
+                              [m      (#/^\d+\.\d+\.\d+/ verstr)])
+                     (m 0))
+            (set! gl-vers v))))
     (define (ensure-extensions)
       (or gl-exts
-          (let1 exts (and-let* ((extstr (gl-get-string GL_EXTENSIONS)))
-                       (string-split extstr #[\s]))
-            (set! gl-exts exts)
-            exts)))
+          (rlet1 exts (and-let* ([extstr (gl-get-string GL_EXTENSIONS)])
+                        (string-split extstr #[\s]))
+            (set! gl-exts exts))))
     (define (gl-extension-available? . required)
-      (and-let* ((exts (ensure-extensions)))
+      (and-let* ([exts (ensure-extensions)])
         (every (cut member <> exts)
                (map x->string required))))
     (define (gl-version<? v)
-      (and-let* ((vers (ensure-version))) (version<? vers v)))
+      (and-let* ([vers (ensure-version)]) (version<? vers v)))
     (define (gl-version<=? v)
-      (and-let* ((vers (ensure-version))) (version<=? vers v)))
+      (and-let* ([vers (ensure-version)]) (version<=? vers v)))
     (define (gl-version>? v)
-      (and-let* ((vers (ensure-version))) (version>? vers v)))
+      (and-let* ([vers (ensure-version)]) (version>? vers v)))
     (define (gl-version>=? v)
-      (and-let* ((vers (ensure-version))) (version>=? vers v)))
+      (and-let* ([vers (ensure-version)]) (version>=? vers v)))
     (define (gl-version=? v)
-      (and-let* ((vers (ensure-version))) (version=? vers v)))
-    
+      (and-let* ([vers (ensure-version)]) (version=? vers v)))
     
     (values gl-extension-available?
             gl-version<? gl-version<=?
             gl-version>? gl-version>=?
             gl-version=?)
     ))
-
-(provide "gl")

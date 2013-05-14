@@ -6,4 +6,3 @@
 
 (define-module gl.simple-image
   (extend gl.simple.image)) ; for backward compatibility
-(provide "gl/simple-image")

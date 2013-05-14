@@ -64,65 +64,61 @@
 
 (define (read-sgi-raw port dim x y z)
   (case dim
-    ((1) (let1 v (make-u8vector x)
+    [(1) (let1 v (make-u8vector x)
            (read-block! v port)
-           (list x 1 1 v)))
-    ((2) (let1 v (make-u8vector (* x y))
+           (list x 1 1 v))]
+    [(2) (let1 v (make-u8vector (* x y))
            (read-block! v port)
-           (list x y 1 v)))
-    ((3) (let ((planes (list-ec (: i z)
+           (list x y 1 v))]
+    [(3) (let ([planes (list-ec (: i z)
                                 (let1 v (make-u8vector (* x y))
                                   (read-block! v port)
-                                  v)))
-               (vec (make-u8vector (* x y z))))
-           (dotimes (i (* x y))
+                                  v))]
+               [vec (make-u8vector (* x y z))])
+           (dotimes [i (* x y)]
              (for-each-with-index
-              (lambda (j plane)
+              (^[j plane]
                 (u8vector-set! vec (+ (* i z) j) (u8vector-ref plane i)))
               planes))
-           (list x y z vec)))
+           (list x y z vec))]
     (else #f)))
 
 (define (read-sgi-rle port dim x y z)
-  (let ((starts (make-u32vector (* y z))) ; scan line start indexes
-        (sizes  (make-u32vector (* y z))) ; compressed scan line sizes
-        (compressed #f)
-        (offset (+ 512 (* 2 4 y z)))      ; offset to the compressed data
-        (vec (make-u8vector (* x y z))))  ; result vector
+  (let ([starts (make-u32vector (* y z))] ; scan line start indexes
+        [sizes  (make-u32vector (* y z))] ; compressed scan line sizes
+        [compressed #f]
+        [offset (+ 512 (* 2 4 y z))]      ; offset to the compressed data
+        [vec (make-u8vector (* x y z))])  ; result vector
     (read-block! starts port 0 -1 'big-endian)
     (read-block! sizes  port 0 -1 'big-endian)
     (set! compressed
           (string->u8vector
            (call-with-output-string (cut copy-port port <>))))
 
-    (dotimes (zz z)
-      (dotimes (yy y)
-        (let ((start (- (u32vector-ref starts (+ (* zz y) yy)) offset))
-              (size  (u32vector-ref sizes (+ (* zz y) yy))))
+    (dotimes [zz z]
+      (dotimes [yy y]
+        (let ([start (- (u32vector-ref starts (+ (* zz y) yy)) offset)]
+              [size  (u32vector-ref sizes (+ (* zz y) yy))])
           (let1 line
               (uvector-alias <u8vector> compressed start (+ start size))
-            (do ((xx (+ (* x yy z) zz) xx)
-                 (k 0 k))
-                ((>= k size))
+            (do ([xx (+ (* x yy z) zz) xx]
+                 [k 0 k])
+                [(>= k size)]
               (let1 b (u8vector-ref line k)
                 (inc! k)
                 (cond
-                 ((= b 0))
-                 ((< b 128) ;; repeat next byte to b times
+                 [(= b 0)]
+                 [(< b 128) ;; repeat next byte to b times
                   (let1 bb (u8vector-ref line k)
                     (inc! k)
                     (dotimes (n b)
                       (u8vector-set! vec xx bb)
-                      (inc! xx z))))
+                      (inc! xx z)))]
                  (else      ;; copy (- b 128) bytes
-                  (dotimes (n (- b 128))
+                  (dotimes [n (- b 128)]
                     (u8vector-set! vec xx (u8vector-ref line k))
                     (inc! k)
                     (inc! xx z)))))
               )))))
 
     (list x y z vec)))
-
-
-(provide "gl/simple/image")
-

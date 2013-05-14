@@ -32,11 +32,6 @@
 ;;;
 
 (define-module gl.glut
-  (export-all)
-  )
-
+  (export-all))
 (select-module gl.glut)
-
 (dynamic-load "libgauche-glut")
-
-(provide "gl/glut")

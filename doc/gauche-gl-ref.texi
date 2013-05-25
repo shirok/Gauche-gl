@@ -1361,7 +1361,7 @@ Accepts an enum value either @code{GL_SINGLE_COLOR} or
 @end table
 @end defun
 
-@defun gl-matrial face pname param
+@defun gl-material face pname param
 Sets the current material property.  @var{Face} may be either
 @code{GL_FRONT}, @code{GL_BACK}, or @code{GL_FRONT_AND_BACK}.
 Possible values of @var{pname} and acceptable @var{param} types are
@@ -1370,7 +1370,7 @@ as follows.
 @item @code{GL_AMBIENT}, @code{GL_DIFFUSE}, @code{GL_AMBIENT_AND_DIFFUSE}, @code{GL_SPECULAR}, @code{GL_EMISSION}
 Accepts f32 or s32vector of size 4.
 @item @code{GL_SHININESS}
-Accepts a single real number (@code{glMatrialf} is called).
+Accepts a single real number (@code{glMaterialf} is called).
 @item @code{GL_COLOR_INDEXES}
 Accepts f32 or s32vector of size 3.
 @end table

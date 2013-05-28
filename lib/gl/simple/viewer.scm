@@ -298,7 +298,14 @@
 
 (define (quit-loop)
   (cond-expand
-   [gauche.sys.pthreads (thread-terminate! (current-thread))]
+   [gauche.sys.pthreads
+    ;; If we're in primordial thread, just terminating the current thread
+    ;; lets other threads linger, which may cause unwanted behavior.
+    ;; NB: There should be a more certain way to determine if we're in
+    ;; primordial thread or not.
+    (if (equal? (slot-ref (current-thread) 'name) "root")
+      (exit)
+      (thread-terminate! (current-thread)))]
    [else (exit)]))
 
 ;; common key handler

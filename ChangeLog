@@ -1,3 +1,8 @@
+2013-05-28  Shiro Kawai  <shiro@acm.org>
+
+	* lib/gl/simple/viewer.scm (quit-loop): Try not to terminate the
+	  primordial thread while other threads can be running.
+
 2013-05-27  Shiro Kawai  <shiro@acm.org>
 
 	* src/glext-abi.scm: Updated up to GL4.1.

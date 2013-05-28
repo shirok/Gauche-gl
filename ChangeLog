@@ -1,3 +1,8 @@
+2013-05-27  Shiro Kawai  <shiro@acm.org>
+
+	* src/glext-abi.scm: Updated up to GL4.1.
+	* src/extract-abi.scm: Some fixes to parse the newer glext.h
+
 2012-08-16  Shiro Kawai  <shiro@acm.org>
 
 	* src/glcase.scm: Added to factor out the common pattern to dispatch

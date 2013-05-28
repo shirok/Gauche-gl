@@ -674,37 +674,36 @@
     ))
 
 (define (scan)
-  (let loop ((x '()) ;; extensions name
-             (c (reverse *gl-syms*)) ;; constants [(name . value)]
-             (p '())) ;; entry points [(name PFNNAMEPROC . typedef)]
+  (let loop ([x '()] ;; extensions name
+             [c (reverse *gl-syms*)] ;; constants [(name . value)]
+             [p '()]) ;; entry points [(name PFNNAMEPROC . typedef)]
     (rxmatch-case (read-line)
-      (test eof-object?
-            (values (reverse x) (reverse c) (reverse p)))
-      (#/^#ifndef\s+(GL_\w+)/ (#f extname)
+      [test eof-object?
+            (values (reverse x) (reverse c) (reverse p))]
+      [#/^#ifndef\s+(GL_\w+)/ (#f extname)
        (let1 en (string->symbol extname)
          (if (memq en x)
            (loop x c p)
-           (loop (cons (string->symbol extname) x) c p))))
-      (#/^#define\s+(GL_\w+)\s+(?:0x([\da-fA-F]+)|(\d+)|(\w+))/
+           (loop (cons (string->symbol extname) x) c p)))]
+      [#/^#define\s+(GL_\w+)\s+(?:0x([\da-fA-F]+)|(\d+)|(\w+))/
        (#f cname xval dval ref)
        (let1 cn (string->symbol cname)
          (if (or (assq cn c) (memq cn x))
            (loop x c p)
            (let1 const (cons cn
-                             (cond (xval (string->number xval 16))
-                                   (dval (string->number dval))
-                                   (else (string->symbol ref))))
-             (loop x (cons const c) p)))))
-      (#/^(?:extern|GLAPI)\s+[\w*]+\s+(?:APIENTRY\s+)?(gl\w+)/ (#f fname)
+                             (cond [xval (string->number xval 16)]
+                                   [dval (string->number dval)]
+                                   [else (string->symbol ref)]))
+             (loop x (cons const c) p))))]
+      [#/^(?:extern|GLAPI)\b.*?\b(?:APIENTRY\s+)?(gl\w+)/ (#f fname)
        (loop x c
              (cons (list fname (format "PFN~aPROC" (string-upcase fname)))
-                   p)))
-      (#/^typedef.*(PFN.*PROC).*/ (typedef name)
-       (let1 apientry (find (lambda (e) (string=? name (cadr e))) p)
-         (when apientry
-           (set-cdr! (cdr apientry) typedef))
-         (loop x c p)))
-      (else (loop x c p)))))
+                   p))]
+      [#/^typedef.*(PFN.*?PROC\b).*/ (typedef name)
+       (if-let1 apientry (find (^e (string=? name (cadr e))) p)
+         (set-cdr! (cdr apientry) typedef))
+       (loop x c p)]
+      [else (loop x c p)])))
 
 (define (emit extensions constants entry-points)
   (print ";; This file should reflect the newest OpenGL extension ABI")

@@ -35,6 +35,27 @@
 ;; general applications; it's rather a handy tool to quickly hack up
 ;; a throwaway script to visualize some data.
 
+;; Using simple viewers:
+;; * You can create multiple GL windows (viewers), each has a unique name.
+;;   Viewers are specified by its name.  Each viewer has reasonable
+;;   default behaviors.
+;;
+;;     API: simple-viewer-window
+;;
+;; * You can associate callback functions for display, reshape, key event, etc.
+;;   for each viewer, or as a default behavior.
+;;
+;;     API: simple-viewer-display
+;;          simple-viewer-reshape
+;;          simple-viewer-grid
+;;          simple-viewer-axis
+;;          simple-viewer-set-key!
+;;
+;; * Calling simple-viewer-run enters main loop.
+;;
+;;     API: simple-viewer-run
+;;
+
 (define-module gl.simple.viewer
   (use gl)
   (use gl.glut)
@@ -96,7 +117,7 @@
 (define (id->window-name id)
   (and-let* [(win (id->window id))] (ref win'name)))
       
-;; Creates a GL window.
+;; Creates a GL window, 3D view
 (define (simple-viewer-window name :key
                               (parent #f)
                               (mode (logior GLUT_DOUBLE GLUT_DEPTH GLUT_RGB))
@@ -262,7 +283,6 @@
 ;;
 ;; Default handlers (private)
 ;;
-
 (define (default-reshape w h)
   (let1 ratio (/ h w)
     (gl-viewport 0 0 w h)
@@ -321,4 +341,4 @@
 ;; Set up default keymaps
 ;;
 
-(simple-viewer-set-key! #f #\escape (lambda _ (quit-loop)))
+(simple-viewer-set-key! #f #\escape (^_ (quit-loop)))

@@ -34,9 +34,9 @@
 ;;;
 
 ;; For serious image handling, I'd recommend you to use a serious
-;; library (Gauche's GD binding sounds nice, though there's no working
-;; version yet).   This module provides a minimal routines to do
-;; some experiment and testing with Gauche-gl alone.
+;; library (e.g. Gauche-gd).
+;; This module provides a minimal routines to do some experiment
+;; and testing with Gauche-gl alone.
 
 (define-module gl.simple.image
   (export read-sgi-image read-sgi-image-from-port)
@@ -71,15 +71,12 @@
            (read-block! v port)
            (list x y 1 v))]
     [(3) (let ([planes (list-ec (: i z)
-                                (let1 v (make-u8vector (* x y))
-                                  (read-block! v port)
-                                  v))]
+                                (rlet1 v (make-u8vector (* x y))
+                                  (read-block! v port)))]
                [vec (make-u8vector (* x y z))])
-           (dotimes [i (* x y)]
-             (for-each-with-index
-              (^[j plane]
-                (u8vector-set! vec (+ (* i z) j) (u8vector-ref plane i)))
-              planes))
+           (do-ec (: i (* x y))
+                  (: plane (index j) planes)
+                  (u8vector-set! vec (+ (* i z) j) (u8vector-ref plane i)))
            (list x y z vec))]
     (else #f)))
 
@@ -95,30 +92,30 @@
           (string->u8vector
            (call-with-output-string (cut copy-port port <>))))
 
-    (dotimes [zz z]
-      (dotimes [yy y]
-        (let ([start (- (u32vector-ref starts (+ (* zz y) yy)) offset)]
-              [size  (u32vector-ref sizes (+ (* zz y) yy))])
-          (let1 line
-              (uvector-alias <u8vector> compressed start (+ start size))
-            (do ([xx (+ (* x yy z) zz) xx]
-                 [k 0 k])
-                [(>= k size)]
-              (let1 b (u8vector-ref line k)
-                (inc! k)
-                (cond
-                 [(= b 0)]
-                 [(< b 128) ;; repeat next byte to b times
-                  (let1 bb (u8vector-ref line k)
-                    (inc! k)
-                    (dotimes (n b)
-                      (u8vector-set! vec xx bb)
-                      (inc! xx z)))]
-                 (else      ;; copy (- b 128) bytes
-                  (dotimes [n (- b 128)]
-                    (u8vector-set! vec xx (u8vector-ref line k))
-                    (inc! k)
-                    (inc! xx z)))))
-              )))))
+    (do-ec [: zz z]
+           [: yy y]
+           (let ([start (- (u32vector-ref starts (+ (* zz y) yy)) offset)]
+                 [size  (u32vector-ref sizes (+ (* zz y) yy))])
+             (let1 line
+                 (uvector-alias <u8vector> compressed start (+ start size))
+               (do ([xx (+ (* x yy z) zz) xx]
+                    [k 0 k])
+                   [(>= k size)]
+                 (let1 b (u8vector-ref line k)
+                   (inc! k)
+                   (cond
+                    [(= b 0)]
+                    [(< b 128) ;; repeat next byte to b times
+                     (let1 bb (u8vector-ref line k)
+                       (inc! k)
+                       (dotimes (n b)
+                         (u8vector-set! vec xx bb)
+                         (inc! xx z)))]
+                    [else      ;; copy (- b 128) bytes
+                     (dotimes [n (- b 128)]
+                       (u8vector-set! vec xx (u8vector-ref line k))
+                       (inc! k)
+                       (inc! xx z))]))
+                 ))))
 
     (list x y z vec)))

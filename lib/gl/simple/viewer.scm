@@ -341,4 +341,4 @@
 ;; Set up default keymaps
 ;;
 
-(simple-viewer-set-key! #f #\escape (^_ (quit-loop)))
+(simple-viewer-set-key! #f #\escape (^ _ (quit-loop)))

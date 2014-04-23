@@ -216,8 +216,8 @@
   (define (motion-fn2 x y)
     (cond [(or (= prev-b GLUT_LEFT_BUTTON)
                (= prev-b GLUT_MIDDLE_BUTTON))
-           (inc! xlatx (* (/. (- x prev-x) width (sqrt zoom)) 12.0))
-           (inc! xlaty (* (/. (- prev-y y) height (sqrt zoom)) 12.0))]
+           (inc! xlatx (/. (* 2 (- x prev-x)) zoom))
+           (inc! xlaty (/. (* 2 (- prev-y y)) zoom))]
           [(= prev-b GLUT_RIGHT_BUTTON)
            (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
                                 zoom)

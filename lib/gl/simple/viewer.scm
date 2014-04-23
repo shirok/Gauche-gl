@@ -35,6 +35,14 @@
 ;; general applications; it's rather a handy tool to quickly hack up
 ;; a throwaway script to visualize some data.
 
+;; The API may seem a bit unusual.  When you create a viewer window, you don't
+;; get a viewer object you draw in.  You register callbacks that are called
+;; whenever the viewer needs to redraw its content, but you're mostly agnostic
+;; about internal state of viewer; the concept is that you draw your world
+;; in the model space, and viewers are user-controlled autonomous observers.
+;; Not requiring accessing viewer's internal state in the display callbacks
+;; has a performance advantage, though we lose some flexilibility.
+
 ;; Using simple viewers:
 ;; * You can create multiple GL windows (viewers), each has a unique name.
 ;;   Viewers are specified by its name.  Each viewer has reasonable
@@ -64,6 +72,7 @@
   (use util.list)
   (use srfi-42)
   (export simple-viewer-window
+          simple-viewer-window-2d
           simple-viewer-set-window
           simple-viewer-get-window
           simple-viewer-display
@@ -76,11 +85,12 @@
   )
 (select-module gl.simple.viewer)
 
-(define *default-key-handlers* (make-hash-table 'eqv?))
-(define *default-display-proc* #f)
-(define *default-grid-proc*    (^[] (default-grid)))
-(define *default-axis-proc*    (^[] (default-axis)))
-(define *default-reshape-proc* (^[w h] (default-reshape w h)))
+(define *default-key-handlers*    (make-hash-table 'eqv?))
+(define *default-display-proc*    #f)
+(define *default-grid-proc*       (^[] (default-grid)))
+(define *default-axis-proc*       (^[] (default-axis)))
+(define *default-reshape-proc*    (^[w h] (default-reshape w h)))
+(define *default-reshape-2d-proc* (^[w h] (default-reshape-2d w h)))
 
 ;;=============================================================
 ;; Wrapper of GLUT window
@@ -116,16 +126,18 @@
   (and-let* [(win (name->window name))] (ref win'id)))
 (define (id->window-name id)
   (and-let* [(win (id->window id))] (ref win'name)))
-      
-;; Creates a GL window, 3D view
-(define (simple-viewer-window name :key
-                              (parent #f)
-                              (mode (logior GLUT_DOUBLE GLUT_DEPTH GLUT_RGB))
-                              (title  (x->string name))
-                              (width  300)
-                              (height 300)
-                              (x      #f)
-                              (y      #f))
+
+;; Common viewer driver (both 2d and 3d)
+(define (make-viewer name dimension
+                     :key
+                     (parent #f)
+                     (mode (logior GLUT_DOUBLE GLUT_DEPTH GLUT_RGB))
+                     (title  (x->string name))
+                     (width  300)
+                     (height 300)
+                     (x      #f)
+                     (y      #f)
+                     (zoom   1.0))
   ;; Internal state
   (define prev-x -1)
   (define prev-y -1)
@@ -135,24 +147,30 @@
   (define rotz 0.0)
   (define xlatx 0.0)
   (define xlaty 0.0)
-  (define zoom  1.0)
 
   (define key-handlers (hash-table-copy *default-key-handlers*))
   (define grid-proc    *default-grid-proc*)
   (define axis-proc    *default-axis-proc*)
   (define display-proc *default-display-proc*)
-  (define reshape-proc *default-reshape-proc*)
+  (define reshape-proc
+    (ecase dimension
+      [(2) *default-reshape-2d-proc*]
+      [(3) *default-reshape-proc*]))
 
-  ;; Callback closures
-  (define (display-fn)
+  (define (display-setup-3d)
     (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
     (gl-push-matrix)
     (gl-scale zoom zoom zoom)
     (gl-translate xlatx xlaty 0.0)
     (gl-rotate rotx 1.0 0.0 0.0)
     (gl-rotate roty 0.0 1.0 0.0)
-    (gl-rotate rotz 0.0 0.0 1.0)
-
+    (gl-rotate rotz 0.0 0.0 1.0))
+  (define (display-setup-2d)
+    (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+    (gl-push-matrix)
+    (gl-scale zoom zoom 1.0)
+    (gl-translate xlatx xlaty 0.0))
+  (define (display-common)
     (gl-disable GL_LIGHTING)
     (and grid-proc (grid-proc))
     (and axis-proc (axis-proc))
@@ -161,6 +179,15 @@
     (and display-proc (display-proc))
     (gl-pop-matrix)
     (glut-swap-buffers))
+  
+  ;; Callback closures
+  (define (display-fn3)
+    (display-setup-3d)
+    (display-common))
+
+  (define (display-fn2)
+    (display-setup-2d)
+    (display-common))
 
   (define (reshape-fn w h)
     (set! height h) (set! width w)
@@ -172,7 +199,7 @@
           [else
            (set! prev-x x) (set! prev-y y) (set! prev-b button)]))
 
-  (define (motion-fn x y)
+  (define (motion-fn3 x y)
     (cond [(= prev-b GLUT_LEFT_BUTTON)
            (inc! rotx (* (/. (- y prev-y) height) 90.0))
            (inc! roty (* (/. (- x prev-x) width) 90.0))]
@@ -185,6 +212,18 @@
                              0.1 1000.0))])
     (set! prev-x x) (set! prev-y y)
     (glut-post-redisplay))
+
+  (define (motion-fn2 x y)
+    (cond [(or (= prev-b GLUT_LEFT_BUTTON)
+               (= prev-b GLUT_MIDDLE_BUTTON))
+           (inc! xlatx (* (/. (- x prev-x) width (sqrt zoom)) 12.0))
+           (inc! xlaty (* (/. (- prev-y y) height (sqrt zoom)) 12.0))]
+          [(= prev-b GLUT_RIGHT_BUTTON)
+           (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
+                                zoom)
+                             0.1 1000.0))])
+    (set! prev-x x) (set! prev-y y)
+    (glut-post-redisplay))  
 
   (define (keyboard-fn key x y)
     (common-keyboard-func key-handlers key x y))
@@ -216,10 +255,10 @@
       :name name :id id :parent pwin :closure closure))
 
   ;; Set up handlers.
-  (glut-display-func  display-fn)
+  (glut-display-func  (ecase dimension [(2) display-fn2] [(3) display-fn3]))
   (glut-reshape-func  reshape-fn)
   (glut-mouse-func    mouse-fn)
-  (glut-motion-func   motion-fn)
+  (glut-motion-func   (ecase dimension [(2) motion-fn2] [(3) motion-fn3]))
   (glut-keyboard-func keyboard-fn)
   (glut-special-func  special-fn)
 
@@ -230,6 +269,13 @@
   (gl-enable GL_NORMALIZE)
 
   name)
+                     
+;; Creates a GL window, 3D view
+(define (simple-viewer-window name . keys)
+  (apply make-viewer name 3 keys))
+
+(define (simple-viewer-window-2d name . keys)
+  (apply make-viewer name 2 keys))
 
 (define (simple-viewer-get-window)
   (id->window-name (glut-get-window)))
@@ -250,10 +296,11 @@
                  (errorf "~a: no such window with name: ~a" 'varname name)])]
          ))]))
 
-(define-registrar simple-viewer-display display *default-display-proc*)
-(define-registrar simple-viewer-reshape reshape *default-reshape-proc*)
-(define-registrar simple-viewer-grid    grid    *default-grid-proc*)
-(define-registrar simple-viewer-axis    axis    *default-axis-proc*)
+(define-registrar simple-viewer-display    display *default-display-proc*)
+(define-registrar simple-viewer-reshape    reshape *default-reshape-proc*)
+(define-registrar simple-viewer-reshape-2d reshape *default-reshape-2d-proc*)
+(define-registrar simple-viewer-grid       grid    *default-grid-proc*)
+(define-registrar simple-viewer-axis       axis    *default-axis-proc*)
 
 (define (simple-viewer-set-key! window . args)
   (let1 tab (cond [(not window) *default-key-handlers*]
@@ -293,6 +340,15 @@
     (gl-load-identity)
     (gl-translate 0.0 0.0 -40.0)
     ))
+
+(define (default-reshape-2d w h)
+  (gl-viewport 0 0 w h)
+  (gl-matrix-mode GL_PROJECTION)
+  (gl-load-identity)
+  (glu-ortho-2d (- w) w (- h) h)
+  (gl-matrix-mode GL_MODELVIEW)
+  (gl-load-identity)
+  (gl-translate 0.0 0.0 1.0))
 
 (define (default-grid)
   (gl-color 0.5 0.5 0.5 0.0)

@@ -1,3 +1,7 @@
+2014-04-22  Shiro Kawai  <shiro@acm.org>
+
+	* lib/gl/simple/viewer.scm: Start supporting 2D view.
+
 2013-05-28  Shiro Kawai  <shiro@acm.org>
 
 	* lib/gl/simple/viewer.scm (quit-loop): Try not to terminate the

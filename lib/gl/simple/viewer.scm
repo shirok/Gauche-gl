@@ -89,8 +89,8 @@
 (define *default-display-proc*    #f)
 (define *default-grid-proc*       (^[] (default-grid)))
 (define *default-axis-proc*       (^[] (default-axis)))
-(define *default-reshape-proc*    (^[w h] (default-reshape w h)))
-(define *default-reshape-2d-proc* (^[w h] (default-reshape-2d w h)))
+(define *default-reshape3-proc*   (^[w h] (default-reshape3 w h)))
+(define *default-reshape2-proc*   (^[w h] (default-reshape2 w h)))
 
 ;;=============================================================
 ;; Wrapper of GLUT window
@@ -154,8 +154,8 @@
   (define display-proc *default-display-proc*)
   (define reshape-proc
     (ecase dimension
-      [(2) *default-reshape-2d-proc*]
-      [(3) *default-reshape-proc*]))
+      [(2) *default-reshape2-proc*]
+      [(3) *default-reshape3-proc*]))
 
   (define (display-setup-3d)
     (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
@@ -200,13 +200,13 @@
            (set! prev-x x) (set! prev-y y) (set! prev-b button)]))
 
   (define (motion-fn3 x y)
-    (cond [(= prev-b GLUT_LEFT_BUTTON)
+    (cond [(eqv? prev-b GLUT_LEFT_BUTTON)
            (inc! rotx (* (/. (- y prev-y) height) 90.0))
            (inc! roty (* (/. (- x prev-x) width) 90.0))]
-          [(= prev-b GLUT_MIDDLE_BUTTON)
+          [(eqv? prev-b GLUT_MIDDLE_BUTTON)
            (inc! xlatx (* (/. (- x prev-x) width (sqrt zoom)) 12.0))
            (inc! xlaty (* (/. (- prev-y y) height (sqrt zoom)) 12.0))]
-          [(= prev-b GLUT_RIGHT_BUTTON)
+          [(eqv? prev-b GLUT_RIGHT_BUTTON)
            (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
                                 zoom)
                              0.1 1000.0))])
@@ -297,8 +297,8 @@
          ))]))
 
 (define-registrar simple-viewer-display    display *default-display-proc*)
-(define-registrar simple-viewer-reshape    reshape *default-reshape-proc*)
-(define-registrar simple-viewer-reshape-2d reshape *default-reshape-2d-proc*)
+(define-registrar simple-viewer-reshape    reshape *default-reshape3-proc*)
+(define-registrar simple-viewer-reshape-2d reshape *default-reshape2-proc*)
 (define-registrar simple-viewer-grid       grid    *default-grid-proc*)
 (define-registrar simple-viewer-axis       axis    *default-axis-proc*)
 
@@ -330,7 +330,7 @@
 ;;
 ;; Default handlers (private)
 ;;
-(define (default-reshape w h)
+(define (default-reshape3 w h)
   (let1 ratio (/ h w)
     (gl-viewport 0 0 w h)
     (gl-matrix-mode GL_PROJECTION)
@@ -341,7 +341,7 @@
     (gl-translate 0.0 0.0 -40.0)
     ))
 
-(define (default-reshape-2d w h)
+(define (default-reshape2 w h)
   (gl-viewport 0 0 w h)
   (gl-matrix-mode GL_PROJECTION)
   (gl-load-identity)

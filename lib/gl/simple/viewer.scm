@@ -49,6 +49,7 @@
 ;;   default behaviors.
 ;;
 ;;     API: simple-viewer-window
+;;          simple-viewer-window-2d
 ;;
 ;; * You can associate callback functions for display, reshape, key event, etc.
 ;;   for each viewer, or as a default behavior.
@@ -59,12 +60,21 @@
 ;;          simple-viewer-axis
 ;;          simple-viewer-set-key!
 ;;
+;;   Those callback receives a vector as the state of the viewer.
+;;   The first element is the dimension (2 or 3), followed by 
+;;   elements about projection, and the following 9
+;;   elements about camera position & orientation.
+;;
+;;     #f32(<dim> <left> <right> <bottom> <top> <near> <far>
+;;          <tx> <ty> <tz> <rx> <ry> <rz> <sx> <sy> <sz>)
+;;
 ;; * Calling simple-viewer-run enters main loop.
 ;;
 ;;     API: simple-viewer-run
 ;;
 
 (define-module gl.simple.viewer
+  (use gauche.uvector)
   (use gl)
   (use gl.glut)
   (use gl.math3d)
@@ -87,10 +97,26 @@
 
 (define *default-key-handlers*    (make-hash-table 'eqv?))
 (define *default-display-proc*    #f)
-(define *default-grid-proc*       (^[] (default-grid)))
-(define *default-axis-proc*       (^[] (default-axis)))
-(define *default-reshape3-proc*   (^[w h] (default-reshape3 w h)))
-(define *default-reshape2-proc*   (^[w h] (default-reshape2 w h)))
+(define *default-grid-proc*       (^[v] (default-grid v)))
+(define *default-axis-proc*       (^[v] (default-axis v)))
+(define *default-reshape3-proc*   (^[w h v] (default-reshape3 w h v)))
+(define *default-reshape2-proc*   (^[w h v] (default-reshape2 w h v)))
+
+;; Accessors to the viewer state vector
+;; NB: If we make gauche.record inline pseudo-rtd accessors, we can
+;; replace those procedures with cleaner record definition!
+
+(define-macro (define-viewer-accessors slots)
+  (define (gen slot k)
+    (let ([access (string->symbol #"viewer-~|slot|")]
+          [modify (string->symbol #"viewer-~|slot|-set!")])
+      `((define-inline (,access v) (f32vector-ref v ,k))
+        (define-inline (,modify v n) (f32vector-set! v ,k n)))))
+  `(begin ,@(append-ec (: slot (index k) slots) (gen slot k))))
+
+(define-viewer-accessors
+  (dimension left right bottom top near far
+   tx ty tz rx ry rz sx sy sz))
 
 ;;=============================================================
 ;; Wrapper of GLUT window
@@ -148,6 +174,10 @@
   (define xlatx 0.0)
   (define xlaty 0.0)
 
+  ;; Viewer info to pass to callbacks
+  (define viewer-info (rlet1 v (make-f32vector 16)
+                        (viewer-dimension-set! v dimension)))
+
   (define key-handlers (hash-table-copy *default-key-handlers*))
   (define grid-proc    *default-grid-proc*)
   (define axis-proc    *default-axis-proc*)
@@ -172,8 +202,8 @@
     (gl-translate xlatx xlaty 0.0))
   (define (display-common)
     (gl-disable GL_LIGHTING)
-    (and grid-proc (grid-proc))
-    (and axis-proc (axis-proc))
+    (and grid-proc (grid-proc viewer-info))
+    (and axis-proc (axis-proc viewer-info))
     (gl-color 1.0 1.0 1.0 0.0)
     (gl-line-width 1.0)
     (and display-proc (display-proc))
@@ -191,7 +221,7 @@
 
   (define (reshape-fn w h)
     (set! height h) (set! width w)
-    (and reshape-proc (reshape-proc w h)))
+    (and reshape-proc (reshape-proc w h viewer-info)))
 
   (define (mouse-fn button state x y)
     (cond [(= state GLUT_UP)
@@ -202,14 +232,21 @@
   (define (motion-fn3 x y)
     (cond [(eqv? prev-b GLUT_LEFT_BUTTON)
            (inc! rotx (* (/. (- y prev-y) height) 90.0))
-           (inc! roty (* (/. (- x prev-x) width) 90.0))]
+           (inc! roty (* (/. (- x prev-x) width) 90.0))
+           (viewer-rx-set! viewer-info rotx)
+           (viewer-ry-set! viewer-info roty)]
           [(eqv? prev-b GLUT_MIDDLE_BUTTON)
            (inc! xlatx (* (/. (- x prev-x) width (sqrt zoom)) 12.0))
-           (inc! xlaty (* (/. (- prev-y y) height (sqrt zoom)) 12.0))]
+           (inc! xlaty (* (/. (- prev-y y) height (sqrt zoom)) 12.0))
+           (viewer-tx-set! viewer-info xlatx)
+           (viewer-ty-set! viewer-info xlaty)]
           [(eqv? prev-b GLUT_RIGHT_BUTTON)
            (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
                                 zoom)
-                             0.1 1000.0))])
+                             0.1 1000.0))
+           (viewer-sx-set! viewer-info zoom)
+           (viewer-sy-set! viewer-info zoom)
+           (viewer-sz-set! viewer-info zoom)])
     (set! prev-x x) (set! prev-y y)
     (glut-post-redisplay))
 
@@ -217,13 +254,17 @@
     (cond [(or (= prev-b GLUT_LEFT_BUTTON)
                (= prev-b GLUT_MIDDLE_BUTTON))
            (inc! xlatx (/. (* 2 (- x prev-x)) zoom))
-           (inc! xlaty (/. (* 2 (- prev-y y)) zoom))]
+           (inc! xlaty (/. (* 2 (- prev-y y)) zoom))
+           (viewer-tx-set! viewer-info xlatx)
+           (viewer-ty-set! viewer-info xlaty)]
           [(= prev-b GLUT_RIGHT_BUTTON)
            (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
                                 zoom)
-                             0.1 1000.0))])
+                             0.1 1000.0))
+           (viewer-sx-set! viewer-info zoom)
+           (viewer-sy-set! viewer-info zoom)])
     (set! prev-x x) (set! prev-y y)
-    (glut-post-redisplay))  
+    (glut-post-redisplay))
 
   (define (keyboard-fn key x y)
     (common-keyboard-func key-handlers key x y))
@@ -330,27 +371,41 @@
 ;;
 ;; Default handlers (private)
 ;;
-(define (default-reshape3 w h)
+(define (default-reshape3 w h v)
   (let1 ratio (/ h w)
     (gl-viewport 0 0 w h)
+
     (gl-matrix-mode GL_PROJECTION)
     (gl-load-identity)
     (gl-frustum -1.0 1.0 (- ratio) ratio 5.0 10000.0)
+    (viewer-left-set! v -1.0)
+    (viewer-right-set! v -1.0)
+    (viewer-bottom-set! v (- ratio))
+    (viewer-top-set! v ratio)
+    (viewer-near-set! v 5.0)
+    (viewer-far-set! v 10000.0)
+
     (gl-matrix-mode GL_MODELVIEW)
     (gl-load-identity)
     (gl-translate 0.0 0.0 -40.0)
     ))
 
-(define (default-reshape2 w h)
+(define (default-reshape2 w h v)
   (gl-viewport 0 0 w h)
   (gl-matrix-mode GL_PROJECTION)
   (gl-load-identity)
   (glu-ortho-2d (- w) w (- h) h)
+  (viewer-left-set! v (- w))
+  (viewer-right-set! v w)
+  (viewer-bottom-set! v (- h))
+  (viewer-top-set! v h)
+  (viewer-near-set! v 1.0)
+  (viewer-far-set! v -1.0)
   (gl-matrix-mode GL_MODELVIEW)
   (gl-load-identity)
   (gl-translate 0.0 0.0 1.0))
 
-(define (default-grid)
+(define (default-grid v)
   (gl-color 0.5 0.5 0.5 0.0)
   (gl-line-width 1.0)
   (gl-begin* GL_LINES
@@ -361,7 +416,7 @@
              (gl-vertex -5 0 i)
              (gl-vertex 5  0 i)))))
 
-(define (default-axis)
+(define (default-axis v)
   (define (axis a b c)
     (gl-color a b c 0.0)
     (gl-begin* GL_LINES

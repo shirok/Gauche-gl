@@ -8,7 +8,7 @@
 
 (define (main args)
   (glut-init args)
-  (simple-viewer-display (^[] (glut-wire-sphere 2.0 10 8)))
+  (simple-viewer-display (^[state] (glut-wire-sphere 2.0 10 8)))
   (simple-viewer-window 'demo)
   (simple-viewer-run)
   0)

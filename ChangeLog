@@ -1,3 +1,10 @@
+2014-04-25  shiro  <shiro@acm.org>
+
+	* lib/gl/simple/viewer.scm: Changed callback API to pass viewer
+	  state in f32vector.  (A hack is in place to support legacy
+	  zero-argument display callback for the backward compatibility,
+	  but we'll drop it in future).
+
 2014-04-22  Shiro Kawai  <shiro@acm.org>
 
 	* lib/gl/simple/viewer.scm: Start supporting 2D view.

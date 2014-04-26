@@ -181,7 +181,11 @@
   (define key-handlers (hash-table-copy *default-key-handlers*))
   (define grid-proc    *default-grid-proc*)
   (define axis-proc    *default-axis-proc*)
-  (define display-proc *default-display-proc*)
+  (define display-proc
+    (if (and *default-display-proc*
+             (eqv? (arity *default-display-proc*) 0))
+      (^_ (*default-display-proc*)) ; for the backward compatibility
+      *default-display-proc*))
   (define reshape-proc
     (ecase dimension
       [(2) *default-reshape2-proc*]
@@ -206,7 +210,7 @@
     (and axis-proc (axis-proc viewer-info))
     (gl-color 1.0 1.0 1.0 0.0)
     (gl-line-width 1.0)
-    (and display-proc (display-proc))
+    (and display-proc (display-proc viewer-info))
     (gl-pop-matrix)
     (glut-swap-buffers))
   
@@ -275,7 +279,11 @@
     (match args
       [('grid proc)    (set! grid-proc proc)]
       [('axis proc)    (set! axis-proc proc)]
-      [('display proc) (set! display-proc proc)]
+      [('display proc)
+       ;; hack for the backward compatibility
+       (if (eqv? (arity proc) 0)
+         (set! display-proc (^_ (proc))) ; old API
+         (set! display-proc proc))]
       [('reshape proc) (set! reshape-proc proc)]
       [('key-handlers) key-handlers]
       [_ (error "unrecognized simple-viewer-window message:" args)]))

@@ -10,7 +10,7 @@
 (define (main args)
   (glut-init args)
   (simple-viewer-display
-      (^[]
+      (^[state]
         (gl-begin* GL_LINE_STRIP
           (dotimes [i 1000]
             (let1 x (* (- i 500) 0.01)

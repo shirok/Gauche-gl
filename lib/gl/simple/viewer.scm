@@ -108,8 +108,8 @@
 
 (define-macro (define-viewer-accessors slots)
   (define (gen slot k)
-    (let ([access (string->symbol #"viewer-~|slot|")]
-          [modify (string->symbol #"viewer-~|slot|-set!")])
+    (let ([access (string->symbol #`"viewer-,|slot|")]
+          [modify (string->symbol #`"viewer-,|slot|-set!")])
       `((define-inline (,access v) (f32vector-ref v ,k))
         (define-inline (,modify v n) (f32vector-set! v ,k n)))))
   `(begin ,@(append-ec (: slot (index k) slots) (gen slot k))))

@@ -157,7 +157,8 @@
 (define (make-viewer name dimension
                      :key
                      (parent #f)
-                     (mode (logior GLUT_DOUBLE GLUT_DEPTH GLUT_RGB))
+                     (mode (logior GLUT_DOUBLE GLUT_RGBA
+                                   (if (= dimension 3) GLUT_DEPTH 0)))
                      (title  (x->string name))
                      (width  300)
                      (height 300)
@@ -176,7 +177,10 @@
 
   ;; Viewer info to pass to callbacks
   (define viewer-info (rlet1 v (make-f32vector 16)
-                        (viewer-dimension-set! v dimension)))
+                        (viewer-dimension-set! v dimension)
+                        (viewer-sx-set! v zoom)
+                        (viewer-sy-set! v zoom)
+                        (viewer-sz-set! v (if (= dimension 3) zoom 1))))
 
   (define key-handlers (hash-table-copy *default-key-handlers*))
   (define grid-proc    *default-grid-proc*)
@@ -200,7 +204,7 @@
     (gl-rotate roty 0.0 1.0 0.0)
     (gl-rotate rotz 0.0 0.0 1.0))
   (define (display-setup-2d)
-    (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+    (gl-clear (logior GL_COLOR_BUFFER_BIT))
     (gl-push-matrix)
     (gl-scale zoom zoom 1.0)
     (gl-translate xlatx xlaty 0.0))
@@ -208,7 +212,7 @@
     (gl-disable GL_LIGHTING)
     (and grid-proc (grid-proc viewer-info))
     (and axis-proc (axis-proc viewer-info))
-    (gl-color 1.0 1.0 1.0 0.0)
+    (gl-color 1.0 1.0 1.0 1.0)
     (gl-line-width 1.0)
     (and display-proc (display-proc viewer-info))
     (gl-pop-matrix)
@@ -313,9 +317,16 @@
 
   ;; Enable some commonly used stuff
   ;; TODO: make them customizable
-  (gl-enable GL_CULL_FACE)
-  (gl-enable GL_DEPTH_TEST)
-  (gl-enable GL_NORMALIZE)
+  (case dimension
+    [(2)
+     (gl-enable GL_LINE_SMOOTH)
+     (gl-enable GL_BLEND)
+     (gl-blend-func GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
+     (gl-hint GL_LINE_SMOOTH_HINT GL_NICEST)]
+    [(3)
+     (gl-enable GL_CULL_FACE)
+     (gl-enable GL_DEPTH_TEST)
+     (gl-enable GL_NORMALIZE)])
 
   name)
                      
@@ -414,26 +425,52 @@
   (gl-translate 0.0 0.0 1.0))
 
 (define (default-grid v)
-  (gl-color 0.5 0.5 0.5 0.0)
-  (gl-line-width 1.0)
-  (gl-begin* GL_LINES
-    (do-ec (: i -5 6)
-           (begin
-             (gl-vertex i 0 -5)
-             (gl-vertex i 0 5)
-             (gl-vertex -5 0 i)
-             (gl-vertex 5  0 i)))))
+  (gl-color 0.5 0.5 0.5)
+  (gl-line-width 0.6)
+  (if (= (viewer-dimension v) 3)
+    ;; For 3D: we draw planes near the origin
+    (gl-begin* GL_LINES
+      (do-ec (: i -5 6)
+             (begin
+               (gl-vertex i 0 -5)
+               (gl-vertex i 0 5)
+               (gl-vertex -5 0 i)
+               (gl-vertex 5  0 i))))
+    ;; For 2D: we draw grid to cover entire viewport
+    (let ([sx (viewer-sx v)]
+          [sy (viewer-sy v)])
+      (let ([xmin (floor   (- (/ (viewer-left v) sx) (viewer-tx v)))]
+            [xmax (ceiling (- (/ (viewer-right v) sx) (viewer-tx v)))]
+            [ymin (floor   (- (/ (viewer-bottom v) sy) (viewer-ty v)))]
+            [ymax (ceiling (- (/ (viewer-top v) sy) (viewer-ty v)))])
+        (gl-begin* GL_LINES
+          (do-ec (: x xmin (+ xmax 1))
+                 (begin (gl-vertex x ymin) (gl-vertex x ymax)))
+          (do-ec (: y ymin (+ ymax 1))
+                 (begin (gl-vertex xmin y) (gl-vertex xmax y))))))))
 
 (define (default-axis v)
-  (define (axis a b c)
-    (gl-color a b c 0.0)
-    (gl-begin* GL_LINES
-      (gl-vertex 0 0 0)
-      (gl-vertex a b c)))
-  (gl-line-width 3.0)
-  (axis 1.0 0.0 0.0)
-  (axis 0.0 1.0 0.0)
-  (axis 0.0 0.0 1.0))
+  (if (= (viewer-dimension v) 3)
+    (let ()
+      (define (axis a b c)
+        (gl-color a b c)
+        (gl-begin* GL_LINES
+          (gl-vertex 0 0 0)
+          (gl-vertex a b c)))
+      (gl-line-width 3.0)
+      (axis 1.0 0.0 0.0)
+      (axis 0.0 1.0 0.0)
+      (axis 0.0 0.0 1.0))
+    (begin
+      (gl-line-width 1.0)
+      (gl-color 1 0 0)
+      (gl-begin* GL_LINES
+        (gl-vertex (- (/ (viewer-left v) (viewer-sx v)) (viewer-tx v)) 0)
+        (gl-vertex (- (/ (viewer-right v) (viewer-sx v)) (viewer-tx v)) 0))
+      (gl-color 0 1 0)
+      (gl-begin* GL_LINES
+        (gl-vertex 0 (- (/ (viewer-bottom v) (viewer-sy v)) (viewer-ty v)))
+        (gl-vertex 0 (- (/ (viewer-top v) (viewer-sy v)) (viewer-ty v)))))))
 
 (define (quit-loop)
   (cond-expand

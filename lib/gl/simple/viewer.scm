@@ -91,9 +91,13 @@
           simple-viewer-axis
           simple-viewer-set-key!
           simple-viewer-run
+
+          *projection-perspective*
+          *projection-orthograhpic*
           )
   )
 (select-module gl.simple.viewer)
+
 
 (define *default-key-handlers*    (make-hash-table 'eqv?))
 (define *default-display-proc*    #f)
@@ -105,6 +109,10 @@
 ;; Accessors to the viewer state vector
 ;; NB: If we make gauche.record inline pseudo-rtd accessors, we can
 ;; replace those procedures with cleaner record definition!
+;;
+;; The first element indicates the type of projection
+(define-constant *projection-perspective* 0.0)
+(define-constant *projection-orthographic* 1.0)
 
 (define-macro (define-viewer-accessors slots)
   (define (gen slot k)
@@ -115,7 +123,7 @@
   `(begin ,@(append-ec (: slot (index k) slots) (gen slot k))))
 
 (define-viewer-accessors
-  (dimension left right bottom top near far
+  (projection left right bottom top near far
    tx ty tz rx ry rz sx sy sz))
 
 ;;=============================================================
@@ -153,18 +161,30 @@
 (define (id->window-name id)
   (and-let* [(win (id->window id))] (ref win'name)))
 
-;; Common viewer driver (both 2d and 3d)
-(define (make-viewer name dimension
+;;=============================================================
+;; Viewer constructor
+;;
+
+;; PROJECTION may be :perspective or :orthographic
+
+(define (make-viewer name projection
                      :key
                      (parent #f)
                      (mode (logior GLUT_DOUBLE GLUT_RGBA
-                                   (if (= dimension 3) GLUT_DEPTH 0)))
+                                   (ecase projection
+                                     [(:perspective) GLUT_DEPTH]
+                                     [(:orthographic) 0])))
                      (title  (x->string name))
                      (width  300)
                      (height 300)
                      (x      #f)
                      (y      #f)
                      (zoom   1.0))
+  (define proj-mode
+    (ecase projection
+      [(:perspective)  *projection-perspective*]
+      [(:orthographic) *projection-orthographic*]))
+  
   ;; Internal state
   (define prev-x -1)
   (define prev-y -1)
@@ -176,11 +196,12 @@
   (define xlaty 0.0)
 
   ;; Viewer info to pass to callbacks
-  (define viewer-info (rlet1 v (make-f32vector 16)
-                        (viewer-dimension-set! v dimension)
-                        (viewer-sx-set! v zoom)
-                        (viewer-sy-set! v zoom)
-                        (viewer-sz-set! v (if (= dimension 3) zoom 1))))
+  (define viewer-info
+    (rlet1 v (make-f32vector 16)
+      (viewer-projection-set! v proj-mode)
+      (viewer-sx-set! v zoom)
+      (viewer-sy-set! v zoom)
+      (viewer-sz-set! v (if (= proj-mode *projection-perspective*) zoom 1))))
 
   (define key-handlers (hash-table-copy *default-key-handlers*))
   (define grid-proc    *default-grid-proc*)
@@ -191,9 +212,9 @@
       (^_ (*default-display-proc*)) ; for the backward compatibility
       *default-display-proc*))
   (define reshape-proc
-    (ecase dimension
-      [(2) *default-reshape2-proc*]
-      [(3) *default-reshape3-proc*]))
+    (if (= proj-mode *projection-perspective*)
+      *default-reshape3-proc*
+      *default-reshape2-proc*))
 
   (define (display-setup-3d)
     (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
@@ -308,34 +329,40 @@
       :name name :id id :parent pwin :closure closure))
 
   ;; Set up handlers.
-  (glut-display-func  (ecase dimension [(2) display-fn2] [(3) display-fn3]))
+  (glut-display-func
+    (if (= proj-mode *projection-perspective*)
+      display-fn3
+      display-fn2))
   (glut-reshape-func  reshape-fn)
   (glut-mouse-func    mouse-fn)
-  (glut-motion-func   (ecase dimension [(2) motion-fn2] [(3) motion-fn3]))
+  (glut-motion-func
+    (if (= proj-mode *projection-perspective*)
+      motion-fn3
+      motion-fn2))
   (glut-keyboard-func keyboard-fn)
   (glut-special-func  special-fn)
 
   ;; Enable some commonly used stuff
   ;; TODO: make them customizable
-  (case dimension
-    [(2)
-     (gl-enable GL_LINE_SMOOTH)
-     (gl-enable GL_BLEND)
-     (gl-blend-func GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
-     (gl-hint GL_LINE_SMOOTH_HINT GL_NICEST)]
-    [(3)
-     (gl-enable GL_CULL_FACE)
-     (gl-enable GL_DEPTH_TEST)
-     (gl-enable GL_NORMALIZE)])
+  (if (= proj-mode *projection-perspective*)
+    (begin
+      (gl-enable GL_CULL_FACE)
+      (gl-enable GL_DEPTH_TEST)
+      (gl-enable GL_NORMALIZE))
+    (begin
+      (gl-enable GL_LINE_SMOOTH)
+      (gl-enable GL_BLEND)
+      (gl-blend-func GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
+      (gl-hint GL_LINE_SMOOTH_HINT GL_NICEST)))
 
   name)
                      
 ;; Creates a GL window, 3D view
 (define (simple-viewer-window name . keys)
-  (apply make-viewer name 3 keys))
+  (apply make-viewer name :perspective keys))
 
 (define (simple-viewer-window-2d name . keys)
-  (apply make-viewer name 2 keys))
+  (apply make-viewer name :orthographic keys))
 
 (define (simple-viewer-get-window)
   (id->window-name (glut-get-window)))
@@ -427,7 +454,7 @@
 (define (default-grid v)
   (gl-color 0.5 0.5 0.5)
   (gl-line-width 0.6)
-  (if (= (viewer-dimension v) 3)
+  (if (= (viewer-projection v) *projection-perspective*)
     ;; For 3D: we draw planes near the origin
     (gl-begin* GL_LINES
       (do-ec (: i -5 6)
@@ -450,7 +477,7 @@
                  (begin (gl-vertex xmin y) (gl-vertex xmax y))))))))
 
 (define (default-axis v)
-  (if (= (viewer-dimension v) 3)
+  (if (= (viewer-projection v) *projection-perspective*)
     (let ()
       (define (axis a b c)
         (gl-color a b c)

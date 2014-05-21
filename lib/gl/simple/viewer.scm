@@ -93,7 +93,7 @@
           simple-viewer-run
 
           *projection-perspective*
-          *projection-orthograhpic*
+          *projection-orthographic*
           )
   )
 (select-module gl.simple.viewer)
@@ -101,7 +101,8 @@
 
 (define *default-key-handlers*    (make-hash-table 'eqv?))
 (define *default-display-proc*    #f)
-(define *default-grid-proc*       (^[v] (default-grid v)))
+(define *default-grid2-proc*      (^[v] (default-grid2 v)))
+(define *default-grid3-proc*      (^[v] (default-grid3 v)))
 (define *default-axis-proc*       (^[v] (default-axis v)))
 (define *default-reshape3-proc*   (^[w h v] (default-reshape3 w h v)))
 (define *default-reshape2-proc*   (^[w h v] (default-reshape2 w h v)))
@@ -184,6 +185,8 @@
     (ecase projection
       [(:perspective)  *projection-perspective*]
       [(:orthographic) *projection-orthographic*]))
+  (define (proj-choose pers ortho)
+    (if (= proj-mode *projection-perspective*) pers ortho))
   
   ;; Internal state
   (define prev-x -1)
@@ -201,10 +204,10 @@
       (viewer-projection-set! v proj-mode)
       (viewer-sx-set! v zoom)
       (viewer-sy-set! v zoom)
-      (viewer-sz-set! v (if (= proj-mode *projection-perspective*) zoom 1))))
+      (viewer-sz-set! v (proj-choose zoom 1))))
 
   (define key-handlers (hash-table-copy *default-key-handlers*))
-  (define grid-proc    *default-grid-proc*)
+  (define grid-proc    (proj-choose *default-grid3-proc* *default-grid2-proc*))
   (define axis-proc    *default-axis-proc*)
   (define display-proc
     (if (and *default-display-proc*
@@ -373,21 +376,26 @@
 ;; Callback registrar.  
 (define-syntax define-registrar
   (syntax-rules ()
-    [(_ varname key default-var)
+    [(_ varname key default2-var default3-var)
      (define (varname proc . opts)
        (match opts
-         [() (set! default-var proc)]
+         [() (set! default3-var proc)]
+         [(':perspective)  (set! default3-var proc)]
+         [(':orthographic) (set! default3-var proc)]
          [(name)
           (cond [(name->window name) => (^[win] (ref win'closure) 'key proc)]
                 [else
                  (errorf "~a: no such window with name: ~a" 'varname name)])]
          ))]))
 
-(define-registrar simple-viewer-display    display *default-display-proc*)
-(define-registrar simple-viewer-reshape    reshape *default-reshape3-proc*)
-(define-registrar simple-viewer-reshape-2d reshape *default-reshape2-proc*)
-(define-registrar simple-viewer-grid       grid    *default-grid-proc*)
-(define-registrar simple-viewer-axis       axis    *default-axis-proc*)
+(define-registrar simple-viewer-display
+  display *default-display-proc* *default-display-proc*)
+(define-registrar simple-viewer-reshape
+  reshape *default-reshape3-proc* *default-reshape2-proc*)
+(define-registrar simple-viewer-grid
+  grid    *default-grid3-proc* *default-grid2-proc*)
+(define-registrar simple-viewer-axis
+  axis    *default-axis-proc* *default-axis-proc*)
 
 (define (simple-viewer-set-key! window . args)
   (let1 tab (cond [(not window) *default-key-handlers*]
@@ -451,30 +459,35 @@
   (gl-load-identity)
   (gl-translate 0.0 0.0 1.0))
 
-(define (default-grid v)
+(define-inline (default-grid-common v)
   (gl-color 0.5 0.5 0.5)
-  (gl-line-width 0.6)
-  (if (= (viewer-projection v) *projection-perspective*)
-    ;; For 3D: we draw planes near the origin
-    (gl-begin* GL_LINES
-      (do-ec (: i -5 6)
-             (begin
-               (gl-vertex i 0 -5)
-               (gl-vertex i 0 5)
-               (gl-vertex -5 0 i)
-               (gl-vertex 5  0 i))))
-    ;; For 2D: we draw grid to cover entire viewport
-    (let ([sx (viewer-sx v)]
-          [sy (viewer-sy v)])
-      (let ([xmin (floor   (- (/ (viewer-left v) sx) (viewer-tx v)))]
-            [xmax (ceiling (- (/ (viewer-right v) sx) (viewer-tx v)))]
-            [ymin (floor   (- (/ (viewer-bottom v) sy) (viewer-ty v)))]
-            [ymax (ceiling (- (/ (viewer-top v) sy) (viewer-ty v)))])
-        (gl-begin* GL_LINES
-          (do-ec (: x xmin (+ xmax 1))
-                 (begin (gl-vertex x ymin) (gl-vertex x ymax)))
-          (do-ec (: y ymin (+ ymax 1))
-                 (begin (gl-vertex xmin y) (gl-vertex xmax y))))))))
+  (gl-line-width 0.6))
+  
+(define (default-grid2 v)
+  (default-grid-common v)
+  ;; For 2D: we draw grid to cover entire viewport
+  (let ([sx (viewer-sx v)]
+        [sy (viewer-sy v)])
+    (let ([xmin (floor   (- (/ (viewer-left v) sx) (viewer-tx v)))]
+          [xmax (ceiling (- (/ (viewer-right v) sx) (viewer-tx v)))]
+          [ymin (floor   (- (/ (viewer-bottom v) sy) (viewer-ty v)))]
+          [ymax (ceiling (- (/ (viewer-top v) sy) (viewer-ty v)))])
+      (gl-begin* GL_LINES
+        (do-ec (: x xmin (+ xmax 1))
+               (begin (gl-vertex x ymin) (gl-vertex x ymax)))
+        (do-ec (: y ymin (+ ymax 1))
+               (begin (gl-vertex xmin y) (gl-vertex xmax y)))))))
+
+(define (default-grid3 v)
+  (default-grid-common v)
+  ;; For 3D: we draw planes near the origin
+  (gl-begin* GL_LINES
+    (do-ec (: i -5 6)
+           (begin
+             (gl-vertex i 0 -5)
+             (gl-vertex i 0 5)
+             (gl-vertex -5 0 i)
+             (gl-vertex 5  0 i)))))
 
 (define (default-axis v)
   (if (= (viewer-projection v) *projection-perspective*)

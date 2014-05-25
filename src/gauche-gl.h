@@ -38,6 +38,8 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h> /* for glutGetProcAddress. */
+#elif HAVE_GL_GLEW_H
+#include <GL/glew.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>

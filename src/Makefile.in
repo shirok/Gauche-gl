@@ -17,7 +17,7 @@ DESTDIR  =
 # These are set by configure
 # NB: cc and various flags must match the ones used to compile Gauche,
 # so the make invocator shouldn't casually override them.
-CFLAGS   = @DEFS@ @X_CFLAGS@ @GLUT_INCDIR@
+CFLAGS   = @DEFS@ @X_CFLAGS@ @GLUT_INCDIR@ @GLEW_INCDIR@
 LDFLAGS  = @LDFLAGS@
 OBJEXT   = @OBJEXT@
 SOEXT    = @SOEXT@
@@ -61,7 +61,8 @@ libgauche-math3d.$(SOEXT) : $(math3d_SRCS) gauche/math3d.h
 	   libgauche-math3d $(math3d_SRCS)
 
 # gl
-gl_SRCS     = gauche-gl.c gl-syms.c gl-lib.stub glu-lib.stub glext-lib.stub
+gl_SRCS     = gauche-gl.c gl-syms.c gl-lib.stub glu-lib.stub glext-lib.stub \
+	      @GLEW_SOURCE@
 gl_LIBS     = @GL_EXTRALIBS@ $(LIBS) 
 gl_HDRS     = gauche-gl.h gl-syms.h gl-ptrs.h gauche/math3d.h
 

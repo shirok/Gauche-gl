@@ -97,10 +97,24 @@ if test "$GL_LIBS" = ""; then
   esac
 fi
 
+# On MinGW, we use GLEW so that we can get newer GL features; the GL header
+# comes with MinGW installation is very old.
+# TODO: We might add --with-glew configure option so that we can use glew
+# on other platforms.  At this moment, though, Gauche-gl has its own
+# runtime name lookup system, so having glew isn't vital on other platforms.
+case $target in
+  *-*-mingw*)
+    AC_DEFINE(HAVE_GL_GLEW_H)
+    GLEW_INCDIR="-I../win32/glew-1.10.0/include -DGLEW_STATIC"
+    GLEW_SOURCE="../win32/glew-1.10.0/src/glew.c"
+esac
+
 AC_SUBST(GL_LIBS)
 AC_SUBST(GLUT_LIB)
 AC_SUBST(GLUT_INCDIR)
 AC_SUBST(GLUT_LIBDIR)
+AC_SUBST(GLEW_INCDIR)
+AC_SUBST(GLEW_SOURCE)
 
 # Check for other programs.
 AC_CHECK_PROGS(MAKEINFO, makeinfo)

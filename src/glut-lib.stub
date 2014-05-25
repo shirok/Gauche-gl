@@ -32,18 +32,8 @@
 ;;;
 
 "
-#if MacOSX
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#ifdef HAVE_GL_GLX_H
-#include <GL/glx.h>
-#endif
+#include \"gauche-gl.h\"
 #include <GL/glut.h>
-#endif
 #include \"gauche-glut.h\"
 "
 
@@ -63,6 +53,10 @@
     (when (< argc 0) (SCM_TYPE_ERROR args "list"))
     (set! argv (Scm_ListToCStringArray args TRUE NULL))
     (glutInit (& argc) argv)
+    (.if "defined(HAVE_GL_GLEW_H)"
+         (let* ([r::GLenum (glewInit)])
+           (unless (!= r GLEW_OK)
+             (Scm_Error "Initializing GLEW failed."))))
     (result (Scm_CStringArrayToList (cast (const char**) argv) argc 0))))
 
 (define-cproc glut-init-display-mode (mode::<fixnum>)

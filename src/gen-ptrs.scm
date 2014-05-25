@@ -49,6 +49,7 @@
 
 (define (main args)
   (cgen-decl "#include <gauche.h>"
+             "#ifndef HAVE_GL_GLEW_H"
              "#ifndef APIENTRY" "#define APIENTRY  /*empty*/" "#endif"
              "#ifndef APIENTRYP" "#define APIENTRYP APIENTRY*" "#endif"
              "#ifndef GL_VERSION_2_0"
@@ -76,6 +77,9 @@
              "  do{if ((fn) == NULL){\\"
              "      fn = (SCM_CPP_CAT(type__, fn))Scm_GLGetProcAddress(#fn);\\"
              "     }} while (0)"
+             "#else /*HAVE_GL_GLEW_H*/"
+             "#define ENSURE(fn) /**/"
+             "#endif /*HAVE_GL_GLEW_H*/"
              )
   (with-input-from-file *glext-abi*
     (cut port-for-each gen read))
@@ -93,7 +97,8 @@
             (ourtypename #`"type__,ptrname"))
        (receive (pre post) (string-scan typedef (x->string typename) 'both)
          (when pre
-           (cgen-decl #`",|pre|,|ourtypename|,|post|")
-           (cgen-decl #`"#define ,fn ,ptrname")
-           (cgen-body #`"static ,|ourtypename| ,fn = NULL;")))))
+           (cgen-with-cpp-condition '(not (defined "HAVE_GL_GLEW_H"))
+             (cgen-decl #`",|pre|,|ourtypename|,|post|")
+             (cgen-decl #`"#define ,fn ,ptrname")
+             (cgen-body #`"static ,|ourtypename| ,fn = NULL;"))))))
     (else #f)))

@@ -1,4 +1,13 @@
-2014-04-25  shiro  <shiro@acm.org>
+2014-05-24  Shiro Kawai  <shiro@acm.org>
+
+	* win32/glew-1.10.0, configure.in, src/Makefile.in, src/gauche-gl.h,
+	  src/gen-ptrs.scm, src/glu-lib.stub, src/glut-lib.stub:
+	  Incorporate GLEW (http://glew.sourceforge.net/) to use newer
+	  features of GL on MinGW.  The GL header files that come with MinGW
+	  is very old, and it is too much hassle to ask developers to update
+	  gl.h manually.
+
+2014-04-25  Shiro Kawai  <shiro@acm.org>
 
 	* lib/gl/simple/viewer.scm: Changed callback API to pass viewer
 	  state in f32vector.  (A hack is in place to support legacy

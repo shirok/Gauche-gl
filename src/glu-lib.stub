@@ -33,13 +33,6 @@
 
 
 "
-#if  MacOSX
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
 #include <gauche/uvector.h>
 #include \"gauche-gl.h\"
 "
@@ -299,7 +292,9 @@
     (result (gluBuild2DMipmaps target internalformat width height format
                                type texelptr))))
 
-(if "defined(GL_VERSION_1_2)" (begin
+;; NB: We exclude HAVE_GL_GLEW_H case since glew defines GL_VERSION_1_2,
+;; although MinGW's glu header doesn't have entry for these APIs.
+(if "defined(GL_VERSION_1_2) && !defined(HAVE_GL_GLEW_H)" (begin
 
 (define-cproc glu-build-3d-mipmaps (target::<fixnum>
                                     internalformat::<fixnum>

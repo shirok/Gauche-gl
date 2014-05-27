@@ -61,4 +61,6 @@ maintainer-clean : clean
 install-examples : install
 	$(INSTALL) -T $(INSTALL_ROOT) -m 444 \
 	           examples/gears.scm examples/mandelbrot.scm \
-	           examples/glbook/*.scm examples/glbook/README
+	           examples/glbook/*.scm examples/glbook/README \
+	           examples/images/*.rgb \
+		   examples/simple/*.scm

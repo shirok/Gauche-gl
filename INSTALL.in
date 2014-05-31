@@ -1,11 +1,12 @@
+@c -*- coding:utf-8 -*-
 @c JP
-                     Gauche-gl - Gauche OpenGL ¥Ğ¥¤¥ó¥Ç¥£¥ó¥°
+                     Gauche-gl - Gauche OpenGL ãƒã‚¤ãƒ³ãƒ‡ã‚£ãƒ³ã‚°
 @c EN
                        Gauche-gl - Gauche OpenGL binding
 @c COMMON
 
 @c JP
-Gauche-gl¤ÎºÇ¿·¾ğÊó¤Ï°Ê²¼¤ÎURL¤ÇÆÀ¤é¤ì¤Ş¤¹¡£
+Gauche-glã®æœ€æ–°æƒ…å ±ã¯ä»¥ä¸‹ã®URLã§å¾—ã‚‰ã‚Œã¾ã™ã€‚
 @c EN
 Up-to-date information about Gauche-gl is posted to the following URL:
 @c COMMON
@@ -13,7 +14,7 @@ Up-to-date information about Gauche-gl is posted to the following URL:
 
 
 @c JP
-É¬Í×¤Ê½àÈ÷
+å¿…è¦ãªæº–å‚™
 @c EN
 Prerequisites
 @c COMMON
@@ -21,10 +22,10 @@ Prerequisites
 
 
 @c JP
-* Gauche 0.9.3 °Ê¹ß¤¬¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤Æ¤¤¤ëÉ¬Í×¤¬¤¢¤ê¤Ş¤¹¡£
-* OpenGL 1.1°Ê¹ß¤â¤·¤¯¤ÏMesa 3.0°Ê¹ß¤¬É¬Í×¤Ç¤¹¡£
-* GLUT 3.7°Ê¹ß¤¬É¬Í×¤Ç¤¹¡£(¤¿¤À¤·¡¢MinGW¾å¤Ç¤Î¥³¥ó¥Ñ¥¤¥ë»ş¤Ë¤Ï
-  É¬Í×¤¢¤ê¤Ş¤»¤ó¡£°Ê²¼¤ÇÀâÌÀ¤·¤Ş¤¹)
+* Gauche 0.9.3 ä»¥é™ãŒã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚Œã¦ã„ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚
+* OpenGL 1.1ä»¥é™ã‚‚ã—ãã¯Mesa 3.0ä»¥é™ãŒå¿…è¦ã§ã™ã€‚
+* GLUT 3.7ä»¥é™ãŒå¿…è¦ã§ã™ã€‚(ãŸã ã—ã€MinGWä¸Šã§ã®ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«ã¯
+  å¿…è¦ã‚ã‚Šã¾ã›ã‚“ã€‚ä»¥ä¸‹ã§èª¬æ˜ã—ã¾ã™)
 @c EN
 * Gauche 0.9.3 or later must be installed.
 * OpenGL 1.1 or later, or Mesa 3.0 or later, required.
@@ -34,7 +35,7 @@ Prerequisites
 
 
 @c JP
-´ÊÃ±¤ÊÊıË¡
+ç°¡å˜ãªæ–¹æ³•
 @c EN
 Quick Start
 @c COMMON
@@ -45,8 +46,8 @@ Quick Start
    % make
    % make install
 @c JP
-Configure¥¹¥¯¥ê¥×¥È¤Ï¡¢´û¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤Æ¤¤¤ëGauche¤Î¾ğÊó¤ò¸µ¤Ë¡¢
-É¬Í×¤Ê¥³¥ó¥Ñ¥¤¥é¥ª¥×¥·¥ç¥ó¤ä¥¤¥ó¥¹¥È¡¼¥ëÀè¤òÀßÄê¤·¤Ş¤¹¡£
+Configureã‚¹ã‚¯ãƒªãƒ—ãƒˆã¯ã€æ—¢ã«ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚Œã¦ã„ã‚‹Gaucheã®æƒ…å ±ã‚’å…ƒã«ã€
+å¿…è¦ãªã‚³ãƒ³ãƒ‘ã‚¤ãƒ©ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚„ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«å…ˆã‚’è¨­å®šã—ã¾ã™ã€‚
 @c EN
 Configure script figures out the necessary compiler options and the
 install location from the installed Gauche.
@@ -54,7 +55,7 @@ install location from the installed Gauche.
 
 
 @c JP
-GLUT¥é¥¤¥Ö¥é¥ê¤Î¾ì½ê
+GLUTãƒ©ã‚¤ãƒ–ãƒ©ãƒªã®å ´æ‰€
 @c EN
 Location of GLUT Library
 @c COMMON
@@ -62,8 +63,8 @@ Location of GLUT Library
 
 
 @c JP
-¤â¤·GLUT¥é¥¤¥Ö¥é¥ê¤¬É¸½à¤Ç¤Ê¤¤¾ì½ê¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤Æ¤¤¤ë¾ì¹ç¡¢°Ê²¼¤Î¥ª¥×¥·¥ç¥ó¤Ç
-¤½¤Î¾ì½ê¤òconfigure¥¹¥¯¥ê¥×¥È¤ËÅÏ¤·¤Æ²¼¤µ¤¤¡£
+ã‚‚ã—GLUTãƒ©ã‚¤ãƒ–ãƒ©ãƒªãŒæ¨™æº–ã§ãªã„å ´æ‰€ã«ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚Œã¦ã„ã‚‹å ´åˆã€ä»¥ä¸‹ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã§
+ãã®å ´æ‰€ã‚’configureã‚¹ã‚¯ãƒªãƒ—ãƒˆã«æ¸¡ã—ã¦ä¸‹ã•ã„ã€‚
 @c EN
 If you have GLUT installed in non-standard place, you have to
 tell the configure script where it is.
@@ -73,10 +74,10 @@ tell the configure script where it is.
 
 
 @c JP
-MinGW¤Ç¤Ï¡¢ÊÌ¤ËGLUT¤ò¥¤¥ó¥¹¥È¡¼¥ë¤¹¤ë¤«¤ï¤ê¤Ë¡¢¥½¡¼¥¹¥Ä¥ê¡¼¤Ë´Ş¤Ş¤ì¤ëfreeglut-2.6
-¤ò»È¤¦¤³¤È¤â¤Ç¤­¤Ş¤¹¡£¤³¤ÎÊıË¡¤ò»È¤Ã¤¿¾ì¹ç¡¢freeglut¥é¥¤¥Ö¥é¥ê¤Ï¥¹¥¿¥Æ¥£¥Ã¥¯¤Ë
-¥ê¥ó¥¯¤µ¤ì¤ë¤¿¤á¡¢¥¹¥¯¥ê¥×¥È¤òÇÛÉÛ¤¹¤ëºİ¤Ëglut¥é¥¤¥Ö¥é¥ê¤òÊÌ¤Ë´Ş¤á¤ëÉ¬Í×¤Ï
-¤¢¤ê¤Ş¤»¤ó¡£¤³¤ÎÊıË¡¤òÁª¤Ö¾ì¹ç¤Ï¼¡¤Î¥ª¥×¥·¥ç¥ó¤Çconfigure¤·¤Æ¤¯¤À¤µ¤¤¡£
+MinGWã§ã¯ã€åˆ¥ã«GLUTã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã™ã‚‹ã‹ã‚ã‚Šã«ã€ã‚½ãƒ¼ã‚¹ãƒ„ãƒªãƒ¼ã«å«ã¾ã‚Œã‚‹freeglut-2.6
+ã‚’ä½¿ã†ã“ã¨ã‚‚ã§ãã¾ã™ã€‚ã“ã®æ–¹æ³•ã‚’ä½¿ã£ãŸå ´åˆã€freeglutãƒ©ã‚¤ãƒ–ãƒ©ãƒªã¯ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ã«
+ãƒªãƒ³ã‚¯ã•ã‚Œã‚‹ãŸã‚ã€ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’é…å¸ƒã™ã‚‹éš›ã«glutãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚’åˆ¥ã«å«ã‚ã‚‹å¿…è¦ã¯
+ã‚ã‚Šã¾ã›ã‚“ã€‚ã“ã®æ–¹æ³•ã‚’é¸ã¶å ´åˆã¯æ¬¡ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã§configureã—ã¦ãã ã•ã„ã€‚
 @c EN
 On MinGW, you can choose an option to use freeglut-2.6 binary included
 in the source tree instead of a separate GLUT library.  The freeglut
@@ -88,9 +89,9 @@ your script.   If you choose to do so, configure with the following option.
 
 
 @c JP
-freeglut¤ò¥ê¥ó¥¯¤·¤¿libgauche-glut.dll¤ò¥¢¥×¥ê¥±¡¼¥·¥ç¥ó¤È¶¦¤ËÇÛÉÛ¤¹¤ë¾ì¹ç¤Ï¡¢
-win32/freeglut-2.6.0-3/Copying.txt ¤ò¥Á¥§¥Ã¥¯¤·¤Æ¤¯¤À¤µ¤¤¡£freeglut¤Ï
-MIT¥é¥¤¥»¥ó¥¹Åª¤Ê¾ò·ï¤Ç»È¤¨¤Ş¤¹¤¬¡¢ÇÛÉÛÊª¤Ë¤ÏÃøºî¸¢É½¼¨¤ò´Ş¤á¤Ê¤±¤ì¤Ğ¤Ê¤ê¤Ş¤»¤ó¡£
+freeglutã‚’ãƒªãƒ³ã‚¯ã—ãŸlibgauche-glut.dllã‚’ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã¨å…±ã«é…å¸ƒã™ã‚‹å ´åˆã¯ã€
+win32/freeglut-2.6.0-3/Copying.txt ã‚’ãƒã‚§ãƒƒã‚¯ã—ã¦ãã ã•ã„ã€‚freeglutã¯
+MITãƒ©ã‚¤ã‚»ãƒ³ã‚¹çš„ãªæ¡ä»¶ã§ä½¿ãˆã¾ã™ãŒã€é…å¸ƒç‰©ã«ã¯è‘—ä½œæ¨©è¡¨ç¤ºã‚’å«ã‚ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
 @c EN
 If you distribute compiled libgauche-glut.dll with statically linked freeglut,
 check win32/freeglut-2.6.0-3/Copying.txt.  Freeglut is basically a MIT-like
@@ -99,7 +100,7 @@ license, but you need to include the copyright notice in your distribution.
 
 
 @c JP
-NVidia Cg ¥Ğ¥¤¥ó¥Ç¥£¥ó¥°
+NVidia Cg ãƒã‚¤ãƒ³ãƒ‡ã‚£ãƒ³ã‚°
 @c EN
 NVidia Cg binding
 @c COMMON
@@ -107,10 +108,10 @@ NVidia Cg binding
 
 
 @c JP
-Issac Trotts»á¤Ë¤è¤ë¡¢NVidia¤ÎCg Toolkit¤ò»È¤¦¤¿¤á¤Î¥Ğ¥¤¥ó¥Ç¥£¥ó¥°¤¬
-¥ª¥×¥·¥ç¥ó¤ÇÄó¶¡¤µ¤ì¤Æ¤¤¤Ş¤¹¡£¤Ş¤À°ìÉô¤ÎAPI¤·¤«¥«¥Ğ¡¼¤µ¤ì¤Æ¤¤¤Ş¤»¤ó¤¬
-¤¤¤¯¤Ä¤«¤Î¥µ¥ó¥×¥ë¤òÁö¤é¤»¤ë¤³¤È¤Ï¤Ç¤­¤Ş¤¹¡£Cg¥Ğ¥¤¥ó¥Ç¥£¥ó¥°¤ò¥Ó¥ë¥É¡¢
-¥¤¥ó¥¹¥È¡¼¥ë¤¹¤ë¤¿¤á¤Ë¤Ï¡¢configure»ş¤Ë--enable-cg¤ò»ØÄê¤·¤Æ¤¯¤À¤µ¤¤¡£
+Issac Trottsæ°ã«ã‚ˆã‚‹ã€NVidiaã®Cg Toolkitã‚’ä½¿ã†ãŸã‚ã®ãƒã‚¤ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ãŒ
+ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã§æä¾›ã•ã‚Œã¦ã„ã¾ã™ã€‚ã¾ã ä¸€éƒ¨ã®APIã—ã‹ã‚«ãƒãƒ¼ã•ã‚Œã¦ã„ã¾ã›ã‚“ãŒ
+ã„ãã¤ã‹ã®ã‚µãƒ³ãƒ—ãƒ«ã‚’èµ°ã‚‰ã›ã‚‹ã“ã¨ã¯ã§ãã¾ã™ã€‚Cgãƒã‚¤ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ã‚’ãƒ“ãƒ«ãƒ‰ã€
+ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã™ã‚‹ãŸã‚ã«ã¯ã€configureæ™‚ã«--enable-cgã‚’æŒ‡å®šã—ã¦ãã ã•ã„ã€‚
 @c EN
 Optionally you can build and install NVidia's Cg Toolkit bindings,
 written by Issac Trotts.  It only covers a part of API yet, but
@@ -121,8 +122,8 @@ give --enable-cg to the configure script.
   ./configure --enable-cg
 
 @c JP
-¥Ó¥ë¥É¤Ë¤Ï¡¢NVidia¤ÎCg Toolkit¤¬´û¤Ë¥¤¥ó¥¹¥È¡¼¥ë¤µ¤ì¤Æ¤¤¤ëÉ¬Í×¤¬¤¢¤ê¤Ş¤¹¡£
-NVidia¤ÎCg Toolkit¤Ï¼¡¤ÎURL¤«¤é¥À¥¦¥ó¥í¡¼¥É¤Ç¤­¤Ş¤¹¡£
+ãƒ“ãƒ«ãƒ‰ã«ã¯ã€NVidiaã®Cg ToolkitãŒæ—¢ã«ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚Œã¦ã„ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚
+NVidiaã®Cg Toolkitã¯æ¬¡ã®URLã‹ã‚‰ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã§ãã¾ã™ã€‚
 @c EN
 NVidia's Cg Toolkit has to be installed before building the
 binding.  You can download the toolkit from the following URL.
@@ -132,7 +133,7 @@ binding.  You can download the toolkit from the following URL.
 
 
 @c JP
-¥×¥é¥Ã¥È¥Õ¥©¡¼¥àÆÃÍ­¤Î¾ğÊó
+ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ç‰¹æœ‰ã®æƒ…å ±
 @c EN
 Platform-specific information
 @c COMMON
@@ -140,10 +141,10 @@ Platform-specific information
 
 
 @c JP
-FreeBSD¤Îports¤Ç¤ÏMesa¤¬pthreads¤ò¥¤¥Í¡¼¥Ö¥ë¤Ë¤·¤Æ¥³¥ó¥Ñ¥¤¥ë¤µ¤ì¤Æ¤¤¤ë
-¤½¤¦¤Ê¤Î¤Ç¡¢GaucheËÜÂÎ¤âpthreads¤ò¥¤¥Í¡¼¥Ö¥ë¤Ë¤·¤Æ¤ª¤«¤Ê¤¤¤ÈGauche-gl¤¬
-¥ê¥ó¥¯¤Ç¤­¤Ş¤»¤ó¡£(pthreads¤ò»ØÄê¤¹¤ë¤ÈGauche¤Îconfigure»ş¤Ë·Ù¹ğ¤¬
-½Ğ¤Ş¤¹¤¬¡¢¥×¥í¥°¥é¥àÃæ¤Çmake-thread¤·¤Ê¤±¤ì¤ĞÁ´¤¯ÌäÂê¤¢¤ê¤Ş¤»¤ó)
+FreeBSDã®portsã§ã¯MesaãŒpthreadsã‚’ã‚¤ãƒãƒ¼ãƒ–ãƒ«ã«ã—ã¦ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã•ã‚Œã¦ã„ã‚‹
+ãã†ãªã®ã§ã€Gaucheæœ¬ä½“ã‚‚pthreadsã‚’ã‚¤ãƒãƒ¼ãƒ–ãƒ«ã«ã—ã¦ãŠã‹ãªã„ã¨Gauche-glãŒ
+ãƒªãƒ³ã‚¯ã§ãã¾ã›ã‚“ã€‚(pthreadsã‚’æŒ‡å®šã™ã‚‹ã¨Gaucheã®configureæ™‚ã«è­¦å‘ŠãŒ
+å‡ºã¾ã™ãŒã€ãƒ—ãƒ­ã‚°ãƒ©ãƒ ä¸­ã§make-threadã—ãªã‘ã‚Œã°å…¨ãå•é¡Œã‚ã‚Šã¾ã›ã‚“)
 @c EN
 It is reported that Mesa in FreeBSD ports is compiled with pthreads
 enabled.  Thus Gauche-gl can't be linked unless Gauche itself is

@@ -1,4 +1,4 @@
-\input texinfo  @c -*-texinfo-*-
+\input texinfo  @c -*- mode:texinfo coding:utf-8 -*-
 @comment %**start of header
 @c EN
 @setfilename gauche-gl-refe.info
@@ -63,7 +63,7 @@ This manual is for version @VERSION@.
 
 @node Introduction, Installation, Top, Top
 @chapter Introduction
-@c NODE ¤Ï¤¸¤á¤Ë
+@c NODE ã¯ã˜ã‚ã«
 
 Gauche-gl is an extension module of Gauche Scheme implementation.
 It provides the following modules:
@@ -3903,7 +3903,7 @@ specifies the action when the key is pressed.
 @c ======================================================================
 @node Indices,  , Simple utilities, Top
 @appendix Indices
-@c NODE º÷°ú
+@c NODE ç´¢å¼•
 
 @menu
 * Function and Syntax Index::   
@@ -3914,17 +3914,17 @@ specifies the action when the key is pressed.
 
 @node Function and Syntax Index, Module Index, Indices, Indices
 @appendixsec Function and Syntax Index
-@c NODE ¼êÂ³¤­¤È¹½Ê¸º÷°ú
+@c NODE æ‰‹ç¶šãã¨æ§‹æ–‡ç´¢å¼•
 @printindex fn
 
 @node Module Index, Class Index, Function and Syntax Index, Indices
 @appendixsec Module Index
-@c NODE ¥â¥¸¥å¡¼¥ëº÷°ú
+@c NODE ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ç´¢å¼•
 @printindex md
 
 @node Class Index, Variable Index, Module Index, Indices
 @appendixsec Class Index
-@c NODE ¥¯¥é¥¹º÷°ú
+@c NODE ã‚¯ãƒ©ã‚¹ç´¢å¼•
 
 For readability, the surrounding @code{<} and @code{>} are stripped off.
 
@@ -3932,7 +3932,7 @@ For readability, the surrounding @code{<} and @code{>} are stripped off.
 
 @node Variable Index,  , Class Index, Indices
 @appendixsec Variable Index
-@c NODE ÊÑ¿ôº÷°ú
+@c NODE å¤‰æ•°ç´¢å¼•
 @printindex vr
 
 

@@ -25,7 +25,7 @@ if [ "$tgz" = "yes" ]; then
   (cd doc; make html)
   make distclean
   gosh doc/extract -en -o INSTALL INSTALL.in
-  gosh doc/extract -jp -o INSTALL.eucjp INSTALL.in
+  gosh doc/extract -jp -o INSTALL.utf-8 INSTALL.in
 
   if [ ! -f VERSION ]; then echo "No VERSION; something wrong?"; exit 1; fi
   VERSION=`cat VERSION`

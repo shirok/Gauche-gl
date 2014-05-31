@@ -94,7 +94,7 @@ gauche-gl-refj.info.gz : gauche-gl-refj.texi
 
 clean:
 	rm -rf core *~ *.aux *.cl *.cls *.cp *.fn *.fns *.ky *.log *.md *.mds \
-	       *.pg *.toc *.tp *.tps *.vr *.vrs *.pdf *.dvi *.info*
+	       *.pg *.toc *.tp *.tps *.vr *.vrs *.pdf *.dvi *.info* $(EXTRACTED)
 
 distclean : clean
 	rm -rf $(GENERATED)

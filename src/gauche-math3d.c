@@ -1,7 +1,7 @@
 /*
  * gauche-math3d.c - 3D vector and matrix arithmetics
  *
- *   Copyright (c) 2002-2012  Shiro Kawai  <shiro@acm.org>
+ *   Copyright (c) 2002-2014  Shiro Kawai  <shiro@acm.org>
  * 
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions

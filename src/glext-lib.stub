@@ -47,10 +47,12 @@
     }                                                  \\
   } while (0)
 
-/* GLhandle is (currently) typedef'ed to uint. */
+/* GLhandle is either typedef'ed to uint or void*;
+   for the time being, we treat cast it to intptr_t
+ */
 #define SCM_GL_HANDLE_P(obj)  SCM_INTEGERP(obj)
-#define SCM_MAKE_GL_HANDLE(handle)  Scm_MakeIntegerU(handle)
-#define SCM_GL_HANDLE_VALUE(shandle) Scm_GetIntegerU(shandle)
+#define SCM_MAKE_GL_HANDLE(handle)  Scm_MakeIntegerU((intptr_t)(handle))
+#define SCM_GL_HANDLE_VALUE(shandle) (GLhandleARB)(intptr_t)Scm_GetIntegerU(shandle)
 
 
 "

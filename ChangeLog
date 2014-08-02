@@ -1,3 +1,8 @@
+2014-08-01  Shiro Kawai  <shiro@acm.org>
+
+	* src/gen-ptrs.scm, src/glext-lib.stub, src/glut-lib.stub:
+	  Fixed build on OSX.
+
 2014-05-24  Shiro Kawai  <shiro@acm.org>
 
 	* win32/glew-1.10.0, configure.in, src/Makefile.in, src/gauche-gl.h,

@@ -33,7 +33,11 @@
 
 "
 #include \"gauche-gl.h\"
+#ifdef HAVE_GLUT_GLUT_H
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif
 #include \"gauche-glut.h\"
 "
 

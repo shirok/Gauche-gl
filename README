@@ -1,6 +1,6 @@
 This is Gauche-gl, OpenGL binding for Gauche.
 
-See INSTALL (English) or INSTALL.eucjp (Japanese) for 
+See INSTALL (English) or INSTALL.utf-8 (Japanese) for 
 installation instructions.
 
 Under doc/, you can find texinfo file of the documentation.
@@ -10,7 +10,7 @@ Under win32/, there are some auxiliary libraries required for
 win32 platform.   Things under this directory has its own
 copyright notices; check each subdirectories.
 
-Currently it only contains freeglut-2.6.0-3, a precompiled binary
+It contains freeglut-2.6.0-3, a precompiled binary
 of Pawel W. Olszta's FreeGlut, build for MinGW by Martin Payne.
 The package can be obtained from:
 http://www.transmissionzero.co.uk/computing/using-glut-with-mingw/

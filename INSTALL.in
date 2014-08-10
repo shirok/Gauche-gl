@@ -154,3 +154,11 @@ don't call make-thread in your program.
 @c COMMON
 
 
+@c JP
+OSX 10.9以降ではGLUTが非推奨となったため、コンパイル中にWarningが大量に出ます。
+動作に問題はありません。近い将来代替手段を提供する予定です。
+@c EN
+On OSX 10.9 or later you'll get tons of warnings during compiling
+since they deprecate GLUT.  It doesn't affect using the library.
+We'll provide alternatives in near future.
+@c COMMON

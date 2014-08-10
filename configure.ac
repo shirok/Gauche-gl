@@ -1,10 +1,10 @@
 dnl
 dnl Configuring gauche-gl
 dnl  process this file with "autoconf" to generate 'configure'.
-dnl $Id: configure.in,v 1.32 2007-07-10 00:13:21 shirok Exp $
+dnl
 
 AC_PREREQ(2.54)
-AC_INIT(Gauche-gl, 0.5.1, shiro@acm.org)
+AC_INIT(Gauche-gl, 0.6, shiro@acm.org)
 AC_CANONICAL_SYSTEM
 
 AC_PATH_XTRA

@@ -1,3 +1,7 @@
+2014-08-09  Shiro Kawai  <shiro@acm.org>
+
+	* release 0.6
+
 2014-08-01  Shiro Kawai  <shiro@acm.org>
 
 	* src/gen-ptrs.scm, src/glext-lib.stub, src/glut-lib.stub:

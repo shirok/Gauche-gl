@@ -381,7 +381,7 @@
        (match opts
          [() (set! default3-var proc)]
          [(':perspective)  (set! default3-var proc)]
-         [(':orthographic) (set! default3-var proc)]
+         [(':orthographic) (set! default2-var proc)]
          [(name)
           (cond [(name->window name) => (^[win] (ref win'closure) 'key proc)]
                 [else

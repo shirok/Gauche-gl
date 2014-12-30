@@ -399,7 +399,7 @@
 
 (define (simple-viewer-set-key! window . args)
   (let1 tab (cond [(not window) *default-key-handlers*]
-                  [(name->window window) => (cut ref <> 'key-handlers)]
+                  [(name->window window) => (^[win] ((ref win'closure) 'key-handlers))]
                   [else
                    (error "simple-viewer-set-key!: no such window:" window)])
     (let loop ([args args])

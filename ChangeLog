@@ -1,3 +1,8 @@
+2014-12-29  Shiro Kawai  <shiro@acm.org>
+
+	* src/glext-abi.scm, src/extract-abi.scm, src/gen-ptrs.scm:
+	  Added support up to OpenGL 4.5.
+
 2014-08-09  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.6

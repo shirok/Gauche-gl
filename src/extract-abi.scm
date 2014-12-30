@@ -674,12 +674,20 @@
     ))
 
 (define (scan)
+  ;; table of typedefname (PFN*PROC) -> typedef line
+  (define typedeftab (make-hash-table 'string=?))
+  
   (let loop ([x '()] ;; extensions name
              [c (reverse *gl-syms*)] ;; constants [(name . value)]
              [p '()]) ;; entry points [(name PFNNAMEPROC . typedef)]
     (rxmatch-case (read-line)
       [test eof-object?
-            (values (reverse x) (reverse c) (reverse p))]
+       (let1 eps (map (^[e] ; (name PFNNAMEPROC)
+                        (if-let1 typedef (hash-table-get typedeftab (cadr e) #f)
+                          `(,@e . ,typedef)
+                          e))
+                      p)
+         (values (reverse x) (reverse c) (reverse eps)))]
       [#/^#ifndef\s+(GL_\w+)/ (#f extname)
        (let1 en (string->symbol extname)
          (if (memq en x)
@@ -700,8 +708,7 @@
              (cons (list fname (format "PFN~aPROC" (string-upcase fname)))
                    p))]
       [#/^typedef.*(PFN.*?PROC\b).*/ (typedef name)
-       (if-let1 apientry (find (^e (string=? name (cadr e))) p)
-         (set-cdr! (cdr apientry) typedef))
+       (hash-table-put! typedeftab name typedef)
        (loop x c p)]
       [else (loop x c p)])))
 

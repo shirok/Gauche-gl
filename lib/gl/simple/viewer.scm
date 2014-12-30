@@ -383,7 +383,7 @@
          [(':perspective)  (set! default3-var proc)]
          [(':orthographic) (set! default2-var proc)]
          [(name)
-          (cond [(name->window name) => (^[win] (ref win'closure) 'key proc)]
+          (cond [(name->window name) => (^[win] ((ref win'closure) 'key proc))]
                 [else
                  (errorf "~a: no such window with name: ~a" 'varname name)])]
          ))]))

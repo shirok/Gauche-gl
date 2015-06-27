@@ -679,10 +679,12 @@
     (ENSURE glGetInfoLogARB)
     (glGetObjectParameterivARB object GL_OBJECT_INFO_LOG_LENGTH_ARB
                                (& loglen))
+    (when (< loglen 0) (= loglen 0))
     (let* ([logstr::GLcharARB*
-            (SCM_NEW_ATOMIC2 (char*) (* (+ loglen 1) (sizeof GLcharARB)))])
+            (SCM_NEW_ATOMIC2 (GLcharARB*) (* (+ loglen 1) (sizeof GLcharARB)))])
       (glGetInfoLogARB object loglen NULL logstr)
       (CHECK_ERROR glGetInfoLogARB)
+      (= (aref logstr loglen) 0)
       (result (Scm_MakeString (cast (const char*) logstr) (- loglen 1) -1 0)))))
 
 (define-cproc gl-get-attached-objects-arb (program::<gl-handle>)
@@ -721,14 +723,16 @@
     (glGetObjectParameterivARB program GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB
                                (& maxlen))
     (CHECK_ERROR "glGetObjectParameterivARB")
+    (when (< maxlen 0) (= maxlen 0))
     (let* ([len::GLsizei] [size::GLint] [type::GLenum]
            [namebuf::GLcharARB* (SCM_NEW_ATOMIC2 (GLcharARB*)
                                                  (* (+ maxlen 1)
-                                                    (sizeof (GLcharARB*))))])
+                                                    (sizeof GLcharARB)))])
       (glGetActiveUniformARB program index maxlen
                              (& len) (& size) (& type) namebuf)
       (CHECK_ERROR "glGetActiveUniformARB")
-      (result size type (Scm_MakeString namebuf len -1 0)))))
+      (= (aref namebuf maxlen) 0)
+      (result size type (Scm_MakeString (cast (const char*) namebuf) len -1 0)))))
 
 ; get-uniform-f-arb
 ; get-uniform-i-arb
@@ -740,10 +744,12 @@
     (glGetObjectParameterivARB object GL_OBJECT_SHADER_SOURCE_LENGTH_ARB
                                (& srclen))
     (CHECK_ERROR "glGetObjectParameterivARB")
+    (when (< srclen 0) (= srclen 0))
     (let* ([srcstr::GLcharARB*
-            (SCM_NEW_ATOMIC2 (char*) (* (+ srclen 1) (sizeof GLcharARB)))])
+            (SCM_NEW_ATOMIC2 (GLcharARB*) (* (+ srclen 1) (sizeof GLcharARB)))])
       (glGetShaderSourceARB object srclen NULL srcstr)
-      (result (Scm_MakeString (cast (char*) srcstr) (- srclen 1) -1 0)))))
+      (= (aref srcstr srclen) 0)
+      (result (Scm_MakeString (cast (const char*) srcstr) (- srclen 1) -1 0)))))
 
 ;;=============================================================
 ;; GL_ARB_shading_language_100

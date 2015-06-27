@@ -477,17 +477,17 @@
     (unless (and (SCM_F32VECTORP v2) (== (SCM_F32VECTOR_SIZE v2) 2))
       (goto badarg2))
     (glRectfv (SCM_F32VECTOR_ELEMENTS v1) (SCM_F32VECTOR_ELEMENTS v2))]
-   [(SCM_F64VECTOR_SIZE v1)
+   [(SCM_F64VECTORP v1)
     (unless (== (SCM_F64VECTOR_SIZE v1) 2) (goto badarg1))
     (unless (and (SCM_F64VECTORP v2) (== (SCM_F64VECTOR_SIZE v2) 2))
       (goto badarg2))
     (glRectdv (SCM_F64VECTOR_ELEMENTS v1) (SCM_F64VECTOR_ELEMENTS v2))]
-   [(SCM_S32VECTOR_SIZE v1)
+   [(SCM_S32VECTORP v1)
     (unless (== (SCM_S32VECTOR_SIZE v1) 2) (goto badarg1))
     (unless (and (SCM_S32VECTORP v2) (== (SCM_S32VECTOR_SIZE v2) 2))
       (goto badarg2))
     (glRectiv (SCM_S32VECTOR_ELEMENTS v1) (SCM_S32VECTOR_ELEMENTS v2))]
-   [(SCM_S16VECTOR_SIZE v1)
+   [(SCM_S16VECTORP v1)
     (unless (== (SCM_S16VECTOR_SIZE v1) 2) (goto badarg1))
     (unless (and (SCM_S16VECTORP v2) (== (SCM_S16VECTOR_SIZE v2) 2))
       (goto badarg2))

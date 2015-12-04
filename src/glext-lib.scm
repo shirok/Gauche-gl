@@ -1,7 +1,7 @@
 ;;;
-;;; glext-lib.stub - glue functions for GL extensions
+;;; glext-lib.scm - glue functions for GL extensions
 ;;;
-;;;  Copyright (c) 2004-2014  Shiro Kawai  <shiro@acm.org>
+;;;  Copyright (c) 2004-2015  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Redistribution and use in source and binary forms, with or without
 ;;;  modification, are permitted provided that the following conditions
@@ -31,11 +31,13 @@
 ;;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
 
-"
-#include \"gauche-gl.h\"
-#include \"gl-syms.h\"
-#include \"gl-ptrs.h\"
-"
+(select-module gl)
+
+(inline-stub
+ 
+(declcode "#include \"gauche-gl.h\""
+          "#include \"gl-syms.h\""
+          "#include \"gl-ptrs.h\"")
 
 (include "glcase.scm")
 
@@ -1592,6 +1594,8 @@
 (define-cproc gl-generate-mipmap-ext (target::<int>) ::<void>
   (ENSURE glGenerateMipmapEXT)
   (glGenerateMipmapEXT target))
+
+) ;; end inline-stub
 
 ;; Local variables:
 ;; mode: scheme

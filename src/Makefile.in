@@ -48,12 +48,16 @@ TARGET = $(ARCHFILES)
 
 CONFIG_GENERATED = Makefile config.cache config.log config.status \
 		   configure.lineno autom4te*.cache $(PACKAGE).gpd
-GENERATED = gl-syms.c gl-syms.h gl-ptrs.h gettype-sizes.c
+GENERATED = gl-syms.c gl-syms.h gl-ptrs.h gettype-sizes.c \
+	    gl-lib.c glu-lib.c glext-lib.c glut-lib.c math3d-lib.c
 
 all : $(TARGET)
 
 # math3d
-math3d_SRCS = gauche-math3d.c math3d-lib.stub
+math3d_SRCS = gauche-math3d.c math3d-lib.c
+
+math3d-lib.c : math3d-lib.scm
+	$(GOSH) precomp math3d-lib.scm
 
 libgauche-math3d.$(SOEXT) : $(math3d_SRCS) gauche/math3d.h
 	$(GAUCHE_PACKAGE) compile --verbose \
@@ -61,10 +65,19 @@ libgauche-math3d.$(SOEXT) : $(math3d_SRCS) gauche/math3d.h
 	   libgauche-math3d $(math3d_SRCS)
 
 # gl
-gl_SRCS     = gauche-gl.c gl-syms.c gl-lib.stub glu-lib.stub glext-lib.stub \
+gl_SRCS     = gauche-gl.c gl-syms.c gl-lib.c glu-lib.c glext-lib.c \
 	      @GLEW_SOURCE@
 gl_LIBS     = @GL_EXTRALIBS@ $(LIBS) 
 gl_HDRS     = gauche-gl.h gl-syms.h gl-ptrs.h gauche/math3d.h
+
+gl-lib.c : gl-lib.scm
+	$(GOSH) precomp gl-lib.scm
+
+glu-lib.c : glu-lib.scm
+	$(GOSH) precomp glu-lib.scm
+
+glext-lib.c : glext-lib.scm
+	$(GOSH) precomp glext-lib.scm
 
 libgauche-gl.$(SOEXT) : $(gl_SRCS) gettype-sizes.c glcase.scm $(gl_HDRS)
 	$(GAUCHE_PACKAGE) compile --verbose \
@@ -82,8 +95,11 @@ gettype-sizes.c : glstate.scm
 
 
 # glut
-glut_SRCS   = gauche-glut.c glut-lib.stub
+glut_SRCS   = gauche-glut.c glut-lib.c
 glut_LIBS   = @GLUT_LIBDIR@ @GLUT_LIB@ @GLUT_EXTRALIBS@ $(LIBS)
+
+glut-lib.c : glut-lib.scm
+	$(GOSH) precomp glut-lib.scm
 
 libgauche-glut.$(SOEXT) : $(glut_SRCS) gauche-glut.h
 	$(GAUCHE_PACKAGE) compile --verbose \

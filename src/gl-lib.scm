@@ -1,7 +1,7 @@
 ;;;
-;;; gl-lib.stub - glue functions for GL
+;;; gl-lib.scm - glue functions for GL
 ;;;
-;;;  Copyright (c) 2001-2014  Shiro Kawai  <shiro@acm.org>
+;;;  Copyright (c) 2001-2015  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Redistribution and use in source and binary forms, with or without
 ;;;  modification, are permitted provided that the following conditions
@@ -31,10 +31,12 @@
 ;;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
 
-"
-#include \"gauche-gl.h\"
-#include \"gl-syms.h\"
-"
+(select-module gl)
+
+(inline-stub
+
+(declcode "#include \"gauche-gl.h\""
+          "#include \"gl-syms.h\"")
 
 (include "glcase.scm")
 
@@ -1074,6 +1076,8 @@
 (define-cproc gl-load-name (name::<int>) ::<void> glLoadName)
 (define-cproc gl-push-name (name::<int>) ::<void> glPushName)
 (define-cproc gl-pop-name () ::<void> glPopName)
+
+) ;; end inline-stub
 
 ;; Local variables:
 ;; mode: scheme

@@ -1,7 +1,7 @@
 ;;;
-;;; math3d-lib.stub - 3d vector arithmetics
+;;; math3d-lib.scm - 3d vector arithmetics
 ;;;
-;;;  Copyright (c) 2002-2014  Shiro Kawai  <shiro@acm.org>
+;;;  Copyright (c) 2002-2015  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Redistribution and use in source and binary forms, with or without
 ;;;  modification, are permitted provided that the following conditions
@@ -31,12 +31,13 @@
 ;;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
 
+(select-module gl.math3d)
 
-"
-#include <math.h>
-#include <gauche/uvector.h>
-#include \"gauche/math3d.h\"
-"
+(inline-stub
+
+ (declcode "#include <math.h>"
+           "#include <gauche/uvector.h>"
+           "#include \"gauche/math3d.h\"")
 
 (include "glcase.scm")
 
@@ -706,6 +707,8 @@
                     (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
                     (SCM_VECTOR4F_D w1) (SCM_VECTOR4F_D w2))
   (result (SCM_OBJ q)))
+
+) ;; end inline-stub
 
 ;; Local variables:
 ;; mode: scheme

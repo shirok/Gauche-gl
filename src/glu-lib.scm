@@ -1,7 +1,7 @@
 ;;;
-;;; glu-lib.stub - glue functions for GLU
+;;; glu-lib.scm - glue functions for GLU
 ;;;
-;;;  Copyright (c) 2001-2014  Shiro Kawai  <shiro@acm.org>
+;;;  Copyright (c) 2001-2015  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Redistribution and use in source and binary forms, with or without
 ;;;  modification, are permitted provided that the following conditions
@@ -32,10 +32,13 @@
 ;;;
 
 
-"
-#include <gauche/uvector.h>
-#include \"gauche-gl.h\"
-"
+(select-module gl)
+
+(inline-stub
+
+(declcode "#include <gauche/uvector.h>"
+          "#include \"gauche-gl.h\"")
+
 (include "glcase.scm")
 
 (define-type <uvector> "ScmUVector*" "uniform vector"
@@ -486,6 +489,8 @@
 ;; New in GLU 1.1 
 (define-enum GLU_VERSION)
 (define-enum GLU_EXTENSIONS)
+
+) ;; end of inline-stub
 
 ;; Local variables:
 ;; mode: scheme

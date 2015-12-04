@@ -1,7 +1,7 @@
 ;;;
-;;; glut-lib.stub - glue functions for GLUT
+;;; glut-lib.scm - glue functions for GLUT
 ;;;
-;;;  Copyright (c) 2001-2014  Shiro Kawai  <shiro@acm.org>
+;;;  Copyright (c) 2001-2015  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Redistribution and use in source and binary forms, with or without
 ;;;  modification, are permitted provided that the following conditions
@@ -31,15 +31,17 @@
 ;;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
 
-"
-#include \"gauche-gl.h\"
-#ifdef HAVE_GLUT_GLUT_H
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-#include \"gauche-glut.h\"
-"
+(select-module gl.glut)
+
+(inline-stub
+
+ (declcode "#include \"gauche-gl.h\""
+           "#ifdef HAVE_GLUT_GLUT_H"
+           "#include <GLUT/glut.h>"
+           "#else"
+           "#include <GL/glut.h>"
+           "#endif"
+           "#include \"gauche-glut.h\"")
 
 (include "glcase.scm")
 
@@ -636,6 +638,8 @@
       ;;   Fullscreen crosshair (if available)
       (define-enum GLUT_CURSOR_FULL_CROSSHAIR)
       ))
+
+) ;; end inline-stub
 
 ;; Local variables:
 ;; mode: scheme

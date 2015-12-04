@@ -1,3 +1,9 @@
+2015-12-03  Shiro Kawai  <shiro@acm.org>
+
+	* src/gl-lib.scm, src/glu-lib.scm, src/glut-lib.scm, src/glext-lib.scm,
+	  src/math3d-lib.scm: Converted *.stub to more modern precompilable
+	  Scheme sources.
+
 2014-12-29  Shiro Kawai  <shiro@acm.org>
 
 	* src/glext-abi.scm, src/extract-abi.scm, src/gen-ptrs.scm:

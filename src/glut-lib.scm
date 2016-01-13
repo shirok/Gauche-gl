@@ -59,11 +59,21 @@
     (when (< argc 0) (SCM_TYPE_ERROR args "list"))
     (set! argv (Scm_ListToCStringArray args TRUE NULL))
     (glutInit (& argc) argv)
-    (.if "defined(HAVE_GL_GLEW_H)"
-         (let* ([r::GLenum (glewInit)])
-           (unless (!= r GLEW_OK)
-             (Scm_Error "Initializing GLEW failed."))))
+    ;; When using GLEW, 'glewInit' must be called after 'glutCreateWindow'
+    ;; to use OpenGL extensions such as 'glTexImage3D'.
+    ;; Thus, the following code was moved to 'glut-create-window'.
+    ;(.if "defined(HAVE_GL_GLEW_H)"
+    ;     (let* ([r::GLenum (glewInit)])
+    ;       (if (!= r GLEW_OK)
+    ;         (Scm_Error "Initializing GLEW failed."))))
     (result (Scm_CStringArrayToList (cast (const char**) argv) argc 0))))
+
+;; For debugging
+(define-cproc glew-init () ::<void>
+  (.if "defined(HAVE_GL_GLEW_H)"
+       (let* ([r::GLenum (glewInit)])
+         (if (!= r GLEW_OK)
+           (Scm_Error "Initializing GLEW failed.")))))
 
 (define-cproc glut-init-display-mode (mode::<fixnum>)
   ::<void> glutInitDisplayMode)
@@ -82,8 +92,13 @@
 
 (define-cproc glut-main-loop () ::<void> glutMainLoop)
 
-(define-cproc glut-create-window (name::<const-cstring>)
-  ::<int> glutCreateWindow)
+(define-cproc glut-create-window (name::<const-cstring>) ::<int>
+  (let* ([r1::int (glutCreateWindow name)])
+    (.if "defined(HAVE_GL_GLEW_H)"
+         (let* ([r::GLenum (glewInit)])
+           (if (!= r GLEW_OK)
+             (Scm_Error "Initializing GLEW failed."))))
+    (result r1)))
 
 (define-cproc glut-create-sub-window (win::<int> x::<int> y::<int>
                                       width::<int> height::<int>)

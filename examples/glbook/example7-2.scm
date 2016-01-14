@@ -26,6 +26,7 @@
   (gl-end))
 
 (define (disp)
+  (gl-load-identity)
   (gl-clear GL_COLOR_BUFFER_BIT)
   (gl-color 0.0 1.0 0.0)
   (dotimes (i 10) (gl-call-list *list-name*))

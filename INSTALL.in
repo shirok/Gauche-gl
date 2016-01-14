@@ -74,12 +74,12 @@ tell the configure script where it is.
 
 
 @c JP
-MinGWでは、別にGLUTをインストールするかわりに、ソースツリーに含まれるfreeglut-2.6
+MinGWでは、別にGLUTをインストールするかわりに、ソースツリーに含まれるfreeglut-3.0
 を使うこともできます。この方法を使った場合、freeglutライブラリはスタティックに
 リンクされるため、スクリプトを配布する際にglutライブラリを別に含める必要は
 ありません。この方法を選ぶ場合は次のオプションでconfigureしてください。
 @c EN
-On MinGW, you can choose an option to use freeglut-2.6 binary included
+On MinGW, you can choose an option to use freeglut-3.0 binary included
 in the source tree instead of a separate GLUT library.  The freeglut
 library is statically linked, which is convenient if you want to distribute
 your script.   If you choose to do so, configure with the following option.
@@ -90,11 +90,11 @@ your script.   If you choose to do so, configure with the following option.
 
 @c JP
 freeglutをリンクしたlibgauche-glut.dllをアプリケーションと共に配布する場合は、
-win32/freeglut-2.6.0-3/Copying.txt をチェックしてください。freeglutは
+win32/freeglut-3.0.0-1/Copying.txt をチェックしてください。freeglutは
 MITライセンス的な条件で使えますが、配布物には著作権表示を含めなければなりません。
 @c EN
 If you distribute compiled libgauche-glut.dll with statically linked freeglut,
-check win32/freeglut-2.6.0-3/Copying.txt.  Freeglut is basically a MIT-like
+check win32/freeglut-3.0.0-1/Copying.txt.  Freeglut is basically a MIT-like
 license, but you need to include the copyright notice in your distribution.
 @c COMMON
 

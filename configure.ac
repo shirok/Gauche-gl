@@ -34,8 +34,13 @@ AC_ARG_WITH(glut, [  --with-glut[=PATH]:      Use GLUT library installed under P
     yes) GLUT_LIB="-l$LIBGLUT";;
     mingw-static)
          GLUT_LIB="-lfreeglut_static -lgdi32 -lwinmm"
-         GLUT_INCDIR="-I../win32/freeglut-2.6.0-3/include -DFREEGLUT_STATIC"
-         GLUT_LIBDIR="-L../win32/freeglut-2.6.0-3/lib";;
+         GLUT_INCDIR="-I../win32/freeglut-3.0.0-1/include -DFREEGLUT_STATIC"
+         case "$target" in
+           *-*-mingw64*)
+             GLUT_LIBDIR="-L../win32/freeglut-3.0.0-1/lib/x64";;
+           *)
+             GLUT_LIBDIR="-L../win32/freeglut-3.0.0-1/lib";;
+         esac;;
     *)   GLUT_LIB="-l$LIBGLUT"
          GLUT_INCDIR="-I$with_glut/include"
          GLUT_LIBDIR="-L$with_glut/lib";;
@@ -105,8 +110,8 @@ fi
 case $target in
   *-*-mingw*)
     AC_DEFINE(HAVE_GL_GLEW_H)
-    GLEW_INCDIR="-I../win32/glew-1.10.0/include -DGLEW_STATIC"
-    GLEW_SOURCE="../win32/glew-1.10.0/src/glew.c"
+    GLEW_INCDIR="-I../win32/glew-1.13.0/include -DGLEW_STATIC"
+    GLEW_SOURCE="../win32/glew-1.13.0/src/glew.c"
 esac
 
 AC_SUBST(GL_LIBS)
@@ -122,10 +127,18 @@ AC_CHECK_PROGS(GZIP_PROGRAM, gzip)
 
 # Check for libraries
 
-# on cygwin, we need several extra -l flags.
+# On Cygwin and MinGW, we need several extra -l flags.
 case "$target" in
   *-*-cygwin*|*-*-mingw*)
-    LIBS="-lgauche-uvector $LIBS"
+    # Gauche's uvector library file name was changed in Gauche v0.9.5_pre1.
+    GAUCHE_SYSDIR=`"$GAUCHE_CONFIG" --sysarchdir | sed 's/\\\\/\\//g'`
+    GAUCHE_UVECTOR_DLL="$GAUCHE_SYSDIR/gauche--uvector.$SOEXT"
+    if test -e "$GAUCHE_UVECTOR_DLL"; then
+        GAUCHE_UVECTOR_LIBS="-lgauche--uvector"
+    else
+        GAUCHE_UVECTOR_LIBS="-lgauche-uvector"
+    fi
+    LIBS="$GAUCHE_UVECTOR_LIBS $LIBS"
     GL_EXTRALIBS="-L. -lgauche-math3d"
     GLUT_EXTRALIBS="-L. -lgauche-gl -lgauche-math3d"
     ;;

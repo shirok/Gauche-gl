@@ -111,8 +111,10 @@
           (glut-keyboard-func
            (lambda (key x y)
              (case (integer->char key)
-               ((#\q) (error "Don't worry about this error.")))))
-          (guard (exc (else 'foo))
+               ;((#\q) (error "Don't worry about this error.")))))
+               ((#\q) (exit 0)))))
+          ;(guard (exc (else 'foo))
+          (guard (exc (else (report-error exc) (exit 0)))
             (glut-main-loop))
           0
           )))))

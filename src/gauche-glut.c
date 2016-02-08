@@ -306,6 +306,8 @@ void Scm_Init_libgauche_glut(void)
     ScmModule *mod;
     SCM_INIT_EXTENSION(libgauche_glut);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl.glut", TRUE));
+    Scm_InitStaticClass(&Scm_GlutFontClass, "<glut-font>",
+                        mod, NULL, 0);
     Scm_Init_glut_lib(mod);
 
     /* Callback table */

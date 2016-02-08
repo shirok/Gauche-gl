@@ -1,0 +1,41 @@
+/VERSION
+*~
+
+# Automake and Autoconf
+config.guess
+config.log
+config.rpath
+config.status
+config.sub
+configure
+autom4te.cache
+Makefile
+
+# Compiler-generated files
+*.o
+*.lo
+*.la
+*.so
+*.sci
+*.dll
+*.exe
+
+# Other generated files
+DIST_EXCLUDE_X
+*.gpd
+INSTALL
+INSTALL.utf-8
+/doc/gauche-gl-refe.info.gz
+/doc/gauche-gl-refe.texi
+/doc/gauche-gl-refj.info.gz
+/doc/gauche-gl-refj.texi
+/src/gettype-sizes.c
+/src/gl-lib.c
+/src/gl-ptrs.h
+/src/gl-syms.c
+/src/gl-syms.h
+/src/glext-lib.c
+/src/glu-lib.c
+/src/glut-lib.c
+/src/math3d-lib.c
+

@@ -36,7 +36,9 @@ AC_ARG_WITH(glut, [  --with-glut[=PATH]:      Use GLUT library installed under P
          GLUT_LIB="-lfreeglut_static -lgdi32 -lwinmm"
          GLUT_INCDIR="-I../win32/freeglut-3.0.0-1/include -DFREEGLUT_STATIC"
          case "$target" in
-           *-*-mingw64*)
+	   # MSYS2 config.guess reports x86_64-pc-mingw64 on 64bit system,
+	   # but MSYS2/mingw-w64 toolchain canonically use x86_64-w64-mingw32.
+           x86_64-*-mingw*)
              GLUT_LIBDIR="-L../win32/freeglut-3.0.0-1/lib/x64";;
            *)
              GLUT_LIBDIR="-L../win32/freeglut-3.0.0-1/lib";;

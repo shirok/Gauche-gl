@@ -3308,10 +3308,10 @@ ones in f32vector.
 ;;    0 0 1 6
 ;;    0 0 0 1
 
-(make-matrix4f '#f32vector(1 0 0 0
-                           2 1 0 0
-                           3 0 1 0
-                           4 5 6 1))
+(make-matrix4f '#f32(1 0 0 0
+                     2 1 0 0
+                     3 0 1 0
+                     4 5 6 1))
 @end example
 @end defun
 

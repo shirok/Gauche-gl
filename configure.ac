@@ -112,8 +112,8 @@ fi
 case $target in
   *-*-mingw*)
     AC_DEFINE(HAVE_GL_GLEW_H)
-    GLEW_INCDIR="-I../win32/glew-1.13.0/include -DGLEW_STATIC"
-    GLEW_SOURCE="../win32/glew-1.13.0/src/glew.c"
+    GLEW_INCDIR="-I../win32/glew-2.1.0/include -DGLEW_STATIC"
+    GLEW_SOURCE="../win32/glew-2.1.0/src/glew.c"
 esac
 
 AC_SUBST(GL_LIBS)

@@ -74,7 +74,7 @@
   Scm_MakeGLBooleanVector)
 
 (define-cproc gl-boolean-vector-copy (bv::<gl-boolean-vector>)
-  (result (Scm_MakeGLBooleanVectorFromArray (-> bv size) (-> bv elements))))
+  (return (Scm_MakeGLBooleanVectorFromArray (-> bv size) (-> bv elements))))
 
 (define-cproc gl-boolean-vector-ref (bv::<gl-boolean-vector>
                                      k::<int>
@@ -82,9 +82,9 @@
   (cond [(or (< k 0) (>= k (-> bv size)))
          (when (SCM_UNBOUNDP fallback)
            (Scm_Error "argument out of bound: %d" k))
-         (result fallback)]
+         (return fallback)]
         [else
-         (result (SCM_MAKE_BOOL (aref (-> bv elements) k)))]))
+         (return (SCM_MAKE_BOOL (aref (-> bv elements) k)))]))
 
 (define-cproc gl-boolean-vector-set! (bv::<gl-boolean-vector>
                                       k::<int>
@@ -95,12 +95,12 @@
     (= (aref (-> bv elements) k) (?: (SCM_FALSEP value) GL_FALSE GL_TRUE))))
 
 (define-cproc gl-boolean-vector-length (bv::<gl-boolean-vector>) ::<int>
-  (result (-> bv size)))
+  (return (-> bv size)))
 
 (define-cproc gl-boolean-vector-fill! (bv::<gl-boolean-vector> fill)
   (let* ([val::GLboolean (?: (SCM_FALSEP fill) GL_FALSE GL_TRUE)])
     (dotimes [i (-> bv size)] (= (aref (-> bv elements) i) val)))
-  (result (SCM_OBJ bv)))
+  (return (SCM_OBJ bv)))
 
 ;;=============================================================
 ;; Miscellaneous
@@ -149,7 +149,7 @@
 (define-cproc gl-get-clip-plane (plane::<fixnum>)
   (let* ([v::ScmF64Vector* (SCM_F64VECTOR (Scm_MakeF64Vector 4 0.0))])
     (glGetClipPlane plane (SCM_F64VECTOR_ELEMENTS v))
-    (result (SCM_OBJ v))))
+    (return (SCM_OBJ v))))
 
 (define-cproc gl-draw-buffer (mode::<fixnum>) ::<void> glDrawBuffer)
 (define-cproc gl-read-buffer (mode::<fixnum>) ::<void> glReadBuffer)
@@ -180,11 +180,11 @@
    (if (== vsize 1)
      (let* ([b::GLboolean])
        (glGetBooleanv (cast GLenum state) (& b))
-       (result (SCM_MAKE_BOOL b)))
+       (return (SCM_MAKE_BOOL b)))
      (let* ([v (Scm_MakeGLBooleanVector vsize GL_FALSE)])
        (glGetBooleanv (cast GLenum state)
                       (-> (SCM_GL_BOOLEAN_VECTOR v) elements))
-       (result v)))))
+       (return v)))))
 
 (define-cproc gl-get-boolean! (vec::<gl-boolean-vector> state::<fixnum>)
   (with-state-info-size
@@ -193,7 +193,7 @@
       (Scm_Error "state %x needs a vector of size %d, but got %S"
                  state vsize (SCM_OBJ vec)))
    (glGetBooleanv (cast GLenum state) (-> vec elements))
-   (result (SCM_OBJ vec))))
+   (return (SCM_OBJ vec))))
 
 (define-cproc gl-get-integer (state::<fixnum>)
   (with-state-info-size
@@ -201,11 +201,11 @@
    (if (== vsize 1)
      (let* ([i::GLint])
        (glGetIntegerv (cast GLenum state) (& i))
-       (result (Scm_MakeInteger i)))
+       (return (Scm_MakeInteger i)))
      (let* ([v::ScmS32Vector* (SCM_S32VECTOR (Scm_MakeS32Vector vsize 0))])
        (glGetIntegerv (cast GLenum state)
                       (cast GLint* (SCM_S32VECTOR_ELEMENTS v)))
-       (result (SCM_OBJ v))))))
+       (return (SCM_OBJ v))))))
 
 (define-cproc gl-get-integer! (vec::<s32vector> state::<fixnum>)
   (with-state-info-size
@@ -215,7 +215,7 @@
                 state vsize vec))
    (glGetIntegerv (cast GLenum state)
                   (cast GLint* (SCM_S32VECTOR_ELEMENTS vec)))
-   (result (SCM_OBJ vec))))
+   (return (SCM_OBJ vec))))
 
 (define-cproc gl-get-float (state::<fixnum>)
   (with-state-info-size
@@ -223,10 +223,10 @@
    (if (== vsize 1)
      (let* ([v::GLfloat])
        (glGetFloatv (cast GLenum state) (& v))
-       (result (Scm_MakeFlonum (cast double v))))
+       (return (Scm_MakeFlonum (cast double v))))
      (let* ([v::ScmF32Vector* (SCM_F32VECTOR (Scm_MakeF32Vector vsize 0))])
        (glGetFloatv (cast GLenum state) (SCM_F32VECTOR_ELEMENTS v))
-       (result (SCM_OBJ v))))))
+       (return (SCM_OBJ v))))))
 
 (define-cproc gl-get-float! (vec::<f32vector> state::<fixnum>)
   (with-state-info-size
@@ -235,7 +235,7 @@
      (Scm_Error "state %x needs a vector of size %d, but got %S"
                 state vsize vec))
    (glGetFloatv (cast GLenum state) (SCM_F32VECTOR_ELEMENTS vec))
-   (result (SCM_OBJ vec))))
+   (return (SCM_OBJ vec))))
 
 (define-cproc gl-get-double (state::<fixnum>)
   (with-state-info-size
@@ -243,10 +243,10 @@
    (if (== vsize 1)
      (let* ([v::GLdouble])
        (glGetDoublev (cast GLenum state) (& v))
-       (result (Scm_MakeFlonum v)))
+       (return (Scm_MakeFlonum v)))
      (let* ([v::ScmF64Vector* (SCM_F64VECTOR (Scm_MakeF64Vector vsize 0))])
        (glGetDoublev (cast GLenum state) (SCM_F64VECTOR_ELEMENTS v))
-       (result (SCM_OBJ v))))))
+       (return (SCM_OBJ v))))))
 
 (define-cproc gl-get-double! (vec::<f64vector> state::<fixnum>)
   (with-state-info-size
@@ -255,7 +255,7 @@
      (Scm_Error "state %x needs a vector of size %d, but got %S"
                 state vsize vec))
    (glGetDoublev (cast GLenum state) (SCM_F64VECTOR_ELEMENTS vec))
-   (result (SCM_OBJ vec))))
+   (return (SCM_OBJ vec))))
 
 ;; glGetPointerv
 
@@ -270,8 +270,8 @@
 (define-cproc gl-get-string (name::<fixnum>)
   (let* ([s::(const GLubyte*) (glGetString name)])
     (if s
-      (result (Scm_MakeString (cast (const char*) s) -1 -1 SCM_MAKSTR_COPYING))
-      (result SCM_FALSE))))
+      (return (Scm_MakeString (cast (const char*) s) -1 -1 SCM_MAKSTR_COPYING))
+      (return SCM_FALSE))))
 
 (define-cproc gl-flush () ::<void> glFlush)
 (define-cproc gl-finish () ::<void> glFinish)
@@ -511,12 +511,28 @@
 ;; GL doesn't have interface to specify the boundary, so I can't detect
 ;; invalid length vector.
 
-;; Scheme version doesn't have TYPE - it's derived from vector type.
-;; STRIDE argument refers to the # of elements, rather than bytes.
+;; Scheme interface differs from C.
+;;  - The second argument can be u8, s16, s32, f32, f64vectors, p4farray,
+;;    or #f.  u8 is useful when you pass heterogeneous array as bytevector.
+;;    #f should be used to refer to VBO.
+;;  - Unlike C API, type can be inferred from the type of VEC, except when
+;;    vec is #f or u8vector.  If VEC is #f or u8vector, TYPE argument must
+;;    be provided.
+;;  - STRIDE and OFFSET argument refers to the # of elements, rather than bytes.
+;;    except when vec is #f or u8vector, in which case it is in bytes.
+
+(define-cfn elt-size-from-gltype-enum (type-enum::int) ::int :static
+  (case type-enum
+    [(GL_BYTE GL_UNSIGNED_BYTE) (return 1)]
+    [(GL_SHORT GL_UNSIGNED_SHORT GL_HALF_FLOAT) (return 2)]
+    [(GL_INT GL_UNSIGNED_INT GL_FIXED GL_FLOAT) (return 4)]
+    [(GL_DOUBLE) (return 8)]
+    [else (Scm_Error "invalid GL type enum argument: %d" type-enum)]))
 
 (define-cproc gl-vertex-pointer (size::<fixnum> vec
                                  &optional (stride::<fixnum> 0)
-                                           (offset::<fixnum> 0))
+                                           (offset::<fixnum> 0)
+                                           (type::<fixnum> 0))
   ::<void>
   (when (or (< size 2) (> size 4))
     (Scm_Error "bad argument for size: %d, must be 2, 3 or 4" size))
@@ -528,7 +544,24 @@
            ("glVertexPointer" size ~E (* stride (sizeof ~T))
             (cast void* (+ ~X offset)))
            ((p4farray) (f32) (f64) (s32) (s16))
-           "bad argument for vec: %S, must be f32, f64, s32 or s16vector"))
+           #f
+           (cond
+            [(SCM_U8VECTORP vec)
+             (when (= type 0)
+               (Scm_Error "gl-vertex-pointer requires type enum (GL_FLOAT etc) \
+                           if VEC argument is u8vector."))
+             (glVertexPointer size type stride
+                              (+ (SCM_U8VECTOR_ELEMENTS vec) offset))]
+            [(SCM_FALSEP vec)
+             (when (= type 0)
+               (Scm_Error "gl-vertex-pointer requires type enum (GL_FLOAT etc) \
+                           if VEC argument is u8vector."))
+             (glVertexPointer size type stride
+                              (+ (cast GLubyte* 0) offset))]
+            [else
+             (Scm_Error "bad argument for vec: must be u8, s16, s32, f32, f64 \
+                         uniform vector, point4f-array, or #f, but got: %S"
+                        vec)])))
 
 (define-cproc gl-normal-pointer (vec
                                  &optional (stride::<fixnum> 0)
@@ -601,12 +634,27 @@
 (define-cproc gl-array-element (ith::<fixnum>) ::<void>
   (glArrayElement ith))
 
-;; count and type is derived from indices vector
-(define-cproc gl-draw-elements (mode::<fixnum> indices) ::<void>
+;; indices can be uvector or #f (using VBO).
+;; if it's an uvector, count and type is derived from the vector.
+;; if it's #f, count and type must be given.
+(define-cproc gl-draw-elements (mode::<fixnum> 
+                                indices
+                                &optional (count::<fixnum> 0)
+                                          (type::<fixnum> 0)
+                                          (offset::<fixnum> 0))
+  ::<void>
   (gl-case (indices)
            ("glDrawElements" mode (SCM_UVECTOR_SIZE indices) ~E ~X)
            ((u8) (u16) (u32))
-           "bad argument for indices: %S, must be u8, u16 or u32vector"))
+           ""
+           (if (not (SCM_FALSEP indices))
+             (Scm_Error "bad argument for indices: %S, must be u8, u16, \
+                         u32vector or #f" indices)
+             (begin
+               (when (= type 0)
+                 (Scm_Error "gl-draw-elements requires type when using VBO"))
+               (glDrawElements mode count type
+                               (cast GLubyte* offset))))))
 
 (define-cproc gl-draw-arrays (mode::<fixnum> first::<fixnum> count::<fixnum>)
   ::<void> glDrawArrays)
@@ -625,6 +673,7 @@
   (glInterleavedArrays format (* stride (sizeof GLfloat))
                        (SCM_F32VECTOR_ELEMENTS vec)))
 
+  
 ;;=============================================================
 ;; Lighting
 ;;
@@ -649,15 +698,15 @@
     [(GL_AMBIENT GL_DIFFUSE GL_SPECULAR GL_POSITION)
      (let* ([v (Scm_MakeF32Vector 4 0.0)])
        (glGetLightfv light pname (SCM_F32VECTOR_ELEMENTS v))
-       (result v))]
+       (return v))]
     [(GL_SPOT_DIRECTION)
      (let* ([v (Scm_MakeF32Vector 3 0.0)])
        (glGetLightfv light pname (SCM_F32VECTOR_ELEMENTS v))
-       (result v))]
+       (return v))]
     [else
      (let* ([f::GLfloat])
        (glGetLightfv light pname (& f))
-       (result (Scm_MakeFlonum (cast double f))))]))
+       (return (Scm_MakeFlonum (cast double f))))]))
 
 (define-cproc gl-light-model (pname::<fixnum> param) ::<void>
   (case pname
@@ -688,15 +737,15 @@
     [(GL_AMBIENT GL_DIFFUSE GL_SPECULAR GL_EMISSION)
      (let* ([v (Scm_MakeF32Vector 4 0.0)])
        (glGetMaterialfv face pname (SCM_F32VECTOR_ELEMENTS v))
-       (result v))]
+       (return v))]
     [(GL_COLOR_INDEXES)
      (let* ([v (Scm_MakeS32Vector 4 0.0)])
        (glGetMaterialiv face pname (SCM_S32VECTOR_ELEMENTS v))
-       (result v))]
+       (return v))]
     [(GL_SHININESS)
      (let* ([v::GLfloat])
        (glGetMaterialfv face pname (& v))
-       (result (Scm_MakeFlonum (cast double v))))]
+       (return (Scm_MakeFlonum (cast double v))))]
     [else (Scm_Error "bad pname: %d" pname)]))
 
 (define-cproc gl-color-material (face::<fixnum> mode::<fixnum>)
@@ -731,7 +780,7 @@
 (define-cproc gl-get-pixel-map! (map::<fixnum> values)
   (gl-case (values) ("glGetPixelMap~v" map ~X) ((u32) (u16) (f32))
            "map value vector must be u16, u32 or f32 vector, but got %S")
-  (result values))
+  (return values))
 
 ;; allocate the vector in it.  type can be a class 
 ;; <u32vector> (default), <u16vector> or <f32vector>
@@ -744,15 +793,15 @@
      [(or (SCM_UNBOUNDP type) (== type (SCM_OBJ SCM_CLASS_U32VECTOR)))
       (let* ([vec (Scm_MakeU32Vector size 0)])
         (glGetPixelMapuiv map (cast GLuint* (SCM_U32VECTOR_ELEMENTS vec)))
-        (result vec))]
+        (return vec))]
      [(== type (SCM_OBJ SCM_CLASS_U16VECTOR))
       (let* ([vec (Scm_MakeU16Vector size 0)])
         (glGetPixelMapusv map (cast GLushort* (SCM_U16VECTOR_ELEMENTS vec)))
-        (result vec))]
+        (return vec))]
      [(== type (SCM_OBJ SCM_CLASS_F32VECTOR))
       (let* ([vec (Scm_MakeF32Vector size 0)])
         (glGetPixelMapfv map (cast GLfloat* (SCM_F32VECTOR_ELEMENTS vec)))
-        (result vec))]
+        (return vec))]
      [else
       (Scm_Error "pixel map vector class must be either <u32vector>, <u16vector> or <f32vector>, but got %S" type)])))
 
@@ -777,7 +826,7 @@
     (unless (SCM_UVECTORP vec)
       (Scm_Error "invalid format or type (%S, %S)" format type))
     (glReadPixels x y width height format type (SCM_UVECTOR_ELEMENTS vec))
-    (result vec)))
+    (return vec)))
 
 ; gl-read-pixels!
 
@@ -878,15 +927,15 @@
       GL_TEXTURE_MAG_FILTER GL_TEXTURE_MIN_FILTER)
      (let* ([i::GLint])
        (glGetTexParameteriv target pname (& i))
-       (result (Scm_MakeInteger i)))]
+       (return (Scm_MakeInteger i)))]
     [(GL_TEXTURE_PRIORITY GL_TEXTURE_MIN_LOD GL_TEXTURE_MAX_LOD)
      (let* ([f::GLfloat])
        (glGetTexParameterfv target pname (& f))
-       (result (Scm_MakeFlonum (cast double f))))]
+       (return (Scm_MakeFlonum (cast double f))))]
     [(GL_TEXTURE_BORDER_COLOR)
      (let* ([vec (Scm_MakeF32Vector 4 0.0)])
        (glGetTexParameterfv target pname (SCM_F32VECTOR_ELEMENTS vec))
-       (result vec))]
+       (return vec))]
     [else
      (Scm_Error "unknown or unsupported glTexParameter pname: %d" pname)]))
 
@@ -899,7 +948,7 @@
       GL_TEXTURE_ALPHA_SIZE GL_TEXTURE_LUMINANCE_SIZE GL_TEXTURE_INTENSITY_SIZE)
      (let* ([i::GLint])
        (glGetTexLevelParameteriv target level pname (& i))
-       (result (Scm_MakeInteger i)))]
+       (return (Scm_MakeInteger i)))]
     [else
      (Scm_Error "unknown or unsupported glTexLevelParameter pname: %d" pname)]))
 
@@ -945,7 +994,7 @@
     (Scm_Error "size must be a positive integer, but got %d" size))
   (let* ([vec (Scm_MakeU32Vector size 0)])
     (glGenTextures size (cast GLuint* (SCM_U32VECTOR_ELEMENTS vec)))
-    (result vec)))
+    (return vec)))
 
 (define-cproc gl-delete-textures (names::<u32vector>) ::<void>
   (glDeleteTextures (SCM_U32VECTOR_SIZE names)

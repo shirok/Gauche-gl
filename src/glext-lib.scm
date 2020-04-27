@@ -822,39 +822,88 @@
            "matrix4f, or f32vector or f64vector of length 16 is required, but got %S"))
 
 ;;=============================================================
-;; GL_ARB_vertex_buffer_object
-;;
+;; (GL_ARB_vertex_buffer_object)
+;; GL_EXT_vertex_buffer_object
 
-(define-cproc gl-bind-buffer-arb (target::<int> buffer::<uint>) ::<void>
-  (ENSURE glBindBufferARB)
-  (glBindBufferARB target buffer))
+(define-cproc gl-bind-buffer (target::<int> buffer::<uint>) ::<void>
+  (ENSURE glBindBuffer)
+  (glBindBuffer target buffer))
 
-(define-cproc gl-delete-buffers-arb (buffers::<u32vector>) ::<void>
-  (ENSURE glDeleteBuffersARB)
-  (glDeleteBuffersARB (SCM_U32VECTOR_SIZE buffers)
-                      (SCM_U32VECTOR_ELEMENTS buffers)))
+(define-cproc gl-delete-buffers (buffers::<u32vector>) ::<void>
+  (ENSURE glDeleteBuffers)
+  (glDeleteBuffers (SCM_U32VECTOR_SIZE buffers)
+                   (SCM_U32VECTOR_ELEMENTS buffers)))
 
-(define-cproc gl-gen-buffers-arb (n::<uint>)
+(define-cproc gl-gen-buffers (n::<uint>)
   (let* ([v (Scm_MakeU32Vector n 0)])
-    (ENSURE glGenBuffersARB)
-    (glGenBuffersARB n (SCM_U32VECTOR_ELEMENTS v))
+    (ENSURE glGenBuffers)
+    (glGenBuffers n (SCM_U32VECTOR_ELEMENTS v))
     (result v)))
 
-(define-cproc gl-is-buffer-arb (buffer::<uint>) ::<boolean>
-  (ENSURE glIsBufferARB)
-  (result (glIsBufferARB buffer)))
+(define-cproc gl-is-buffer (buffer::<uint>) ::<boolean>
+  (ENSURE glIsBuffer)
+  (result (glIsBuffer buffer)))
 
-; gl-buffer-data-arb
-; gl-buffer-sub-data-arb
-; gl-get-buffer-sub-data-arb
-; gl-map-buffer-arb
+(define-cproc gl-buffer-data (target::<fixnum> 
+                              size::<ulong>
+                              data
+                              usage::<fixnum>)
+  ::<void>
+  (let* ([p::GLvoid* NULL])
+    (cond [(SCM_UVECTORP data) (set! p (SCM_UVECTOR_ELEMENTS data))]
+          [(SCM_POINT4F_ARRAY_P data) (set! p (SCM_POINT4F_ARRAY_D data))]
+          [(SCM_FALSEP data)]
+          [else
+           (Scm_Error "data must be either uvector, point4f-array or #f, \
+                       but got %S" data)])
+    (ENSURE glBufferData)
+    (glBufferData target size p usage)))
 
-(define-cproc gl-unmap-buffer-arb (target::<int>) ::<boolean>
-  (ENSURE glUnmapBufferARB)
-  (result (glUnmapBufferARB target)))
+(define-cproc gl-buffer-sub-data (target::<fixnum>
+                                  offset::<fixnum>
+                                  size::<fixnum>
+                                  data) ::<void>
+  (let* ([p::GLvoid* NULL])
+    (cond [(SCM_UVECTORP data) (set! p (SCM_UVECTOR_ELEMENTS data))]
+          [(SCM_POINT4F_ARRAY_P data) (set! p (SCM_POINT4F_ARRAY_D data))]
+          [else
+           (Scm_Error "data must be either uvector, or point4f-array, \
+                       but got %S" data)])
+    (ENSURE glBufferSubData)
+    (glBufferSubData target offset size p)))
 
-; glGetBufferParameterivARB
-; glGetBufferPointervARB
+(define-cproc gl-map-buffer (target::<fixnum> access::<ulong>) ::<void>
+  (ENSURE glMapBuffer)
+  (glMapBuffer target access))
+
+(define-cproc gl-unmap-buffer (target::<int>) ::<boolean>
+  (ENSURE glUnmapBuffer)
+  (result (glUnmapBuffer target)))
+
+(define-cproc gl-map-buffer-range (target::<fixnum> 
+                                   offset::<fixnum>
+                                   length::<ulong>
+                                   access::<ulong>)
+  ::<void>
+  (ENSURE glMapBufferRange)
+  (glMapBufferRange target offset length access))
+
+(define-cproc gl-flush-mapped-buffer-range (target::<fixnum>
+                                            offset::<fixnum>
+                                            length::<fixnum>)
+  ::<void>
+  (ENSURE glFlushMappedBufferRange)
+  (glFlushMappedBufferRange target offset length))
+
+(define-cproc gl-copy-buffer-sub-data (readbuffer::<fixnum>
+                                       writebuffer::<fixnum>
+                                       readoffset::<fixnum>
+                                       writeoffset::<fixnum>
+                                       size::<fixnum>)
+  ::<void>
+  (ENSURE glCopyBufferSubData)
+  (glCopyBufferSubData readbuffer writebuffer
+                       readoffset writeoffset size))
 
 ;;=============================================================
 ;; GL_ARB_vertex_program
@@ -1313,6 +1362,21 @@
 ;; GL_EXT_vertex_array
 ;;
 
+(define-cproc gl-gen-vertex-arrays (size::<fixnum>)
+  (let* ([v (Scm_MakeU32Vector size 0)])
+    (glGenVertexArrays size (cast GLuint* (SCM_U32VECTOR_ELEMENTS v)))
+    (return v)))
+
+(define-cproc gl-bind-vertex-array (array_no::<fixnum>) ::<void>
+  (glBindVertexArray array_no))
+
+(define-cproc gl-delete-vertex-arrays (arrays::<u32vector>) ::<void>
+  (glDeleteVertexArrays (SCM_U32VECTOR_SIZE arrays)
+                        (cast GLuint* (SCM_U32VECTOR_ELEMENTS arrays))))
+
+(define-cproc gl-is-vertex-array (array_no::<fixnum>) ::<boolean>
+  (return (glIsVertexArray array_no)))
+
 ;;=============================================================
 ;; GL_EXT_vertex_weighting
 ;;
@@ -1596,6 +1660,15 @@
   (glGenerateMipmapEXT target))
 
 ) ;; end inline-stub
+
+;; Backward compatibility names
+;; We define them to not break old code.
+
+(define gl-bind-buffer-arb gl-bind-buffer)
+(define gl-delete-buffers-arb gl-delete-buffers)
+(define gl-gen-buffers-arb gl-gen-buffers)
+(define gl-is-buffer-arb gl-is-buffer)
+(define gl-unmap-buffer-arb gl-unmap-buffer)
 
 ;; Local variables:
 ;; mode: scheme

@@ -67,7 +67,7 @@
 ;;                      | (<variable> <restvar>)
 ;;
 ;;    This specifies which C variable gl-case should dispatch upon.
-;;    The simplest case is a single-variable one, just the varaible
+;;    The simplest case is a single-variable one, just the variable
 ;;    we dispatch on.
 ;; 
 ;;    The second form is used for variable-arity api such as gl-vertex;

@@ -49,16 +49,16 @@ pdf : gauche-gl-refe.pdf
 info : gauche-gl-refe.info.gz gauche-gl-refj.info.gz
 
 gauche-gl-refe.html : gauche-gl-refe.texi
-	texi2html -number gauche-gl-refe.texi
+	makeinfo --html --no-split gauche-gl-refe.texi
 
 gauche-gl-refe_toc.html : gauche-gl-refe.texi
-	texi2html -split section -number gauche-gl-refe.texi
+	makeinfo --html --split=section gauche-gl-refe.texi
 
 gauche-gl-refe.dvi : gauche-gl-refe.texi
-	texi2dvi gauche-gl-refe.texi
+	makeinfo --dvi --Xopt --tidy gauche-gl-refe.texi
 
 gauche-gl-refe.pdf : gauche-gl-refe.texi
-	texi2pdf gauche-gl-refe.texi
+	makeinfo --pdf --Xopt --tidy gauche-gl-refe.texi
 
 gauche-gl-refe.texi : gauche-gl-ref.texi extract
 	gosh ./extract -en -o gauche-gl-refe.texi gauche-gl-ref.texi
@@ -71,16 +71,16 @@ gauche-gl-refe.info.gz : gauche-gl-refe.texi
 	fi
 
 gauche-gl-refj.html : gauche-gl-refj.texi
-	texi2html -number gauche-gl-refj.texi
+	makeinfo --html --no-split gauche-gl-refj.texi
 
 gauche-gl-refj_toc.html : gauche-gl-refj.texi
-	texi2html -split section -number gauche-gl-refj.texi
+	makeinfo --html --split=section gauche-gl-refj.texi
 
 gauche-gl-refj.dvi : gauche-gl-refj.texi
-	texi2dvi gauche-gl-refj.texi
+	makeinfo --dvi --Xopt --tidy gauche-gl-refj.texi
 
 gauche-gl-refj.pdf : gauche-gl-refj.texi
-	texi2pdf gauche-gl-refj.texi
+	makeinfo --pdf --Xopt --dity gauche-gl-refj.texi
 
 gauche-gl-refj.texi : gauche-gl-ref.texi extract
 	gosh ./extract -jp -o gauche-gl-refj.texi gauche-gl-ref.texi
@@ -94,7 +94,8 @@ gauche-gl-refj.info.gz : gauche-gl-refj.texi
 
 clean:
 	rm -rf core *~ *.aux *.cl *.cls *.cp *.fn *.fns *.ky *.log *.md *.mds \
-	       *.pg *.toc *.tp *.tps *.vr *.vrs *.pdf *.dvi *.info* $(EXTRACTED)
+	       *.pg *.toc *.tp *.tps *.vr *.vrs *.pdf *.dvi *.info* \
+	       *.html gauche-gl-refe/ gauche-gl-refj/ $(EXTRACTED)
 
 distclean : clean
 	rm -rf $(GENERATED)

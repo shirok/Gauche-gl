@@ -855,12 +855,12 @@
          [isize::GLsizeiptr 0])
     (cond [(SCM_UVECTORP data) 
            (set! p (SCM_UVECTOR_ELEMENTS data))
-           (set! size (Scm_UVectorSizeInBytes (SCM_UVECTOR data)))]
+           (set! isize (Scm_UVectorSizeInBytes (SCM_UVECTOR data)))]
           [(SCM_POINT4F_ARRAY_P data) 
            (set! p (SCM_POINT4F_ARRAY_D data))
-           (set! size (* (-> (SCM_POINT4F_ARRAY data) size)
-                         (sizeof (float))
-                         4))]
+           (set! isize (* (-> (SCM_POINT4F_ARRAY data) size)
+                          (sizeof (float))
+                          4))]
           [(SCM_FALSEP data)]
           [else
            (Scm_Error "data must be either uvector, point4f-array or #f, \

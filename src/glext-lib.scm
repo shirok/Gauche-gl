@@ -844,18 +844,31 @@
   (ENSURE glIsBuffer)
   (result (glIsBuffer buffer)))
 
+;; NB: We need size argument, for data can be #f (NULL).   You can pass
+;; 0 to size to make gl-buffer-data calculate one from data.
 (define-cproc gl-buffer-data (target::<fixnum> 
                               size::<ulong>
                               data
                               usage::<fixnum>)
   ::<void>
-  (let* ([p::GLvoid* NULL])
-    (cond [(SCM_UVECTORP data) (set! p (SCM_UVECTOR_ELEMENTS data))]
-          [(SCM_POINT4F_ARRAY_P data) (set! p (SCM_POINT4F_ARRAY_D data))]
+  (let* ([p::GLvoid* NULL]
+         [isize::GLsizeiptr 0])
+    (cond [(SCM_UVECTORP data) 
+           (set! p (SCM_UVECTOR_ELEMENTS data))
+           (set! size (Scm_UVectorSizeInBytes (SCM_UVECTOR data)))]
+          [(SCM_POINT4F_ARRAY_P data) 
+           (set! p (SCM_POINT4F_ARRAY_D data))
+           (set! size (* (-> (SCM_POINT4F_ARRAY data) size)
+                         (sizeof (float))
+                         4))]
           [(SCM_FALSEP data)]
           [else
            (Scm_Error "data must be either uvector, point4f-array or #f, \
                        but got %S" data)])
+    (when (== size 0)
+      (if (== isize 0)
+        (Scm_Error "You have to specify non-zero size parameter if you pass #f to data")
+        (set! size isize)))
     (ENSURE glBufferData)
     (glBufferData target size p usage)))
 
@@ -1363,18 +1376,22 @@
 ;;
 
 (define-cproc gl-gen-vertex-arrays (size::<fixnum>)
+  (ENSURE glGenVertexArrays)
   (let* ([v (Scm_MakeU32Vector size 0)])
     (glGenVertexArrays size (cast GLuint* (SCM_U32VECTOR_ELEMENTS v)))
     (return v)))
 
 (define-cproc gl-bind-vertex-array (array_no::<fixnum>) ::<void>
+  (ENSURE glBindVertexArray)
   (glBindVertexArray array_no))
 
 (define-cproc gl-delete-vertex-arrays (arrays::<u32vector>) ::<void>
+  (ENSURE glDeleteVertexArrays)
   (glDeleteVertexArrays (SCM_U32VECTOR_SIZE arrays)
                         (cast GLuint* (SCM_U32VECTOR_ELEMENTS arrays))))
 
 (define-cproc gl-is-vertex-array (array_no::<fixnum>) ::<boolean>
+  (ENSURE glIsVertexArray)
   (return (glIsVertexArray array_no)))
 
 ;;=============================================================

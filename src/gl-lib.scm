@@ -547,15 +547,15 @@
            #f
            (cond
             [(SCM_U8VECTORP vec)
-             (when (= type 0)
+             (when (== type 0)
                (Scm_Error "gl-vertex-pointer requires type enum (GL_FLOAT etc) \
                            if VEC argument is u8vector."))
              (glVertexPointer size type stride
                               (+ (SCM_U8VECTOR_ELEMENTS vec) offset))]
             [(SCM_FALSEP vec)
-             (when (= type 0)
+             (when (== type 0)
                (Scm_Error "gl-vertex-pointer requires type enum (GL_FLOAT etc) \
-                           if VEC argument is u8vector."))
+                           if VEC argument is #f."))
              (glVertexPointer size type stride
                               (+ (cast GLubyte* 0) offset))]
             [else
@@ -651,10 +651,10 @@
              (Scm_Error "bad argument for indices: %S, must be u8, u16, \
                          u32vector or #f" indices)
              (begin
-               (when (= type 0)
+               (when (== type 0)
                  (Scm_Error "gl-draw-elements requires type when using VBO"))
                (glDrawElements mode count type
-                               (cast GLubyte* offset))))))
+                               (+ (cast GLubyte* 0) offset))))))
 
 (define-cproc gl-draw-arrays (mode::<fixnum> first::<fixnum> count::<fixnum>)
   ::<void> glDrawArrays)

@@ -37,7 +37,7 @@
 
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2002-2012 Shiro Kawai (shiro@@acm.org)
+Copyright @copyright{} 2002-2020 Shiro Kawai (shiro@@acm.org)
 
 @end titlepage
 
@@ -63,7 +63,6 @@ This manual is for version @VERSION@.
 
 @node Introduction, Installation, Top, Top
 @chapter Introduction
-@c NODE はじめに
 
 Gauche-gl is an extension module of Gauche Scheme implementation.
 It provides the following modules:
@@ -71,7 +70,7 @@ It provides the following modules:
 @table @code
 @item gl
 This module provides bindings to OpenGL API.
-It covers most functions in OpenGL 1.0 through 2.0,
+It covers most functions in OpenGL 1.0 through 4.5,
 and GLU.   The functions are described in @ref{OpenGL API}.
 @item gl.glut
 This module provides bindings to most functions in GLUT.
@@ -101,10 +100,11 @@ You have to have the following programs installed on your machine.
 @item
 Gauche 0.8.5 or later
 @item
-OpenGL 1.1 equivalent library; the auther checked with Mesa 3.4
-and NVidia's GLX driver.
+OpenGL 1.1 equivalent library or later.
 @item
 GLUT 3.7 or later.
+@item
+GLEW (when you compile Gauche-gl on Windows, using MinGW-w64).
 @end itemize
 
 The standard way to compile and install Gauche-gl is as follows:

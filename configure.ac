@@ -9,6 +9,13 @@ AC_CANONICAL_SYSTEM
 
 AC_PATH_XTRA
 
+# On MSYS2/MinGW-w64 32bit, we must add sse options in order to avoid
+# math3d test errors.
+case "$target" in
+  i686-*-mingw*)
+    CFLAGS="$CFLAGS -msse2 -mfpmath=sse";;
+esac
+
 case "$target" in
   *-*-cygwin*)
     if test "x-$have_x" = "x-disabled" -o "x-$have_x" = "x-no";

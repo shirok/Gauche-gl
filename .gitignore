@@ -37,5 +37,6 @@ INSTALL.utf-8
 /src/glext-lib.c
 /src/glu-lib.c
 /src/glut-lib.c
+/src/glfw-lib.c
 /src/math3d-lib.c
 

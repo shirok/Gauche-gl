@@ -36,4 +36,11 @@
 
 #include <GLFW/glfw3.h>
 
+SCM_EXTERN ScmClass *ScmGlfwWindowClass; /* foreign pointer class */
+#define SCM_GLFW_WINDOW_P(obj) SCM_ISA(obj, ScmGlfwWindowClass)
+#define SCM_GLFW_WINDOW(obj)   SCM_FOREIGN_POINTER_REF(GLFWwindow*, obj)
+
+SCM_EXTERN ScmObj Scm_MakeGlfwWindow(GLFWwindow*);
+SCM_EXTERN void Scm_GlfwWindowDestroy(ScmObj);
+
 #endif /*GAUCHE_GLFW_H*/

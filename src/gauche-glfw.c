@@ -38,6 +38,45 @@
 extern void Scm_Init_glfw_lib(ScmModule *mod);
 
 /*================================================================
+ * GLFWwindow
+ */
+ScmClass *ScmGlfwWindowClass;
+
+static void glfw_window_print(ScmObj obj, ScmPort *sink, 
+                              ScmWriteContext *m SCM_UNUSED)
+{
+    if (Scm_ForeignPointerInvalidP(SCM_FOREIGN_POINTER(obj))) {
+        Scm_Printf(sink, "#<glfw-window (destroyed)>");
+    } else {
+        Scm_Printf(sink, "#<glfw-window %p>", SCM_GLFW_WINDOW(obj));
+    }
+}
+
+static void glfw_window_cleanup(ScmObj obj)
+{
+    if (Scm_ForeignPointerInvalidP(SCM_FOREIGN_POINTER(obj))) return;
+    
+    GLFWwindow *w = SCM_GLFW_WINDOW(obj);
+    if (w != NULL) {
+        Scm_ForeignPointerInvalidate(SCM_FOREIGN_POINTER(obj));
+        glfwDestroyWindow(w);
+    }
+}
+
+ScmObj Scm_MakeGlfwWindow(GLFWwindow *w)
+{
+    return Scm_MakeForeignPointer(ScmGlfwWindowClass, w);
+}
+
+void Scm_GlfwWindowDestroy(ScmObj window)
+{
+    if (!SCM_GLFW_WINDOW_P(window)) {
+        SCM_TYPE_ERROR(window, "<glfw-window>");
+    }
+    glfw_window_cleanup(window);
+}
+
+/*================================================================
  * Initialization
  */
 void Scm_Init_libgauche_glfw(void)
@@ -45,6 +84,12 @@ void Scm_Init_libgauche_glfw(void)
     ScmModule *mod;
     SCM_INIT_EXTENSION(libgauche_glfw);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl.glfw", TRUE));
+
+    ScmGlfwWindowClass = 
+        Scm_MakeForeignPointerClass(mod, "<glfw-window>",
+                                    glfw_window_print,
+                                    glfw_window_cleanup,
+                                    SCM_FOREIGN_POINTER_KEEP_IDENTITY);
     Scm_Init_glfw_lib(mod);
 }
 

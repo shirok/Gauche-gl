@@ -38,6 +38,8 @@ ARCH_INSTALL_DIR    = "$(DESTDIR)`$(GAUCHE_CONFIG) --sitearchdir`"
 @USE_GLFW_yes@LIBGAUCHE_GLFW=libgauche-glfw.$(SOEXT)
 @USE_GLFW_no@LIBGAUCHE_GLFW=
 
+
+
 # build -----------------------------------------------
 
 ARCHFILES = libgauche-math3d.$(SOEXT) \
@@ -129,6 +131,7 @@ check : all
 	$(GOSH) -I. -I../lib test-math3d.scm > test.log
 	$(GOSH) -I. -I../lib test.scm >> test.log
 	$(GOSH) -I. -I../lib test-simple.scm >> test.log
+	@USE_GLFW_yes@$(GOSH) -I. test-glfw.scm >> test.log
 
 # install ----------------------------------------------
 

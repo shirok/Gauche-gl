@@ -12,9 +12,11 @@
 
 (test-section "loading gl")
 (use gl)
+(test-module 'gl)
 
 (test-section "loading glut")
 (use gl.glut)
+(test-module 'gl.glut)
 
 (test-section "gl-boolean-vector")
 

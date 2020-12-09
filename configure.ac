@@ -60,12 +60,22 @@ AC_ARG_WITH(glfw,
   [
     case $with_glfw in
       no)  GLFW_LIB= ;;
-      yes) GLFW_LIB="-lglfw3";;
-      *)   GLFW_LIB="-lglfw3"
+      yes) GLFW_LIB="-lglfw";;
+      *)   GLFW_LIB="-lglfw"
            GLFW_INCDIR="-I$with_glfw/include"
            GLFW_LIBDIR="-I$with_glfw/lib";;
     esac
   ])
+
+if test -z "$GLFW_LIB"; then
+  USE_GLFW_yes="@%:@"
+  USE_GLFW_no=
+else
+  USE_GLFW_yes=
+  USE_GLFW_no="@%:@"
+fi
+AC_SUBST(USE_GLFW_yes)
+AC_SUBST(USE_GLFW_no)
 
 
 AC_ARG_ENABLE(cg,

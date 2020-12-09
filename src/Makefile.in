@@ -35,11 +35,15 @@ HEADER_INSTALL_DIR  = "$(DESTDIR)`$(GAUCHE_CONFIG) --siteincdir`"
 SCM_INSTALL_DIR     = "$(DESTDIR)`$(GAUCHE_CONFIG) --sitelibdir`"
 ARCH_INSTALL_DIR    = "$(DESTDIR)`$(GAUCHE_CONFIG) --sitearchdir`"
 
+@USE_GLFW_yes@LIBGAUCHE_GLFW=libgauche-glfw.$(SOEXT)
+@USE_GLFW_no@LIBGAUCHE_GLFW=
+
 # build -----------------------------------------------
 
 ARCHFILES = libgauche-math3d.$(SOEXT) \
             libgauche-gl.$(SOEXT) \
-            libgauche-glut.$(SOEXT)
+            libgauche-glut.$(SOEXT) \
+	    $(LIBGAUCHE_GLFW)
 SCMFILES = 
 HEADERS = gauche/math3d.h
 
@@ -49,7 +53,7 @@ TARGET = $(ARCHFILES)
 CONFIG_GENERATED = Makefile config.cache config.log config.status \
 		   configure.lineno autom4te*.cache $(PACKAGE).gpd
 GENERATED = gl-syms.c gl-syms.h gl-ptrs.h gettype-sizes.c \
-	    gl-lib.c glu-lib.c glext-lib.c glut-lib.c math3d-lib.c
+	    gl-lib.c glu-lib.c glext-lib.c glut-lib.c glfw-lib.c math3d-lib.c
 
 all : $(TARGET)
 
@@ -106,6 +110,18 @@ libgauche-glut.$(SOEXT) : $(glut_SRCS) gauche-glut.h
 	  --cflags="$(CFLAGS)" --ldflags="$(LDFLAGS)" --libs="$(glut_LIBS)" \
 	  libgauche-glut $(glut_SRCS)
 
+# glfw
+glfw_SRCS   = gauche-glfw.c glfw-lib.c
+glfw_LIBS   = @GLFW_LIBDIR@ @GLFW_LIB@ $(LIBS)
+
+glfw-lib.c : glfw-lib.scm
+	$(GOSH) precomp glfw-lib.scm
+
+libgauche-glfw.$(SOEXT) : $(glfw_SRCS) gauche-glfw.h
+	$(GAUCHE_PACKAGE) compile --verbose \
+	  --cflags="$(CFLAGS)" --ldflags="$(LDFLAGS)" --libs="$(glfw_LIBS)" \
+	  libgauche-glfw $(glfw_SRCS)
+
 # tests -----------------------------------------------
 
 check : all
@@ -132,6 +148,7 @@ clean :
 	$(GAUCHE_PACKAGE) compile --clean libgauche-math3d $(math3d_SRCS)
 	$(GAUCHE_PACKAGE) compile --clean libgauche-gl $(gl_SRCS)
 	$(GAUCHE_PACKAGE) compile --clean libgauche-glut $(glut_SRCS)
+	$(GAUCHE_PACKAGE) compile --clean libgauche-glfw $(glfw_SRCS)
 	rm -rf core $(TARGET) $(GENERATED) *~ test.log so_locations
 
 distclean : clean

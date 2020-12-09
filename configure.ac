@@ -51,6 +51,23 @@ AC_ARG_WITH(glut,
     esac
   ])
 
+
+AC_ARG_WITH(glfw,
+  AC_HELP_STRING([--with-glfw=PATH], [Use GLFW library installed under PATH.
+    By default, Gauche-gl assumes GLUT is installed in the system standard 
+    location.  If you do not want to use GLUT support, specify --with-glut=no.
+    ]),
+  [
+    case $with_glfw in
+      no)  GLFW_LIB= ;;
+      yes) GLFW_LIB="-lglfw3";;
+      *)   GLFW_LIB="-lglfw3"
+           GLFW_INCDIR="-I$with_glfw/include"
+           GLFW_LIBDIR="-I$with_glfw/lib";;
+    esac
+  ])
+
+
 AC_ARG_ENABLE(cg,
   AC_HELP_STRING([--enable-cg], [Enable NVidia's Cg binding.]), [
   AC_DEFINE(HAVE_CG, 1)
@@ -105,6 +122,8 @@ if test "$GL_LIBS" = ""; then
       GL_LIBS='-lGLU -lGL' ;;
   esac
 fi
+AC_CHECK_HEADERS(GLFW/glfw3.h)
+
 
 # On MinGW, we use GLEW so that we can get newer GL features; the GL header
 # comes with MinGW installation is very old.
@@ -122,6 +141,9 @@ AC_SUBST(GL_LIBS)
 AC_SUBST(GLUT_LIB)
 AC_SUBST(GLUT_INCDIR)
 AC_SUBST(GLUT_LIBDIR)
+AC_SUBST(GLFW_LIB)
+AC_SUBST(GLFW_INCDIR)
+AC_SUBST(GLFW_LIBDIR)
 AC_SUBST(GLEW_INCDIR)
 AC_SUBST(GLEW_SOURCE)
 

@@ -24,37 +24,39 @@ esac
 
 # options for configure scripts
 GLUT_LIB="-l$LIBGLUT"
-AC_ARG_WITH(glut, [  --with-glut[=PATH]:      Use GLUT library installed under PATH.
+AC_ARG_WITH(glut,
+  AC_HELP_STRING([--with-glut=PATH], [Use GLUT library installed under PATH.
     By default, Gauche-gl assumes GLUT is installed in the system standard 
     location.  If you do not want to use GLUT support, specify --with-glut=no. 
     On MinGW you can statically link freeglut included in the source.
-    If you want to choose so, say --with-glut=mingw-static.], [
-  case $with_glut in
-    no)  GLUT_LIB= ;;
-    yes) GLUT_LIB="-l$LIBGLUT";;
-    mingw-static)
-         GLUT_LIB="-lfreeglut_static -lgdi32 -lwinmm"
-         GLUT_INCDIR="-I../win32/freeglut-3.0.0-1/include -DFREEGLUT_STATIC"
-         case "$target" in
-	   # MSYS2 config.guess reports x86_64-pc-mingw64 on 64bit system,
-	   # but MSYS2/mingw-w64 toolchain canonically use x86_64-w64-mingw32.
-           x86_64-*-mingw*)
-             GLUT_LIBDIR="-L../win32/freeglut-3.0.0-1/lib/x64";;
-           *)
-             GLUT_LIBDIR="-L../win32/freeglut-3.0.0-1/lib";;
-         esac;;
-    *)   GLUT_LIB="-l$LIBGLUT"
-         GLUT_INCDIR="-I$with_glut/include"
-         GLUT_LIBDIR="-L$with_glut/lib";;
-  esac
-])
+    If you want to choose so, say --with-glut=mingw-static.]), 
+  [
+    case $with_glut in
+      no)  GLUT_LIB= ;;
+      yes) GLUT_LIB="-l$LIBGLUT";;
+      mingw-static)
+           GLUT_LIB="-lfreeglut_static -lgdi32 -lwinmm"
+           GLUT_INCDIR="-I../win32/freeglut-3.0.0-1/include -DFREEGLUT_STATIC"
+           case "$target" in
+             # MSYS2 config.guess reports x86_64-pc-mingw64 on 64bit system,
+             # but MSYS2/mingw-w64 toolchain canonically use x86_64-w64-mingw32.
+             x86_64-*-mingw*)
+               GLUT_LIBDIR="-L../win32/freeglut-3.0.0-1/lib/x64";;
+             *)
+               GLUT_LIBDIR="-L../win32/freeglut-3.0.0-1/lib";;
+           esac;;
+      *)   GLUT_LIB="-l$LIBGLUT"
+           GLUT_INCDIR="-I$with_glut/include"
+           GLUT_LIBDIR="-L$with_glut/lib";;
+    esac
+  ])
 
 AC_ARG_ENABLE(cg,
-   AC_HELP_STRING([--enable-cg], [Enable NVidia's Cg binding.]), [
-   AC_DEFINE(HAVE_CG, 1)
-   ENABLE_CG=1
-   CG_LIBS="-lCgGL -lCg"
-   CG_SCM="cg/gl/cg.scm";
+  AC_HELP_STRING([--enable-cg], [Enable NVidia's Cg binding.]), [
+  AC_DEFINE(HAVE_CG, 1)
+  ENABLE_CG=1
+  CG_LIBS="-lCgGL -lCg"
+  CG_SCM="cg/gl/cg.scm";
 ])
 AC_SUBST(ENABLE_CG)
 AC_SUBST(CG_LIBS)

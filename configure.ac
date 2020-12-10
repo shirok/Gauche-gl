@@ -137,9 +137,11 @@ if test "$use_glfw" != no; then
   AC_CHECK_LIB(glfw, glfwInit)
 fi
 
-if test "$use_glfw" = yes; then
-   if test "$ac_cv_header_GLFW3_h" != yes -o "$ac_cv_lib_glfw_glfwinit" != yes; then
+if test "$ac_cv_header_GLFW3_h" != yes -o "$ac_cv_lib_glfw_glfwinit" != yes; then
+   if test "$use_glfw" = yes; then
       AC_MSG_FAILURE([Can't find glfw library.  Aborting...])
+   else
+      use_glfw=no
    fi
 fi
 

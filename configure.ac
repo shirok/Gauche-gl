@@ -51,7 +51,7 @@ AC_ARG_WITH(glut,
     esac
   ])
 
-
+use_glfw=check
 AC_ARG_WITH(glfw,
   AC_HELP_STRING([--with-glfw=PATH], [Use GLFW library installed under PATH.
     By default, Gauche-gl assumes GLUT is installed in the system standard 
@@ -59,24 +59,13 @@ AC_ARG_WITH(glfw,
     ]),
   [
     case $with_glfw in
-      no)  GLFW_LIB= ;;
-      yes) GLFW_LIB="-lglfw";;
-      *)   GLFW_LIB="-lglfw"
+      no)  use_glfw=no;;
+      yes) use_glfw=yes;;
+      *)   use_glfw=yes
            GLFW_INCDIR="-I$with_glfw/include"
            GLFW_LIBDIR="-I$with_glfw/lib";;
     esac
   ])
-
-if test -z "$GLFW_LIB"; then
-  USE_GLFW_yes="@%:@"
-  USE_GLFW_no=
-else
-  USE_GLFW_yes=
-  USE_GLFW_no="@%:@"
-fi
-AC_SUBST(USE_GLFW_yes)
-AC_SUBST(USE_GLFW_no)
-
 
 AC_ARG_ENABLE(cg,
   AC_HELP_STRING([--enable-cg], [Enable NVidia's Cg binding.]), [
@@ -132,8 +121,37 @@ if test "$GL_LIBS" = ""; then
       GL_LIBS='-lGLU -lGL' ;;
   esac
 fi
-AC_CHECK_HEADERS(GLFW/glfw3.h)
 
+#
+# Check GLFW
+#   By default, we compile glfw if it's available.
+#   With --with-glfw=no, we don't compile even it's available.
+#   With --with-glfw=yes, we bail out if the library isn't available.
+#
+
+if test "$use_glfw" != no; then
+  INCLUDES="$INCLUDES $GLFW_INCDIR"
+  CPPFALGS="$INCLUDES $GLFW_INCDIR"
+  LDFLATS="$LDFLAGS $GLFW_LIBDIR"
+  AC_CHECK_HEADERS(GLFW/glfw3.h)
+  AC_CHECK_LIB(glfw, glfwInit)
+fi
+
+if test "$use_glfw" = yes; then
+   if test "$ac_cv_header_GLFW3_h" != yes -o "$ac_cv_lib_glfw_glfwinit" != yes; then
+      AC_MSG_FAILURE([Can't find glfw library.  Aborting...])
+   fi
+fi
+
+if test "$use_glfw" = no; then
+  USE_GLFW_yes="@%:@"
+  USE_GLFW_no=
+else
+  USE_GLFW_yes=
+  USE_GLFW_no="@%:@"
+fi
+AC_SUBST(USE_GLFW_yes)
+AC_SUBST(USE_GLFW_no)
 
 # On MinGW, we use GLEW so that we can get newer GL features; the GL header
 # comes with MinGW installation is very old.

@@ -186,15 +186,6 @@ AC_CHECK_PROGS(GZIP_PROGRAM, gzip)
 # On Cygwin and MinGW, we need several extra -l flags.
 case "$target" in
   *-*-cygwin*|*-*-mingw*)
-    # Gauche's uvector library file name was changed in Gauche v0.9.5_pre1.
-    GAUCHE_SYSDIR=`"$GAUCHE_CONFIG" --sysarchdir | sed 's/\\\\/\\//g'`
-    GAUCHE_UVECTOR_DLL="$GAUCHE_SYSDIR/gauche--uvector.$SOEXT"
-    if test -e "$GAUCHE_UVECTOR_DLL"; then
-        GAUCHE_UVECTOR_LIBS="-lgauche--uvector"
-    else
-        GAUCHE_UVECTOR_LIBS="-lgauche-uvector"
-    fi
-    LIBS="$GAUCHE_UVECTOR_LIBS $LIBS"
     GL_EXTRALIBS="-L. -lgauche-math3d"
     GLUT_EXTRALIBS="-L. -lgauche-gl -lgauche-math3d"
     ;;

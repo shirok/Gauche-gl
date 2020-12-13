@@ -43,4 +43,10 @@ SCM_EXTERN ScmClass *ScmGlfwWindowClass; /* foreign pointer class */
 SCM_EXTERN ScmObj Scm_MakeGlfwWindow(GLFWwindow*);
 SCM_EXTERN void Scm_GlfwWindowDestroy(ScmObj);
 
+SCM_EXTERN ScmClass *ScmGlfwMonitorClass; /* foreign pointer class */
+#define SCM_GLFW_MONITOR_P(obj) SCM_ISA(obj, ScmGlfwMonitorClass)
+#define SCM_GLFW_MONITOR(obj)   SCM_FOREIGN_POINTER_REF(GLFWmonitor*, obj)
+
+SCM_EXTERN ScmObj Scm_MakeGlfwMonitor(GLFWmonitor*);
+
 #endif /*GAUCHE_GLFW_H*/

@@ -38,6 +38,23 @@
 extern void Scm_Init_glfw_lib(ScmModule *mod);
 
 /*================================================================
+ * GLFWMonitor
+ */
+
+ScmClass *ScmGlfwMonitorClass;
+
+static void glfw_monitor_print(ScmObj obj, ScmPort *sink, 
+                               ScmWriteContext *m SCM_UNUSED)
+{
+    Scm_Printf(sink, "#<glfw-monitor %p>", SCM_GLFW_MONITOR(obj));
+}
+
+ScmObj Scm_MakeGlfwMonitor(GLFWmonitor *m)
+{
+    return Scm_MakeForeignPointer(ScmGlfwMonitorClass, m);
+}
+
+/*================================================================
  * GLFWwindow
  */
 ScmClass *ScmGlfwWindowClass;
@@ -90,6 +107,12 @@ void Scm_Init_libgauche_glfw(void)
                                     glfw_window_print,
                                     glfw_window_cleanup,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
+    ScmGlfwMonitorClass = 
+        Scm_MakeForeignPointerClass(mod, "<glfw-monitor>",
+                                    glfw_monitor_print,
+                                    NULL,
+                                    SCM_FOREIGN_POINTER_KEEP_IDENTITY);
+
     Scm_Init_glfw_lib(mod);
 }
 

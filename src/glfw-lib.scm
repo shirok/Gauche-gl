@@ -40,6 +40,11 @@
    "SCM_GLFW_WINDOW_P"
    "SCM_GLFW_WINDOW"
    "Scm_MakeGlfwWindow")
+ (define-type <glfw-monitor> GLFWmonitor*
+   "GLFWmonitor"
+   "SCM_GLFW_MONITOR_P"
+   "SCM_GLFW_MONITOR"
+   "Scm_MakeGlfwMonitor")
  )
 
 ;;
@@ -51,6 +56,13 @@
 
 (define-cproc glfw-terminate () ::<void>
   (glfwTerminate))
+
+;;
+;; Monitor
+;;
+
+(define-cproc glfw-get-primary-monitor () ::<glfw-monitor>
+  glfwGetPrimaryMonitor)
 
 ;;
 ;; Window

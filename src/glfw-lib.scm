@@ -45,11 +45,16 @@
    "SCM_GLFW_MONITOR_P"
    "SCM_GLFW_MONITOR"
    "Scm_MakeGlfwMonitor")
+ (define-type <glfw-vidmode> GLFWvidmode*
+   "GLFWvidmode"
+   "SCM_GLFW_VIDMODE_P"
+   "SCM_GLFW_VIDMODE"
+   "Scm_MakeGlfwVidmode")
  )
 
-;;
-;; Initialization and shutdown
-;;
+;;;
+;;; Initialization and shutdown
+;;;
 
 (define-cproc glfw-init () ::<boolean>
   (return (glfwInit)))
@@ -57,16 +62,72 @@
 (define-cproc glfw-terminate () ::<void>
   (glfwTerminate))
 
-;;
-;; Monitor
-;;
+;;;
+;;; Monitor
+;;;
 
 (define-cproc glfw-get-primary-monitor () ::<glfw-monitor>
   glfwGetPrimaryMonitor)
 
-;;
-;; Window
-;;
+(define-cproc glfw-get-monitors ()
+  (let* ([count::int]
+         [ms::GLFWmonitor** (glfwGetMonitors (& count))]
+         [r (Scm_MakeVector count SCM_FALSE)])
+    (dotimes [i count]
+      (set! (SCM_VECTOR_ELEMENT r i)
+            (Scm_MakeGlfwMonitor (aref ms i))))
+    (return r)))
+
+(define-cproc glfw-get-monitor-pos (m::<glfw-monitor>) ::(<int> <int>)
+  (let* ([xpos::int] [ypos::int])
+    (glfwGetMonitorPos m (& xpos) (& ypos))
+    (return xpos ypos)))
+
+;; from 3.3
+;; (define-cproc glfw-get-monitor-work-area (m::<glfw-monitor>)
+;;   ::(<int> <int> <int> <int>)
+;;   (let* ([xpos::int] [ypos::int] [width::int] [height::int])
+;;     (glfwGetMonitorWorkArea m (& xpos) (& ypos) (& width) (& height))
+;;     (return xpos ypos width height)))
+
+(define-cproc glfw-get-monitor-physical-size (m::<glfw-monitor>) ::(<int> <int>)
+  (let* ([wmm::int] [hmm::int])
+    (glfwGetMonitorPhysicalSize m (& wmm) (& hmm))
+    (return wmm hmm)))
+
+;; from 3.3
+;; (define-cproc glfw-get-monitor-content-scale (m::<glfw-monitor>)::(<real> <real>)
+;;   (let* ([xscale::float] [yscale::float])
+;;     (glfwGetMonitorContentScale m (& xscale) (& yscale))
+;;     (return xscale yscale)))
+
+(define-cproc glfw-get-monitor-name (m::<glfw-monitor>) ::<const-cstring>
+  glfwGetMonitorName)
+
+;; glfwSetMonitorCallback
+
+(define-cproc glfw-get-video-modes (m::<glfw-monitor>)
+  (let* ([count::int]
+         [vms::(const GLFWvidmode*) (glfwGetVideoModes m (& count))]
+         [r (Scm_MakeVector count SCM_FALSE)])
+    (dotimes [i count]
+      (set! (SCM_VECTOR_ELEMENT r i)
+            (Scm_MakeGlfwVidmode (+ vms i))))
+    (return r)))
+
+(define-cproc glfw-get-video-mode (m::<glfw-monitor>)
+  (let* ([vm::(const GLFWvidmode*) (glfwGetVideoMode m)])
+    (return (Scm_MakeGlfwVidmode vm))))
+
+(define-cproc glfw-set-gamma (m::<glfw-monitor> gamma::<real>)
+  (glfwSetGamma m (cast float gamma)))
+
+;; glfwGetGammaRamp
+;; glfwSetGammaRamp
+
+;;;
+;;; Window
+;;;
 
 (define-cproc glfw-create-window (w::<int>
                                   h::<int>

@@ -38,23 +38,6 @@
 extern void Scm_Init_glfw_lib(ScmModule *mod);
 
 /*================================================================
- * GLFWMonitor
- */
-
-ScmClass *ScmGlfwMonitorClass;
-
-static void glfw_monitor_print(ScmObj obj, ScmPort *sink, 
-                               ScmWriteContext *m SCM_UNUSED)
-{
-    Scm_Printf(sink, "#<glfw-monitor %p>", SCM_GLFW_MONITOR(obj));
-}
-
-ScmObj Scm_MakeGlfwMonitor(GLFWmonitor *m)
-{
-    return Scm_MakeForeignPointer(ScmGlfwMonitorClass, m);
-}
-
-/*================================================================
  * GLFWwindow
  */
 ScmClass *ScmGlfwWindowClass;
@@ -94,6 +77,44 @@ void Scm_GlfwWindowDestroy(ScmObj window)
 }
 
 /*================================================================
+ * GLFWMonitor
+ */
+
+ScmClass *ScmGlfwMonitorClass;
+
+static void glfw_monitor_print(ScmObj obj, ScmPort *sink, 
+                               ScmWriteContext *m SCM_UNUSED)
+{
+    Scm_Printf(sink, "#<glfw-monitor %s>", 
+               glfwGetMonitorName(SCM_GLFW_MONITOR(obj)));
+}
+
+ScmObj Scm_MakeGlfwMonitor(GLFWmonitor *m)
+{
+    return Scm_MakeForeignPointer(ScmGlfwMonitorClass, m);
+}
+
+/*================================================================
+ * GLFWVidmode
+ */
+
+ScmClass *ScmGlfwVidmodeClass;
+
+static void glfw_vidmode_print(ScmObj obj, ScmPort *sink, 
+                               ScmWriteContext *m SCM_UNUSED)
+{
+    Scm_Printf(sink, "#<glfw-vidmode %p>", SCM_GLFW_VIDMODE(obj));
+}
+
+/* it's a struct owned by GFLW, so we always copy it. */
+ScmObj Scm_MakeGlfwVidmode(const GLFWvidmode *m)
+{
+    GLFWvidmode *z = SCM_NEW_ATOMIC(GLFWvidmode);
+    *z = *m;
+    return Scm_MakeForeignPointer(ScmGlfwVidmodeClass, z);
+}
+
+/*================================================================
  * Initialization
  */
 void Scm_Init_libgauche_glfw(void)
@@ -110,6 +131,11 @@ void Scm_Init_libgauche_glfw(void)
     ScmGlfwMonitorClass = 
         Scm_MakeForeignPointerClass(mod, "<glfw-monitor>",
                                     glfw_monitor_print,
+                                    NULL,
+                                    SCM_FOREIGN_POINTER_KEEP_IDENTITY);
+    ScmGlfwVidmodeClass = 
+        Scm_MakeForeignPointerClass(mod, "<glfw-vidmode>",
+                                    glfw_vidmode_print,
                                     NULL,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
 

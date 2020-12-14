@@ -34,6 +34,8 @@
 #ifndef GAUCHE_GL_H
 #define GAUCHE_GL_H
 
+#include "gauche/gl-config.h"
+
 #if MacOSX
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>

@@ -6,6 +6,7 @@ dnl
 AC_PREREQ(2.54)
 AC_INIT(Gauche-gl, 0.6, shiro@acm.org)
 AC_CANONICAL_SYSTEM
+AC_CONFIG_HEADER([src/gauche/gl-config.h])
 
 AC_PATH_XTRA
 
@@ -69,7 +70,7 @@ AC_ARG_WITH(glfw,
 
 AC_ARG_ENABLE(cg,
   AC_HELP_STRING([--enable-cg], [Enable NVidia's Cg binding.]), [
-  AC_DEFINE(HAVE_CG, 1)
+  AC_DEFINE(HAVE_CG, 1, [Define if Cg binding is enabled])
   ENABLE_CG=1
   CG_LIBS="-lCgGL -lCg"
   CG_SCM="cg/gl/cg.scm";
@@ -105,7 +106,8 @@ AC_CHECK_HEADERS(GL/glx.h, [   # OpenGL/X11
 AC_CHECK_HEADERS(GLUT/glut.h, [
       case $target in
       *-apple-darwin*)  
-          AC_DEFINE(MacOSX, 1) # darwin which has GLUT/glut.h is MacOSX
+          # darwin which has GLUT/glut.h is MacOSX
+          AC_DEFINE(MacOSX, , [Define if MacOSX])
           GL_LIBS='-framework OpenGL -framework GLUT' # GLUT for glutGetProcAddress
           GLUT_LIB='-framework GLUT' ;;
       *)  # other OSes w/o X11 but have GLUT/glut.h. Possibly MacOS9??
@@ -162,7 +164,7 @@ AC_SUBST(USE_GLFW_no)
 # runtime name lookup system, so having glew isn't vital on other platforms.
 case $target in
   *-*-mingw*)
-    AC_DEFINE(HAVE_GL_GLEW_H)
+    AC_DEFINE(HAVE_GL_GLEW_H, 1, [Define if GLEW is used])
     GLEW_INCDIR="-I../win32/glew-2.1.0/include -DGLEW_STATIC"
     GLEW_SOURCE="../win32/glew-2.1.0/src/glew.c"
 esac

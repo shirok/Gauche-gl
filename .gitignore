@@ -29,6 +29,7 @@ INSTALL.utf-8
 /doc/gauche-gl-refe.texi
 /doc/gauche-gl-refj.info.gz
 /doc/gauche-gl-refj.texi
+/src/gauche/gl-config.h
 /src/gettype-sizes.c
 /src/gl-lib.c
 /src/gl-ptrs.h

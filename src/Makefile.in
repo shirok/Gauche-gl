@@ -53,7 +53,8 @@ TARGET = $(ARCHFILES)
 
 
 CONFIG_GENERATED = Makefile config.cache config.log config.status \
-		   configure.lineno autom4te*.cache $(PACKAGE).gpd
+		   configure.lineno autom4te*.cache $(PACKAGE).gpd \
+		   gauche/gl-config.h
 GENERATED = gl-syms.c gl-syms.h gl-ptrs.h gettype-sizes.c \
 	    gl-lib.c glu-lib.c glext-lib.c glut-lib.c glfw-lib.c math3d-lib.c
 

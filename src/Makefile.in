@@ -71,8 +71,7 @@ libgauche-math3d.$(SOEXT) : $(math3d_SRCS) gauche/math3d.h
 	   libgauche-math3d $(math3d_SRCS)
 
 # gl
-gl_SRCS     = gauche-gl.c gl-syms.c gl-lib.c glu-lib.c glext-lib.c \
-	      @GLEW_SOURCE@
+gl_SRCS     = gauche-gl.c gl-syms.c gl-lib.c glu-lib.c glext-lib.c @GLEW_SOURCE@
 gl_LIBS     = @GL_EXTRALIBS@ $(LIBS) 
 gl_HDRS     = gauche-gl.h gl-syms.h gl-ptrs.h gauche/math3d.h
 
@@ -114,7 +113,7 @@ libgauche-glut.$(SOEXT) : $(glut_SRCS) gauche-glut.h
 
 # glfw
 glfw_SRCS   = gauche-glfw.c glfw-lib.c
-glfw_LIBS   = @GLFW_LIBDIR@ @GLFW_LIB@ $(LIBS)
+glfw_LIBS   = @GLFW_LIBDIR@ $(LIBS)
 
 glfw-lib.c : glfw-lib.scm
 	$(GOSH) precomp glfw-lib.scm

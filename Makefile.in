@@ -1,5 +1,4 @@
-CONFIG_GENERATED = Makefile Gauche-gl.gpd \
-                   config.cache config.log config.status autom4te*.cache
+CONFIG_GENERATED = Makefile Gauche-gl.gpd
 .PHONY: all check clean distclean install maintainer-clean
 
 GAUCHE_CONFIG = "@GAUCHE_CONFIG@"
@@ -54,7 +53,7 @@ maintainer-clean : clean
 	cd lib; $(MAKE) maintainer-clean
 	cd cg;  $(MAKE) maintainer-clean
 	cd doc; $(MAKE) maintainer-clean
-	rm -rf configure VERSION $(CONFIG_GENERATED)
+	rm -rf VERSION $(CONFIG_GENERATED)
 
 # We don't normally install examples.  On MinGW, it will be useful to
 # include examples in the bindary distribution.

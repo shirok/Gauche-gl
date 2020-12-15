@@ -1,14 +1,6 @@
 /VERSION
 *~
 
-# Automake and Autoconf
-config.guess
-config.log
-config.rpath
-config.status
-config.sub
-configure
-autom4te.cache
 Makefile
 
 # Compiler-generated files

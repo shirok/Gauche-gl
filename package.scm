@@ -3,7 +3,7 @@
 ;;
 
 (define-gauche-package "Gauche-gl"
-  :version "0.6"
+  :version "0.7_pre1"
   :description "Graphics library binding for Gauche\n\
                 This package provides binginds for OpenGL, GLUT, GLEW and Cg,\
                 plus some additional libraries useful for graphics programming."

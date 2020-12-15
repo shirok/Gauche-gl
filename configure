@@ -88,8 +88,8 @@
 (cf-check-headers '("GLUT/glut.h")        ; darwin on MacOSX
                   :if-found 
                   (^_
-                   (cf-define 'MacOSX 1)
-                   (cf-subst 'GL_LIBS "-framework OpenGL -framework GLUT)")
+                   (cf-subst-append 'CFLAGS "-DMacOSX=1")
+                   (cf-subst 'GL_LIBS "-framework OpenGL -framework GLUT")
                    (cf-subst 'GLUT_LIB "-framework GLUT")))
 
 (when (cf-ref 'GL_LIBS #f)

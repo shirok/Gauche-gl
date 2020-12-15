@@ -8,8 +8,6 @@ AC_INIT(Gauche-gl, 0.6, shiro@acm.org)
 AC_CANONICAL_SYSTEM
 AC_CONFIG_HEADER([src/gauche/gl-config.h])
 
-AC_PATH_XTRA
-
 case "$target" in
   *-*-cygwin*)
     if test "x-$have_x" = "x-disabled" -o "x-$have_x" = "x-no";

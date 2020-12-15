@@ -1,3 +1,9 @@
+2020-12-14  Shiro Kawai  <shiro@acm.org>
+
+	* configure.ac: EXPERIMENTAL: Drop AC_PATH_XTRA.  Do we still need it?
+	  (We may, if one wants to compile for headless server without X, but
+	  let's consider it later.)
+
 2020-12-09  Shiro Kawai  <shiro@acm.org>
 
 	* Start adding glfw binding

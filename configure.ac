@@ -104,8 +104,9 @@ AC_CHECK_HEADERS(GL/glx.h, [   # OpenGL/X11
 AC_CHECK_HEADERS(GLUT/glut.h, [
       case $target in
       *-apple-darwin*)  
-          # darwin which has GLUT/glut.h is MacOSX
-          AC_DEFINE(MacOSX, , [Define if MacOSX])
+          # darwin which has GLUT/glut.h is MacOSX.  We need this _before_
+	  # gl-config.h, so we directly add it to CFLAGS.
+          CFLAGS="$CFLAGS -DMacOSX=1"
           GL_LIBS='-framework OpenGL -framework GLUT' # GLUT for glutGetProcAddress
           GLUT_LIB='-framework GLUT' ;;
       *)  # other OSes w/o X11 but have GLUT/glut.h. Possibly MacOS9??

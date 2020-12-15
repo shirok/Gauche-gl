@@ -193,7 +193,7 @@ static void glutWindowStatusFunc(void (*fn)(unsigned int, int, int, int))
 
 
 #define define_registrar(glutfn, cbname)                                \
-    static void SCM_CPP_CAT(register_, cbname)(int flag, int xtra)      \
+    static void SCM_CPP_CAT(register_, cbname)(int flag, int xtra SCM_UNUSED) \
     {                                                                   \
         if (flag) {                                                     \
             glutfn(SCM_CPP_CAT(cbname, _cb));                           \

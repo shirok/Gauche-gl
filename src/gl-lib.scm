@@ -521,14 +521,6 @@
 ;;  - STRIDE and OFFSET argument refers to the # of elements, rather than bytes.
 ;;    except when vec is #f or u8vector, in which case it is in bytes.
 
-(define-cfn elt-size-from-gltype-enum (type-enum::int) ::int :static
-  (case type-enum
-    [(GL_BYTE GL_UNSIGNED_BYTE) (return 1)]
-    [(GL_SHORT GL_UNSIGNED_SHORT GL_HALF_FLOAT) (return 2)]
-    [(GL_INT GL_UNSIGNED_INT GL_FIXED GL_FLOAT) (return 4)]
-    [(GL_DOUBLE) (return 8)]
-    [else (Scm_Error "invalid GL type enum argument: %d" type-enum)]))
-
 (define-cproc gl-vertex-pointer (size::<fixnum> vec
                                  &optional (stride::<fixnum> 0)
                                            (offset::<fixnum> 0)
@@ -662,8 +654,7 @@
 ;; Note: we don't allow non-uniform vector for the interleaved arrays, so
 ;; the color component must be float.
 (define-cproc gl-interleaved-arrays (format::<fixnum> vec
-                                     &optional (stride::<fixnum> 0)
-                                               (offset::<fixnum> 0))
+                                     &optional (stride::<fixnum> 0))
   ::<void>
   (case format
     [(GL_C4UB_V2F GL_C4UB_V3F GL_T2F_C4UB_V3F)
@@ -1016,9 +1007,10 @@
 (define-cproc gl-are-textures-resident! (names::<u32vector>
                                          res::<gl-boolean-vector>)
   ::<boolean>
-  (glAreTexturesResident (SCM_U32VECTOR_SIZE names)
-                         (cast GLuint* (SCM_U32VECTOR_ELEMENTS names))
-                         (SCM_GL_BOOLEAN_VECTOR_ELEMENTS res)))
+  (return
+   (glAreTexturesResident (SCM_U32VECTOR_SIZE names)
+                          (cast GLuint* (SCM_U32VECTOR_ELEMENTS names))
+                          (SCM_GL_BOOLEAN_VECTOR_ELEMENTS res))))
 
 (define-cproc gl-is-texture (name::<int>) ::<int> glIsTexture)
 

@@ -60,7 +60,7 @@ static ScmClass *sequenceCPL[] = {
 /*=============================================================
  * Vector4f
  */
-static void vec_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
+static void vec_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx SCM_UNUSED)
 {
     Scm_Printf(out, "#,(vector4f %g %g %g %g)",
                SCM_VECTOR4F_D(obj)[0],
@@ -231,7 +231,7 @@ void Scm_Vector4fSubv(float *r, const float *p, const float *q)
  * VectorArray
  */
 
-static void vec_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
+static void vec_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx SCM_UNUSED)
 {
     ScmVector4fArray *va = SCM_VECTOR4F_ARRAY(obj);
     int len = SCM_VECTOR4F_ARRAY_SIZE(va), i;
@@ -336,7 +336,7 @@ void Scm_Vector4fArraySetv(ScmVector4fArray *a, int n, float d[])
 /*=============================================================
  * Pointf - is just a vector with different default value.
  */
-static void point_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
+static void point_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx SCM_UNUSED)
 {
     Scm_Printf(out, "#,(point4f %g %g %g %g)",
                SCM_VECTOR4F_D(obj)[0],
@@ -423,7 +423,7 @@ ScmObj Scm_Point4fSub(const ScmVector4f *p, const ScmObj q)
  * Point4fArray
  */
 
-static void point_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
+static void point_array_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx SCM_UNUSED)
 {
     ScmPoint4fArray *va = SCM_POINT4F_ARRAY(obj);
     int len = SCM_POINT4F_ARRAY_SIZE(va), i;
@@ -518,7 +518,7 @@ void Scm_Point4fArraySetv(ScmPoint4fArray *a, int n, float d[])
  * Matrix
  */
 
-static void mat_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
+static void mat_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx SCM_UNUSED)
 {
     int i;
     ScmMatrix4f *m = SCM_MATRIX4F(obj);
@@ -1048,7 +1048,7 @@ float Scm_Matrix4fToRotationv(const float m[], float v[])
 /*=============================================================
  * Quaternion
  */
-static void quat_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx)
+static void quat_print(ScmObj obj, ScmPort *out, ScmWriteContext *ctx SCM_UNUSED)
 {
     Scm_Printf(out, "#,(quatf %g %g %g %g)",
                SCM_QUATF_D(obj)[0],

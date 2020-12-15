@@ -109,7 +109,7 @@ ScmObj Scm_ListToGLBooleanVector(ScmObj lis)
     return SCM_OBJ(v);
 }
 
-static void glboolvec_print(ScmObj obj, ScmPort *port, ScmWriteContext *ctx)
+static void glboolvec_print(ScmObj obj, ScmPort *port, ScmWriteContext *ctx SCM_UNUSED)
 {
     ScmGLBooleanVector *v = SCM_GL_BOOLEAN_VECTOR(obj);
     int i, size = v->size;
@@ -155,19 +155,13 @@ static int glboolvec_compare(ScmObj x, ScmObj y, int equalp)
 void *Scm_GLGetProcAddress(const char *name)
 {
 #if defined(GLX_ARB_get_proc_address)
-    if (glXGetProcAddressARB != NULL) {
-        return glXGetProcAddressARB((const GLubyte*)name);
-    }
+    return glXGetProcAddressARB((const GLubyte*)name);
 #elif defined(GLX_VERSION_1_4)
-    if (glXGetProcAddress != NULL) {
-        return glXGetProcAddress(name);
-    }
+    return glXGetProcAddress(name);
 #elif defined(MacOSX)
     return glutGetProcAddress(name);
 #elif defined(__CYGWIN__) && defined(X_DISPLAY_MISSING)
-    if (wglGetProcAddress != NULL) {
-        return wglGetProcAddress(name);
-    }
+    return wglGetProcAddress(name);
 #endif /* !defined(GLX_VERSION_1_4) && !defined(GLX_ARB_get_proc_address) */
     Scm_Error("GL extension %s is not supported on this platform", name);
 }
@@ -310,7 +304,7 @@ int Scm_GLPixelDataSize(GLsizei w, GLsizei h, GLenum format, GLenum type,
    checks the validity of pixel data, and returns a pointer to the data
    area of the pixel data. */
 /* TODO: size is not checked yet */
-void *Scm_GLPixelDataCheck(ScmObj pixels, int elttype, int size)
+void *Scm_GLPixelDataCheck(ScmObj pixels, int elttype, int size SCM_UNUSED)
 {
     switch (elttype) {
     case SCM_GL_BYTE:
@@ -392,15 +386,15 @@ ScmObj Scm_GLAllocUVector(int elttype, int size)
 /* GLU objects */
 
 /* Quadric */
-static void quadric_finalize(ScmObj obj, void *data)
+static void quadric_finalize(ScmObj obj, void *data SCM_UNUSED)
 {
     gluDeleteQuadric(SCM_GLU_QUADRIC(obj)->quadric);
 }
 
-static ScmObj quadric_allocate(ScmClass *klass, ScmObj initargs)
+static ScmObj quadric_allocate(ScmClass *klass, ScmObj initargs SCM_UNUSED)
 {
     ScmGluQuadric *q = SCM_NEW(ScmGluQuadric);
-    SCM_SET_CLASS(q, SCM_CLASS_GLU_QUADRIC);
+    SCM_SET_CLASS(q, klass);
     if ((q->quadric = gluNewQuadric()) == NULL) {
         Scm_Error("gluNewQuadric failed");
     }
@@ -414,15 +408,15 @@ SCM_DEFINE_BUILTIN_CLASS(Scm_GluQuadricClass,
                          NULL);
 
 /* Nurbs */
-static void nurbs_finalize(ScmObj obj, void *data)
+static void nurbs_finalize(ScmObj obj, void *data SCM_UNUSED)
 {
     gluDeleteNurbsRenderer(SCM_GLU_NURBS(obj)->nurbs);
 }
 
-static ScmObj nurbs_allocate(ScmClass *klass, ScmObj initargs)
+static ScmObj nurbs_allocate(ScmClass *klass, ScmObj initargs SCM_UNUSED)
 {
     ScmGluNurbs *n = SCM_NEW(ScmGluNurbs);
-    SCM_SET_CLASS(n, SCM_CLASS_GLU_NURBS);
+    SCM_SET_CLASS(n, klass);
     if ((n->nurbs = gluNewNurbsRenderer()) == NULL) {
         Scm_Error("gluNewNurbsRenderer failed");
     }
@@ -437,15 +431,15 @@ SCM_DEFINE_BUILTIN_CLASS(Scm_GluNurbsClass,
 
 
 /* Tesselator */
-static void tesselator_finalize(ScmObj obj, void* data)
+static void tesselator_finalize(ScmObj obj, void* data SCM_UNUSED)
 {
     gluDeleteTess(SCM_GLU_TESSELATOR(obj)->tesselator);
 }
 
-static ScmObj tesselator_allocate(ScmClass *klass, ScmObj initargs)
+static ScmObj tesselator_allocate(ScmClass *klass, ScmObj initargs SCM_UNUSED)
 {
     ScmGluTesselator *q = SCM_NEW(ScmGluTesselator);
-    SCM_SET_CLASS(q, SCM_CLASS_GLU_TESSELATOR);
+    SCM_SET_CLASS(q, klass);
     if ((q->tesselator = gluNewTess()) == NULL) {
         Scm_Error("gluNewTess failed");
     }

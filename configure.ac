@@ -8,19 +8,6 @@ AC_INIT(Gauche-gl, 0.6, shiro@acm.org)
 AC_CANONICAL_SYSTEM
 AC_CONFIG_HEADER([src/gauche/gl-config.h])
 
-case "$target" in
-  *-*-cygwin*)
-    if test "x-$have_x" = "x-disabled" -o "x-$have_x" = "x-no";
-    then
-      LIBGLUT=glut32;
-    else
-      LIBGLUT=glut
-      CPPFLAGS="$CPPFLAGS -I$x_includes";
-    fi;;
-  *)
-    LIBGLUT=glut;;
-esac
-
 # options for configure scripts
 GLUT_LIB="-l$LIBGLUT"
 AC_ARG_WITH(glut,
@@ -116,7 +103,7 @@ AC_CHECK_HEADERS(GLUT/glut.h, [
 
 if test "$GL_LIBS" = ""; then
   case $target in
-    *-*-cygwin*|*-*-mingw*)
+    *-*-mingw*)
       GL_LIBS='-lglu32 -lopengl32' ;;
     *)
       GL_LIBS='-lGLU -lGL' ;;
@@ -183,9 +170,9 @@ AC_CHECK_PROGS(GZIP_PROGRAM, gzip)
 
 # Check for libraries
 
-# On Cygwin and MinGW, we need several extra -l flags.
+# On Windows, we need several extra -l flags.
 case "$target" in
-  *-*-cygwin*|*-*-mingw*)
+  *-*-mingw*)
     GL_EXTRALIBS="-L. -lgauche-math3d"
     GLUT_EXTRALIBS="-L. -lgauche-gl -lgauche-math3d"
     ;;

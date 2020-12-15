@@ -3,6 +3,11 @@
 	* configure.ac: EXPERIMENTAL: Drop AC_PATH_XTRA.  Do we still need it?
 	  (We may, if one wants to compile for headless server without X, but
 	  let's consider it later.)
+	  Also dropped cygwin-specific configuration.  Officially Gauche
+	  has been supporting Windows via MinGW for long time.  There would
+	  be too many hoops to run it through number of emulation layers
+	  on Cygwin.  If there's ever a need, it's better to start fresh
+	  rather than carrying around the old config code.
 
 2020-12-09  Shiro Kawai  <shiro@acm.org>
 

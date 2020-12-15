@@ -129,24 +129,27 @@
 ;;; Window
 ;;;
 
-(define-cproc glfw-create-window (w::<int>
-                                  h::<int>
-                                  title::<const-cstring>)
-  ::<glfw-window>
-  (return (glfwCreateWindow w h title NULL NULL)))
-
-(define-cproc glfw-destroy-window (w) ::<void>
-  (Scm_GlfwWindowDestroy w))
+(define-cproc glfw-default-window-hints () ::<void>
+  (glfwDefaultWindowHints))
 
 (define-cproc glfw-window-hint (hint::<int> value::<int>) ::<void>
   (glfwWindowHint hint value))
+
 ;; since 3.3
 ;; (define-cproc glfw-window-hint-string (hint::<int> value::<const-cstring>)
 ;;   ::<void>
 ;;   (glfwWindowHintString hint value))
 
-(define-cproc glfw-default-window-hints () ::<void>
-  (glfwDefaultWindowHints))
+(define-cproc glfw-create-window (w::<int>
+                                  h::<int>
+                                  title::<const-cstring>
+                                  monitor::<glfw-monitor>?
+                                  share::<glfw-window>?)
+  ::<glfw-window>
+  (return (glfwCreateWindow w h title monitor share)))
+
+(define-cproc glfw-destroy-window (w) ::<void>
+  (Scm_GlfwWindowDestroy w))
 
 (define-cproc glfw-window-should-close (w::<glfw-window>) ::<boolean>
   glfwWindowShouldClose)
@@ -175,6 +178,12 @@
     (glfwGetWindowPos w (& width) (& height))
     (return width height)))
 
+(define-cproc glfw-set-window-size (w::<glfw-window>
+                                    width::<int>
+                                    height::<int>)
+  ::<void>
+  glfwSetWindowSize)
+
 (define-cproc glfw-set-window-size-limits (w::<glfw-window>
                                            min-w::<int>
                                            min-h::<int>
@@ -183,15 +192,9 @@
   ::<void>
   glfwSetWindowSizeLimits)
 
-(define-cproc glfw-set-window-size (w::<glfw-window>
-                                    width::<int>
-                                    height::<int>)
-  ::<void>
-  glfwSetWindowSize)
-
-(define-cproc glfw-set-window-aspect-ration (w::<glfw-window>
-                                             numer::<int>
-                                             denom::<int>)
+(define-cproc glfw-set-window-aspect-ratio (w::<glfw-window>
+                                            numer::<int>
+                                            denom::<int>)
   ::<void>
   glfwSetWindowAspectRatio)
 
@@ -245,6 +248,43 @@
 ;; (define-cproc glfw-request-window-attention (w::<glfw-window>) ::<void>
 ;;   glfwRequestWindowAttention)
 
+(define-cproc glfw-get-window-monitor (w::<glfw-window>) ::<glfw-monitor>
+  glfwGetWindowMonitor)
+
+(define-cproc glfw-set-window-monitor (w::<glfw-window>
+                                       m::<glfw-monitor>
+                                       xpos::<int> ypos::<int>
+                                       width::<int> height::<int>
+                                       refresh-rate::<int>)
+  ::<void>
+  glfwSetWindowMonitor)
+
+(define-cproc glfw-get-window-attrib (w::<glfw-window> attrib::<int>)
+  ::<int>
+  glfwGetWindowAttrib)
+
+;; from 3.3
+;; (define-cproc glfw-set-window-attrib (w::<glfw-window> 
+;;                                       attrib::<int> value::<int>)
+;;   ::<void>
+;;   glfwSetWindowAttrib)
+
+;; setWindowPosCallback
+;; setWindowSizeCallback
+;; setWindowCloseCallback
+;; setWidnowRefreshCallback
+;; setWindowFocusCallback
+;; setWindowIconifyCallback
+;; setWindowMaximizeCallback
+;; setFramebufferSizeCallback
+;; setWindowContentScaleCallback
+
+(define-cproc glfw-poll-events () ::<void> glfwPollEvents)
+(define-cproc glfw-wait-events () ::<void> glfwWaitEvents)
+(define-cproc glfw-wait-events-timeout (to::<real>) ::<void>
+  glfwWaitEventsTimeout)
+(define-cproc glfw-post-empty-event () ::<void> glfwPostEmptyEvent)
+(define-cproc glfw-swap-buffers (w::<glfw-window>) ::<void> glfwSwapBuffers)
 
 
 ;; window creation hint deesignators

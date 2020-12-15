@@ -17,10 +17,10 @@
   If you want to choose so, say --with-glut=mingw-static."
              (^[val]
                (rxmatch-case val
-                 [#/^no$/  (set! *use-glut* #f)]
-                 [#/^yes$/ (set! *use-glut* #t)]
-                 [#/^mingw-static$/ (set! *use-glut* 'mingw-static)]
-                 [_ (set! *glut-path* val)])))
+                 [#/^no$/  (_) (set! *use-glut* #f)]
+                 [#/^yes$/ (_) (set! *use-glut* #t)]
+                 [#/^mingw-static$/ (_) (set! *use-glut* 'mingw-static)]
+                 [else (set! *glut-path* val)])))
 
 ;; glfw
 ;; we'll check availability later, so we just record the option value.
@@ -32,8 +32,8 @@
   location.  If you do not want to use GLUT support, specify --with-glut=no."
              (^[val]
                (rxmatch-case val
-                 [#/^no$/  (set! *use-glfw* #f)]
-                 [#/^yes$/ (set! *use-glfw* #t)]
+                 [#/^no$/  (_) (set! *use-glfw* #f)]
+                 [#/^yes$/ (_) (set! *use-glfw* #t)]
                  [else (set! *use-glfw* #t) 
                        (set! *glfw-path* val)])))
 
@@ -63,7 +63,7 @@
    ;; MSYS2 config.guess reports x86_64-pc-mingw64 on 64bit system,
    ;; but MSYS2/mingw-w64 toolchain canonically use x86_64-w64-mingw32.
    (rxmatch-case (cf$ 'target)
-     [#/x86_64-.*mingw.*/
+     [#/x86_64-.*mingw.*/ (_) 
       (cf-subst 'GLUT_LIBDIR "-L../win32/freeglut-3.0.0-1/lib/x64")]
      [else
       (cf-subst 'GLUT_LIBDIR "-L../win32/freeglut-3.0.0-1/lib")])]
@@ -92,11 +92,12 @@
                    (cf-subst 'GL_LIBS "-framework OpenGL -framework GLUT")
                    (cf-subst 'GLUT_LIB "-framework GLUT")))
 
-(when (cf-ref 'GL_LIBS #f)
+(unless (cf-ref 'GL_LIBS #f)
   (rxmatch-case (cf$ 'target)
-    (#/(.*-cygwin.*|.*-mingw.*)/ (_)
-       (cf-subst 'GL_LIBS "-lglut32 -lopengl32")
-       (cf-subst 'GL_LIBS "-lGLU -lGL"))))
+    [#/.*-mingw.*/ (_)
+     (cf-subst 'GL_LIBS "-lglu32 -lopengl32")]
+    [else
+     (cf-subst 'GL_LIBS "-lGLU -lGL")]))
 
 ;; Check GLFW availability
 (when *use-glfw*
@@ -140,19 +141,13 @@
 (cf-check-prog 'MAKEINFO "makeinfo")
 (cf-check-prog 'GZIP_PROGRAM "gzip")
 
-;; On Cygwin and MinGW, we need several extra -l flags.
-(cond [(#/(.*-cygwin.*|.*-mingw.*)/ (cf$ 'target))
+;; On Windows, we need several extra -l flags.
+(cond [(#/.*-mingw.*/ (cf$ 'target))
        (cf-subst 'GL_EXTRALIBS "-L. -lgauche-math3d")
        (cf-subst 'GLUT_EXTRALIBS "-L. -lgauche-gl -lgauche-math3d")]
       [else
        (cf-subst 'GL_EXTRALIBS "")
        (cf-subst 'GLUT_EXTRALIBS "")])
-
-;; Obsoleted.  Just for the compatibility.
-(cf-subst 'X_CFLAGS "")
-(cf-subst 'X_LIBS "")
-(cf-subst 'X_PRE_LIBS "")
-(cf-subst 'X_EXTRA_LIBS "")
 
 ;; Output
 (cf-config-headers "src/gauche/gl-config.h")

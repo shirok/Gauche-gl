@@ -58,6 +58,13 @@ SCM_EXTERN ScmClass *ScmGlfwVidmodeClass; /* foreign pointer class */
 /* always copy the source */
 SCM_EXTERN ScmObj Scm_MakeGlfwVidmode(const GLFWvidmode*);
 
+SCM_EXTERN ScmClass *ScmGlfwCursorClass; /* foreign pointer class */
+#define SCM_GLFW_CURSOR_P(obj) SCM_ISA(obj, ScmGlfwCursorClass)
+#define SCM_GLFW_CURSOR(obj)   SCM_FOREIGN_POINTER_REF(GLFWcursor*, obj)
+
+SCM_EXTERN ScmObj Scm_MakeGlfwCursor(GLFWcursor*);
+SCM_EXTERN void Scm_GlfwCursorDestroy(ScmObj);
+
 /* 
  * This structure is associated to each window.
  */

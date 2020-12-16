@@ -253,6 +253,55 @@ ScmObj Scm_MakeGlfwMonitor(GLFWmonitor *m)
 }
 
 /*================================================================
+ * GLFWcursor
+ */
+
+ScmClass *ScmGlfwCursorClass;
+
+/* user created cursor is marked with 'user-created attribute. */
+static ScmObj sym_user_created;
+
+static void glfw_cursor_print(ScmObj obj, ScmPort *sink, 
+                              ScmWriteContext *m SCM_UNUSED)
+{
+    if (Scm_ForeignPointerInvalidP(SCM_FOREIGN_POINTER(obj))) {
+        Scm_Printf(sink, "#<glfw-cursor (destroyed)>");
+    } else {
+        Scm_Printf(sink, "#<glfw-cursor %p>", SCM_GLFW_CURSOR(obj));
+    }
+}
+
+static void glfw_cursor_cleanup(ScmObj obj)
+{
+    ScmForeignPointer *p = SCM_FOREIGN_POINTER(obj);
+    if (Scm_ForeignPointerInvalidP(p)) return;
+
+    ScmObj user_created = Scm_ForeignPointerAttrGet(p, sym_user_created,
+                                                    SCM_FALSE);
+    if (!SCM_FALSEP(user_created)) {
+        GLFWcursor *w = SCM_GLFW_CURSOR(obj);
+        if (w != NULL) {
+            glfwDestroyCursor(w);
+        }
+    }
+    Scm_ForeignPointerInvalidate(p);
+}
+
+ScmObj Scm_MakeGlfwCursor(GLFWcursor *m)
+{
+    return Scm_MakeForeignPointer(ScmGlfwCursorClass, m);
+}
+
+void Scm_GlfwCursorDestroy(ScmObj cursor)
+{
+    if (!SCM_GLFW_CURSOR_P(cursor)) {
+        SCM_TYPE_ERROR(cursor, "<glfw-cursor>");
+    }
+    glfw_cursor_cleanup(cursor);
+}
+
+
+/*================================================================
  * GLFWVidmode
  */
 
@@ -271,6 +320,7 @@ ScmObj Scm_MakeGlfwVidmode(const GLFWvidmode *m)
     *z = *m;
     return Scm_MakeForeignPointer(ScmGlfwVidmodeClass, z);
 }
+
 
 /*================================================================
  * Initialization
@@ -291,11 +341,18 @@ void Scm_Init_libgauche_glfw(void)
                                     glfw_monitor_print,
                                     NULL,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
+    ScmGlfwCursorClass = 
+        Scm_MakeForeignPointerClass(mod, "<glfw-cursor>",
+                                    glfw_cursor_print,
+                                    NULL,
+                                    SCM_FOREIGN_POINTER_KEEP_IDENTITY);
     ScmGlfwVidmodeClass = 
         Scm_MakeForeignPointerClass(mod, "<glfw-vidmode>",
                                     glfw_vidmode_print,
                                     NULL,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
+
+    sym_user_created = SCM_INTERN("user-created");
     init_wtab();
     Scm_Init_glfw_lib(mod);
     glfwSetErrorCallback(call_error_cb);

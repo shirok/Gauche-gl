@@ -50,6 +50,11 @@
    "SCM_GLFW_VIDMODE_P"
    "SCM_GLFW_VIDMODE"
    "Scm_MakeGlfwVidmode")
+ (define-type <glfw-cursor> GLFWcursor*
+   "GLFWcursor"
+   "SCM_GLFW_CURSOR_P"
+   "SCM_GLFW_CURSOR"
+   "Scm_MakeGlfwCursor")
  )
 
 ;;;
@@ -279,7 +284,6 @@
 (define-cproc glfw-post-empty-event () ::<void> glfwPostEmptyEvent)
 (define-cproc glfw-swap-buffers (w::<glfw-window>) ::<void> glfwSwapBuffers)
 
-
 ;;;
 ;;; Callbacks
 ;;;
@@ -310,6 +314,76 @@
 (define-cproc glfw-set-framebuffer-size-callback (w::<glfw-window> cb)
   (set-callback! w cb framesize))
 ;; setWindowContentScaleCallback
+
+;;;
+;;; Input
+;;;
+
+(define-cproc glfw-get-input-mode (w::<glfw-window> mode::<int>) ::<int>
+  glfwGetInputMode)
+
+(define-cproc glfw-set-input-mode (w::<glfw-window> mode::<int> value::<int>)
+  ::<void>
+  glfwSetInputMode)
+
+(define-cproc glfw-get-key-name (key::<int> scancode::<int>) ::<const-cstring>
+  glfwGetKeyName)
+
+;; from 3.3
+;; (define-cproc glfw-get-key-scancode (key::<int>) ::<int>
+;;   glfwGetKeyScancode)
+
+(define-cproc glfw-get-key (w::<glfw-window> key::<int>) ::<int>
+  glfwGetKey)
+  
+(define-cproc glfw-get-mouse-button (w::<glfw-window> button::<int>) ::<int>
+  glfwGetMouseButton)
+
+(define-cproc glfw-get-cursor-pos (w::<glfw-window>) ::(<real> <real>)
+  (let* ([xpos::double] [ypos::double])
+    (glfwGetCursorPos w (& xpos) (& ypos))
+    (return xpos ypos)))
+
+(define-cproc glfw-set-cursor-pos (w::<glfw-window> xpos::<real> ypos::<real>)
+  ::<void>
+  glfwSetCursorPos)
+
+;; CreateCursor - needs GLFWimage
+
+(define-cproc glfw-create-standard-cursor (shape::<int>) ::<glfw-cursor>
+  glfwCreateStandardCursor)
+
+(define-cproc glfw-destroy-cursor (c) ::<void>
+  (Scm_GlfwCursorDestroy c))
+
+;; SetKeyCallback
+;; SetCharCallback
+;; SetCarModsCallback
+;; SetMouseButtonCallback
+;; SetCursorPosCallback
+;; SetCurosrEnterCallback
+;; SetScroolCallback
+;; SetDropCallback
+
+;;;
+;;; Context
+;;;
+
+(define-cproc glfw-make-context-current (w::<glfw-window>) ::<void>
+  glfwMakeContextCurrent)
+
+(define-cproc glfw-get-current-context () ::<glfw-window>?
+  glfwGetCurrentContext)
+
+(define-cproc glfw-swap-interval (interval::<int>) ::<void>
+  glfwSwapInterval)
+
+(define-cproc glfw-extension-supported (ext::<const-cstring>) ::<boolean>
+  glfwExtensionSupported)
+
+;;;
+;;; Enum
+;;;
 
 ;; window creation hint deesignators
 (define-enum GLFW_FOCUSED)

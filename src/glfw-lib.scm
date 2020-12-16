@@ -62,6 +62,9 @@
 (define-cproc glfw-terminate () ::<void>
   (glfwTerminate))
 
+(define-cproc glfw-set-error-callback (proc)
+  (return (Scm_SetGlfwErrorCallback proc)))
+
 ;;;
 ;;; Monitor
 ;;;

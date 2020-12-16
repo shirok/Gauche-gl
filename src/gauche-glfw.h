@@ -40,6 +40,8 @@ SCM_EXTERN ScmClass *ScmGlfwWindowClass; /* foreign pointer class */
 #define SCM_GLFW_WINDOW_P(obj) SCM_ISA(obj, ScmGlfwWindowClass)
 #define SCM_GLFW_WINDOW(obj)   SCM_FOREIGN_POINTER_REF(GLFWwindow*, obj)
 
+SCM_EXTERN GLFWwindow *Scm_CreateGlfwWindow(int, int, const char *,
+                                            GLFWmonitor*, GLFWwindow*);
 SCM_EXTERN ScmObj Scm_MakeGlfwWindow(GLFWwindow*);
 SCM_EXTERN void Scm_GlfwWindowDestroy(ScmObj);
 
@@ -55,5 +57,22 @@ SCM_EXTERN ScmClass *ScmGlfwVidmodeClass; /* foreign pointer class */
 
 /* always copy the source */
 SCM_EXTERN ScmObj Scm_MakeGlfwVidmode(const GLFWvidmode*);
+
+/* 
+ * This structure is associated to each window.
+ */
+typedef struct ScmGlfwWindowDataRec {
+    ScmObj pos;       /* GLFWwindow*, int, int */
+    ScmObj size;      /* GLFWwindow*, int, int */
+    ScmObj close;     /* GLFWwindow* */
+    ScmObj refresh;   /* GLFWwindow* */
+    ScmObj focus;     /* GLFWwindow*, int */
+    ScmObj iconify;   /* GLFWwindow*, int */
+    ScmObj maximize;  /* GLFWwindow*, int */  // from 3.3
+    ScmObj framesize; /* GLFWwindow*, int, int */
+    ScmObj scale;     /* GLFWwindow*, float, float */ // from 3.3
+} ScmGlfwWindowData;
+
+SCM_EXTERN ScmGlfwWindowData *Scm_GlfwGetWindowData(GLFWwindow *);
 
 #endif /*GAUCHE_GLFW_H*/

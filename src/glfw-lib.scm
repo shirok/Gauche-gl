@@ -146,7 +146,7 @@
                                   monitor::<glfw-monitor>?
                                   share::<glfw-window>?)
   ::<glfw-window>
-  (return (glfwCreateWindow w h title monitor share)))
+  Scm_CreateGlfwWindow)
 
 (define-cproc glfw-destroy-window (w) ::<void>
   (Scm_GlfwWindowDestroy w))
@@ -269,6 +269,18 @@
 ;;   ::<void>
 ;;   glfwSetWindowAttrib)
 
+(define-cproc glfw-poll-events () ::<void> glfwPollEvents)
+(define-cproc glfw-wait-events () ::<void> glfwWaitEvents)
+(define-cproc glfw-wait-events-timeout (to::<real>) ::<void>
+  glfwWaitEventsTimeout)
+(define-cproc glfw-post-empty-event () ::<void> glfwPostEmptyEvent)
+(define-cproc glfw-swap-buffers (w::<glfw-window>) ::<void> glfwSwapBuffers)
+
+
+;;;
+;;; Callbacks
+;;;
+
 ;; setWindowPosCallback
 ;; setWindowSizeCallback
 ;; setWindowCloseCallback
@@ -278,14 +290,6 @@
 ;; setWindowMaximizeCallback
 ;; setFramebufferSizeCallback
 ;; setWindowContentScaleCallback
-
-(define-cproc glfw-poll-events () ::<void> glfwPollEvents)
-(define-cproc glfw-wait-events () ::<void> glfwWaitEvents)
-(define-cproc glfw-wait-events-timeout (to::<real>) ::<void>
-  glfwWaitEventsTimeout)
-(define-cproc glfw-post-empty-event () ::<void> glfwPostEmptyEvent)
-(define-cproc glfw-swap-buffers (w::<glfw-window>) ::<void> glfwSwapBuffers)
-
 
 ;; window creation hint deesignators
 (define-enum GLFW_FOCUSED)

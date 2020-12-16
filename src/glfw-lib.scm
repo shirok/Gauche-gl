@@ -281,14 +281,31 @@
 ;;; Callbacks
 ;;;
 
-;; setWindowPosCallback
-;; setWindowSizeCallback
-;; setWindowCloseCallback
-;; setWidnowRefreshCallback
-;; setWindowFocusCallback
-;; setWindowIconifyCallback
+;; callback must be an appropriate procedure or #f; we don't check it.
+
+(inline-stub
+ (define-cise-stmt set-callback!
+   [(_ w cb name)
+    `(let* ([d::ScmGlfwWindowData* (Scm_GlfwGetWindowData ,w)]
+            [old (-> d ,name)])
+       (set! (-> d ,name) ,cb)
+       (return old))]))
+
+(define-cproc glfw-set-window-pos-callback (w::<glfw-window> cb)
+  (set-callback! w cb pos))
+(define-cproc glfw-set-window-size-callback (w::<glfw-window> cb)
+  (set-callback! w cb size))
+(define-cproc glfw-set-window-close-callback (w::<glfw-window> cb)
+  (set-callback! w cb close))
+(define-cproc glfw-set-window-refresh-callback (w::<glfw-window> cb)
+  (set-callback! w cb refresh))
+(define-cproc glfw-set-window-focus-callback (w::<glfw-window> cb)
+  (set-callback! w cb focus))
+(define-cproc glfw-set-window-iconify-callback (w::<glfw-window> cb)
+  (set-callback! w cb iconify))
 ;; setWindowMaximizeCallback
-;; setFramebufferSizeCallback
+(define-cproc glfw-set-framebuffer-size-callback (w::<glfw-window> cb)
+  (set-callback! w cb framesize))
 ;; setWindowContentScaleCallback
 
 ;; window creation hint deesignators

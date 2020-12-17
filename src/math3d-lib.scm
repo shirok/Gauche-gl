@@ -334,6 +334,9 @@
 (define-cproc matrix4f-set! (m::<matrix4f> i::<fixnum> v::<real>) ::<void>
   (when (index-ok? i 0 15) (set! (aref (SCM_MATRIX4F_D m) i) v)))
 
+(define-cproc matrix4f-set-identity! (m::<matrix4f>) ::<void>
+  (Scm_Matrix4fSetIdentityv (SCM_MATRIX4F_D m)))
+
 (define-cproc matrix4f-ref (m::<matrix4f> i::<fixnum> &optional fallback)
   (setter matrix4f-set!)
   (when (index-ok/fallback? i 0 15 fallback)

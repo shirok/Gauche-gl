@@ -356,6 +356,81 @@
 (define-cproc glfw-destroy-cursor (c) ::<void>
   (Scm_GlfwCursorDestroy c))
 
+(define-cproc glfw-joystick-present (jid::<int>) ::<boolean>
+  glfwJoystickPresent)
+
+;; Returns f32vector.  If jid isn't present, returns #f.
+;; You can optionally pass in a f32vector to receive the results, avoiding
+;; avoid allocation.   The length of vector must match the number of axes,
+;; which can be known if you call this once with vec being #f.
+;; (In fact, you can reuse the first-returned vector for the subsequent calls)
+(define-cproc glfw-get-joystick-axes (jid::<int> :optional (vec #f))
+  (let* ([count::int]
+         [fs::(const float*) (glfwGetJoystickAxes jid (& count))])
+    (cond [(== fs NULL) (return '#f)]
+          [(SCM_FALSEP vec) (return (Scm_MakeF32VectorFromArray count fs))]
+          [(not (SCM_F32VECTORP vec)) (SCM_TYPE_ERROR vec "f32vector or #f")]
+          [(not (== count (SCM_F32VECTOR_SIZE vec)))
+           (Scm_Error "length of vec %S doesn't match the number of axes %d"
+                      vec count)]
+          [else
+           (dotimes [i count]
+             (set! (SCM_F32VECTOR_ELEMENT vec i) (aref fs i)))
+           (return vec)])))
+
+;; Returns u8vector.  Same as glfw-get-joystick-axes above.
+(define-cproc glfw-get-joystick-buttons (jid::<int> :optional (vec #f))
+  (let* ([count::int]
+         [bs::(const u_char*) (glfwGetJoystickButtons jid (& count))])
+    (cond [(== bs NULL) (return '#f)]
+          [(SCM_FALSEP vec) (return (Scm_MakeU8VectorFromArray count bs))]
+          [(not (SCM_U8VECTORP vec)) (SCM_TYPE_ERROR vec "u8vector or #f")]
+          [(not (== count (SCM_U8VECTOR_SIZE vec)))
+           (Scm_Error "length of vec %S doesn't match the number of axes %d"
+                      vec count)]
+          [else
+           (dotimes [i count]
+             (set! (SCM_U8VECTOR_ELEMENT vec i) (aref bs i)))
+           (return vec)])))
+
+;; glfw-get-joystick-hats - from 3.3
+
+(define-cproc glfw-get-joystick-name (jid::<int>) ::<const-cstring>?
+  glfwGetJoystickName)
+
+;; from 3.3
+;; (define-cproc glf-wget-joystick-guid (jid::<int>) ::<const-cstring>?
+;;   glfwGetJoystickGUID)
+
+;; glfwJoystickIsGamepad - from 3.3
+
+;; glfwUpdateGamepadMappings - from 3.3
+
+;; glfwGetGamepadName - from 3.3
+
+;; glfwGetGamepadState - from 3.3
+
+(define-cproc glfwSetClipboardString (w::<glfw-window>?
+                                      s::<const-cstring>) 
+  ::<void>
+  glfwSetClipboardString)
+
+(define-cproc glfwGetClipboardString (w::<glfw-window>?) ::<const-cstring>?
+  glfwGetClipboardString)
+
+(define-cproc glfwGetTime () ::<real>
+  glfwGetTime)
+
+(define-cproc glfwSetTime (time::<real>) ::<void>
+  glfwSetTime)
+
+(define-cproc glfwGetTimerValue ()
+  (return (Scm_MakeIntegerU64 (glfwGetTimerValue))))
+
+(define-cproc glfwGetTimerFrequency ()
+  (return (Scm_MakeIntegerU64 (glfwGetTimerFrequency))))
+
+
 ;; SetKeyCallback
 ;; SetCharCallback
 ;; SetCarModsCallback
@@ -364,6 +439,9 @@
 ;; SetCurosrEnterCallback
 ;; SetScroolCallback
 ;; SetDropCallback
+;; SetJoystickCallback
+
+
 
 ;;;
 ;;; Context

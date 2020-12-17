@@ -81,6 +81,15 @@ enum {
     SCM_GLFW_FRAMESIZE_CALLBACK, /* GLFWwindow*, int, int */
     SCM_GLFW_SCALE_CALLBACK,     /* GLFWwindow*, float, float */ // from 3.3
 
+    SCM_GLFW_KEY_CALLBACK,       /* GLFWwindow*, int, int, int, int */
+    SCM_GLFW_CHAR_CALLBACK,      /* GLFWwindow*, unsigned int */
+    SCM_GLFW_BUTTON_CALLBACK,    /* GLFWwindow*, int, int, int  */
+    SCM_GLFW_CURSORPOS_CALLBACK, /* GLFWwindow*, double, double */
+    SCM_GLFW_ENTER_CALLBACK,     /* GLFWwindow*, int */
+    SCM_GLFW_SCROLL_CALLBACK,    /* GLFWwindow*, double, double */
+    SCM_GLFW_DROP_CALLBACK,      /* GLFWwindow*, int, const char*[] */
+    /* we don't support CharModsCallback, for it will be removed */
+    
     SCM_GLFW_NUM_WINDOW_CALLBACKS
 };
 

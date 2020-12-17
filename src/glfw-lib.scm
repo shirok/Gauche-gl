@@ -385,6 +385,58 @@
  (define-cproc glfw-set-framebuffer-size-callback (w::<glfw-window> proc)
    (set-window-cb w SCM_GLFW_FRAMESIZE_CALLBACK proc))
 
+ (define-cfn key-cb (w::GLFWwindow* key::int scancode::int
+                                    action::int mods::int)
+   ::void
+   (call-window-cb w SCM_GLFW_KEY_CALLBACK
+                   (Scm_MakeInteger key)
+                   (Scm_MakeInteger scancode)
+                   (Scm_MakeInteger action)
+                   (Scm_MakeInteger mods)))
+ (define-cproc glfw-set-key-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_KEY_CALLBACK proc))
+
+ (define-cfn char-cb (w::GLFWwindow* codepoint::uint) ::void
+   (call-window-cb w SCM_GLFW_CHAR_CALLBACK
+                   (SCM_MAKE_CHAR (Scm_UcsToChar codepoint))))
+ (define-cproc glfw-set-char-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_CHAR_CALLBACK proc))
+
+ (define-cfn button-cb (w::GLFWwindow* button::int action::int mods::int)
+   ::void
+   (call-window-cb w SCM_GLFW_BUTTON_CALLBACK
+                   (Scm_MakeInteger button)
+                   (Scm_MakeInteger action)
+                   (Scm_MakeInteger mods)))
+ (define-cproc glfw-set-mouse-button-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_BUTTON_CALLBACK proc))
+
+ (define-cfn cursorpos-cb (w::GLFWwindow* xpos::double ypos::double) ::void
+   (call-window-cb w SCM_GLFW_CURSORPOS_CALLBACK
+                   (Scm_MakeFlonum xpos)
+                   (Scm_MakeFlonum ypos)))
+ (define-cproc glfw-set-curosr-pos-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_CURSORPOS_CALLBACK proc))
+
+ (define-cfn enter-cb (w::GLFWwindow* entered::int) ::void
+   (call-window-cb w SCM_GLFW_ENTER_CALLBACK
+                   (SCM_MAKE_BOOL (!= entered GLFW_FALSE))))
+ (define-cproc glfw-set-cursor-enter-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_ENTER_CALLBACK proc))
+
+ (define-cfn scroll-cb (w::GLFWwindow* xoff::double yoff::double) ::void
+   (call-window-cb w SCM_GLFW_SCROLL_CALLBACK
+                   (Scm_MakeFlonum xoff)
+                   (Scm_MakeFlonum yoff)))
+ (define-cproc glfw-set-scrool-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_SCROLL_CALLBACK proc))
+
+ (define-cfn drop-cb (w::GLFWwindow* npaths::int paths::(const char**)) ::void
+   (call-window-cb w SCM_GLFW_DROP_CALLBACK
+                   (Scm_CStringArrayToList paths npaths SCM_STRING_COPYING)))
+ (define-cproc glfw-set-drop-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_DROP_CALLBACK proc))
+
  (define-cfn Scm__SetupWindowCallbacks (w::GLFWwindow*) ::void
    (glfwSetWindowPosCallback w pos_cb)
    (glfwSetWindowSizeCallback w size_cb)
@@ -392,7 +444,15 @@
    (glfwSetWindowRefreshCallback w refresh_cb)
    (glfwSetWindowFocusCallback w focus_cb)
    (glfwSetWindowIconifyCallback w iconify_cb)
-   (glfwSetFramebufferSizeCallback w framesize_cb))
+   (glfwSetFramebufferSizeCallback w framesize_cb)
+
+   (glfwSetKeyCallback w key_cb)
+   (glfwSetCharCallback w char_cb)
+   (glfwSetMouseButtonCallback w button_cb)
+   (glfwSetCursorPosCallback w cursorpos_cb)
+   (glfwSetCursorEnterCallback w enter_cb)
+   (glfwSetScrollCallback w scroll_cb)
+   (glfwSetDropCallback w drop_cb))
  )
 
 ;;;
@@ -509,16 +569,6 @@
 
 (define-cproc glfwGetTimerFrequency ()
   (return (Scm_MakeIntegerU64 (glfwGetTimerFrequency))))
-
-
-;; SetKeyCallback
-;; SetCharCallback
-;; SetCarModsCallback
-;; SetMouseButtonCallback
-;; SetCursorPosCallback
-;; SetCurosrEnterCallback
-;; SetScroolCallback
-;; SetDropCallback
 
 
 ;;;

@@ -328,29 +328,72 @@
 ;; callback must be an appropriate procedure or #f; we don't check it.
 
 (inline-stub
- (define-cise-stmt set-callback!
-   [(_ w cb name)
+ (define-cise-stmt call-window-cb
+   [(_ w enum . args)
     `(let* ([d::ScmGlfwWindowData* (Scm_GlfwGetWindowData ,w)]
-            [old (-> d ,name)])
-       (set! (-> d ,name) ,cb)
-       (return old))]))
+            [cb (aref (-> d window_cbs) ,enum)])
+       (unless (SCM_FALSEP cb)
+         (,(string->symbol (format "Scm_ApplyRec~a" (+ (length args) 1)))
+          cb (Scm_MakeGlfwWindow ,w) ,@args)))])
+ (define-cise-stmt set-window-cb
+   [(_ w enum proc) 
+    `(let* ([d::ScmGlfwWindowData* (Scm_GlfwGetWindowData ,w)]
+            [prev (aref (-> d window_cbs) ,enum)])
+       (set! (aref (-> d window_cbs) ,enum) ,proc)
+       (return prev))])
 
-(define-cproc glfw-set-window-pos-callback (w::<glfw-window> cb)
-  (set-callback! w cb pos))
-(define-cproc glfw-set-window-size-callback (w::<glfw-window> cb)
-  (set-callback! w cb size))
-(define-cproc glfw-set-window-close-callback (w::<glfw-window> cb)
-  (set-callback! w cb close))
-(define-cproc glfw-set-window-refresh-callback (w::<glfw-window> cb)
-  (set-callback! w cb refresh))
-(define-cproc glfw-set-window-focus-callback (w::<glfw-window> cb)
-  (set-callback! w cb focus))
-(define-cproc glfw-set-window-iconify-callback (w::<glfw-window> cb)
-  (set-callback! w cb iconify))
-;; setWindowMaximizeCallback
-(define-cproc glfw-set-framebuffer-size-callback (w::<glfw-window> cb)
-  (set-callback! w cb framesize))
-;; setWindowContentScaleCallback
+ (define-cfn pos-cb (w::GLFWwindow* xpos::int ypos::int) ::void
+   (call-window-cb w SCM_GLFW_POS_CALLBACK
+                   (Scm_MakeInteger xpos)
+                   (Scm_MakeInteger ypos)))
+ (define-cproc glfw-set-window-pos-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_POS_CALLBACK proc))
+
+ (define-cfn size-cb (w::GLFWwindow* width::int height::int) ::void
+   (call-window-cb w SCM_GLFW_SIZE_CALLBACK
+                   (Scm_MakeInteger width)
+                   (Scm_MakeInteger height)))
+ (define-cproc glfw-set-window-size-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_SIZE_CALLBACK proc))
+
+ (define-cfn close-cb (w::GLFWwindow*) ::void
+   (call-window-cb w SCM_GLFW_CLOSE_CALLBACK))
+ (define-cproc glfw-set-window-close-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_CLOSE_CALLBACK proc))
+
+ (define-cfn refresh-cb (w::GLFWwindow*) ::void
+   (call-window-cb w SCM_GLFW_REFRESH_CALLBACK))
+ (define-cproc glfw-set-window-refresh-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_REFRESH_CALLBACK proc))
+ 
+ (define-cfn focus-cb (w::GLFWwindow* focused::int) ::void
+   (call-window-cb w SCM_GLFW_FOCUS_CALLBACK
+                   (SCM_MAKE_BOOL (!= focused GLFW_FALSE))))
+ (define-cproc glfw-set-window-focus-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_FOCUS_CALLBACK proc))
+
+ (define-cfn iconify-cb (w::GLFWwindow* iconified::int) ::void
+   (call-window-cb w SCM_GLFW_ICONIFY_CALLBACK
+                   (SCM_MAKE_BOOL (!= iconified GLFW_FALSE))))
+ (define-cproc glfw-set-window-iconify-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_ICONIFY_CALLBACK proc))
+ 
+ (define-cfn framesize-cb (w::GLFWwindow* width::int height::int) ::void
+   (call-window-cb w SCM_GLFW_FRAMESIZE_CALLBACK
+                   (Scm_MakeInteger width)
+                   (Scm_MakeInteger height)))
+ (define-cproc glfw-set-framebuffer-size-callback (w::<glfw-window> proc)
+   (set-window-cb w SCM_GLFW_FRAMESIZE_CALLBACK proc))
+
+ (define-cfn Scm__SetupWindowCallbacks (w::GLFWwindow*) ::void
+   (glfwSetWindowPosCallback w pos_cb)
+   (glfwSetWindowSizeCallback w size_cb)
+   (glfwSetWindowCloseCallback w close_cb)
+   (glfwSetWindowRefreshCallback w refresh_cb)
+   (glfwSetWindowFocusCallback w focus_cb)
+   (glfwSetWindowIconifyCallback w iconify_cb)
+   (glfwSetFramebufferSizeCallback w framesize_cb))
+ )
 
 ;;;
 ;;; Input

@@ -68,18 +68,28 @@ SCM_EXTERN void Scm_GlfwCursorDestroy(ScmObj);
 /* 
  * This structure is associated to each window.
  */
+
+/* window callbacks */
+enum {
+    SCM_GLFW_POS_CALLBACK,       /* GLFWwindow*, int, int */
+    SCM_GLFW_SIZE_CALLBACK,      /* GLFWwindow*, int, int */
+    SCM_GLFW_CLOSE_CALLBACK,     /* GLFWwindow* */
+    SCM_GLFW_REFRESH_CALLBACK,   /* GLFWwindow* */
+    SCM_GLFW_FOCUS_CALLBACK,     /* GLFWwindow*, int */
+    SCM_GLFW_ICONIFY_CALLBACK,   /* GLFWwindow*, int */
+    SCM_GLFW_MAXIMIZE_CALLBACK,  /* GLFWwindow*, int */  // from 3.3
+    SCM_GLFW_FRAMESIZE_CALLBACK, /* GLFWwindow*, int, int */
+    SCM_GLFW_SCALE_CALLBACK,     /* GLFWwindow*, float, float */ // from 3.3
+
+    SCM_GLFW_NUM_WINDOW_CALLBACKS
+};
+
+
 typedef struct ScmGlfwWindowDataRec {
-    ScmObj pos;       /* GLFWwindow*, int, int */
-    ScmObj size;      /* GLFWwindow*, int, int */
-    ScmObj close;     /* GLFWwindow* */
-    ScmObj refresh;   /* GLFWwindow* */
-    ScmObj focus;     /* GLFWwindow*, int */
-    ScmObj iconify;   /* GLFWwindow*, int */
-    ScmObj maximize;  /* GLFWwindow*, int */  // from 3.3
-    ScmObj framesize; /* GLFWwindow*, int, int */
-    ScmObj scale;     /* GLFWwindow*, float, float */ // from 3.3
+    ScmObj window_cbs[SCM_GLFW_NUM_WINDOW_CALLBACKS];
 } ScmGlfwWindowData;
 
+SCM_EXTERN void Scm__SetupWindowCallbacks(GLFWwindow *);
 SCM_EXTERN ScmGlfwWindowData *Scm_GlfwGetWindowData(GLFWwindow *);
 
 /* 

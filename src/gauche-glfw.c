@@ -63,15 +63,9 @@ static ScmGlfwWindowData *ensure_window_data(GLFWwindow *w)
     SCM_INTERNAL_MUTEX_UNLOCK(wtab_mutex);
     if (SCM_DICT_VALUE(e) == 0) {
         ScmGlfwWindowData *data = SCM_NEW(ScmGlfwWindowData);
-        data->pos = SCM_FALSE;
-        data->size = SCM_FALSE;
-        data->close = SCM_FALSE;
-        data->refresh = SCM_FALSE;
-        data->focus = SCM_FALSE;
-        data->iconify = SCM_FALSE;
-        data->maximize = SCM_FALSE;
-        data->framesize = SCM_FALSE;
-        data->scale = SCM_FALSE;
+        for (int i=0; i<SCM_GLFW_NUM_WINDOW_CALLBACKS; i++) {
+            data->window_cbs[i] = SCM_FALSE;
+        }
         e->value = (intptr_t)data;
         return data;
     } else {
@@ -124,65 +118,6 @@ static void glfw_window_cleanup(ScmObj obj)
     }
 }
 
-static void pos_cb(GLFWwindow *w, int xpos, int ypos)
-{
-    ScmGlfwWindowData *d = Scm_GlfwGetWindowData(w);
-    if (!SCM_FALSEP(d->pos)) {
-        Scm_ApplyRec3(d->pos, Scm_MakeGlfwWindow(w), 
-                      Scm_MakeInteger(xpos), Scm_MakeInteger(ypos));
-    }
-}
-
-static void size_cb(GLFWwindow *w, int width, int height)
-{
-    ScmGlfwWindowData *d = Scm_GlfwGetWindowData(w);
-    if (!SCM_FALSEP(d->size)) {
-        Scm_ApplyRec3(d->size, Scm_MakeGlfwWindow(w), 
-                      Scm_MakeInteger(width), Scm_MakeInteger(height));
-    }
-}
-
-static void close_cb(GLFWwindow *w)
-{
-    ScmGlfwWindowData *d = Scm_GlfwGetWindowData(w);
-    if (!SCM_FALSEP(d->close)) {
-        Scm_ApplyRec0(d->close);
-    }
-}
-
-static void refresh_cb(GLFWwindow *w)
-{
-    ScmGlfwWindowData *d = Scm_GlfwGetWindowData(w);
-    if (!SCM_FALSEP(d->refresh)) {
-        Scm_ApplyRec0(d->refresh);
-    }
-}
-
-static void focus_cb(GLFWwindow *w, int focused)
-{
-    ScmGlfwWindowData *d = Scm_GlfwGetWindowData(w);
-    if (!SCM_FALSEP(d->focus)) {
-        Scm_ApplyRec1(d->focus, SCM_MAKE_BOOL(focused != GLFW_FALSE));
-    }
-}
-
-static void iconify_cb(GLFWwindow *w, int iconified)
-{
-    ScmGlfwWindowData *d = Scm_GlfwGetWindowData(w);
-    if (!SCM_FALSEP(d->iconify)) {
-        Scm_ApplyRec1(d->iconify, SCM_MAKE_BOOL(iconified != GLFW_FALSE));
-    }
-}
-
-static void framesize_cb(GLFWwindow *w, int width, int height)
-{
-    ScmGlfwWindowData *d = Scm_GlfwGetWindowData(w);
-    if (!SCM_FALSEP(d->framesize)) {
-        Scm_ApplyRec3(d->framesize, Scm_MakeGlfwWindow(w), 
-                      Scm_MakeInteger(width), Scm_MakeInteger(height));
-    }
-}
-
 /* constructor */
 GLFWwindow *Scm_CreateGlfwWindow(int width, int height, const char *title,
                                  GLFWmonitor *monitor,
@@ -190,13 +125,7 @@ GLFWwindow *Scm_CreateGlfwWindow(int width, int height, const char *title,
 {
     GLFWwindow *w = glfwCreateWindow(width, height, title, monitor, share);
     (void)Scm_GlfwGetWindowData(w); /* attach WindowData */
-    glfwSetWindowPosCallback(w, pos_cb);
-    glfwSetWindowSizeCallback(w, size_cb);
-    glfwSetWindowCloseCallback(w, close_cb);
-    glfwSetWindowRefreshCallback(w, refresh_cb);
-    glfwSetWindowFocusCallback(w, focus_cb);
-    glfwSetWindowIconifyCallback(w, iconify_cb);
-    glfwSetFramebufferSizeCallback(w, framesize_cb);
+    Scm__SetupWindowCallbacks(w);
     return w;
 }
 

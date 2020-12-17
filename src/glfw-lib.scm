@@ -591,6 +591,10 @@
 ;;; Enum
 ;;;
 
+(define-enum GLFW_VERSION_MAJOR)
+(define-enum GLFW_VERSION_MINOR)
+(define-enum GLFW_VERSION_REVISION)
+
 ;; window creation hint deesignators
 (define-enum GLFW_FOCUSED)
 (define-enum GLFW_ICONIFIED)
@@ -671,8 +675,12 @@
 (define-enum GLFW_DONT_CARE)
 
 ;;
-;; Key codes
+;; Keys
 ;;
+
+(define-enum GLFW_RELEASE)
+(define-enum GLFW_PRESS)
+(define-enum GLFW_REPEAT)
 
 (define-enum GLFW_KEY_UNKNOWN)
 (define-enum GLFW_KEY_SPACE)

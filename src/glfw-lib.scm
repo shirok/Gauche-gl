@@ -550,24 +550,24 @@
 
 ;; glfwGetGamepadState - from 3.3
 
-(define-cproc glfwSetClipboardString (w::<glfw-window>?
-                                      s::<const-cstring>) 
+(define-cproc glfw-set-clipboard-string (w::<glfw-window>?
+                                         s::<const-cstring>) 
   ::<void>
   glfwSetClipboardString)
 
-(define-cproc glfwGetClipboardString (w::<glfw-window>?) ::<const-cstring>?
+(define-cproc glfw-get-clipboard-string (w::<glfw-window>?) ::<const-cstring>?
   glfwGetClipboardString)
 
-(define-cproc glfwGetTime () ::<real>
+(define-cproc glfw-get-time () ::<real>
   glfwGetTime)
 
-(define-cproc glfwSetTime (time::<real>) ::<void>
+(define-cproc glfw-set-time (time::<real>) ::<void>
   glfwSetTime)
 
-(define-cproc glfwGetTimerValue ()
+(define-cproc glfw-get-timer-value ()
   (return (Scm_MakeIntegerU64 (glfwGetTimerValue))))
 
-(define-cproc glfwGetTimerFrequency ()
+(define-cproc glfw-get-timer-frequency ()
   (return (Scm_MakeIntegerU64 (glfwGetTimerFrequency))))
 
 

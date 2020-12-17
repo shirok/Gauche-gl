@@ -190,7 +190,7 @@
                                   title::<const-cstring>
                                   monitor::<glfw-monitor>?
                                   share::<glfw-window>?)
-  ::<glfw-window>
+  ::<glfw-window>?
   Scm_CreateGlfwWindow)
 
 (define-cproc glfw-destroy-window (w) ::<void>

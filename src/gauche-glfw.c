@@ -124,8 +124,10 @@ GLFWwindow *Scm_CreateGlfwWindow(int width, int height, const char *title,
                                  GLFWwindow *share)
 {
     GLFWwindow *w = glfwCreateWindow(width, height, title, monitor, share);
-    (void)Scm_GlfwGetWindowData(w); /* attach WindowData */
-    Scm__SetupWindowCallbacks(w);
+    if (w != NULL) {
+        (void)Scm_GlfwGetWindowData(w); /* attach WindowData */
+        Scm__SetupWindowCallbacks(w);
+    }
     return w;
 }
 

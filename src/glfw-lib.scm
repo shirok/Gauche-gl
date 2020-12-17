@@ -67,8 +67,45 @@
 (define-cproc glfw-terminate () ::<void>
   (glfwTerminate))
 
-(define-cproc glfw-set-error-callback (proc)
-  (return (Scm_SetGlfwErrorCallback proc)))
+;;;
+;;; Global callbacks
+;;;
+
+(inline-stub
+ (define-cvar global_cbs ::(.array ScmObj (SCM_GLFW_NUM_GLOBAL_CALLBACKS))
+   :static)
+
+ (initcode (dotimes [i SCM_GLFW_NUM_GLOBAL_CALLBACKS]
+             (set! (aref global_cbs i) SCM_FALSE))
+           (glfwSetErrorCallback error-cb)
+           (glfwSetJoystickCallback joystick-cb))
+
+ (define-cise-stmt call-global-cb
+   [(_ enum . args)
+    `(let* ([cb (aref global_cbs ,enum)])
+       (unless (SCM_FALSEP cb)
+         (,(string->symbol (format "Scm_ApplyRec~a" (length args)))
+          cb ,@args)))])
+ (define-cise-stmt set-global-cb
+   [(_ enum proc) 
+    `(let* ([prev (aref global_cbs ,enum)])
+       (set! (aref global_cbs ,enum) ,proc)
+       (return prev))])
+
+ (define-cfn error-cb (e::int desc::(const char*)) ::void
+   (call-global-cb SCM_GLFW_ERROR_CALLBACK
+                   (Scm_MakeInteger e)
+                   (SCM_MAKE_STR desc)))
+ (define-cproc glfw-set-error-callback (proc)
+   (set-global-cb SCM_GLFW_ERROR_CALLBACK proc))
+
+ (define-cfn joystick-cb (jid::int event::int) ::void
+   (call-global-cb SCM_GLFW_JOYSTICK_CALLBACK
+                   (Scm_MakeInteger jid)
+                   (Scm_MakeInteger event)))
+ (define-cproc glfw-set-joystick-callback (proc)
+   (set-global-cb SCM_GLFW_JOYSTICK_CALLBACK proc))
+ )
 
 ;;;
 ;;; Monitor
@@ -439,8 +476,6 @@
 ;; SetCurosrEnterCallback
 ;; SetScroolCallback
 ;; SetDropCallback
-;; SetJoystickCallback
-
 
 
 ;;;

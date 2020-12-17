@@ -38,26 +38,6 @@
 extern void Scm_Init_glfw_lib(ScmModule *mod);
 
 /*================================================================
- * Error callback and global initialization
- */
-
-static ScmObj error_cb = SCM_FALSE;
-
-static void call_error_cb(int error, const char *desc)
-{
-    if (!SCM_FALSEP(error_cb)) {
-        Scm_ApplyRec2(error_cb, Scm_MakeInteger(error), SCM_MAKE_STR(desc));
-    }
-}
-
-ScmObj Scm_SetGlfwErrorCallback(ScmObj proc)
-{
-    ScmObj prev = error_cb;
-    error_cb = proc;
-    return prev;
-}
-
-/*================================================================
  * windowdata management
  */
 
@@ -355,6 +335,5 @@ void Scm_Init_libgauche_glfw(void)
     sym_user_created = SCM_INTERN("user-created");
     init_wtab();
     Scm_Init_glfw_lib(mod);
-    glfwSetErrorCallback(call_error_cb);
 }
 

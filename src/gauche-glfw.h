@@ -82,6 +82,15 @@ typedef struct ScmGlfwWindowDataRec {
 
 SCM_EXTERN ScmGlfwWindowData *Scm_GlfwGetWindowData(GLFWwindow *);
 
-SCM_EXTERN ScmObj Scm_SetGlfwErrorCallback(ScmObj proc);
+/* 
+ * Global callbacks
+ */
+
+enum {
+    SCM_GLFW_ERROR_CALLBACK,
+    SCM_GLFW_JOYSTICK_CALLBACK,
+
+    SCM_GLFW_NUM_GLOBAL_CALLBACKS
+};
 
 #endif /*GAUCHE_GLFW_H*/

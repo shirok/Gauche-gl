@@ -45,16 +45,16 @@
    "SCM_GLFW_MONITOR_P"
    "SCM_GLFW_MONITOR"
    "Scm_MakeGlfwMonitor")
- (define-type <glfw-vidmode> GLFWvidmode*
-   "GLFWvidmode"
-   "SCM_GLFW_VIDMODE_P"
-   "SCM_GLFW_VIDMODE"
-   "Scm_MakeGlfwVidmode")
  (define-type <glfw-cursor> GLFWcursor*
    "GLFWcursor"
    "SCM_GLFW_CURSOR_P"
    "SCM_GLFW_CURSOR"
    "Scm_MakeGlfwCursor")
+ (define-type <glfw-vidmode> ScmObj     ;ScmGlfwVidmode*
+   "GLFWvidmode"
+   "SCM_GLFW_VIDMODE_P"
+   "SCM_GLFW_VIDMODE"
+   "Scm_MakeGlfwVidmode")
  )
 
 ;;;

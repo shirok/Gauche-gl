@@ -51,11 +51,15 @@ SCM_EXTERN ScmClass *ScmGlfwMonitorClass; /* foreign pointer class */
 
 SCM_EXTERN ScmObj Scm_MakeGlfwMonitor(GLFWmonitor*);
 
-SCM_EXTERN ScmClass *ScmGlfwVidmodeClass; /* foreign pointer class */
-#define SCM_GLFW_VIDMODE_P(obj) SCM_ISA(obj, ScmGlfwVidmodeClass)
-#define SCM_GLFW_VIDMODE(obj)   SCM_FOREIGN_POINTER_REF(GLFWvidmode*, obj)
+typedef struct ScmGlfwVidmodeRec {
+    SCM_HEADER;
+    GLFWvidmode vidmode;
+} ScmGlfwVidmode;
 
-/* always copy the source */
+SCM_EXTERN ScmClass ScmGlfwVidmodeClass; /* foreign pointer class */
+#define SCM_GLFW_VIDMODE_P(obj) SCM_ISA(obj, ScmGlfwVidmodeClass)
+#define SCM_GLFW_VIDMODE(obj)   ((ScmGlfwVidmode*)(obj))
+
 SCM_EXTERN ScmObj Scm_MakeGlfwVidmode(const GLFWvidmode*);
 
 SCM_EXTERN ScmClass *ScmGlfwCursorClass; /* foreign pointer class */

@@ -67,6 +67,26 @@
 (define-cproc glfw-terminate () ::<void>
   (glfwTerminate))
 
+(define-cproc glfw-get-version () ::(<int> <int> <int>)
+  (let* ([major::int] [minor::int] [rev::int])
+    (glfwGetVersion (& major) (& minor) (& rev))
+    (return major minor rev)))
+
+(define-cproc glfw-get-version-string () ::<const-cstring>
+  glfwGetVersionString)
+
+;; (define-cproc glfw-get-error/description () ::(<int> <top>)
+;;   (let* ([desc::(const char*)]
+;;          [code::int (glfwGetError (& desc))])
+;;     (return int
+;;             (?: (== desc NULL) 
+;;                 SCM_FALSE
+;;                 (SCM_MAKE_STR_COPYING desc)))))
+
+;; (define-cproc glfw-get-error/code () ::<int>
+;;   (return (glfwGetError NULL)))
+  
+
 ;;;
 ;;; Global callbacks
 ;;;

@@ -2,17 +2,17 @@
 @comment %**start of header
 @c EN
 @setfilename gauche-gl-refe.info
-@settitle Gauche-gl : OpenGL binding for Gauche
+@settitle Gauche-gl : Graphic Library binding for Gauche
 @dircategory The Algorithmic Language Scheme
 @direntry
-* Gauche-gl Reference: (gauche-gl-refe.info).	Gauche OpenGL binding
+* Gauche-gl Reference: (gauche-gl-refe.info).	Gauche Graphic Library binding
 @end direntry
 @c JP
 @setfilename gauche-gl-refj.info
-@settitle Gauche-gl : OpenGL binding for Gauche
+@settitle Gauche-gl : Graphic Library binding for Gauche
 @dircategory The Algorithmic Language Scheme
 @direntry
-* Gauche-gl Reference (ja): (gauche-gl-refj.info).	Gauche OpenGL binding
+* Gauche-gl Reference (ja): (gauche-gl-refj.info).	Gauche Graphic Library binding
 @end direntry
 @c COMMON
 @comment %**end of header
@@ -28,9 +28,9 @@
 
 @titlepage
 @c EN
-@title Gauche-gl : OpenGL binding for Gauche
+@title Gauche-gl : Graphic Library binding for Gauche
 @c JP
-@title Gauche-gl : OpenGL binding for Gauche
+@title Gauche-gl : Graphic Library binding for Gauche
 @c COMMON
 @subtitle version @VERSION@
 @author Shiro Kawai (shiro@@acm.org)
@@ -44,21 +44,21 @@ Copyright @copyright{} 2002-2020 Shiro Kawai (shiro@@acm.org)
 @node Top, Introduction, (dir), (dir)
 
 @ifnottex
-This is a reference manual of Gauche-gl, an OpenGL binding for the
+This is a reference manual of Gauche-gl, a Graphic Library binding for the
 Gauche Scheme implementation.
 This manual is for version @VERSION@.
 @end ifnottex
 
 @c ======================================================================
 @menu
-* Introduction::                
-* Installation::                
-* Getting Started::             
-* OpenGL API::                  
-* GLUT API::                    
-* Vectors and matrices::        
-* Simple utilities::            
-* Indices::                     
+* Introduction::
+* Installation::
+* Getting Started::
+* OpenGL API::
+* GLUT API::
+* Vectors and matrices::
+* Simple utilities::
+* Indices::
 @end menu
 
 @node Introduction, Installation, Top, Top
@@ -72,6 +72,8 @@ It provides the following modules:
 This module provides bindings to OpenGL API.
 It covers most functions in OpenGL 1.0 through 4.5,
 and GLU.   The functions are described in @ref{OpenGL API}.
+@item gl.glfw
+This module provides bindigns to GLFW API.
 @item gl.glut
 This module provides bindings to most functions in GLUT.
 The functions are described in @ref{GLUT API}.
@@ -98,13 +100,15 @@ Installing Gauche-gl is usually straightforward on Unix variants.
 You have to have the following programs installed on your machine.
 @itemize @bullet
 @item
-Gauche 0.8.5 or later
+Gauche 0.9.10 or later
 @item
 OpenGL 1.1 equivalent library or later.
 @item
 GLUT 3.7 or later.
 @item
 GLEW (when you compile Gauche-gl on Windows, using MinGW-w64).
+@item
+GLFW (optional, but recommended) from https://glfw.org/
 @end itemize
 
 The standard way to compile and install Gauche-gl is as follows:
@@ -132,12 +136,11 @@ tell the configure script where it is.
 % ./configure --with-glut=DIR
 @end example
 
-Since version 0.4, Gauche-gl can be configured to include bindings
-to NVidia's Cg Toolkit.  The binding code is contributed by Issac Trotts.
-To enable Cg binding, give @code{--enable-cg} option to the configure
-script.
+If you have GLFW in a standard place, it will be automatically detected.
+If you have it in a non-standad location, tell @code{configure} the
+directory:
 @example
-% ./configure --enable-cg
+% ./configure --with-glfw=DIR
 @end example
 
 
@@ -166,6 +169,8 @@ a.k.a. Redbook.
 This subdirectory contains examples found in "OpenGL Shading Language".
 Each demo is under its own subdirectories.  You need to have
 proper driver/hardware that supports GLSL to run these demos.
+@item glfw/
+This subdirectory contains examples using GLFW.
 @end table
 
 
@@ -174,10 +179,11 @@ proper driver/hardware that supports GLSL to run these demos.
 @chapter Getting Started
 
 @menu
-* GL calls in Scheme::          
-* Advanced GL features::        
-* Using GLUT::                  
-* Performance tips::            
+* GL calls in Scheme::
+* Advanced GL features::
+* Using GLFW::
+* Using GLUT::
+* Performance tips::
 @end menu
 
 @c ----------------------------------------------------------------------
@@ -271,7 +277,7 @@ defined natively in @code{gl.math3d}, and passing it to GL call
 doesn't cost unboxing.
 
 @c ----------------------------------------------------------------------
-@node Advanced GL features, Using GLUT, GL calls in Scheme, Getting Started
+@node Advanced GL features, Using GLFW, GL calls in Scheme, Getting Started
 @section Advanced GL features
 
 Although Gauche-gl supports up to OpenGL 2.0, all functionalities
@@ -308,12 +314,23 @@ the platform, an error is signalled.
 
 
 @c ----------------------------------------------------------------------
-@node Using GLUT, Performance tips, Advanced GL features, Getting Started
+@node Using GLFW, Using GLUT, Advanced GL features, Getting Started
+@section Using GLFW
+
+GLFW provides a common framework to handle windows and events.
+across multiple platforms.  See @url{https://glfw.org/} for the details.
+
+The bindings to the most of GLFW API are provided in @code{gl.glfw} module.
+In this version, we support GLFW 3.2 API.
+
+@c ----------------------------------------------------------------------
+@node Using GLUT, Performance tips, Using GLFW, Getting Started
 @section Using GLUT
 
-In order to make a runnable script, you need to use some
-windowing system interface.  GLUT binding provides a simple
-way for it.
+GLUT had long been a de-facto library to make a platform-agnostic 
+runnable script, hiding difference of various windowing systems.
+We still support it but the library development was discontinued.
+The newer scripts should use GLFW.
 
 Here is a complete runnable Scheme script, ported from
 Example 1-2 in "OpenGL Programming Guide":
@@ -428,24 +445,24 @@ this an OpenGL reference, though; you should look at the OpenGL book
 for the details of what each API do.
 
 @menu
-* GL data types::               
-* GL feature checking::         
-* Drawing functions::           
-* GL state control::            
-* GL states for drawing::       
-* Transformation::              
-* Display lists::               
-* Vertex arrays::               
-* Lighting::                    
-* Pixels::                      
-* Texture mapping::             
-* Framebuffers::                
-* Selection and feedback::      
-* Projection::                  
-* Quadrics::                    
-* Nurbs::                       
-* Polygon tesselation::         
-* Programmable shaders::        
+* GL data types::
+* GL feature checking::
+* Drawing functions::
+* GL state control::
+* GL states for drawing::
+* Transformation::
+* Display lists::
+* Vertex arrays::
+* Lighting::
+* Pixels::
+* Texture mapping::
+* Framebuffers::
+* Selection and feedback::
+* Projection::
+* Quadrics::
+* Nurbs::
+* Polygon tesselation::
+* Programmable shaders::
 @end menu
 
 @c ----------------------------------------------------------------------
@@ -2433,14 +2450,14 @@ f64vector of size 4 or @code{<vector4f>} object.
 
 @c ----------------------------------------------------------------------
 @menu
-* GLUT window manipulation::    
-* GLUT overlay::                
-* GLUT menu API::               
-* GLUT callbacks::              
-* GLUT colormap::               
-* GLUT state retrieval::        
-* GLUT font::                   
-* GLUT pre-built models::       
+* GLUT window manipulation::
+* GLUT overlay::
+* GLUT menu API::
+* GLUT callbacks::
+* GLUT colormap::
+* GLUT state retrieval::
+* GLUT font::
+* GLUT pre-built models::
 @end menu
 
 @node GLUT window manipulation, GLUT overlay, GLUT API, GLUT API
@@ -2945,10 +2962,10 @@ overhead of conversion.
 
 @c ----------------------------------------------------------------------
 @menu
-* Vectors and points::          
-* Vector arrays and point arrays::  
-* Matrices::                    
-* Quaternions::                 
+* Vectors and points::
+* Vector arrays and point arrays::
+* Matrices::
+* Quaternions::
 @end menu
 
 @node Vectors and points, Vector arrays and point arrays, Vectors and matrices, Vectors and matrices
@@ -3726,8 +3743,8 @@ may find them handy when you need to hack up some throwaway
 script that need to show some graphics on the screen.
 
 @menu
-* Simple image handling::       
-* Simple viewer::               
+* Simple image handling::
+* Simple viewer::
 @end menu
 
 @node Simple image handling, Simple viewer, Simple utilities, Simple utilities
@@ -3906,10 +3923,10 @@ specifies the action when the key is pressed.
 @c NODE 索引
 
 @menu
-* Function and Syntax Index::   
-* Module Index::                
-* Class Index::                 
-* Variable Index::              
+* Function and Syntax Index::
+* Module Index::
+* Class Index::
+* Variable Index::
 @end menu
 
 @node Function and Syntax Index, Module Index, Indices, Indices

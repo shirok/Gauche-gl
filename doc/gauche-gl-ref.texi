@@ -55,6 +55,7 @@ This manual is for version @VERSION@.
 * Installation::
 * Getting Started::
 * OpenGL API::
+* GLFW API::
 * GLUT API::
 * Vectors and matrices::
 * Simple utilities::
@@ -435,7 +436,7 @@ fast, and the latter handles complicated logic).
 @end table
 
 @c ======================================================================
-@node OpenGL API, GLUT API, Getting Started, Top
+@node OpenGL API, GLFW API, Getting Started, Top
 @chapter OpenGL API
 
 In this chapter we list a GL and GLU procedures accessible from
@@ -2443,9 +2444,257 @@ In the first form of each, @var{args} must be either f32 or
 f64vector of size 4 or @code{<vector4f>} object.
 @end defun
 
+@c ======================================================================
+@node GLFW API, GLUT API, OpenGL API, Top
+@chapter GLFW API
+
+@menu
+* GLFW initialization and termination::
+* GLFW windows::
+* GLFW input handling::
+* GLFW monitors::
+* GLFW contexts::
+@end menu
+
+@node GLFW initialization and termination, GLFW windows, GLFW API, GLFW API
+@section GLFW initialization and termination
+
+@defun glfw-init
+@end defun
+
+@defun glfw-terminate
+@end defun
+
+@defun glfw-get-version
+Returns three integers, @var{major}, @var{minor} and @var{revision} numbers.
+@end defun
+
+@defun glfw-get-version-string
+Returns a string describing GLFW version.
+@end defun
+
+@defun glfw-set-error-callback proc
+The @var{proc} argument must be a procedure taking two arguments,
+an error code and an error description, or @code{#f}.
+If @var{proc} is a procedure, it is called whenever GLFW error occurred,
+in the same thread that the error occurred.
+
+Returns the previous value of the error callback.
+@end defun
+
+@node GLFW windows, GLFW input handling, GLFW initialization and termination, GLFW API
+@section GLFW windows
+
+@deftp {Class} <glfw-window>
+Corresponds to @code{GLFWwindow*}.
+@end deftp
+
+@defun glfw-create-window width height title monitor share
+Returns a newly created @code{<glfw-window>}, or @code{#f} if it can't
+create one.
+
+The @var{width} and @var{height} arguments are exact integers
+to specify width and height of the window in pixels.
+
+The @var{title} argument is a string for the winow title.
+
+The @var{monitor} argument must be @code{#f} or @code{<glfw-monitor>} to which
+the window is associated.  For full-screen mode you need to specify a monitor.
+
+The @var{share} argument must be @code{#f} or @code{<glfw-window>} with which
+the context is shared.
+@end defun
+
+@defun glfw-destroy-window window
+Destroy the window.
+@end defun
+
+@defun glfw-default-window-hints
+Resets all window hints to their default values.  Returns an undefined value.
+@end defun
+
+@defun glfw-window-hint hint value
+Sets the specified window hint to the given value.
+See the constants section below for the valid values for @var{hint}.
+@end defun
+
+@defun glfw-window-should-close window
+@defunx glfw-set-window-should-close window flag
+Gets/sets ``should close'' boolean flag of a @code{<glfw-window>}.
+@end defun
+
+@defun glfw-set-window-title window title
+Sets the window title.  The @var{title} argument must be a string.
+@end defun
+
+@defun glfw-get-window-pos window
+@defunx glfw-set-window-pos window xpos ypos
+Gets/sets the window position, in exact integers.
+The getter returns two values.
+@end defun
+
+@defun glfw-get-window-size window
+@defunx glfw-set-window-size window width height
+Gets/sets the window size, in exact integers.
+The getter returns two values.
+@end defun
+
+@defun glfw-set-window-size-limits window min-width min-height max-width max-height
+Sets the window size limits.  The last four arguments must be exact integers.
+@end defun
+
+@defun glfw-set-window-aspect-ratio window numer denom
+Sets the window aspect ratio as @code{(/ number denom)}, where
+@var{numer} and @var{denom} must be exact integers.
+@end defun
+
+@defun glfw-get-framebuffer-size window
+Returns the framebuffer size (width, height) as two exact integers.
+@end defun
+
+@defun glfw-get-window-frame-size window
+A window frame is what window manager attaches to the window.
+Returns four values, the widths of left, top, right and bottom window
+frames.
+@end defun
+
+@defun glfw-iconify-window window
+@defunx glfw-restore-window window
+@defunx glfw-maximize-window window
+@defunx glfw-show-window window
+@defunx glfw-hide-window window
+@defunx glfw-focus-window window
+Operations on the window.
+@end defun
+
+@defun glfw-get-window-monitor window
+Returns the monitor (@code{<glfw-monitor>}) associated to the window.
+It can be @code{#f} if no monitor is associated.
+@end defun
+
+@defun glfw-set-window-monitor window monitor xpos ypos width height refresh-rate
+Sets the monitor (@code{<glfw-montitor>}) to the window.
+The @var{xpos}, @var{ypos}, @var{width}, @var{height} and @var{refresh-rate}
+must be exact integres.
+
+You can pass @code{#f} as @var{monitor} not to assciate @var{window}
+to a monitor.  In that case, posisions and dimensions are used to
+place the window content area (refresh rate is ignored).
+@end defun
+
+@defun glfw-get-window-attrib window attrib
+Retrieve an attribute specified by @var{attrib} from the window.
+The @var{attrib} argument must be an exact integer; see below for
+the predefined constants.
+@end defun
+
+
+@node GLFW input handling, GLFW monitors, GLFW windows, GLFW API
+@section GLFW input handling
+
+
+@node GLFW monitors, GLFW contexts, GLFW input handling, GLFW API
+@section GLFW monitors
+
+@deftp {Class} <glfw-monitor>
+Corresponds to @code{GLFWmonitor*}.
+
+Monitors are constructed and owned by GLFW runtime.
+@end deftp
+
+@deftp {Class} <glfw-vidmode>
+Corresponds to @code{GLFWmonitor*}.
+
+@defivar <glfw-vidmode> width
+@defivarx <glfw-vidmode> height
+@defivarx <glfw-vidmode> red-bits
+@defivarx <glfw-vidmode> green-bits
+@defivarx <glfw-vidmode> blue-bits
+@defivarx <glfw-vidmode> refresh-rate
+@end defivar
+
+@end deftp
+
+
+@defun glfw-get-primary-monitor
+Returns a @code{<glfw-monitor>} object for the primary monitor.
+@end defun
+
+@defun glfw-get-monitors
+Returns a vector of @code{<glfw-monitor>} objects available on the system.
+@end defun
+
+@defun glfw-get-monitor-pos monitor
+The argument must be a @code{<glfw-monitor>} object.
+Returns two values, x position and y position of the monitor,
+in exact integers.
+@end defun
+
+@defun glfw-get-monitor-physical-size monitor
+The argument must be a @code{<glfw-monitor>} object.
+Returns the physical width and height of the monitor, in millimeters,
+as exact integers.
+@end defun
+
+@defun glfw-get-video-modes monitor
+The argument must be a @code{<glfw-monitor>} object.
+Returns a vector of all available @code{<glfw-vidmode>} objects
+of the monitor.
+@end defun
+
+@defun glfw-get-video-mode monitor
+The argument must be a @code{<glfw-monitor>} object.
+Returns the primary video mode of the monitor as @code{<glfw-vidmode>}
+object.
+
+@end defun
+
+@defun glfw-set-gamma monitor gamma
+The @var{monitor} argument must be a @code{<glfw-monitor>} object,
+and @var{gamma} must be a real number.
+Sets the gamma of the monitor to the specified value.
+@end defun
+
+
+
+@node GLFW contexts,  , GLFW monitors, GLFW API
+@section GLFW contexts
+
+Procedures concerning OpenLG context.
+
+@defun glfw-make-context-current window
+Makes the context of the given @code{<glfw-window>} current for
+the calling thread.
+@end defun
+
+@defun glfw-get-current-context
+Returns the @code{<glfw-window>} object whose context is the
+current on the calling thread.  It can be @code{#f} if no context
+is active.
+@end defun
+
+@defun glfw-swap-interval interval
+Sets the swap interval for the current context.  The argument
+is an exact positive integer indicating the number of screen updates
+to wait from the time @code{glfw-swap-buffers} was called before
+swapping the buffers.
+@end defun
+
+@defun glfw-swap-buffers window
+Swaps buffers of the speciied window.
+If the swap interval is greater than zero, however, the graphic driver
+waits until the specified number of screen updates occur before
+swapping the buffers.
+@end defun
+
+@defun glfw-extension-supported extension-name
+Returns @code{#t} if the named OpenGL extension is suppored, @code{#f}
+otherwise.
+@end defun
+
 
 @c ======================================================================
-@node GLUT API, Vectors and matrices, OpenGL API, Top
+@node GLUT API, Vectors and matrices, GLFW API, Top
 @chapter GLUT API
 
 @c ----------------------------------------------------------------------

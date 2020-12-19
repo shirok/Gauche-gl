@@ -36,8 +36,8 @@
 
 #include <GLFW/glfw3.h>
 
-SCM_EXTERN ScmClass *ScmGlfwWindowClass; /* foreign pointer class */
-#define SCM_GLFW_WINDOW_P(obj) SCM_ISA(obj, ScmGlfwWindowClass)
+SCM_EXTERN ScmClass *Scm_GlfwWindowClass; /* foreign pointer class */
+#define SCM_GLFW_WINDOW_P(obj) SCM_ISA(obj, Scm_GlfwWindowClass)
 #define SCM_GLFW_WINDOW(obj)   SCM_FOREIGN_POINTER_REF(GLFWwindow*, obj)
 
 SCM_EXTERN GLFWwindow *Scm_CreateGlfwWindow(int, int, const char *,
@@ -45,8 +45,8 @@ SCM_EXTERN GLFWwindow *Scm_CreateGlfwWindow(int, int, const char *,
 SCM_EXTERN ScmObj Scm_MakeGlfwWindow(GLFWwindow*);
 SCM_EXTERN void Scm_GlfwWindowDestroy(ScmObj);
 
-SCM_EXTERN ScmClass *ScmGlfwMonitorClass; /* foreign pointer class */
-#define SCM_GLFW_MONITOR_P(obj) SCM_ISA(obj, ScmGlfwMonitorClass)
+SCM_EXTERN ScmClass *Scm_GlfwMonitorClass; /* foreign pointer class */
+#define SCM_GLFW_MONITOR_P(obj) SCM_ISA(obj, Scm_GlfwMonitorClass)
 #define SCM_GLFW_MONITOR(obj)   SCM_FOREIGN_POINTER_REF(GLFWmonitor*, obj)
 
 SCM_EXTERN ScmObj Scm_MakeGlfwMonitor(GLFWmonitor*);
@@ -56,14 +56,14 @@ typedef struct ScmGlfwVidmodeRec {
     GLFWvidmode vidmode;
 } ScmGlfwVidmode;
 
-SCM_EXTERN ScmClass ScmGlfwVidmodeClass; /* foreign pointer class */
-#define SCM_GLFW_VIDMODE_P(obj) SCM_ISA(obj, ScmGlfwVidmodeClass)
+SCM_EXTERN ScmClass Scm_GlfwVidmodeClass; /* foreign pointer class */
+#define SCM_GLFW_VIDMODE_P(obj) SCM_ISA(obj, &Scm_GlfwVidmodeClass)
 #define SCM_GLFW_VIDMODE(obj)   ((ScmGlfwVidmode*)(obj))
 
 SCM_EXTERN ScmObj Scm_MakeGlfwVidmode(const GLFWvidmode*);
 
-SCM_EXTERN ScmClass *ScmGlfwCursorClass; /* foreign pointer class */
-#define SCM_GLFW_CURSOR_P(obj) SCM_ISA(obj, ScmGlfwCursorClass)
+SCM_EXTERN ScmClass *Scm_GlfwCursorClass; /* foreign pointer class */
+#define SCM_GLFW_CURSOR_P(obj) SCM_ISA(obj, Scm_GlfwCursorClass)
 #define SCM_GLFW_CURSOR(obj)   SCM_FOREIGN_POINTER_REF(GLFWcursor*, obj)
 
 SCM_EXTERN ScmObj Scm_MakeGlfwCursor(GLFWcursor*);

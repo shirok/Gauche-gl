@@ -94,7 +94,7 @@ ScmGlfwWindowData *Scm_GlfwGetWindowData(GLFWwindow *w)
 /*================================================================
  * GLFWwindow
  */
-ScmClass *ScmGlfwWindowClass;
+ScmClass *Scm_GlfwWindowClass;
 
 static void glfw_window_print(ScmObj obj, ScmPort *sink, 
                               ScmWriteContext *m SCM_UNUSED)
@@ -135,7 +135,7 @@ GLFWwindow *Scm_CreateGlfwWindow(int width, int height, const char *title,
 /* This is for type conversion */
 ScmObj Scm_MakeGlfwWindow(GLFWwindow *w)
 {
-    return Scm_MakeForeignPointer(ScmGlfwWindowClass, w);
+    return Scm_MakeForeignPointer(Scm_GlfwWindowClass, w);
 }
 
 void Scm_GlfwWindowDestroy(ScmObj window)
@@ -150,7 +150,7 @@ void Scm_GlfwWindowDestroy(ScmObj window)
  * GLFWMonitor
  */
 
-ScmClass *ScmGlfwMonitorClass;
+ScmClass *Scm_GlfwMonitorClass;
 
 static void glfw_monitor_print(ScmObj obj, ScmPort *sink, 
                                ScmWriteContext *m SCM_UNUSED)
@@ -161,14 +161,14 @@ static void glfw_monitor_print(ScmObj obj, ScmPort *sink,
 
 ScmObj Scm_MakeGlfwMonitor(GLFWmonitor *m)
 {
-    return Scm_MakeForeignPointer(ScmGlfwMonitorClass, m);
+    return Scm_MakeForeignPointer(Scm_GlfwMonitorClass, m);
 }
 
 /*================================================================
  * GLFWcursor
  */
 
-ScmClass *ScmGlfwCursorClass;
+ScmClass *Scm_GlfwCursorClass;
 
 /* user created cursor is marked with 'user-created attribute. */
 static ScmObj sym_user_created;
@@ -201,7 +201,7 @@ static void glfw_cursor_cleanup(ScmObj obj)
 
 ScmObj Scm_MakeGlfwCursor(GLFWcursor *m)
 {
-    return Scm_MakeForeignPointer(ScmGlfwCursorClass, m);
+    return Scm_MakeForeignPointer(Scm_GlfwCursorClass, m);
 }
 
 void Scm_GlfwCursorDestroy(ScmObj cursor)
@@ -217,22 +217,22 @@ void Scm_GlfwCursorDestroy(ScmObj cursor)
  * GLFWVidmode
  */
 
-SCM_DEFINE_BUILTIN_CLASS_SIMPLE(ScmGlfwVidmodeClass, NULL);
+SCM_DEFINE_BUILTIN_CLASS_SIMPLE(Scm_GlfwVidmodeClass, NULL);
 
 /* it's a struct owned by GFLW, so we always copy it. */
 ScmObj Scm_MakeGlfwVidmode(const GLFWvidmode *m)
 {
     ScmGlfwVidmode *z = SCM_NEW(ScmGlfwVidmode);
-    SCM_SET_CLASS(z, &ScmGlfwVidmodeClass);
+    SCM_SET_CLASS(z, &Scm_GlfwVidmodeClass);
     z->vidmode = *m;
     return SCM_OBJ(z);
 }
 
 #define DEFINE_VIDMODE_ACCESSOR(slot)                                   \
-    static ScmObj SCM_CPP_CAT(get_, slot)(ScmObj o) {                   \
+    static ScmObj SCM_CPP_CAT(slot, _get)(ScmObj o) {                   \
         return Scm_MakeInteger(SCM_GLFW_VIDMODE(o)->vidmode.slot);      \
     }                                                                   \
-    static void SCM_CPP_CAT(set_, slot)(ScmObj o, ScmObj v) {           \
+    static void SCM_CPP_CAT(slot, _set)(ScmObj o, ScmObj v) {           \
         SCM_GLFW_VIDMODE(o)->vidmode.slot = Scm_GetInteger(v);          \
     }
 
@@ -244,12 +244,12 @@ DEFINE_VIDMODE_ACCESSOR(blueBits)
 DEFINE_VIDMODE_ACCESSOR(refreshRate)
 
 static ScmClassStaticSlotSpec vidmode_slots[] = {
-    SCM_CLASS_SLOT_SPEC("width", get_width, set_width),
-    SCM_CLASS_SLOT_SPEC("height", get_height, set_height),
-    SCM_CLASS_SLOT_SPEC("red-bits", get_redBits, set_redBits),
-    SCM_CLASS_SLOT_SPEC("green-bits", get_greenBits, set_greenBits),
-    SCM_CLASS_SLOT_SPEC("blue-bits", get_blueBits, set_blueBits),
-    SCM_CLASS_SLOT_SPEC("refresh-rate", get_refreshRate, set_refreshRate),
+    SCM_CLASS_SLOT_SPEC("width", width_get, width_set),
+    SCM_CLASS_SLOT_SPEC("height", height_get, height_set),
+    SCM_CLASS_SLOT_SPEC("red-bits", redBits_get, redBits_set),
+    SCM_CLASS_SLOT_SPEC("green-bits", greenBits_get, greenBits_set),
+    SCM_CLASS_SLOT_SPEC("blue-bits", blueBits_get, blueBits_set),
+    SCM_CLASS_SLOT_SPEC("refresh-rate", refreshRate_get, refreshRate_set),
     SCM_CLASS_SLOT_SPEC_END()
 };
 
@@ -262,23 +262,23 @@ void Scm_Init_libgauche_glfw(void)
     SCM_INIT_EXTENSION(libgauche_glfw);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl.glfw", TRUE));
 
-    ScmGlfwWindowClass = 
+    Scm_GlfwWindowClass = 
         Scm_MakeForeignPointerClass(mod, "<glfw-window>",
                                     glfw_window_print,
                                     glfw_window_cleanup,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
-    ScmGlfwMonitorClass = 
+    Scm_GlfwMonitorClass = 
         Scm_MakeForeignPointerClass(mod, "<glfw-monitor>",
                                     glfw_monitor_print,
                                     NULL,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
-    ScmGlfwCursorClass = 
+    Scm_GlfwCursorClass = 
         Scm_MakeForeignPointerClass(mod, "<glfw-cursor>",
                                     glfw_cursor_print,
                                     NULL,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
 
-    Scm_InitBuiltinClass(&ScmGlfwVidmodeClass, "<glfw-vidmode>",
+    Scm_InitBuiltinClass(&Scm_GlfwVidmodeClass, "<glfw-vidmode>",
                          vidmode_slots, FALSE, mod);
 
     sym_user_created = SCM_INTERN("user-created");

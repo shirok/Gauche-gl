@@ -138,8 +138,8 @@
        (cf-subst 'GLEW_SOURCE "")])
 
 ;; Check for other programs.
-(cf-check-prog 'MAKEINFO "makeinfo")
-(cf-check-prog 'GZIP_PROGRAM "gzip")
+(cf-check-prog 'MAKEINFO "makeinfo" :default "")
+(cf-check-prog 'GZIP_PROGRAM "gzip" :default "")
 
 ;; On Windows, we need several extra -l flags.
 (cond [(#/.*-mingw.*/ (cf$ 'target))

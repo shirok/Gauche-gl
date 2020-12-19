@@ -1,5 +1,5 @@
 /*
- * gauche-glfw.h - Gauche GLFWT binding
+ * gauche-glfw.h - Gauche GLFW binding
  *
  *   Copyright (c) 2020  Shiro Kawai  <shiro@acm.org>
  * 

@@ -240,7 +240,7 @@
 
 (define-cproc glfw-get-window-size (w::<glfw-window>) ::(<int> <int>)
   (let* ([width::int][height::int])
-    (glfwGetWindowPos w (& width) (& height))
+    (glfwGetWindowSize w (& width) (& height))
     (return width height)))
 
 (define-cproc glfw-set-window-size (w::<glfw-window>
@@ -313,11 +313,11 @@
 ;; (define-cproc glfw-request-window-attention (w::<glfw-window>) ::<void>
 ;;   glfwRequestWindowAttention)
 
-(define-cproc glfw-get-window-monitor (w::<glfw-window>) ::<glfw-monitor>
+(define-cproc glfw-get-window-monitor (w::<glfw-window>) ::<glfw-monitor>?
   glfwGetWindowMonitor)
 
 (define-cproc glfw-set-window-monitor (w::<glfw-window>
-                                       m::<glfw-monitor>
+                                       m::<glfw-monitor>?
                                        xpos::<int> ypos::<int>
                                        width::<int> height::<int>
                                        refresh-rate::<int>)

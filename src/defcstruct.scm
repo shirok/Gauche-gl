@@ -75,7 +75,7 @@
                #"} ~|RecName|;")
     (cgen-decl #"SCM_CLASS_DECL(~ClassName);")
     (cgen-decl #"#define ~(~ type'c-predicate)(obj) \
-                         SCM_ISA(obj,~|ClassName|)")
+                         SCM_ISA(obj,&~|ClassName|)")
     (cgen-decl #"#define ~(~ type'unboxer)(obj) &(((~RecName *)(obj))->data)")
     (cgen-decl #"SCM_EXTERN ScmObj ~(~ type'boxer)(const ~|c-struct-name|*);")
     (cgen-body #"ScmObj ~(~ type'boxer)(const ~|c-struct-name| *v)"

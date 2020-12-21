@@ -124,6 +124,17 @@
        (cf-subst 'GLFW_INCDIR "")
        (cf-subst 'GLFW_LIBDIR "")])
 
+;; Check Vulkan availiability
+(cf-check-headers '("vulkan/vulkan.h"))
+(cf-check-lib "vulkan" "vkCreateInstance")
+(cond [(and (cf-defined? 'HAVE_VULCAN_VULCAN_H)
+            (cf-defined? 'HAVE_LIBVULKAN))
+       (cf-subst 'USE_VULKAN_yes "")
+       (cf-subst 'USE_VULKAN_no "#")]
+      [else
+       (cf-subst 'USE_VULKAN_yes "#")
+       (cf-subst 'USE_VULKAN_no "")])
+
 ;; On MinGW, we use GLEW so that we can get newer GL features; the GL header
 ;; comes with MinGW installation is very old.
 ;; TODO: We might add --with-glew configure option so that we can use glew

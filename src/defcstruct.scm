@@ -44,7 +44,7 @@
 ;;   NB: c-name shouldn't include 'data.' prefix.
 
 (define-form-parser define-cstruct (scm-name c-struct-name slots . opts)
-  (check-arg symbol? scm-name)
+  (assume-type scm-name <symbol>)
   (assume-type c-struct-name <string>)
   (assume-type slots <list>)
   (let* ([TYPENAME ($ cgen-safe-name-friendly
@@ -108,3 +108,14 @@
        (loop slots (cons (make-slot y #f) r))]
       [(bad . slots)
        (errorf <cgen-stub-error> "bad slot spec in define-cstruct: ~s" bad)])))
+
+;; define-cenum scm-type c-type-name (enum ...)
+;;   This combines define-type and define-enum.
+(define-form-parser define-cenum (scm-name c-type-name enums)
+  (assume-type scm-name <symbol>)
+  (assume-type c-type-name <string>)
+  (assume-type enums <list>)
+  (make-cgen-type scm-name c-type-name #f
+                  "SCM_INTP" "SCM_INT_VALUE" "SCM_MAKE_INT")
+  (dolist [e enums]
+    (variable-parser-common #t e `(c ,#"Scm_MakeInteger(~e)") '())))

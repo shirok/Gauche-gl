@@ -43,7 +43,7 @@
 ;;
 ;;   NB: c-name shouldn't include 'data.' prefix.
 
-(define-form-parser define-cstruct (scm-name c-struct-name slots)
+(define-form-parser define-cstruct (scm-name c-struct-name slots . opts)
   (check-arg symbol? scm-name)
   (assume-type c-struct-name <string>)
   (assume-type slots <list>)
@@ -55,6 +55,7 @@
          [BoxerName #"Scm_Make_~|TYPENAME|"]
          [type (make-cgen-type scm-name #"~|c-struct-name|*" #f
                                #f #f BoxerName)]
+         [initializer (assq 'initializer opts)]
          [cclass (make <cclass>
                    :scheme-name scm-name 
                    :c-type #"~|c-struct-name|*"
@@ -82,6 +83,9 @@
                #"  ~RecName *z = SCM_NEW(~RecName);"
                #"  SCM_SET_CLASS(z, &~ClassName);"
                #"  z->data = *v;"
+               (if initializer
+                 #"{ ~|c-struct-name| *obj = &z->data;\n~(cadr initializer)\n}"
+                 "")
                #"  return SCM_OBJ(z);"
                #"}")
     (cgen-add! cclass)))

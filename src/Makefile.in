@@ -38,14 +38,16 @@ ARCH_INSTALL_DIR    = "$(DESTDIR)`$(GAUCHE_CONFIG) --sitearchdir`"
 @USE_GLFW_yes@LIBGAUCHE_GLFW=libgauche-glfw.$(SOEXT)
 @USE_GLFW_no@LIBGAUCHE_GLFW=
 
+@USE_VULKAN_yes@LIBGAUCHE_VULKAN=libgauche-vulkan.$(SOEXT)
+@USE_VULKAN_no@LIBGAUCHE_VULKAN=
+
 PRECOMP = $(GOSH) $(srcdir)/precomp-ex
 
 # build -----------------------------------------------
 
 ARCHFILES = libgauche-math3d.$(SOEXT) \
             libgauche-gl.$(SOEXT) \
-            libgauche-glut.$(SOEXT) \
-	    $(LIBGAUCHE_GLFW)
+            libgauche-glut.$(SOEXT) $(LIBGAUCHE_GLFW) $(LIBGAUCHE_VULKAN)
 SCMFILES = 
 HEADERS = gauche/math3d.h
 
@@ -56,7 +58,8 @@ CONFIG_GENERATED = Makefile config.cache config.log config.status \
 		   configure.lineno autom4te*.cache $(PACKAGE).gpd \
 		   gauche/gl-config.h
 GENERATED = gl-syms.c gl-syms.h gl-ptrs.h gettype-sizes.c \
-	    gl-lib.c glu-lib.c glext-lib.c glut-lib.c glfw-lib.c math3d-lib.c
+	    gl-lib.c glu-lib.c glext-lib.c glut-lib.c glfw-lib.c \
+	    math3d-lib.c vulkan-lib.c
 
 all : $(TARGET)
 
@@ -116,13 +119,25 @@ libgauche-glut.$(SOEXT) : $(glut_SRCS) gauche-glut.h
 glfw_SRCS   = gauche-glfw.c glfw-lib.c
 glfw_LIBS   = @GLFW_LIBDIR@ $(LIBS)
 
-glfw-lib.c : glfw-lib.scm
+glfw-lib.c : glfw-lib.scm defcstruct.scm
 	$(PRECOMP) glfw-lib.scm
 
 libgauche-glfw.$(SOEXT) : $(glfw_SRCS) gauche-glfw.h
 	$(GAUCHE_PACKAGE) compile --verbose \
 	  --cflags="$(CFLAGS)" --ldflags="$(LDFLAGS)" --libs="$(glfw_LIBS)" \
 	  libgauche-glfw $(glfw_SRCS)
+
+# vulkan
+vulkan_SRCS   = gauche-vulkan.c vulkan-lib.c
+vulkan_LIBS   = $(LIBS)
+
+vulkan-lib.c : vulkan-lib.scm defcstruct.scm
+	$(PRECOMP) vulkan-lib.scm
+
+libgauche-vulkan.$(SOEXT) : $(vulkan_SRCS) gauche-vulkan.h
+	$(GAUCHE_PACKAGE) compile --verbose \
+	  --cflags="$(CFLAGS)" --ldflags="$(LDFLAGS)" --libs="$(vulkan_LIBS)" \
+	  libgauche-vulkan $(vulkan_SRCS)
 
 # tests -----------------------------------------------
 
@@ -132,6 +147,7 @@ check : all
 	$(GOSH) -I. -I../lib test.scm >> test.log
 	$(GOSH) -I. -I../lib test-simple.scm >> test.log
 	@USE_GLFW_yes@$(GOSH) -I. test-glfw.scm >> test.log
+	@USE_VULKAN_yes@$(GOSH) -I. test-vulkan.scm >> test.log
 
 # install ----------------------------------------------
 
@@ -152,6 +168,7 @@ clean :
 	$(GAUCHE_PACKAGE) compile --clean libgauche-gl $(gl_SRCS)
 	$(GAUCHE_PACKAGE) compile --clean libgauche-glut $(glut_SRCS)
 	$(GAUCHE_PACKAGE) compile --clean libgauche-glfw $(glfw_SRCS)
+	$(GAUCHE_PACKAGE) compile --clean libgauche-vulkan $(vulkan_SRCS)
 	rm -rf core $(TARGET) $(GENERATED) *~ test.log so_locations
 
 distclean : clean

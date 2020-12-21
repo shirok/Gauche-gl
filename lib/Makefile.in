@@ -14,13 +14,16 @@ SCM_INSTALL_DIR = "$(DESTDIR)`$(GAUCHE_CONFIG) --sitelibdir`"
 @USE_GLFW_yes@GLFW_SCMS=gl/glfw.scm
 @USE_GLFW_no@GLFW_SCMS=
 
+@USE_VULKAN_yes@VULKAN_SCMS=gl/vulkan.scm
+@USE_VULKAN_no@VULKAN_SCMS=
+
 SCMFILES = gl.scm        \
 	   gl/math3d.scm \
 	   gl/glut.scm   \
            gl/simple-image.scm \
 	   gl/simple/viewer.scm \
 	   gl/simple/image.scm \
-	   $(GLFW_SCMS)
+	   $(GLFW_SCMS) $(VULKAN_SCMS)
 
 CONFIG_GENERATED = Makefile
 

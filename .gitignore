@@ -31,5 +31,6 @@ INSTALL.utf-8
 /src/glu-lib.c
 /src/glut-lib.c
 /src/glfw-lib.c
+/src/vulkan-lib.c
 /src/math3d-lib.c
 

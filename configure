@@ -127,7 +127,7 @@
 ;; Check Vulkan availiability
 (cf-check-headers '("vulkan/vulkan.h"))
 (cf-check-lib "vulkan" "vkCreateInstance")
-(cond [(and (cf-defined? 'HAVE_VULCAN_VULCAN_H)
+(cond [(and (cf-defined? 'HAVE_VULKAN_VULKAN_H)
             (cf-defined? 'HAVE_LIBVULKAN))
        (cf-subst 'USE_VULKAN_yes "")
        (cf-subst 'USE_VULKAN_no "#")]

@@ -38,7 +38,7 @@ ARCH_INSTALL_DIR    = "$(DESTDIR)`$(GAUCHE_CONFIG) --sitearchdir`"
 @USE_GLFW_yes@LIBGAUCHE_GLFW=libgauche-glfw.$(SOEXT)
 @USE_GLFW_no@LIBGAUCHE_GLFW=
 
-
+PRECOMP = $(GOSH) $(srcdir)/precomp-ex
 
 # build -----------------------------------------------
 
@@ -64,7 +64,7 @@ all : $(TARGET)
 math3d_SRCS = gauche-math3d.c math3d-lib.c
 
 math3d-lib.c : math3d-lib.scm
-	$(GOSH) precomp math3d-lib.scm
+	$(PRECOMP) math3d-lib.scm
 
 libgauche-math3d.$(SOEXT) : $(math3d_SRCS) gauche/math3d.h
 	$(GAUCHE_PACKAGE) compile --verbose \
@@ -77,13 +77,13 @@ gl_LIBS     = @GL_EXTRALIBS@ $(LIBS)
 gl_HDRS     = gauche-gl.h gl-syms.h gl-ptrs.h gauche/math3d.h
 
 gl-lib.c : gl-lib.scm
-	$(GOSH) precomp gl-lib.scm
+	$(PRECOMP) gl-lib.scm
 
 glu-lib.c : glu-lib.scm
-	$(GOSH) precomp glu-lib.scm
+	$(PRECOMP) glu-lib.scm
 
 glext-lib.c : glext-lib.scm
-	$(GOSH) precomp glext-lib.scm
+	$(PRECOMP) glext-lib.scm
 
 libgauche-gl.$(SOEXT) : $(gl_SRCS) gettype-sizes.c glcase.scm $(gl_HDRS)
 	$(GAUCHE_PACKAGE) compile --verbose \
@@ -105,7 +105,7 @@ glut_SRCS   = gauche-glut.c glut-lib.c
 glut_LIBS   = @GLUT_LIBDIR@ @GLUT_LIB@ @GLUT_EXTRALIBS@ $(LIBS)
 
 glut-lib.c : glut-lib.scm
-	$(GOSH) precomp glut-lib.scm
+	$(PRECOMP) glut-lib.scm
 
 libgauche-glut.$(SOEXT) : $(glut_SRCS) gauche-glut.h
 	$(GAUCHE_PACKAGE) compile --verbose \
@@ -117,7 +117,7 @@ glfw_SRCS   = gauche-glfw.c glfw-lib.c
 glfw_LIBS   = @GLFW_LIBDIR@ $(LIBS)
 
 glfw-lib.c : glfw-lib.scm
-	$(GOSH) precomp glfw-lib.scm
+	$(PRECOMP) glfw-lib.scm
 
 libgauche-glfw.$(SOEXT) : $(glfw_SRCS) gauche-glfw.h
 	$(GAUCHE_PACKAGE) compile --verbose \

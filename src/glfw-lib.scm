@@ -50,11 +50,13 @@
    "SCM_GLFW_CURSOR_P"
    "SCM_GLFW_CURSOR"
    "Scm_MakeGlfwCursor")
- (define-type <glfw-vidmode> ScmObj     ;ScmGlfwVidmode*
-   "GLFWvidmode"
-   "SCM_GLFW_VIDMODE_P"
-   "SCM_GLFW_VIDMODE"
-   "Scm_MakeGlfwVidmode")
+ (define-cstruct <glfw-vidmode> "GLFWvidmode"
+   (width::<int>
+    height::<int>
+    red-bits::<int>    "redBits"
+    green-bits::<int>  "greenBits"
+    blue-bits::<int>   "blueBits"
+    refresh-rate::<int> "refreshRate"))
  )
 
 ;;;
@@ -177,12 +179,13 @@
          [r (Scm_MakeVector count SCM_FALSE)])
     (dotimes [i count]
       (set! (SCM_VECTOR_ELEMENT r i)
-            (Scm_MakeGlfwVidmode (+ vms i))))
+            (Scm_Make_glfw_vidmode (+ vms i))))
     (return r)))
 
 (define-cproc glfw-get-video-mode (m::<glfw-monitor>)
-  (let* ([vm::(const GLFWvidmode*) (glfwGetVideoMode m)])
-    (return (Scm_MakeGlfwVidmode vm))))
+  ;; We can't use autoboxing yet because of 'const' qualifier.
+  (let* ([v::(const GLFWvidmode*) (glfwGetVideoMode m)])
+    (return (Scm_Make_glfw_vidmode v))))
 
 (define-cproc glfw-set-gamma (m::<glfw-monitor> gamma::<real>)
   (glfwSetGamma m (cast float gamma)))

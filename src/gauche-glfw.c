@@ -212,47 +212,6 @@ void Scm_GlfwCursorDestroy(ScmObj cursor)
     glfw_cursor_cleanup(cursor);
 }
 
-
-/*================================================================
- * GLFWVidmode
- */
-
-SCM_DEFINE_BUILTIN_CLASS_SIMPLE(Scm_GlfwVidmodeClass, NULL);
-
-/* it's a struct owned by GFLW, so we always copy it. */
-ScmObj Scm_MakeGlfwVidmode(const GLFWvidmode *m)
-{
-    ScmGlfwVidmode *z = SCM_NEW(ScmGlfwVidmode);
-    SCM_SET_CLASS(z, &Scm_GlfwVidmodeClass);
-    z->vidmode = *m;
-    return SCM_OBJ(z);
-}
-
-#define DEFINE_VIDMODE_ACCESSOR(slot)                                   \
-    static ScmObj SCM_CPP_CAT(slot, _get)(ScmObj o) {                   \
-        return Scm_MakeInteger(SCM_GLFW_VIDMODE(o)->vidmode.slot);      \
-    }                                                                   \
-    static void SCM_CPP_CAT(slot, _set)(ScmObj o, ScmObj v) {           \
-        SCM_GLFW_VIDMODE(o)->vidmode.slot = Scm_GetInteger(v);          \
-    }
-
-DEFINE_VIDMODE_ACCESSOR(width)
-DEFINE_VIDMODE_ACCESSOR(height)
-DEFINE_VIDMODE_ACCESSOR(redBits)
-DEFINE_VIDMODE_ACCESSOR(greenBits)
-DEFINE_VIDMODE_ACCESSOR(blueBits)
-DEFINE_VIDMODE_ACCESSOR(refreshRate)
-
-static ScmClassStaticSlotSpec vidmode_slots[] = {
-    SCM_CLASS_SLOT_SPEC("width", width_get, width_set),
-    SCM_CLASS_SLOT_SPEC("height", height_get, height_set),
-    SCM_CLASS_SLOT_SPEC("red-bits", redBits_get, redBits_set),
-    SCM_CLASS_SLOT_SPEC("green-bits", greenBits_get, greenBits_set),
-    SCM_CLASS_SLOT_SPEC("blue-bits", blueBits_get, blueBits_set),
-    SCM_CLASS_SLOT_SPEC("refresh-rate", refreshRate_get, refreshRate_set),
-    SCM_CLASS_SLOT_SPEC_END()
-};
-
 /*================================================================
  * Initialization
  */
@@ -277,9 +236,6 @@ void Scm_Init_libgauche_glfw(void)
                                     glfw_cursor_print,
                                     NULL,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
-
-    Scm_InitBuiltinClass(&Scm_GlfwVidmodeClass, "<glfw-vidmode>",
-                         vidmode_slots, FALSE, mod);
 
     sym_user_created = SCM_INTERN("user-created");
     init_wtab();

@@ -1,3 +1,13 @@
+2020-12-20  Shiro Kawai  <shiro@acm.org>
+
+	* src/defcstruct.scm: An extension for gauche.cgen.stub to easily
+	  expose plain C struct to Scheme.
+	* src/precomp-ex.scm: Wrapper script to incorporate defcstruct into
+	  precomp.
+
+	* src/gauche-vulkan.[ch], src/vulkan-lib.scm: Start adding Vulkan
+	  binding.
+
 2020-12-14  Shiro Kawai  <shiro@acm.org>
 
 	* configure: Switch from autoconf configure to Gauche configure

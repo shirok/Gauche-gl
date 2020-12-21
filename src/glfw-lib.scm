@@ -1,5 +1,5 @@
 ;;;
-;;; glfw-lib.scm - glfw functions for GLUT
+;;; glfw-lib.scm - glfw functions for Gauche-gl
 ;;;
 ;;;  Copyright (c) 2020  Shiro Kawai  <shiro@acm.org>
 ;;;

@@ -1379,6 +1379,9 @@
     VK_STENCIL_FACE_BACK_BIT
     VK_STENCIL_FRONT_AND_BACK
     VK_STENCIL_FACE_FLAG_BITS_MAX_ENUM))
+
+ (define-type <vk-flags> "VkFlags" #f
+   "SCM_INTP" "SCM_INT_VALUE" "SCM_MAKE_INT")
  
  (define-cstruct <vk-application-info> "VkApplicationInfo"
    (stype::<vk-structure-type>         "sType"
@@ -1390,5 +1393,16 @@
     api-version::<uint32>              "apiVersion"
     )
    (initializer "obj->sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;\n\
-                 obj->pNext = NULL;")) 
+                 obj->pNext = NULL;"))
+
+ (define-cstruct <vk-instance-create-info> "VkInstanceCreateInfo"
+   (stype::<vk-structure-type>        "sType"
+    ;; pNext
+    flags::<vk-flags>
+    application-info::<vk-application-info> "pApplicationInfo"
+    enabled-layer-count::<uint32>     "enabledLayerCount"
+    enabled-layer-names::(.array* <const-cstring>) "ppEnabledLayerNames[enabledLayerCount]"
+    enabled-extension-count::<uint32> "enabledExtensionCount"
+    enabled-extension-names::(.array* <const-cstring>) "ppEnabledExtensionNames[enabledExtensionCount]"
+    ))
  )

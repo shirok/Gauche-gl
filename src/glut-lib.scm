@@ -78,8 +78,9 @@
 (define-cproc glut-init-display-mode (mode::<fixnum>)
   ::<void> glutInitDisplayMode)
 
-(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
-  "#define glutInitDisplayString(x) /*ignore*/")
+(.unless (or (>= GLUT_API_VERSION 4)
+             (>= GLUT_XLIB_IMPLEMENTATION 9))
+  (.define "glutInitDisplayString(x)")) ;ignore
   
 (define-cproc glut-init-display-string (string::<const-cstring>)
   ::<void> glutInitDisplayString)
@@ -110,8 +111,9 @@
 (define-cproc glut-post-redisplay ()
   ::<void> glutPostRedisplay)
 
-(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)"
-  "#define glutPostWindowRedisplay(win) /*ignore*/")
+(.unless (or (>= GLUT_API_VERSION 4)
+             (>= GLUT_XLIB_IMPLEMENTATION 11))
+  (.define "glutPostWindowRedisplay(win)")) ;ignore
 
 (define-cproc glut-post-window-redisplay (win::<int>)
   ::<void> glutPostWindowRedisplay)
@@ -140,18 +142,19 @@
 (define-cproc glut-show-window () ::<void> glutShowWindow)
 (define-cproc glut-hide-window () ::<void> glutHideWindow)
 
-(if "!(GLUT_API_VERSION >= 3)"
-  "#define glutFullScreen(x) /*ignore*/")
+(.unless (>= GLUT_API_VERSION 3)
+  (.define "glutFullScreen(x)"))        ;ignore
 
 (define-cproc glut-full-screen () ::<void> glutFullScreen)
 
-(if "!(GLUT_API_VERSION >= 3)"
-  "#define glutSetCursor(x) /*ignore*/")
+(.unless (>= GLUT_API_VERSION 3)
+  (.define "glutSetCursor(x)"))         ;ignore
 
 (define-cproc glut-set-cursor (cursor::<int>) ::<void> glutSetCursor)
 
-(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
-  "#define glutWarpPointer(x, y) /*ignore*/")
+(.unless (or (>= GLUT_API_VERSION 4)
+             (>= GLUT_XLIB_IMPLEMENTATION 9))
+  (.define "glutWarpPointer(x, y)"))    ;ignore
 
 (define-cproc glut-warp-pointer (x::<int> y::<int>) ::<void> glutWarpPointer)
 
@@ -159,47 +162,34 @@
 ;; Overlay APIs
 ;;
 
-(define-cproc glut-establish-overlay ()
-  "#if (GLUT_API_VERSION >= 3)
-   glutEstablishOverlay();
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-establish-overlay () ::<void>
+  (.when (>= GLUT_API_VERSION 3)
+     (glutEstablishOverlay)))
 
-(define-cproc glut-remove-overlay ()
-  "#if (GLUT_API_VERSION >= 3)
-   glutRemoveOverlay();
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-remove-overlay () ::<void>
+  (.when (>= GLUT_API_VERSION 3)
+     (glutRemoveOverlay)))
 
-(define-cproc glut-use-layer (layer::<fixnum>)
-  "#if (GLUT_API_VERSION >= 3)
-   glutUseLayer(layer);
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-use-layer (layer::<fixnum>) ::<void>
+  (.when (>= GLUT_API_VERSION 3)
+     (glutUseLayer layer)))
 
-(define-cproc glut-post-overlay-redisplay ()
-  "#if (GLUT_API_VERSION >= 3)
-   glutPostOverlayRedisplay();
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-post-overlay-redisplay () ::<void>
+  (.when (>= GLUT_API_VERSION 3)
+     (glutPostOverlayRedisplay)))
 
-(define-cproc glut-post-window-overlay-redisplay (win::<int>)
-  "#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
-   glutPostWindowOverlayRedisplay(win);
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-post-window-overlay-redisplay (win::<int>) ::<void>
+  (.when (or (>= GLUT_API_VERSION 4)
+             (>= GLUT_XLIB_IMPLEMENTATION 11))
+     (glutPostWindowOverlayRedisplay win)))
 
-(define-cproc glut-show-overlay ()
-  "#if (GLUT_API_VERSION >= 3)
-   glutShowOverlay();
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-show-overlay () ::<void>
+  (.when (>= GLUT_API_VERSION 3)
+     (glutShowOverlay)))
   
-(define-cproc glut-hide-overlay ()
-  "#if (GLUT_API_VERSION >= 3)
-   glutHideOverlay();
-#endif
-   SCM_RETURN(SCM_UNDEFINED);")
+(define-cproc glut-hide-overlay () ::<void>
+  (.when (>= GLUT_API_VERSION 3)
+     (glutHideOverlay)))
 
 ;;========================================================
 ;; Menu APIs
@@ -328,19 +318,19 @@
 
 (define-cproc glut-device-get (type::<int>) ::<int> glutDeviceGet)
 
-(if "!(GLUT_API_VERSION >= 2)"
-  "#define glutExtensionSupported(x) FALSE")
+(.unless (>= GLUT_API_VERSION 2)
+  (.define "glutExtensionSupported(x)" "FALSE"))
 
 (define-cproc glut-extension-supported (name::<const-cstring>) ::<boolean>
   glutExtensionSupported)
 
-(if "!(GLUT_API_VERSION >= 3)"
-  "#define glutGetModifiers() 0")
+(.unless (>= GLUT_API_VERSION 3)
+  (.define "glutGetModifiers()" 0))
 
 (define-cproc glut-get-modifiers () ::<int> glutGetModifiers)
 
-(if "!(GLUT_API_VERSION >= 3)"
-  "#define glutLayerGet(x) 0")
+(.unless (>= GLUT_API_VERSION 3)
+  (.define "glutLayerGet(x)" 0))
 
 (define-cproc glut-layer-get (type::<int>) ::<int> glutLayerGet)
 
@@ -363,15 +353,17 @@
 (define-cproc glut-stroke-width (font::<glut-font> character::<int>)
   ::<int> (result (glutStrokeWidth (-> font font) character)))
 
-(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
-  "#define glutBitmapLength(x, y) 0")
+(.unless (or (>= GLUT_API_VERSION 4)
+             (>= GLUT_XLIB_IMPLEMENTATION 9))
+  (.define "glutBitmapLength(x, y)" 0))
 
 (define-cproc glut-bitmap-length (font::<glut-font> string::<const-cstring>)
   ::<int> (result (glutBitmapLength (-> font font)
                                     (cast (const unsigned char*) string))))
 
-(if "!(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
-  "#define glutStrokeLength(x, y) 0")
+(.unless (or (>= GLUT_API_VERSION 4)
+             (>= GLUT_XLIB_IMPLEMENTATION 9))
+  (.define "glutStrokeLength(x, y)" 0))
 
 (define-cproc glut-stroke-length (font::<glut-font> string::<const-cstring>)
   ::<int> (result (glutStrokeLength (-> font font)
@@ -444,13 +436,11 @@
 (define-enum GLUT_ALPHA)
 (define-enum GLUT_DEPTH)
 (define-enum GLUT_STENCIL)
-(if "(GLUT_API_VERSION >= 2)"
-    (begin
-      (define-enum GLUT_MULTISAMPLE)
-      (define-enum GLUT_STEREO)
-      ))
-(if "(GLUT_API_VERSION >= 3)"
-    (define-enum GLUT_LUMINANCE))
+(.when (>= GLUT_API_VERSION 2)
+  (define-enum GLUT_MULTISAMPLE)
+  (define-enum GLUT_STEREO))
+(.when (>= GLUT_API_VERSION 3)
+  (define-enum GLUT_LUMINANCE))
 
 ;; Mouse
 (define-enum GLUT_LEFT_BUTTON)
@@ -460,30 +450,29 @@
 (define-enum GLUT_UP)
 
 ;; Function Keys
-(if "(GLUT_API_VERSION >= 2)"
-    (begin
-      (define-enum GLUT_KEY_F1)
-      (define-enum GLUT_KEY_F2)
-      (define-enum GLUT_KEY_F3)
-      (define-enum GLUT_KEY_F4)
-      (define-enum GLUT_KEY_F5)
-      (define-enum GLUT_KEY_F6)
-      (define-enum GLUT_KEY_F7)
-      (define-enum GLUT_KEY_F8)
-      (define-enum GLUT_KEY_F9)
-      (define-enum GLUT_KEY_F10)
-      (define-enum GLUT_KEY_F11)
-      (define-enum GLUT_KEY_F12)
-      (define-enum GLUT_KEY_LEFT)
-      (define-enum GLUT_KEY_UP)
-      (define-enum GLUT_KEY_RIGHT)
-      (define-enum GLUT_KEY_DOWN)
-      (define-enum GLUT_KEY_PAGE_UP)
-      (define-enum GLUT_KEY_PAGE_DOWN)
-      (define-enum GLUT_KEY_HOME)
-      (define-enum GLUT_KEY_END)
-      (define-enum GLUT_KEY_INSERT)
-      ))
+(.when (>= GLUT_API_VERSION 2)
+  (define-enum GLUT_KEY_F1)
+  (define-enum GLUT_KEY_F2)
+  (define-enum GLUT_KEY_F3)
+  (define-enum GLUT_KEY_F4)
+  (define-enum GLUT_KEY_F5)
+  (define-enum GLUT_KEY_F6)
+  (define-enum GLUT_KEY_F7)
+  (define-enum GLUT_KEY_F8)
+  (define-enum GLUT_KEY_F9)
+  (define-enum GLUT_KEY_F10)
+  (define-enum GLUT_KEY_F11)
+  (define-enum GLUT_KEY_F12)
+  (define-enum GLUT_KEY_LEFT)
+  (define-enum GLUT_KEY_UP)
+  (define-enum GLUT_KEY_RIGHT)
+  (define-enum GLUT_KEY_DOWN)
+  (define-enum GLUT_KEY_PAGE_UP)
+  (define-enum GLUT_KEY_PAGE_DOWN)
+  (define-enum GLUT_KEY_HOME)
+  (define-enum GLUT_KEY_END)
+  (define-enum GLUT_KEY_INSERT)
+  )
 
 ;; Entry/exit  state.
 (define-enum GLUT_LEFT)
@@ -533,15 +522,11 @@
 (define-enum GLUT_WINDOW_PARENT)
 (define-enum GLUT_WINDOW_NUM_CHILDREN)
 (define-enum GLUT_WINDOW_COLORMAP_SIZE)
-(if "(GLUT_API_VERSION >= 2)"
-    (begin
-      (define-enum GLUT_WINDOW_NUM_SAMPLES)
-      (define-enum GLUT_WINDOW_STEREO)
-      ))
-(if "(GLUT_API_VERSION >= 3)"
-    (begin
-      (define-enum GLUT_WINDOW_CURSOR)
-      ))
+(.when (>= GLUT_API_VERSION 2)
+  (define-enum GLUT_WINDOW_NUM_SAMPLES)
+  (define-enum GLUT_WINDOW_STEREO))
+(.when (>= GLUT_API_VERSION 3)
+  (define-enum GLUT_WINDOW_CURSOR))
 (define-enum GLUT_SCREEN_WIDTH)
 (define-enum GLUT_SCREEN_HEIGHT)
 (define-enum GLUT_SCREEN_WIDTH_MM)
@@ -553,106 +538,98 @@
 (define-enum GLUT_INIT_WINDOW_WIDTH)
 (define-enum GLUT_INIT_WINDOW_HEIGHT)
 (define-enum GLUT_INIT_DISPLAY_MODE)
-(if "(GLUT_API_VERSION >= 2)"
-    (define-enum GLUT_ELAPSED_TIME)
-    )
-(if "(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)"
-    (define-enum GLUT_WINDOW_FORMAT_ID)
-    )
+(.when (>=  GLUT_API_VERSION 2)
+  (define-enum GLUT_ELAPSED_TIME))
+(.when (or (>= GLUT_API_VERSION 4) (>= GLUT_XLIB_IMPLEMENTATION 13))
+  (define-enum GLUT_WINDOW_FORMAT_ID))
 
 ;; glutDeviceGet parameters
-(if "(GLUT_API_VERSION >= 2)"
-    (begin
-      (define-enum GLUT_HAS_KEYBOARD)
-      (define-enum GLUT_HAS_MOUSE)
-      (define-enum GLUT_HAS_SPACEBALL)
-      (define-enum GLUT_HAS_DIAL_AND_BUTTON_BOX)
-      (define-enum GLUT_HAS_TABLET)
-      (define-enum GLUT_NUM_MOUSE_BUTTONS)
-      (define-enum GLUT_NUM_SPACEBALL_BUTTONS)
-      (define-enum GLUT_NUM_BUTTON_BOX_BUTTONS)
-      (define-enum GLUT_NUM_DIALS)
-      (define-enum GLUT_NUM_TABLET_BUTTONS)
-      ))
-(if "(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)"
-    (begin
-      (define-enum GLUT_DEVICE_IGNORE_KEY_REPEAT)
-      (define-enum GLUT_DEVICE_KEY_REPEAT)
-      (define-enum GLUT_HAS_JOYSTICK)
-      (define-enum GLUT_OWNS_JOYSTICK)
-      (define-enum GLUT_JOYSTICK_BUTTONS)
-      (define-enum GLUT_JOYSTICK_AXES)
-      (define-enum GLUT_JOYSTICK_POLL_RATE)
-      ))
+(.when (>= GLUT_API_VERSION 2)
+  (define-enum GLUT_HAS_KEYBOARD)
+  (define-enum GLUT_HAS_MOUSE)
+  (define-enum GLUT_HAS_SPACEBALL)
+  (define-enum GLUT_HAS_DIAL_AND_BUTTON_BOX)
+  (define-enum GLUT_HAS_TABLET)
+  (define-enum GLUT_NUM_MOUSE_BUTTONS)
+  (define-enum GLUT_NUM_SPACEBALL_BUTTONS)
+  (define-enum GLUT_NUM_BUTTON_BOX_BUTTONS)
+  (define-enum GLUT_NUM_DIALS)
+  (define-enum GLUT_NUM_TABLET_BUTTONS)
+  )
+(.when (or (>= GLUT_API_VERSION 4) (>= GLUT_XLIB_IMPLEMENTATION 13))
+  (define-enum GLUT_DEVICE_IGNORE_KEY_REPEAT)
+  (define-enum GLUT_DEVICE_KEY_REPEAT)
+  (define-enum GLUT_HAS_JOYSTICK)
+  (define-enum GLUT_OWNS_JOYSTICK)
+  (define-enum GLUT_JOYSTICK_BUTTONS)
+  (define-enum GLUT_JOYSTICK_AXES)
+  (define-enum GLUT_JOYSTICK_POLL_RATE)
+  )
 
 ;; glutLayerGet parameters.
-(if "(GLUT_API_VERSION >= 3)"
-    (begin
-      (define-enum GLUT_OVERLAY_POSSIBLE)
-      (define-enum GLUT_LAYER_IN_USE)
-      (define-enum GLUT_HAS_OVERLAY)
-      (define-enum GLUT_TRANSPARENT_INDEX)
-      (define-enum GLUT_NORMAL_DAMAGED)
-      (define-enum GLUT_OVERLAY_DAMAGED)
-      ))
+(.when (>= GLUT_API_VERSION 3)
+  (define-enum GLUT_OVERLAY_POSSIBLE)
+  (define-enum GLUT_LAYER_IN_USE)
+  (define-enum GLUT_HAS_OVERLAY)
+  (define-enum GLUT_TRANSPARENT_INDEX)
+  (define-enum GLUT_NORMAL_DAMAGED)
+  (define-enum GLUT_OVERLAY_DAMAGED)
+  )
 
 ;; glutVideoResizeGet parameters
-(if "(GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)"
-    (begin
-      (define-enum GLUT_VIDEO_RESIZE_POSSIBLE)
-      (define-enum GLUT_VIDEO_RESIZE_IN_USE)
-      (define-enum GLUT_VIDEO_RESIZE_X_DELTA)
-      (define-enum GLUT_VIDEO_RESIZE_Y_DELTA)
-      (define-enum GLUT_VIDEO_RESIZE_WIDTH_DELTA)
-      (define-enum GLUT_VIDEO_RESIZE_HEIGHT_DELTA)
-      (define-enum GLUT_VIDEO_RESIZE_X)
-      (define-enum GLUT_VIDEO_RESIZE_Y)
-      (define-enum GLUT_VIDEO_RESIZE_WIDTH)
-      (define-enum GLUT_VIDEO_RESIZE_HEIGHT)
-      ))
+(.when (or (>= GLUT_API_VERSION 4) (>= GLUT_XLIB_IMPLEMENTATION 9))
+  (define-enum GLUT_VIDEO_RESIZE_POSSIBLE)
+  (define-enum GLUT_VIDEO_RESIZE_IN_USE)
+  (define-enum GLUT_VIDEO_RESIZE_X_DELTA)
+  (define-enum GLUT_VIDEO_RESIZE_Y_DELTA)
+  (define-enum GLUT_VIDEO_RESIZE_WIDTH_DELTA)
+  (define-enum GLUT_VIDEO_RESIZE_HEIGHT_DELTA)
+  (define-enum GLUT_VIDEO_RESIZE_X)
+  (define-enum GLUT_VIDEO_RESIZE_Y)
+  (define-enum GLUT_VIDEO_RESIZE_WIDTH)
+  (define-enum GLUT_VIDEO_RESIZE_HEIGHT)
+  )
 
 ;; glutGetModifiers return mask
-(if "(GLUT_API_VERSION >= 3)"
-    (begin
-      (define-enum GLUT_ACTIVE_SHIFT)
-      (define-enum GLUT_ACTIVE_CTRL)
-      (define-enum GLUT_ACTIVE_ALT)
-      ))
+(.when (>= GLUT_API_VERSION 3)
+  (define-enum GLUT_ACTIVE_SHIFT)
+  (define-enum GLUT_ACTIVE_CTRL)
+  (define-enum GLUT_ACTIVE_ALT)
+  )
 
 ;; glutSetCursor parameters
-(if "(GLUT_API_VERSION >= 3)"
-    (begin
-      ;;  Basic arrows
-      (define-enum GLUT_CURSOR_RIGHT_ARROW)
-      (define-enum GLUT_CURSOR_LEFT_ARROW)
-      ;;  Symbolic cursor shapes
-      (define-enum GLUT_CURSOR_INFO)
-      (define-enum GLUT_CURSOR_DESTROY)
-      (define-enum GLUT_CURSOR_HELP)
-      (define-enum GLUT_CURSOR_CYCLE)
-      (define-enum GLUT_CURSOR_SPRAY)
-      (define-enum GLUT_CURSOR_WAIT)
-      (define-enum GLUT_CURSOR_TEXT)
-      (define-enum GLUT_CURSOR_CROSSHAIR)
-      ;;   Directional cursors
-      (define-enum GLUT_CURSOR_UP_DOWN)
-      (define-enum GLUT_CURSOR_LEFT_RIGHT)
-      ;;   Sizing cursors
-      (define-enum GLUT_CURSOR_TOP_SIDE)
-      (define-enum GLUT_CURSOR_BOTTOM_SIDE)
-      (define-enum GLUT_CURSOR_LEFT_SIDE)
-      (define-enum GLUT_CURSOR_RIGHT_SIDE)
-      (define-enum GLUT_CURSOR_TOP_LEFT_CORNER)
-      (define-enum GLUT_CURSOR_TOP_RIGHT_CORNER)
-      (define-enum GLUT_CURSOR_BOTTOM_RIGHT_CORNER)
-      (define-enum GLUT_CURSOR_BOTTOM_LEFT_CORNER)
-      ;;   Inherit from parent window
-      (define-enum GLUT_CURSOR_INHERIT)
-      ;;   Blank cursor
-      (define-enum GLUT_CURSOR_NONE)
-      ;;   Fullscreen crosshair (if available)
-      (define-enum GLUT_CURSOR_FULL_CROSSHAIR)
-      ))
+(.when (>= GLUT_API_VERSION 3)
+  ;;  Basic arrows
+  (define-enum GLUT_CURSOR_RIGHT_ARROW)
+  (define-enum GLUT_CURSOR_LEFT_ARROW)
+  ;;  Symbolic cursor shapes
+  (define-enum GLUT_CURSOR_INFO)
+  (define-enum GLUT_CURSOR_DESTROY)
+  (define-enum GLUT_CURSOR_HELP)
+  (define-enum GLUT_CURSOR_CYCLE)
+  (define-enum GLUT_CURSOR_SPRAY)
+  (define-enum GLUT_CURSOR_WAIT)
+  (define-enum GLUT_CURSOR_TEXT)
+  (define-enum GLUT_CURSOR_CROSSHAIR)
+  ;;   Directional cursors
+  (define-enum GLUT_CURSOR_UP_DOWN)
+  (define-enum GLUT_CURSOR_LEFT_RIGHT)
+  ;;   Sizing cursors
+  (define-enum GLUT_CURSOR_TOP_SIDE)
+  (define-enum GLUT_CURSOR_BOTTOM_SIDE)
+  (define-enum GLUT_CURSOR_LEFT_SIDE)
+  (define-enum GLUT_CURSOR_RIGHT_SIDE)
+  (define-enum GLUT_CURSOR_TOP_LEFT_CORNER)
+  (define-enum GLUT_CURSOR_TOP_RIGHT_CORNER)
+  (define-enum GLUT_CURSOR_BOTTOM_RIGHT_CORNER)
+  (define-enum GLUT_CURSOR_BOTTOM_LEFT_CORNER)
+  ;;   Inherit from parent window
+  (define-enum GLUT_CURSOR_INHERIT)
+  ;;   Blank cursor
+  (define-enum GLUT_CURSOR_NONE)
+  ;;   Fullscreen crosshair (if available)
+  (define-enum GLUT_CURSOR_FULL_CROSSHAIR)
+  )
 
 ) ;; end inline-stub
 

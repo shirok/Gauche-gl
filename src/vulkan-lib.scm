@@ -1384,25 +1384,84 @@
    "SCM_INTP" "SCM_INT_VALUE" "SCM_MAKE_INT")
  
  (define-cstruct <vk-application-info> "VkApplicationInfo"
-   (stype::<vk-structure-type>         "sType"
+   (sType::<vk-structure-type>
     ;; pNext
-    application-name::<const-cstring>  "pApplicationName"
-    application-version::<uint32>      "applicationVersion"
-    engine-name::<const-cstring>       "pEngineName"
-    engine-version::<uint32>           "engineVersion"
-    api-version::<uint32>              "apiVersion"
-    )
+    pApplicationName::<const-cstring>
+    applicationVersion::<uint32>
+    pEngineName::<const-cstring>
+    engineVersion::<uint32>
+    apiVersion::<uint32>)
    (initializer "obj->sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;\n\
                  obj->pNext = NULL;"))
 
  (define-cstruct <vk-instance-create-info> "VkInstanceCreateInfo"
-   (stype::<vk-structure-type>        "sType"
+   (sType::<vk-structure-type>
     ;; pNext
     flags::<vk-flags>
-    application-info::<vk-application-info> "pApplicationInfo"
-    enabled-layer-count::<uint32>     "enabledLayerCount"
-    enabled-layer-names::(.array* <const-cstring>) "ppEnabledLayerNames[enabledLayerCount]"
-    enabled-extension-count::<uint32> "enabledExtensionCount"
-    enabled-extension-names::(.array* <const-cstring>) "ppEnabledExtensionNames[enabledExtensionCount]"
-    ))
+    pApplicationInfo::<vk-application-info>
+    enabledLayerCount::<uint32>
+    ppEnabledLayerNames::(.array* <const-cstring>) "ppEnabledLayerNames[enabledLayerCount]"
+    enabledExtensionCount::<uint32>
+    ppEnabledExtensionNames::(.array* <const-cstring>) "ppEnabledExtensionNames[enabledExtensionCount]")
+   (initializer "obj->sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;\n\
+                 obj->pNext = NULL;\n\
+                 obj->enabledLayerCount = 0;\n\
+                 obj->enabledExtensionCount = 0;"))
+
+ (define-cstruct <vk-physical-device-features> "VkPhysicalDeviceFeatures"
+   (robustBufferAccess::<boolean>
+    fullDrawIndexUint32::<boolean>
+    imageCubeArray::<boolean>
+    independentBlend::<boolean>
+    geometryShader::<boolean>
+    tessellationShader::<boolean>
+    sampleRateShading::<boolean>
+    dualSrcBlend::<boolean>
+    logicOp::<boolean>
+    multiDrawIndirect::<boolean>
+    drawIndirectFirstInstance::<boolean>
+    depthClamp::<boolean>
+    depthBiasClamp::<boolean>
+    fillModeNonSolid::<boolean>
+    depthBounds::<boolean>
+    wideLines::<boolean>
+    largePoints::<boolean>
+    alphaToOne::<boolean>
+    multiViewport::<boolean>
+    samplerAnisotropy::<boolean>
+    textureCompressionETC2::<boolean>
+    textureCompressionASTC_LDR::<boolean>
+    textureCompressionBC::<boolean>
+    occlusionQueryPrecise::<boolean>
+    pipelineStatisticsQuery::<boolean>
+    vertexPipelineStoresAndAtomics::<boolean>
+    fragmentStoresAndAtomics::<boolean>
+    shaderTessellationAndGeometryPointSize::<boolean>
+    shaderImageGatherExtended::<boolean>
+    shaderStorageImageExtendedFormats::<boolean>
+    shaderStorageImageMultisample::<boolean>
+    shaderStorageImageReadWithoutFormat::<boolean>
+    shaderStorageImageWriteWithoutFormat::<boolean>
+    shaderUniformBufferArrayDynamicIndexing::<boolean>
+    shaderSampledImageArrayDynamicIndexing::<boolean>
+    shaderStorageBufferArrayDynamicIndexing::<boolean>
+    shaderStorageImageArrayDynamicIndexing::<boolean>
+    shaderClipDistance::<boolean>
+    shaderCullDistance::<boolean>
+    shaderFloat64::<boolean>
+    shaderInt64::<boolean>
+    shaderInt16::<boolean>
+    shaderResourceResidency::<boolean>
+    shaderResourceMinLod::<boolean>
+    sparseBinding::<boolean>
+    sparseResidencyBuffer::<boolean>
+    sparseResidencyImage2D::<boolean>
+    sparseResidencyImage3D::<boolean>
+    sparseResidency2Samples::<boolean>
+    sparseResidency4Samples::<boolean>
+    sparseResidency8Samples::<boolean>
+    sparseResidency16Samples::<boolean>
+    sparseResidencyAliased::<boolean>
+    variableMultisampleRate::<boolean>
+    inheritedQueries::<boolean>))
  )

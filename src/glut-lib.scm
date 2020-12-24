@@ -68,12 +68,13 @@
     ;         (Scm_Error "Initializing GLEW failed."))))
     (result (Scm_CStringArrayToList (cast (const char**) argv) argc 0))))
 
-;; For debug
+;; For debug purpose only - users shouldn't call this directly.
+;; glewInit is called automatically when the first glut window is created.
 (define-cproc glew-init () ::<void>
-  (.if "defined(HAVE_GL_GLEW_H)"
-       (let* ([r::GLenum (glewInit)])
-         (if (!= r GLEW_OK)
-           (Scm_Error "Initializing GLEW failed.")))))
+  (.when (defined HAVE_GL_GLEW_H)
+    (let* ([r::GLenum (glewInit)])
+      (if (!= r GLEW_OK)
+        (Scm_Error "Initializing GLEW failed.")))))
 
 (define-cproc glut-init-display-mode (mode::<fixnum>)
   ::<void> glutInitDisplayMode)
@@ -95,10 +96,10 @@
 
 (define-cproc glut-create-window (name::<const-cstring>) ::<int>
   (let* ([r1::int (glutCreateWindow name)])
-    (.if "defined(HAVE_GL_GLEW_H)"
-         (let* ([r::GLenum (glewInit)])
-           (if (!= r GLEW_OK)
-             (Scm_Error "Initializing GLEW failed."))))
+    (.when (defined HAVE_GL_GLEW_H)
+      (let* ([r::GLenum (glewInit)])
+        (if (!= r GLEW_OK)
+          (Scm_Error "Initializing GLEW failed."))))
     (result r1)))
 
 (define-cproc glut-create-sub-window (win::<int> x::<int> y::<int>

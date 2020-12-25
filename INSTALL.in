@@ -1,8 +1,8 @@
 @c -*- coding:utf-8 -*-
 @c JP
-                     Gauche-gl - Gauche OpenGL バインディング
+                      Gauche-gl - Gaucheグラフィクスライブラリ
 @c EN
-                       Gauche-gl - Gauche OpenGL binding
+                       Gauche-gl - Gauche Graphics Library
 @c COMMON
 
 @c JP
@@ -22,15 +22,17 @@ Prerequisites
 
 
 @c JP
-* Gauche 0.9.3 以降がインストールされている必要があります。
+* Gauche 0.9.10 以降がインストールされている必要があります。
 * OpenGL 1.1以降もしくはMesa 3.0以降が必要です。
 * GLUT 3.7以降が必要です。(ただし、MinGW上でのコンパイル時には
   必要ありません。以下で説明します)
+* GLFW 3.2以降を推奨します。
 @c EN
 * Gauche 0.9.3 or later must be installed.
 * OpenGL 1.1 or later, or Mesa 3.0 or later, required.
 * GLUT 3.7 or later is required (except when you compile
   on MinGW; see below.)
+* GLFW 3.2 or later is recommended.
 @c COMMON
 
 

@@ -129,23 +129,23 @@
              [_ `(,slot-name :type ,type :c-name ,c-field)])))
         slot-specs)))
 
-;; parse c-spec.  Returns c-field, c-length and init
-;; cclass and slot-name are only for error message.
-(define (cstruct-parse-c-spec cclass slot-name c-spec)
-  (rxmatch-case c-spec
-    [#/^(\w+)(?:\[(\w+)\])?(?:=(.*))?$/ (_ field length init)
-     (values field length init)]
-    [else
-     (errorf "Bad c-spec ~s for a slot ~s of ~s" c-spec slot-name
-             (~ cclass'scheme-name))]))
-
 ;; Returns ((slot-name type c-field c-length c-init) ...)
 (define (cstruct-grok-slot-specs cclass slots)
+  ;; parse slot-name::type.  Returns slot name symbol and type symbol.
   (define (parse-symbol::type sym)
     (receive (name-s type-s) (string-scan (x->string sym) "::" 'both)
       (if name-s
         (values (string->symbol name-s) (string->symbol type-s))
         (values sym '<top>))))
+  ;; parse c-spec.  Returns c-field, c-length and init
+  ;; cclass and slot-name are only for error message.
+  (define (parse-c-spec slot-name c-spec)
+    (rxmatch-case c-spec
+      [#/^(\w+)(?:\[(\w+)\])?(?:=(.*))?$/ (_ field length init)
+          (values field length init)]
+      [else
+       (errorf "Bad c-spec ~s for a slot ~s of ~s" c-spec slot-name
+               (~ cclass'scheme-name))]))    
   (define (grok-1 slots)
     (match slots
       [((? symbol? y) . rest)
@@ -154,7 +154,7 @@
            [((and ('.array* etype) type) (? string? c-spec) . rest)
             (receive (slot-name _) (parse-symbol::type y)
               (receive (c-field c-length c-init)
-                  (cstruct-parse-c-spec cclass slot-name c-spec)
+                  (parse-c-spec slot-name c-spec)
                 (values (list slot-name type c-field c-length c-init) rest)))]
            [_ (error <cgen-stub-error> "bad slot spec in define-cstruct:"
                      (take* slots 2))])
@@ -162,7 +162,7 @@
            [((? string? c-spec) . rest)
             (receive (slot-name type) (parse-symbol::type y)
               (receive (c-field c-length c-init)
-                  (cstruct-parse-c-spec cclass slot-name c-spec)
+                  (parse-c-spec slot-name c-spec)
                 (values (list slot-name type
                               (or c-field (x->string slot-name-s))
                               c-length c-init)

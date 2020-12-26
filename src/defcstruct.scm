@@ -36,16 +36,36 @@
 ;;   - When C world returns it to the Scheme world, the content of the
 ;;     C struct is copied into a Scheme-owned structure.
 ;;
-;;   <slot-spec> is similar to the cproc argument, optionally followed
-;;   by a string c-name if the C member name differs from the Scheme name.
-;;   NB: c-name shouldn't include 'data.' prefix.
+;;   <slot-spec> is the following format:
 ;;
-;;       <slot-spec> := slot-name::<stub-type> ["c-name"]
-;;                   |  slot-name::(.*array <stub-type>) "c-name[length-name]"
+;;       <slot-spec> := slot-name::<slot-type> ["<c-spec>"]
 ;;
-;;   The second form handles pointer-to-array field, whose length is specified
-;;   by another field "length-name" (it's a C field name, not Scheme one).
-;;   The field of this memory is allocated and owned by Gauche.
+;;   slot-name is what you see in Scheme world.
+;;
+;;   <slot-type> specifies the type of slot, and how to box/unbox the
+;;   value from C struct.
+;;
+;;       <slot-type> := <stub-type>
+;;                   |  (.array* <stub-type>)
+;;                   |  (.array <stub-type>)    ; to be written
+;;                   |  &<stub-type>            ; to be written
+;;
+;;   The '.array*' type denotes a pointer to an array of <stub-type>.
+;;   The size of the array must e specified by another field of the struct.
+;;   see <c-spec> description below.
+;;
+;;   <c-spec> is a string encodes C-related info.
+;;
+;;       <c-spec> := <c-name>? <c-length>? <c-init>?
+;;       <c-name> ; C field name.  If omitted, slot-name is used.
+;;       <c-length> := '[' <c-name> ']'
+;;                  ; This is used for '.array*' slot, specifies the
+;;                  ; C field that for the length of the array.
+;;       <c-init> := '=' C-literal
+;;                  ; Specifies the initial value.
+;;
+;;   For the '.array*' type, the pointed array is allocated by Gauche
+;;   and subject to GC.
 
 (define-form-parser define-cstruct (scm-name c-struct-name slots . opts)
   (assume-type scm-name <symbol>)
@@ -69,8 +89,10 @@
                    :direct-supers '()
                    :allocator #f
                    :printer #f
-                   :comparer #f)])
-    (set! (~ cclass'slot-spec) (process-cstruct-slots cclass RecName slots))
+                   :comparer #f)]
+         [slot-specs (cstruct-grok-slot-specs cclass slots)])
+    (set! (~ cclass'slot-spec)
+          (process-cstruct-slots cclass RecName slot-specs))
     (cgen-decl "#include <gauche/class.h>")
     (cgen-decl #"typedef struct {"
                #"  SCM_HEADER;"
@@ -93,50 +115,77 @@
                #"}")
     (cgen-add! cclass)))
 
-(define (process-cstruct-slots cclass cclass-cname slots)
-  (define (make-slot name c-name)
-    ;; pasing of name::type is dupe from make-arg, but slightly differ.
-    (let1 namestr (symbol->string name)
-      (receive (realname-s typename-s) (string-scan namestr "::" 'both)
-        (let* ([realname (if realname-s (string->symbol realname-s) name)]
-               [typename (if typename-s (string->symbol typename-s) '<top>)]
-               [c-name   (or c-name (symbol->string realname))])
-          `(,realname :type ,typename :c-name ,c-name)))))
-  (define (symbol::? x)
-    (and (symbol? x) (#/::$/ (symbol->string x))))
-  (let loop ([slots slots] [r '()])
+;; returns list of <cslot>s
+(define (process-cstruct-slots cclass cclass-cname slot-specs)
+  (process-cclass-slots
+   cclass
+   (map (^s
+         (match-let1 (slot-name type c-field c-length c-init) s
+           (match type
+             [('.array* etype)
+              (make-ptr-to-array-slot cclass cclass-cname 
+                                      slot-name etype
+                                      c-field c-length c-init)]
+             [_ `(,slot-name :type ,type :c-name ,c-field)])))
+        slot-specs)))
+
+;; parse c-spec.  Returns c-field, c-length and init
+;; cclass and slot-name are only for error message.
+(define (cstruct-parse-c-spec cclass slot-name c-spec)
+  (rxmatch-case c-spec
+    [#/^(\w+)(?:\[(\w+)\])?(?:=(.*))?$/ (_ field length init)
+     (values field length init)]
+    [else
+     (errorf "Bad c-spec ~s for a slot ~s of ~s" c-spec slot-name
+             (~ cclass'scheme-name))]))
+
+;; Returns ((slot-name type c-field c-length c-init) ...)
+(define (cstruct-grok-slot-specs cclass slots)
+  (define (parse-symbol::type sym)
+    (receive (name-s type-s) (string-scan (x->string sym) "::" 'both)
+      (if name-s
+        (values (string->symbol name-s) (string->symbol type-s))
+        (values sym '<top>))))
+  (define (grok-1 slots)
     (match slots
-      [() (process-cclass-slots cclass (reverse r))]
-      [((? symbol? y) (? string? n) . slots)
-       (loop slots (cons (make-slot y n) r))]
-      [((? symbol::? y) . rest)
-       (match rest
-         [(('.array* type) (? string? n) . slots)
-          (loop slots (cons (make-ptr-to-array-slot cclass cclass-cname y type n) r))]
-         [else
-          (errorf <cgen-stub-error> "bad slot spec in define-cstruct: ~s"
-                  (cons y (take* rest 2)))])]
-      [((? symbol? y) . slots)
-       (loop slots (cons (make-slot y #f) r))]
-      [(bad . slots)
-       (errorf <cgen-stub-error> "bad slot spec in define-cstruct: ~s" bad)])))
+      [((? symbol? y) . rest)
+       (if (#/::$/ (symbol->string y))
+         (match rest
+           [((and ('.array* etype) type) (? string? c-spec) . rest)
+            (receive (slot-name _) (parse-symbol::type y)
+              (receive (c-field c-length c-init)
+                  (cstruct-parse-c-spec cclass slot-name c-spec)
+                (values (list slot-name type c-field c-length c-init) rest)))]
+           [_ (error <cgen-stub-error> "bad slot spec in define-cstruct:"
+                     (take* slots 2))])
+         (match rest
+           [((? string? c-spec) . rest)
+            (receive (slot-name type) (parse-symbol::type y)
+              (receive (c-field c-length c-init)
+                  (cstruct-parse-c-spec cclass slot-name c-spec)
+                (values (list slot-name type
+                              (or c-field (x->string slot-name-s))
+                              c-length c-init)
+                        rest)))]
+           [_  (receive (slot-name type) (parse-symbol::type y)
+                 (values (list slot-name type (x->string slot-name) #f #f) 
+                         rest))]))]
+      [_ (error <cgen-stub-error> "bad slot spec in define-cstruct:" slots)]))
+  (let loop ([slots slots] [r '()])
+    (if (null? slots)
+      (reverse r)
+      (receive (slot rest) (grok-1 slots)
+        (loop rest (cons slot r))))))
 
 ;; Handle slot::(.array* <elt-type>) "c-name"
 ;;   c-name : "c-field[c-length]"
 ;;   cclass-cname is the C typename of the wrapper.
 ;; Returns slot description.
 ;; TODO: Make c-length field read-only.
-(define (make-ptr-to-array-slot cclass cclass-cname name:: 
-                                elt-type-name slot-c-name)
-  (define (parse-c-name c-name)
-    (rxmatch-case c-name
-      [#/^(\w+)\[(\w+)\]$/ (_ field length) (values field length)]
-      [else (errorf <cgen-stub-error> 
-                    "C field name for .array* slot needs to have \
-                     \"field[length]\" format, but got:" c-name)]))
+(define (make-ptr-to-array-slot cclass cclass-cname
+                                slot-name elt-type-name
+                                c-field c-length c-init)
   (define etype (name->type elt-type-name))
-  (define slot-name (string->symbol
-                     (string-drop-right (symbol->string name::) 2)))
   (define (gen-getter c-field c-length) ; returns getter name
     (rlet1 getter-name #"~(~ cclass 'c-name)_~|c-field|_GET"
       (cgen-decl #"static ScmObj ~|getter-name|(ScmObj);")
@@ -171,11 +220,10 @@
                  #"  obj->data.~|c-length| = len;"
                  #"  obj->data.~|c-field| = vs;"
                  #"}")))
-  (receive (c-field c-length) (parse-c-name slot-c-name)
-    `(,slot-name :type <vector>
-                 :c-name ,c-field
-                 :getter (c ,(gen-getter c-field c-length))
-                 :setter (c ,(gen-setter c-field c-length)))))
+  `(,slot-name :type <vector>
+               :c-name ,c-field
+               :getter (c ,(gen-getter c-field c-length))
+               :setter (c ,(gen-setter c-field c-length))))
 
 ;; define-cenum scm-type c-type-name (enum ...)
 ;;   This combines define-type and define-enum.

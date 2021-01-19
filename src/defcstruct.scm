@@ -7,6 +7,19 @@
 (select-module gauche.cgen.stub)
 (use util.match)
 
+;; Enhance <cslot>
+
+(define-class <cslot> ()
+  ((cclass      :init-keyword :cclass)  ; <cclass>
+   (scheme-name :init-keyword :scheme-name)
+   (c-name      :init-keyword :c-name)
+   (c-spec      :init-keyword :c-spec)
+   (type        :init-keyword :type   :init-value '<top>)
+   (getter      :init-keyword :getter :init-value #t)
+   (setter      :init-keyword :setter :init-value #t)
+   (init-cexpr  :init-keyword :init-cexpr :init-value #f)
+   ))
+
 ;; (define-cstruct scheme-name c-struct-name
 ;;   (<slot-spec> ...)
 ;;   )
@@ -117,19 +130,22 @@
 
 ;; returns list of <cslot>s
 (define (process-cstruct-slots cclass cclass-cname slot-specs)
-  (process-cclass-slots
-   cclass
-   (map (^s
-         (match-let1 (slot-name type c-field c-length c-init) s
-           (receive (type opts)
-               (match type
-                 [('.array* etype)
-                  (make-ptr-to-array-getter-setter cclass cclass-cname 
-                                                   slot-name etype
-                                                   c-field c-length c-init)]
-                 [_ (values type '())])
-             `(,slot-name :type ,type :c-name ,c-field ,@opts))))
-        slot-specs)))
+  (map (^s
+        (match-let1 (slot-name type c-field c-length c-init) s
+          (receive (type getter setter)
+              (match type
+                [('.array* etype)
+                 (make-ptr-to-array-getter-setter cclass cclass-cname 
+                                                  slot-name etype
+                                                  c-field c-length c-init)]
+                [_ (values type #t #t)])
+            (make <cslot>
+              :cclass cclass :scheme-name slot-name :type (name->type type)
+              :c-name (get-c-name "" c-field)
+              :c-spec #f
+              :getter getter :setter setter
+              :init-cexpr c-init))))
+       slot-specs))
 
 ;; Returns ((slot-name type c-field c-length c-init) ...)
 (define (cstruct-grok-slot-specs cclass slots)
@@ -182,7 +198,7 @@
 ;; Handle slot::(.array* <elt-type>) "c-name"
 ;;   c-name : "c-field[c-length]"
 ;;   cclass-cname is the C typename of the wrapper.
-;; Returns stub-type and (:getter ... :setter ...)
+;; Returns stub-type, getter-name, setter-name
 ;; TODO: Make c-length field read-only.
 (define (make-ptr-to-array-getter-setter cclass cclass-cname
                                          slot-name elt-type-name
@@ -223,8 +239,8 @@
                  #"  obj->data.~|c-field| = vs;"
                  #"}")))
   (values '<vector>
-          `(:getter (c ,(gen-getter c-field c-length))
-            :setter (c ,(gen-setter c-field c-length)))))
+          `(c ,(gen-getter c-field c-length))
+          `(c ,(gen-setter c-field c-length))))
 
 ;; define-cenum scm-type c-type-name (enum ...)
 ;;   This combines define-type and define-enum.

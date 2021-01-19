@@ -121,12 +121,14 @@
    cclass
    (map (^s
          (match-let1 (slot-name type c-field c-length c-init) s
-           (match type
-             [('.array* etype)
-              (make-ptr-to-array-slot cclass cclass-cname 
-                                      slot-name etype
-                                      c-field c-length c-init)]
-             [_ `(,slot-name :type ,type :c-name ,c-field)])))
+           (receive (type opts)
+               (match type
+                 [('.array* etype)
+                  (make-ptr-to-array-getter-setter cclass cclass-cname 
+                                                   slot-name etype
+                                                   c-field c-length c-init)]
+                 [_ (values type '())])
+             `(,slot-name :type ,type :c-name ,c-field ,@opts))))
         slot-specs)))
 
 ;; Returns ((slot-name type c-field c-length c-init) ...)
@@ -180,11 +182,11 @@
 ;; Handle slot::(.array* <elt-type>) "c-name"
 ;;   c-name : "c-field[c-length]"
 ;;   cclass-cname is the C typename of the wrapper.
-;; Returns slot description.
+;; Returns stub-type and (:getter ... :setter ...)
 ;; TODO: Make c-length field read-only.
-(define (make-ptr-to-array-slot cclass cclass-cname
-                                slot-name elt-type-name
-                                c-field c-length c-init)
+(define (make-ptr-to-array-getter-setter cclass cclass-cname
+                                         slot-name elt-type-name
+                                         c-field c-length c-init)
   (define etype (name->type elt-type-name))
   (define (gen-getter c-field c-length) ; returns getter name
     (rlet1 getter-name #"~(~ cclass 'c-name)_~|c-field|_GET"
@@ -220,10 +222,9 @@
                  #"  obj->data.~|c-length| = len;"
                  #"  obj->data.~|c-field| = vs;"
                  #"}")))
-  `(,slot-name :type <vector>
-               :c-name ,c-field
-               :getter (c ,(gen-getter c-field c-length))
-               :setter (c ,(gen-setter c-field c-length))))
+  (values '<vector>
+          `(:getter (c ,(gen-getter c-field c-length))
+            :setter (c ,(gen-setter c-field c-length)))))
 
 ;; define-cenum scm-type c-type-name (enum ...)
 ;;   This combines define-type and define-enum.

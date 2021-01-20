@@ -39,6 +39,24 @@
 extern void Scm_Init_vulkan_lib(ScmModule *mod);
 
 /*================================================================
+ * VkVoidPointer
+ */
+
+ScmClass *Scm_VkVoidPointerClass;
+
+static void vk_void_pointer_print(ScmObj obj, ScmPort *sink, 
+                                  ScmWriteContext *m SCM_UNUSED)
+{
+    Scm_Printf(sink, "#<vk-void* %p>", SCM_VK_VOID_POINTER(obj));
+}
+
+ScmObj Scm_MakeVkVoidPointer(const void *p)
+{
+    return Scm_MakeForeignPointer(Scm_VkVoidPointerClass, (void*)p);
+}
+
+
+/*================================================================
  * Initialization
  */
 void Scm_Init_libgauche_vulkan(void)
@@ -47,6 +65,10 @@ void Scm_Init_libgauche_vulkan(void)
     SCM_INIT_EXTENSION(libgauche_vulkan);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl.vulkan", TRUE));
 
+    Scm_MakeForeignPointerClass(mod, "<vk-void*>",
+                                vk_void_pointer_print,
+                                NULL,
+                                0);
     Scm_Init_vulkan_lib(mod);
 }
 

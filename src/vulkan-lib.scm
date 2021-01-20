@@ -36,6 +36,10 @@
 (inline-stub
  (declcode (.include "gauche-vulkan.h"))
 
+ ;; Special hanlding of void* pNext pointer
+ (define-type <vk-void*> "void*" "Vulkan void*"
+   "SCM_VK_VOID_POINTER_P" "SCM_VK_VOID_POINTER" "Scm_MakeVkVoidPointer")
+
  (define-cenum <vk-result> "VkResult"
    (VK_SUCCESS
     VK_NOT_READY
@@ -1385,24 +1389,22 @@
  
  (define-cstruct <vk-application-info> "VkApplicationInfo"
    (sType::<vk-structure-type> "=VK_STRUCTURE_TYPE_APPLICATION_INFO"
-    ;; pNext
+    pNext::<vk-void*> "=NULL"
     pApplicationName::<const-cstring>
     applicationVersion::<uint32>
     pEngineName::<const-cstring>
     engineVersion::<uint32>
-    apiVersion::<uint32>)
-   (initializer "obj->pNext = NULL;"))
+    apiVersion::<uint32>))
 
  (define-cstruct <vk-instance-create-info> "VkInstanceCreateInfo"
    (sType::<vk-structure-type> "=VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO"
-    ;; pNext
+    pNext::<vk-void*> "=NULL"
     flags::<vk-flags>
     pApplicationInfo::<vk-application-info>
     enabledLayerCount::<uint32> "=0"
     ppEnabledLayerNames::(.array* <const-cstring>) "ppEnabledLayerNames[enabledLayerCount]"
     enabledExtensionCount::<uint32> "=0"
-    ppEnabledExtensionNames::(.array* <const-cstring>) "ppEnabledExtensionNames[enabledExtensionCount]")
-   (initializer "obj->pNext = NULL;"))
+    ppEnabledExtensionNames::(.array* <const-cstring>) "ppEnabledExtensionNames[enabledExtensionCount]"))
 
  (define-cstruct <vk-physical-device-features> "VkPhysicalDeviceFeatures"
    (robustBufferAccess::<boolean>

@@ -36,7 +36,11 @@
 
 #include <vulkan/vulkan.h>
 
+/* Handle void* pNext as a foreign pointer */
 
-
+SCM_EXTERN ScmClass *Scm_VkVoidPointerClass; /* foreign pointer class */
+#define SCM_VK_VOID_POINTER_P(obj) SCM_ISA(obj, Scm_VkVoidPointerClass)
+#define SCM_VK_VOID_POINTER(obj)   SCM_FOREIGN_POINTER_REF(void*, obj)
+SCM_EXTERN ScmObj Scm_MakeVkVoidPointer(const void*);
 
 #endif /*GAUCHE_GLFW_H*/

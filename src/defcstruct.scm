@@ -120,8 +120,11 @@
                #"{"
                #"  ~RecName *z = SCM_NEW(~RecName);"
                #"  SCM_SET_CLASS(z, &~ClassName);"
-               #"  z->data = *v;"
-               (if initializer
+               #"  z->data = *v;")
+    (dolist [slot (~ cclass'slot-spec)]
+      (and-let1 init (~ slot'init-cexpr)
+        (cgen-body #"  z->data.~(~ slot'c-name) = ~|init|;")))
+    (cgen-body (if initializer
                  #"{ ~|c-struct-name| *obj = &z->data;\n~(cadr initializer)\n}"
                  "")
                #"  return SCM_OBJ(z);"
@@ -159,7 +162,7 @@
   ;; cclass and slot-name are only for error message.
   (define (parse-c-spec slot-name c-spec)
     (rxmatch-case c-spec
-      [#/^(\w+)(?:\[(\w+)\])?(?:=(.*))?$/ (_ field length init)
+      [#/^(\w+)?(?:\[(\w+)\])?(?:=(.*))?$/ (_ field length init)
           (values field length init)]
       [else
        (errorf "Bad c-spec ~s for a slot ~s of ~s" c-spec slot-name
@@ -182,7 +185,7 @@
               (receive (c-field c-length c-init)
                   (parse-c-spec slot-name c-spec)
                 (values (list slot-name type
-                              (or c-field (x->string slot-name-s))
+                              (or c-field (x->string slot-name))
                               c-length c-init)
                         rest)))]
            [_  (receive (slot-name type) (parse-symbol::type y)

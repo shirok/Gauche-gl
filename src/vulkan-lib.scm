@@ -1384,29 +1384,25 @@
    "SCM_INTP" "SCM_INT_VALUE" "SCM_MAKE_INT")
  
  (define-cstruct <vk-application-info> "VkApplicationInfo"
-   (sType::<vk-structure-type>
+   (sType::<vk-structure-type> "=VK_STRUCTURE_TYPE_APPLICATION_INFO"
     ;; pNext
     pApplicationName::<const-cstring>
     applicationVersion::<uint32>
     pEngineName::<const-cstring>
     engineVersion::<uint32>
     apiVersion::<uint32>)
-   (initializer "obj->sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;\n\
-                 obj->pNext = NULL;"))
+   (initializer "obj->pNext = NULL;"))
 
  (define-cstruct <vk-instance-create-info> "VkInstanceCreateInfo"
-   (sType::<vk-structure-type>
+   (sType::<vk-structure-type> "=VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO"
     ;; pNext
     flags::<vk-flags>
     pApplicationInfo::<vk-application-info>
-    enabledLayerCount::<uint32>
+    enabledLayerCount::<uint32> "=0"
     ppEnabledLayerNames::(.array* <const-cstring>) "ppEnabledLayerNames[enabledLayerCount]"
-    enabledExtensionCount::<uint32>
+    enabledExtensionCount::<uint32> "=0"
     ppEnabledExtensionNames::(.array* <const-cstring>) "ppEnabledExtensionNames[enabledExtensionCount]")
-   (initializer "obj->sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;\n\
-                 obj->pNext = NULL;\n\
-                 obj->enabledLayerCount = 0;\n\
-                 obj->enabledExtensionCount = 0;"))
+   (initializer "obj->pNext = NULL;"))
 
  (define-cstruct <vk-physical-device-features> "VkPhysicalDeviceFeatures"
    (robustBufferAccess::<boolean>

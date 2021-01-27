@@ -1386,6 +1386,9 @@
 
  (define-type <vk-flags> "VkFlags" #f
    "SCM_INTP" "SCM_INT_VALUE" "SCM_MAKE_INT")
+
+ (define-type <vk-device-size> "VkDeviceSize" #f
+   "SCM_INTEGERP" "Scm_GetIntegerU64" "Scm_MakeIntegerU64")
  
  (define-cstruct <vk-application-info> "VkApplicationInfo"
    (sType::<vk-structure-type> "=VK_STRUCTURE_TYPE_APPLICATION_INFO"
@@ -1462,4 +1465,21 @@
     sparseResidencyAliased::<boolean>
     variableMultisampleRate::<boolean>
     inheritedQueries::<boolean>))
+
+ (define-cstruct <vk-format-properties> "VkFormatProperties"
+   (linearTilingFeatures::<vk-flags>
+    optimalTilingFeatures::<vk-flags>
+    bufferFeatures::<vk-flags>))
+
+ (define-cstruct <vk-extent-3d> "VkExtent3D"
+   (width::<uint32>
+    height::<uint32>
+    depth::<uint32>))
+
+ ;; (define-cstruct <vk-image-format-properties> "VkImageFormatProperties"
+ ;;   (maxExtent::<vk-exntent-3d>
+ ;;    maxMipLevels::<uint32>
+ ;;    maxArrayLayres::<uint32>
+ ;;    sampleCounts::<vk-flags>
+ ;;    maxResourceSize::<vk-device-size>))
  )

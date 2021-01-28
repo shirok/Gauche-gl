@@ -105,7 +105,7 @@
                    :comparer #f)]
          [slot-specs (cstruct-grok-slot-specs cclass slots)])
     (set! (~ cclass'slot-spec)
-          (map (cut process-cstruct-slot cclass RecName <>) slot-specs))
+          (append-map (cut process-cstruct-slot cclass RecName <>) slot-specs))
     (cgen-decl "#include <gauche/class.h>")
     (cgen-decl #"typedef struct {"
                #"  SCM_HEADER;"
@@ -131,7 +131,7 @@
                #"}")
     (cgen-add! cclass)))
 
-;; returns <cslot>
+;; returns (<cslot> ...)
 (define (process-cstruct-slot cclass cclass-cname slot-spec)
   (match-let1 (slot-name type c-field c-length c-init) slot-spec
     (receive (type getter setter)
@@ -144,12 +144,12 @@
                                             slot-name etype
                                             c-field c-length c-init)]
           [_ (values type #t #t)])
-      (make <cslot>
-        :cclass cclass :scheme-name slot-name :type (name->type type)
-        :c-name (get-c-name "" c-field)
-        :c-spec #f
-        :getter getter :setter setter
-        :init-cexpr c-init))))
+      `(,(make <cslot>
+           :cclass cclass :scheme-name slot-name :type (name->type type)
+           :c-name (get-c-name "" c-field)
+           :c-spec #f
+           :getter getter :setter setter
+           :init-cexpr c-init)))))
 
 ;; Returns ((slot-name type c-field c-length c-init) ...)
 ;; type can be (& type) for embedded types

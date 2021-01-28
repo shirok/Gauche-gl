@@ -105,7 +105,7 @@
                    :comparer #f)]
          [slot-specs (cstruct-grok-slot-specs cclass slots)])
     (set! (~ cclass'slot-spec)
-          (process-cstruct-slots cclass RecName slot-specs))
+          (map (cut process-cstruct-slot cclass RecName <>) slot-specs))
     (cgen-decl "#include <gauche/class.h>")
     (cgen-decl #"typedef struct {"
                #"  SCM_HEADER;"
@@ -131,33 +131,37 @@
                #"}")
     (cgen-add! cclass)))
 
-;; returns list of <cslot>s
-(define (process-cstruct-slots cclass cclass-cname slot-specs)
-  (map (^s
-        (match-let1 (slot-name type c-field c-length c-init) s
-          (receive (type getter setter)
-              (match type
-                [('.array* etype)
-                 (make-ptr-to-array-getter-setter cclass cclass-cname 
-                                                  slot-name etype
-                                                  c-field c-length c-init)]
-                [_ (values type #t #t)])
-            (make <cslot>
-              :cclass cclass :scheme-name slot-name :type (name->type type)
-              :c-name (get-c-name "" c-field)
-              :c-spec #f
-              :getter getter :setter setter
-              :init-cexpr c-init))))
-       slot-specs))
+;; returns <cslot>
+(define (process-cstruct-slot cclass cclass-cname slot-spec)
+  (match-let1 (slot-name type c-field c-length c-init) slot-spec
+    (receive (type getter setter)
+        (match type
+          [('& type)
+           (error <cgen-stub-error> "embedding struct isn't supported yet:"
+                  slot-spec)]
+          [('.array* etype)
+           (make-ptr-to-array-getter-setter cclass cclass-cname 
+                                            slot-name etype
+                                            c-field c-length c-init)]
+          [_ (values type #t #t)])
+      (make <cslot>
+        :cclass cclass :scheme-name slot-name :type (name->type type)
+        :c-name (get-c-name "" c-field)
+        :c-spec #f
+        :getter getter :setter setter
+        :init-cexpr c-init))))
 
 ;; Returns ((slot-name type c-field c-length c-init) ...)
+;; type can be (& type) for embedded types
 (define (cstruct-grok-slot-specs cclass slots)
   ;; parse slot-name::type.  Returns slot name symbol and type symbol.
   (define (parse-symbol::type sym)
-    (receive (name-s type-s) (string-scan (x->string sym) "::" 'both)
-      (if name-s
-        (values (string->symbol name-s) (string->symbol type-s))
-        (values sym '<top>))))
+    (rxmatch-case (x->string sym)
+      [#/^(.*?)(::(&)?(.*))?$/ (_ name-s _ embed type-s)
+       (let* ([etype (if type-s (string->symbol type-s) '<top>)]
+              [type (if (equal? embed "&") `(& ,etype) etype)])
+         (values (string->symbol name-s) type))]
+      [_ (error <cgen-stub-error> "bad slot name::type:" sym)]))
   ;; parse c-spec.  Returns c-field, c-length and init
   ;; cclass and slot-name are only for error message.
   (define (parse-c-spec slot-name c-spec)

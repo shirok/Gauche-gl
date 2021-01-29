@@ -17,6 +17,8 @@ DIST_EXCLUDE_X
 *.gpd
 INSTALL
 INSTALL.utf-8
+config.log
+test.log
 /doc/gauche-gl-refe.info.gz
 /doc/gauche-gl-refe.texi
 /doc/gauche-gl-refj.info.gz

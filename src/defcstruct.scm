@@ -6,6 +6,7 @@
 (use gauche.cgen.stub)
 (select-module gauche.cgen.stub)
 (use util.match)
+(use gauche.mop.instance-pool)
 
 ;; Enhance <cslot>
 
@@ -19,6 +20,22 @@
    (setter      :init-keyword :setter :init-value #t)
    (init-cexpr  :init-keyword :init-cexpr :init-value #f)
    ))
+
+;; Extend <cclass> with instance pools.
+
+(define-class <cclass> (<stub> <instance-pool-mixin>)
+  ((cpa        :init-keyword :cpa       :init-value '())
+   (c-type     :init-keyword :c-type)
+   (qualifiers :init-keyword :qualifiers)
+   (allocator  :init-keyword :allocator :init-value #f)
+   (printer    :init-keyword :printer   :init-value #f)
+   (comparer   :init-keyword :comparer  :init-value #f)
+   (slot-spec  :init-keyword :slot-spec :init-value '())
+   (direct-supers :init-keyword :direct-supers :init-value '())
+   ))
+
+(define (scheme-name->cclass sym)
+  (instance-pool-find <cclass> (^o (eq? (~ o'scheme-name) sym))))
 
 ;; (define-cstruct scheme-name c-struct-name
 ;;   (<slot-spec> ...)
@@ -136,9 +153,10 @@
   (match-let1 (slot-name type c-field c-length c-init) slot-spec
     (receive (type getter setter)
         (match type
-          [('& type)
-           (error <cgen-stub-error> "embedding struct isn't supported yet:"
-                  slot-spec)]
+          [('& rtype)
+           (make-embedded-struct-getter-setter cclass cclass-cname
+                                               slot-name rtype
+                                               c-field c-length c-init)]
           [('.array* etype)
            (make-ptr-to-array-getter-setter cclass cclass-cname 
                                             slot-name etype
@@ -246,6 +264,48 @@
                  #"  obj->data.~|c-field| = vs;"
                  #"}")))
   (values '<vector>
+          `(c ,(gen-getter c-field c-length))
+          `(c ,(gen-setter c-field c-length))))
+
+;; Handle slot::(& etype) "c-name"
+;;   c-name : "c-field"
+;;   cclass-cname is the C typename of the wrapper.
+;; Returns stub-type, getter-name, setter-name
+;; Whether the content of the embedded struct to be copied or not is
+;; up to the boxer of the embedded type.  If the embedded type
+;; is also a cstruct, the content is copied.  (That poses a problem when
+;; the user want to modify its field.  We'll provide setters for
+;; each individual subfields later, but the user code may want to carry
+;; around the embedded structure for modification).
+(define (make-embedded-struct-getter-setter cclass cclass-cname
+                                            slot-name embedded-type-name
+                                            c-field c-length c-init)
+  (define eclass (scheme-name->cclass embedded-type-name))
+  (define etype (name->type embedded-type-name))
+  (define (gen-getter c-field c-length) ; returns getter name
+    (rlet1 getter-name #"~(~ cclass 'c-name)_~|c-field|_GET"
+      (cgen-decl #"static ScmObj ~|getter-name|(ScmObj);")
+      (cgen-body #"static ScmObj ~|getter-name|(ScmObj obj_s)"
+                 #"{"
+                 #"  ~|cclass-cname|* obj = (~|cclass-cname|*)obj_s;"
+                 #"  ~(~ etype'c-type) e = &(obj->data.~|c-field|);"
+                 #"  return SCM_OBJ(~(~ etype'boxer)(e));"
+                 #"}")))
+  (define (gen-setter c-field c-length)
+    (rlet1 setter-name #"~(~ cclass 'c-name)_~|c-field|_SET"
+      (cgen-decl #"static void ~|setter-name|(ScmObj, ScmObj);")
+      (cgen-body #"static void ~|setter-name|(ScmObj obj_s, ScmObj val)"
+                 #"{"
+                 #"  ~|cclass-cname|* obj = (~|cclass-cname|*)obj_s;"
+                 #"  ~(~ etype'c-type) e = ~(~ etype'unboxer)(val);"
+                 ;; We need customizable copyer, but for now...
+                 #"  obj->data.~|c-field| = *e;"
+                 #"}")))
+
+  (unless (and eclass etype)
+    (error <cgen-stub-error> "unknown type can't be embedded:"
+           embedded-type-name))
+  (values embedded-type-name
           `(c ,(gen-getter c-field c-length))
           `(c ,(gen-setter c-field c-length))))
 

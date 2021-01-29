@@ -1476,10 +1476,10 @@
     height::<uint32>
     depth::<uint32>))
 
- ;; (define-cstruct <vk-image-format-properties> "VkImageFormatProperties"
- ;;   (maxExtent::<vk-exntent-3d>
- ;;    maxMipLevels::<uint32>
- ;;    maxArrayLayres::<uint32>
- ;;    sampleCounts::<vk-flags>
- ;;    maxResourceSize::<vk-device-size>))
+ (define-cstruct <vk-image-format-properties> "VkImageFormatProperties"
+   (maxExtent::&<vk-extent-3d>
+    maxMipLevels::<uint32>
+    maxArrayLayers::<uint32>
+    sampleCounts::<vk-flags>
+    maxResourceSize::<vk-device-size>))
  )

@@ -37,6 +37,28 @@
 (define (scheme-name->cclass sym)
   (instance-pool-find <cclass> (^o (eq? (~ o'scheme-name) sym))))
 
+;; To make this work with 0.9.10 and later
+(define (cgen-boxer-name type)
+  (if (assq '%boxer (class-slots <cgen-type>))
+    (~ type'%boxer)
+    (~ type'boxer)))
+
+(define (cgen-unboxer-name type)
+  (if (assq '%unboxer (class-slots <cgen-type>))
+    (~ type'%unboxer)
+    (~ type'unboxer)))
+
+(define (cgen-pred-name type)
+  (if (assq '%c-predicate (class-slots <cgen-type>))
+    (~ type'%c-predicate)
+    (~ type'c-predicate)))
+
+(define (cgen-box-expr type c-expr)
+  (if (memq (~ type'name) '(<real> <float>))
+    #"Scm_MakeFlonum(~c-expr)"
+    #"~(cgen-boxer-name type)(~c-expr)"))
+  
+
 ;; (define-cstruct scheme-name c-struct-name
 ;;   (<slot-spec> ...)
 ;;   )
@@ -129,11 +151,12 @@
                #"  ~c-struct-name data;"
                #"} ~|RecName|;")
     (cgen-decl #"SCM_CLASS_DECL(~ClassName);")
-    (cgen-decl #"#define ~(~ type'c-predicate)(obj) \
+    (cgen-decl #"#define ~(cgen-pred-name type)(obj) \
                          SCM_ISA(obj,&~|ClassName|)")
-    (cgen-decl #"#define ~(~ type'unboxer)(obj) &(((~RecName *)(obj))->data)")
-    (cgen-decl #"SCM_EXTERN ScmObj ~(~ type'boxer)(const ~|c-struct-name|*);")
-    (cgen-body #"ScmObj ~(~ type'boxer)(const ~|c-struct-name| *v)"
+    (cgen-decl #"#define ~(cgen-unboxer-name type)(obj) \
+                         &(((~RecName *)(obj))->data)")
+    (cgen-decl #"SCM_EXTERN ScmObj ~(cgen-boxer-name type)(const ~|c-struct-name|*);")
+    (cgen-body #"ScmObj ~(cgen-boxer-name type)(const ~|c-struct-name| *v)"
                #"{"
                #"  ~RecName *z = SCM_NEW(~RecName);"
                #"  SCM_SET_CLASS(z, &~ClassName);"
@@ -157,10 +180,14 @@
            (make-embedded-struct-getter-setter cclass cclass-cname
                                                slot-name rtype
                                                c-field c-length c-init)]
+          [('.array etype)
+           (make-array-getter-setter cclass cclass-cname 
+                                     slot-name etype #f
+                                     c-field c-length c-init)]
           [('.array* etype)
-           (make-ptr-to-array-getter-setter cclass cclass-cname 
-                                            slot-name etype
-                                            c-field c-length c-init)]
+           (make-array-getter-setter cclass cclass-cname 
+                                     slot-name etype #t
+                                     c-field c-length c-init)]
           [_ (values type #t #t)])
       `(,(make <cslot>
            :cclass cclass :scheme-name slot-name :type (name->type type)
@@ -185,7 +212,9 @@
   (define (parse-c-spec slot-name c-spec)
     (rxmatch-case c-spec
       [#/^(\w+)?(?:\[(\w+)\])?(?:=(.*))?$/ (_ field length init)
-          (values field length init)]
+          (values (or field (x->string slot-name))
+                  (and length (or (string->number length) length))
+                  init)]
       [else
        (errorf "Bad c-spec ~s for a slot ~s of ~s" c-spec slot-name
                (~ cclass'scheme-name))]))    
@@ -194,7 +223,7 @@
       [((? symbol? y) . rest)
        (if (#/::$/ (symbol->string y))
          (match rest
-           [((and ('.array* etype) type) (? string? c-spec) . rest)
+           [((and ((or '.array* '.array) etype) type) (? string? c-spec) . rest)
             (receive (slot-name _) (parse-symbol::type y)
               (receive (c-field c-length c-init)
                   (parse-c-spec slot-name c-spec)
@@ -220,53 +249,67 @@
       (receive (slot rest) (grok-1 slots)
         (loop rest (cons slot r))))))
 
-;; Handle slot::(.array* <elt-type>) "c-name"
+;; Handle slot::(.array[*] <elt-type>) "c-name"
 ;;   c-name : "c-field[c-length]"
 ;;   cclass-cname is the C typename of the wrapper.
 ;; Returns stub-type, getter-name, setter-name
 ;; TODO: Make c-length field read-only.
-(define (make-ptr-to-array-getter-setter cclass cclass-cname
-                                         slot-name elt-type-name
-                                         c-field c-length c-init)
+(define (make-array-getter-setter cclass cclass-cname
+                                  slot-name elt-type-name ptr?
+                                  c-field c-length c-init)
   (define etype (name->type elt-type-name))
   (define (gen-getter c-field c-length) ; returns getter name
     (rlet1 getter-name #"~(~ cclass 'c-name)_~|c-field|_GET"
-      (cgen-decl #"static ScmObj ~|getter-name|(ScmObj);")
-      (cgen-body #"static ScmObj ~|getter-name|(ScmObj obj_s)"
-                 #"{"
-                 #"  ~|cclass-cname|* obj = (~|cclass-cname|*)obj_s;"
-                 #"  if (obj->data.~|c-length| <= 0) return SCM_FALSE;"
-                 #"  ScmObj v = Scm_MakeVector(obj->data.~|c-length|, SCM_FALSE);"
-                 #"  for (ScmSmallInt i = 0; i < obj->data.~|c-length|; i++) {"
-                 #"    SCM_VECTOR_ELEMENT(v, i) ="
-                 #"      ~(~ etype'boxer)(obj->data.~|c-field|[i]);"
-                 #"  }"
-                 #"  return SCM_OBJ(v);"
-                 #"}")))
+      (cgen-decl   #"static ScmObj ~|getter-name|(ScmObj);")
+      (cgen-body   #"static ScmObj ~|getter-name|(ScmObj obj_s)"
+                   #"{"
+                   #"  ~|cclass-cname|* obj = (~|cclass-cname|*)obj_s;")
+      (if (string? c-length)
+        (cgen-body #"  if (obj->data.~|c-length| <= 0) return SCM_FALSE;"
+                   #"  ssize_t len = obj->data.~|c-length|;")
+        (cgen-body #"  ssize_t len = ~|c-length|;"))
+      (cgen-body   #"  ScmObj v = Scm_MakeVector(len, SCM_FALSE);"
+                   #"  for (ScmSmallInt i = 0; i < len; i++) {"
+                   #"    ~(~ etype'c-type) e = obj->data.~|c-field|[i];"
+                   #"    SCM_VECTOR_ELEMENT(v, i) ="
+                   #"      ~(cgen-box-expr etype \"e\");"
+                   #"  }"
+                   #"  return SCM_OBJ(v);"
+                   #"}")))
   (define (gen-setter c-field c-length)
     (rlet1 setter-name #"~(~ cclass 'c-name)_~|c-field|_SET"
-      (cgen-decl #"static void ~|setter-name|(ScmObj, ScmObj);")
-      (cgen-body #"static void ~|setter-name|(ScmObj obj_s, ScmObj val)"
-                 #"{"
-                 #"  ~|cclass-cname|* obj = (~|cclass-cname|*)obj_s;"
-                 #"  if (SCM_FALSEP(val)) {"
-                 #"    obj->data.~|c-length| = 0;"
-                 #"    obj->data.~|c-field| = NULL;"
-                 #"    return;"
-                 #"  }"
-                 #"  if (!SCM_VECTORP(val)) SCM_TYPE_ERROR(val, \"vector\");"
-                 #"  ScmSmallInt len = SCM_VECTOR_SIZE(val);"
-                 #"  ~(~ etype'c-type) *vs = SCM_NEW_ARRAY(~(~ etype'c-type), len);"
-                 #"  for (ScmSmallInt i = 0; i < len; i++) {"
-                 #"    ScmObj val_i = SCM_VECTOR_ELEMENT(val,i);"
-                 #"    if (!~(~ etype'c-predicate)(val_i)) {"
-                 #"      SCM_TYPE_ERROR(val_i, \"~(~ etype'name)\");"
-                 #"    }"
-                 #"    vs[i] = ~(~ etype'unboxer)(val_i);"
-                 #"  }"
-                 #"  obj->data.~|c-length| = len;"
-                 #"  obj->data.~|c-field| = vs;"
-                 #"}")))
+      (cgen-decl   #"static void ~|setter-name|(ScmObj, ScmObj);")
+      (cgen-body   #"static void ~|setter-name|(ScmObj obj_s, ScmObj val)"
+                   #"{"
+                   #"  ~|cclass-cname|* obj = (~|cclass-cname|*)obj_s;")
+      (when ptr?
+        (cgen-body #"  if (SCM_FALSEP(val)) {"
+                   #"    obj->data.~|c-length| = 0;"
+                   #"    obj->data.~|c-field| = NULL;"
+                   #"    return;"
+                   #"  }"))
+      (cgen-body   #"  if (!SCM_VECTORP(val)) SCM_TYPE_ERROR(val, \"vector\");"
+                   #"  ScmSmallInt vlen = SCM_VECTOR_SIZE(val);")
+      (when (number? c-length)
+        (cgen-body #"  if (vlen != ~|c-length|) {"
+                   #"     Scm_Error(\"Invalid length for ~|cclass-cname|.~|c-field|: %ld (must be ~|c-length|)\", vlen);"
+                   #"  }"))
+      (if ptr?
+        (cgen-body #"  ~(~ etype'c-type) *vs = SCM_NEW_ARRAY(~(~ etype'c-type), vlen);")
+        (cgen-body #"  ~(~ etype'c-type) *vs = obj->data.~|c-field|;"))
+      (cgen-body   #"  for (ScmSmallInt i = 0; i < vlen; i++) {"
+                   #"    ScmObj val_i = SCM_VECTOR_ELEMENT(val,i);"
+                   #"    if (!~(cgen-pred-expr etype \"val_i\")) {"
+                   #"      SCM_TYPE_ERROR(val_i, \"~(~ etype'name)\");"
+                   #"    }"
+                   #"    vs[i] = ~(cgen-unbox-expr etype \"val_i\");"
+                   #"  }")
+      (unless (number? c-length)
+        (cgen-body #"  obj->data.~|c-length| = vlen;"))
+      (when ptr?
+        (cgen-body #"  obj->data.~|c-field| = vs;"))
+      (cgen-body #"}")))
+
   (values '<vector>
           `(c ,(gen-getter c-field c-length))
           `(c ,(gen-setter c-field c-length))))
@@ -293,7 +336,7 @@
                  #"{"
                  #"  ~|cclass-cname|* obj = (~|cclass-cname|*)obj_s;"
                  #"  ~(~ etype'c-type) e = &(obj->data.~|c-field|);"
-                 #"  return SCM_OBJ(~(~ etype'boxer)(e));"
+                 #"  return SCM_OBJ(~(cgen-box-expr etype \"e\"));"
                  #"}")))
   (define (gen-setter c-field c-length)
     (rlet1 setter-name #"~(~ cclass 'c-name)_~|c-field|_SET"
@@ -301,10 +344,10 @@
       (cgen-body #"static void ~|setter-name|(ScmObj obj_s, ScmObj val)"
                  #"{"
                  #"  ~|cclass-cname|* obj = (~|cclass-cname|*)obj_s;"
-                 #"  if (!~(~ etype'c-predicate)(val)) {"
+                 #"  if (!~(cgen-pred-expr etype \"val\")) {"
                  #"    SCM_TYPE_ERROR(val, \"~(~ etype'name)\");"
                  #"  }"
-                 #"  ~(~ etype'c-type) e = ~(~ etype'unboxer)(val);"
+                 #"  ~(~ etype'c-type) e = ~(cgen-unbox-expr etype \"val\");"
                  ;; We need customizable copyer, but for now...
                  #"  obj->data.~|c-field| = *e;"
                  #"}")))

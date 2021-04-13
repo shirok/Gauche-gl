@@ -10,11 +10,13 @@
 (define *use-glut* #t)
 (define *glut-path* #f)
 (cf-arg-with 'glut
-             "Use GLUT library installed under PATH. \
+             (cf-help-string
+              "--with-glut[=yes|no|mingw-static|PATH]"
+              "Use GLUT library installed under PATH. \
   By default, Gauche-gl assumes GLUT is installed in the system standard \
   location.  If you do not want to use GLUT support, specify --with-glut=no.  \
   On MinGW you can statically link freeglut included in the source. \
-  If you want to choose so, say --with-glut=mingw-static."
+  If you want to choose so, say --with-glut=mingw-static.")
              (^[val]
                (rxmatch-case val
                  [#/^no$/  (_) (set! *use-glut* #f)]
@@ -27,9 +29,11 @@
 (define *use-glfw* 'check)
 (define *glfw-path* #f)
 (cf-arg-with 'glfw
-             "Use GLFW library installed under PATH. \
+             (cf-help-string
+              "--with-glfw[=PATH]"
+              "Use GLFW library installed under PATH. \
   By default, the availability of GLFW in the system default location is \
-  checked.  If you do not want to use GLFW support, specify --with-glfw=no."
+  checked.  If you do not want to use GLFW support, specify --with-glfw=no.")
              (^[val]
                (rxmatch-case val
                  [#/^no$/  (_) (set! *use-glfw* #f)]
@@ -39,7 +43,9 @@
 
 ;; cg
 (cf-arg-enable 'cg
-               "Enable NVidia's Cg binding."
+               (cf-help-string
+                "--enable-cg"
+                "Enable NVidia's Cg binding.")
                (^_
                 (cf-define 'HAVE_CG)
                 (cf-subst 'ENABLE_CG 1)

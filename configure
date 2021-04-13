@@ -28,13 +28,13 @@
 (define *glfw-path* #f)
 (cf-arg-with 'glfw
              "Use GLFW library installed under PATH. \
-  By default, Gauche-gl assumes GLUT is installed in the system standard \
-  location.  If you do not want to use GLUT support, specify --with-glut=no."
+  By default, the availability of GLFW in the system default location is \
+  checked.  If you do not want to use GLFW support, specify --with-glfw=no."
              (^[val]
                (rxmatch-case val
                  [#/^no$/  (_) (set! *use-glfw* #f)]
                  [#/^yes$/ (_) (set! *use-glfw* #t)]
-                 [else (set! *use-glfw* #t) 
+                 [else (set! *use-glfw* #t)
                        (set! *glfw-path* val)])))
 
 ;; cg
@@ -63,7 +63,7 @@
    ;; MSYS2 config.guess reports x86_64-pc-mingw64 on 64bit system,
    ;; but MSYS2/mingw-w64 toolchain canonically use x86_64-w64-mingw32.
    (rxmatch-case (cf$ 'target)
-     [#/x86_64-.*mingw.*/ (_) 
+     [#/x86_64-.*mingw.*/ (_)
       (cf-subst 'GLUT_LIBDIR "-L../win32/freeglut-3.0.0-1/lib/x64")]
      [else
       (cf-subst 'GLUT_LIBDIR "-L../win32/freeglut-3.0.0-1/lib")])]
@@ -81,12 +81,12 @@
 
 ;; Set appropriate libraries
 (cf-check-headers '("GL/glx.h")
-                  :if-found 
-                  (^_ 
+                  :if-found
+                  (^_
                    (cf-subst 'GL_LIBS "-lGLU -lGL -lX11 -lXext")
                    (cf-subst-append 'GLUT_LIB "-lXmu -lXi")))
 (cf-check-headers '("GLUT/glut.h")        ; darwin on MacOSX
-                  :if-found 
+                  :if-found
                   (^_
                    (cf-subst-append 'CFLAGS "-DMacOSX=1")
                    (cf-subst 'GL_LIBS "-framework OpenGL -framework GLUT")

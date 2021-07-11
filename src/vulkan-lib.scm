@@ -724,7 +724,7 @@
     VK_IMAGE_VIEW_TYPE_END_RANGE
     VK_IMAGE_VIEW_TYPE_RANGE_SIZE
     VK_IMAGE_VIEW_TYPE_MAX_ENUM))
- 
+
  (define-cenum <vk-component-swizzle> "VkComponentSwizzle"
    (VK_COMPONENT_SWIZZLE_IDENTITY
     VK_COMPONENT_SWIZZLE_ZERO
@@ -808,7 +808,7 @@
     VK_STENCIL_OP_END_RANGE
     VK_STENCIL_OP_RANGE_SIZE
     VK_STENCIL_OP_MAX_ENUM))
- 
+
  (define-cenum <vk-logic-op> "VkLogicOp"
    (VK_LOGIC_OP_CLEAR
     VK_LOGIC_OP_AND
@@ -1362,7 +1362,7 @@
    (VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT
     VK_COMMAND_POOL_RESET_FLAG_BITS_MAX_ENUM))
 
- (define-cenum <vk-command-buffer-usage-flag-bits> 
+ (define-cenum <vk-command-buffer-usage-flag-bits>
    "VkCommandBufferUsageFlagBits"
    (VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
     VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT
@@ -1373,7 +1373,7 @@
    (VK_QUERY_CONTROL_PRECISE_BIT
     VK_QUERY_CONTROL_FLAG_BITS_MAX_ENUM))
 
- (define-cenum <vk-command-buffer-reset-flag-bits> 
+ (define-cenum <vk-command-buffer-reset-flag-bits>
    "VkCommandBufferResetFlagBits"
    (VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT
     VK_COMMAND_BUFFER_RESET_FLAG_BITS_MAX_ENUM))
@@ -1386,13 +1386,13 @@
 
  (define-type <vk-bool32> "VkBool32" #f
    "SCM_INTEGERP" "Scm_GetIntegerU32" "Scm_MakeIntegerU")
- 
+
  (define-type <vk-flags> "VkFlags" #f
    "SCM_INTP" "SCM_INT_VALUE" "SCM_MAKE_INT")
 
  (define-type <vk-device-size> "VkDeviceSize" #f
    "SCM_INTEGERP" "Scm_GetIntegerU64" "Scm_MakeIntegerU64")
- 
+
  (define-cstruct <vk-application-info> "VkApplicationInfo"
    (sType::<vk-structure-type> "=VK_STRUCTURE_TYPE_APPLICATION_INFO"
     pNext::<vk-void*> "=NULL"

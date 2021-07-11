@@ -242,7 +242,7 @@
      (let ([v (new)] [i 0])
        (proc (^[item] (when (>= i len) (set v i item) (inc! i)))
              (^[] v))))))
-     
+
 (define-method call-with-builder ((class <vector4f-meta>) proc . args)
   (%math3dobj-builder 4 make-vector4f vector4f-set! proc))
 

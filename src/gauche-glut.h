@@ -2,11 +2,11 @@
  * gauche-glut.h - Gauche GLUT binding
  *
  *   Copyright (c) 2001-2014  Shiro Kawai  <shiro@acm.org>
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions
  *   are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *
@@ -82,6 +82,5 @@ enum {
 
 extern void Scm_GlutRegisterCallback(int type, ScmObj closure,
                                      int xtra1, int xtra2);
-    
-#endif /*GAUCHE_GLUT_H */
 
+#endif /*GAUCHE_GLUT_H */

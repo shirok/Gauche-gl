@@ -43,4 +43,3 @@
        (coerce-to <gl-boolean-vector> '(#f #t #f #f #t)))
 
 (test-end)
-

@@ -2,11 +2,11 @@
  * gauche-gl.c - Gauche GL binding
  *
  *   Copyright (c) 2001-2014  Shiro Kawai  <shiro@acm.org>
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions
  *   are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *
@@ -99,7 +99,7 @@ ScmObj Scm_ListToGLBooleanVector(ScmObj lis)
     int len = Scm_Length(lis), i;
     ScmObj lp;
     ScmGLBooleanVector *v;
-    
+
     if (len < 0) Scm_Error("proper list required, but got %S", lis);
     v = glboolvec_allocate(len, NULL);
     i = 0;
@@ -180,7 +180,7 @@ int Scm_GLGetDoubles(ScmObj val1, ScmObj list, double *result,
         result[0] = Scm_GetDouble(val1);
         i++;
     }
-    
+
     SCM_FOR_EACH(lp, list) {
         if (i >= maxresult) {
             Scm_Error("too many arguments: %S, at most %d allowed",
@@ -216,7 +216,7 @@ int Scm_GLPixelDataType(GLenum type, int *packed)
     switch (type) {
     case GL_BYTE:;
         return SCM_GL_BYTE;
-    case GL_BITMAP: 
+    case GL_BITMAP:
 #if !defined(__CYGWIN__)
     case GL_UNSIGNED_BYTE_3_3_2:;
     case GL_UNSIGNED_BYTE_2_3_3_REV:;

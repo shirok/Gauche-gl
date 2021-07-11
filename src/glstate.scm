@@ -439,8 +439,8 @@
     (for-each (lambda (n)
                 (for-each
                  (lambda (e)
-		   (gen-case-label (string-upcase (symbol->string (car e)))
-				   (cdddr e)))
+                   (gen-case-label (string-upcase (symbol->string (car e)))
+                                   (cdddr e)))
                  (reverse (cdr n)))
                 (print #`"    return ,(car n);"))
               (reverse tab))))
@@ -450,14 +450,14 @@
   (if (null? versions)
       (print #`"  case ,|name|:;")
       (let ((condition
-	     (case (car versions)
-	       ((v1.1) "defined(GL_VERSION_1_1) && !defined(GL_VERSION_1_2)")
-	       ((v1.2) "defined(GL_VERSION_1_2)")
-	       ((no-cygwin) "!defined(__CYGWIN__)")
-	       (else (error "unknown version identifier:" (car versions))))))
-	(print #`"#if ,condition")
-	(gen-case-label name (cdr versions))
-	(print "#endif"))))
+             (case (car versions)
+               ((v1.1) "defined(GL_VERSION_1_1) && !defined(GL_VERSION_1_2)")
+               ((v1.2) "defined(GL_VERSION_1_2)")
+               ((no-cygwin) "!defined(__CYGWIN__)")
+               (else (error "unknown version identifier:" (car versions))))))
+        (print #`"#if ,condition")
+        (gen-case-label name (cdr versions))
+        (print "#endif"))))
 
 ;;-----------------------------
 

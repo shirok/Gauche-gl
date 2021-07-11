@@ -2,11 +2,11 @@
  * gauche-glfw.h - Gauche GLFW binding
  *
  *   Copyright (c) 2020  Shiro Kawai  <shiro@acm.org>
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions
  *   are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *
@@ -58,7 +58,7 @@ SCM_EXTERN ScmClass *Scm_GlfwCursorClass; /* foreign pointer class */
 SCM_EXTERN ScmObj Scm_MakeGlfwCursor(GLFWcursor*);
 SCM_EXTERN void Scm_GlfwCursorDestroy(ScmObj);
 
-/* 
+/*
  * This structure is associated to each window.
  */
 
@@ -82,7 +82,7 @@ enum {
     SCM_GLFW_SCROLL_CALLBACK,    /* GLFWwindow*, double, double */
     SCM_GLFW_DROP_CALLBACK,      /* GLFWwindow*, int, const char*[] */
     /* we don't support CharModsCallback, for it will be removed */
-    
+
     SCM_GLFW_NUM_WINDOW_CALLBACKS
 };
 
@@ -94,7 +94,7 @@ typedef struct ScmGlfwWindowDataRec {
 SCM_EXTERN void Scm__SetupWindowCallbacks(GLFWwindow *);
 SCM_EXTERN ScmGlfwWindowData *Scm_GlfwGetWindowData(GLFWwindow *);
 
-/* 
+/*
  * Global callbacks
  */
 

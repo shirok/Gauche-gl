@@ -69,7 +69,7 @@
 ;;    This specifies which C variable gl-case should dispatch upon.
 ;;    The simplest case is a single-variable one, just the variable
 ;;    we dispatch on.
-;; 
+;;
 ;;    The second form is used for variable-arity api such as gl-vertex;
 ;;    it accepts vector argument, e.g. (gl-vertex #f32(1.0 1.0 1.0)), and
 ;;    individual real arguments, e.g. (gl-vertex 1.0 1.0 1.0).  If more than
@@ -225,7 +225,7 @@
               `((else ,(gen-error (car var))))]
              [else
               `((else ,(car maybe-fallback)))]))])
-       
+
 ;; Other useful macros.
 
 ;; Check if var is a proper type of uvector with desired size

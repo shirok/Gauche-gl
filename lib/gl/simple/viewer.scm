@@ -1,23 +1,23 @@
 ;;;
 ;;; simple/viewer.scm - simple viewer
-;;;  
+;;;
 ;;;   Copyright (c) 2008-2014  Shiro Kawai  <shiro@acm.org>
-;;;   
+;;;
 ;;;   Redistribution and use in source and binary forms, with or without
 ;;;   modification, are permitted provided that the following conditions
 ;;;   are met:
-;;;   
+;;;
 ;;;   1. Redistributions of source code must retain the above copyright
 ;;;      notice, this list of conditions and the following disclaimer.
-;;;  
+;;;
 ;;;   2. Redistributions in binary form must reproduce the above copyright
 ;;;      notice, this list of conditions and the following disclaimer in the
 ;;;      documentation and/or other materials provided with the distribution.
-;;;  
+;;;
 ;;;   3. Neither the name of the authors nor the names of its contributors
 ;;;      may be used to endorse or promote products derived from this
 ;;;      software without specific prior written permission.
-;;;  
+;;;
 ;;;   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 ;;;   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 ;;;   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -29,7 +29,7 @@
 ;;;   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 ;;;   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;;   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-;;;  
+;;;
 
 ;; This is a simple viewer skeleton.  It is by no means intended for
 ;; general applications; it's rather a handy tool to quickly hack up
@@ -61,7 +61,7 @@
 ;;          simple-viewer-set-key!
 ;;
 ;;   Those callback receives a vector as the state of the viewer.
-;;   The first element is the dimension (2 or 3), followed by 
+;;   The first element is the dimension (2 or 3), followed by
 ;;   elements about projection, and the following 9
 ;;   elements about camera position & orientation.
 ;;
@@ -187,7 +187,7 @@
       [(:orthographic) *projection-orthographic*]))
   (define (proj-choose pers ortho)
     (if (= proj-mode *projection-perspective*) pers ortho))
-  
+
   ;; Internal state
   (define prev-x -1)
   (define prev-y -1)
@@ -241,7 +241,7 @@
     (and display-proc (display-proc viewer-info))
     (gl-pop-matrix)
     (glut-swap-buffers))
-  
+
   ;; Callback closures
   (define (display-fn3)
     (display-setup-3d)
@@ -315,7 +315,7 @@
       [('reshape proc) (set! reshape-proc proc)]
       [('key-handlers) key-handlers]
       [_ (error "unrecognized simple-viewer-window message:" args)]))
-  
+
   (glut-init-display-mode mode)
   ;; Register GLUT window id.
   (let* ([pwin (and parent (name->window parent))]
@@ -359,7 +359,7 @@
       (gl-hint GL_LINE_SMOOTH_HINT GL_NICEST)))
 
   name)
-                     
+
 ;; Creates a GL window, 3D view
 (define (simple-viewer-window name . keys)
   (apply make-viewer name :perspective keys))
@@ -373,7 +373,7 @@
 (define (simple-viewer-set-window name)
   (cond [(name->window-id name) => glut-set-window]))
 
-;; Callback registrar.  
+;; Callback registrar.
 (define-syntax define-registrar
   (syntax-rules ()
     [(_ varname key default2-var default3-var)
@@ -462,7 +462,7 @@
 (define-inline (default-grid-common v)
   (gl-color 0.5 0.5 0.5)
   (gl-line-width 0.6))
-  
+
 (define (default-grid2 v)
   (default-grid-common v)
   ;; For 2D: we draw grid to cover entire viewport

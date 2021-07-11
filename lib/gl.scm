@@ -126,7 +126,7 @@
       (and-let* ([vers (ensure-version)]) (version>=? vers v)))
     (define (gl-version=? v)
       (and-let* ([vers (ensure-version)]) (version=? vers v)))
-    
+
     (values gl-extension-available?
             gl-version<? gl-version<=?
             gl-version>? gl-version>=?

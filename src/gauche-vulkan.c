@@ -2,11 +2,11 @@
  * gauche-vulkan.c - Gauche Vulkan binding
  *
  *   Copyright (c) 2020  Shiro Kawai  <shiro@acm.org>
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions
  *   are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *
@@ -44,7 +44,7 @@ extern void Scm_Init_vulkan_lib(ScmModule *mod);
 
 ScmClass *Scm_VkVoidPointerClass;
 
-static void vk_void_pointer_print(ScmObj obj, ScmPort *sink, 
+static void vk_void_pointer_print(ScmObj obj, ScmPort *sink,
                                   ScmWriteContext *m SCM_UNUSED)
 {
     Scm_Printf(sink, "#<vk-void* %p>", SCM_VK_VOID_POINTER(obj));
@@ -71,4 +71,3 @@ void Scm_Init_libgauche_vulkan(void)
                                 0);
     Scm_Init_vulkan_lib(mod);
 }
-

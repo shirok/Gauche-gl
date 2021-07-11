@@ -165,7 +165,7 @@ Brian Paul's 3D gear wheels.
 Simple calculated texture.
 @item glbook/
 This subdirectory contains examples found in "OpenGL Programming Guide",
-a.k.a. Redbook.  
+a.k.a. Redbook.
 @item slbook/
 This subdirectory contains examples found in "OpenGL Shading Language".
 Each demo is under its own subdirectories.  You need to have
@@ -231,7 +231,7 @@ For the time being, let's focus on the pure GL part.
 The mapping of GL call name is straightforward.
 The mixed case names in OpenGL C API is expanded to hyphenated name,
 e.g. @code{glClearColor} @result{} @code{gl-clear-color}.
-OpenGL enums are mapped as is, e.g. 
+OpenGL enums are mapped as is, e.g.
 @code{GL_POLYGON}.  (Note that Gauche is case-sensitive by default.
 Also note the underscore, not hyphen, in constants).
 
@@ -249,7 +249,7 @@ so you can write the drawing part in the same way as in C:
 
 Actually @code{gl-begin*} macro expands into the above calls.
 It's a matter of taste, but the macro version guarantees
-begin and end match, and the syntax-aware editor can indent 
+begin and end match, and the syntax-aware editor can indent
 internal calls accordingly.
 
 You might have noticed that the type suffix in C API
@@ -328,7 +328,7 @@ In this version, we support GLFW 3.2 API.
 @node Using GLUT, Performance tips, Using GLFW, Getting Started
 @section Using GLUT
 
-GLUT had long been a de-facto library to make a platform-agnostic 
+GLUT had long been a de-facto library to make a platform-agnostic
 runnable script, hiding difference of various windowing systems.
 We still support it but the library development was discontinued.
 The newer scripts should use GLFW.
@@ -378,7 +378,7 @@ Example 1-2 in "OpenGL Programming Guide":
 @end example
 
 The @code{(use gl.glut)} form loads GLUT binding.
-The name mapping is the same as GL's: mixed case names to 
+The name mapping is the same as GL's: mixed case names to
 hyphenated names.
 
 In order to handle various events, you can pass a closure
@@ -392,7 +392,7 @@ which uses GLUT.
 @node Performance tips,  , Using GLUT, Getting Started
 @section Performance tips
 
-If you want to display millions of polygons in 30 fps, 
+If you want to display millions of polygons in 30 fps,
 Gauche-gl is not for you.   Consider using implementations
 that compiles into native code.   The purpose of Gauche-gl
 is to provide reasonable performance for interactive development
@@ -403,7 +403,7 @@ especially with recent processors and graphics chips.
 
 @table @emph
 @item Avoid alocation within the inner loop.
-The functional (non-destructive) operations tend to return 
+The functional (non-destructive) operations tend to return
 newly-allocated objects.
 Use linear-update (destructive) versions instead,
 such as @code{matrix-mul!}, @code{u8vector-add!}, etc,
@@ -690,7 +690,7 @@ Make sure all previously issued GL commands are completed.
 Draws a rectangle.  In the first form,
 @var{point1} and @var{point2} can be either
 @code{<point4f>}, or f32, f64, s32, or s16vector of
-length 2.   Types of both args should match.  
+length 2.   Types of both args should match.
 In the second form, all args should be a real numbers (@code{glRectd} is used).
 @end defun
 
@@ -775,7 +775,7 @@ The destructive version is non-allocating operation, so it is suitable
 if you call it within the drawing loop.
 
 If the state has a scalar value, the non-destructive version of
-query function returns a scalar value, but you need to pass a 
+query function returns a scalar value, but you need to pass a
 (uniform) vector of length 1 for the destructive version.
 
 @defun gl-state-vector-size state
@@ -840,7 +840,7 @@ All of the above.
 @end defun
 
 @defun gl-push-client-attrib mask
-@defunx gl-pop-client-attrib 
+@defunx gl-pop-client-attrib
 Push/pop client attributes.  Valid @var{mask} can be
 @code{logior} of the following
 
@@ -985,7 +985,7 @@ You have to enable @var{GL_CULL_FACE} to use face culling.
 
 @defun gl-polygon-stipple mask
 Defines the current stipple pattern for filled polygons.
-@var{Mask} has to be a u8vector of length 128, specifying a 32x32 
+@var{Mask} has to be a u8vector of length 128, specifying a 32x32
 bitmap pattern.
 You have to enable @var{GL_POLYGON_STIPPLE} to use this feature.
 @end defun
@@ -1046,7 +1046,7 @@ Sets the constant color used in the blending function.
 @defun gl-polygon-offset factor units
 [GL1.1]
 Offset the depth value of each fragment.  Useful to avoid
-artifacts when you draw polygon edges over its surfaces, 
+artifacts when you draw polygon edges over its surfaces,
 for example.
 @end defun
 
@@ -1171,7 +1171,7 @@ Pushes/pops the current matrix.
 @end defun
 
 @defmac gl-push-matrix* expr @dots{}
-A convenience macro.  Pushes the current matrix, 
+A convenience macro.  Pushes the current matrix,
 executes @var{expr}s, then pop the current matrix.
 @end defmac
 
@@ -1240,12 +1240,12 @@ namely @code{GL_2_BYTES}, @code{GL_3_BYTES}, and @code{GL_4_BYTES}.
 @section Vertex arrays
 
 Scheme version of APIs doesn't have @var{GLenum type} argument
-in C API, since Gauche-gl can figure out the type by passed 
+in C API, since Gauche-gl can figure out the type by passed
 vectors.
 
 Scheme API of @code{gl-*-array} has @var{offset} optional argument,
 by which you can pass the GL the values beginning from the @var{offset}-th
-element of the passed uniform vector.   This isn't in GL C API, 
+element of the passed uniform vector.   This isn't in GL C API,
 since you can just offset the pointer in C.
 
 NOTE: it is caller's responsibility to guarantee the passed vector
@@ -1254,10 +1254,10 @@ so Gauche can't detect an invalid length vector.
 
 
 @defun gl-vertex-pointer size vec &optional stride offset
-Sets the vertex array.  @var{Size} specifies the number of 
+Sets the vertex array.  @var{Size} specifies the number of
 scalar values per vertex (2, 3, or 4), and @var{vec} provides
 the actual value in either f32, f64, s32 or s16vector.
-@code{Stride} and @var{offset} can be used to tell GL to 
+@code{Stride} and @var{offset} can be used to tell GL to
 access @var{vec} sparsely.
 @end defun
 
@@ -1265,7 +1265,7 @@ access @var{vec} sparsely.
 Sets the normal array.  @var{Vec} should be either
 a f32, f64, s32 or s16vector, where each consecutive triplet
 specifies a normal vector.
-@code{Stride} and @var{offset} can be used to tell GL to 
+@code{Stride} and @var{offset} can be used to tell GL to
 access @var{vec} sparsely.
 @end defun
 
@@ -1273,14 +1273,14 @@ access @var{vec} sparsely.
 Sets the color array.   @var{Size} specifies the number of
 scalar values per color (3 or 4), and @var{vec} provides
 the actual values in either f32, f64, u32, u16, u8, s32, s16, or s8vector.
-@code{Stride} and @var{offset} can be used to tell GL to 
+@code{Stride} and @var{offset} can be used to tell GL to
 access @var{vec} sparsely.
 @end defun
 
 @defun gl-index-pointer vec &optional stride offset
 Sets the index array.   @var{Vec} can be either s32, s16, u8, f32, or
 f64vector.
-@code{Stride} and @var{offset} can be used to tell GL to 
+@code{Stride} and @var{offset} can be used to tell GL to
 access @var{vec} sparsely.
 @end defun
 
@@ -1289,13 +1289,13 @@ Sets the texture coordinate array.  @var{Size} specifies the
 number of scalar values per texture coordinate (1, 2, 3 or 4),
 and @var{vec} provides the actual values in either f32, f64, s32 or
 s16vector.
-@code{Stride} and @var{offset} can be used to tell GL to 
+@code{Stride} and @var{offset} can be used to tell GL to
 access @var{vec} sparsely.
 @end defun
 
 @defun gl-edge-flag-pointer vec &optional stride offset
 Sets the edge flag array.  @var{Vec} must be a GL boolean vector.
-@code{Stride} and @var{offset} can be used to tell GL to 
+@code{Stride} and @var{offset} can be used to tell GL to
 access @var{vec} sparsely.
 @end defun
 
@@ -1396,7 +1396,7 @@ Accepts f32 or s32vector of size 3.
 
 @defun gl-get-material face pname
 Returns the current material property of @var{face} and @var{pname}.
-The type of returned value may be f32vector, s32vector (only for 
+The type of returned value may be f32vector, s32vector (only for
 @code{GL_COLOR_INDEXES}), or a real number.
 @end defun
 
@@ -1473,7 +1473,7 @@ It is a caller's responsibility to ensure @var{values} has enough size.
 @subheading Color tables
 
 @defun gl-color-table target internal-format width format type data
-[GL_ARB_imaging] 
+[GL_ARB_imaging]
 Specifies one of the color table @var{target}.
 @var{Data} should be a uniform vector compatible to the
 @var{format} and @var{type} parameters.
@@ -1483,13 +1483,13 @@ Specifies one of the color table @var{target}.
 [GL_ARB_imaging]
 Sets the color table parameter @var{pname}
 (either @code{GL_COLOR_TABLE_SCALE} or @code{GL_COLOR_TABLE_BIAS}),
-of the color table @var{target}.  @var{Param} must be 
+of the color table @var{target}.  @var{Param} must be
 an f32 or s32vector of size 4.
 @end defun
 
 @defun gl-copy-color-table target internal-format x y width
 [GL_ARB_imaging]
-Creates a color table @var{target} using framebuffer data.  
+Creates a color table @var{target} using framebuffer data.
 The pixels are
 read from the current buffer for read (specified by @code{glReadBuffer}).
 @end defun
@@ -1526,7 +1526,7 @@ enough size.
 
 @defun gl-copy-convolution-filter-2d target internal-format x y width height
 [GL_ARB_imaging]
-Defines a 2D convolution filter, 
+Defines a 2D convolution filter,
 taking the convolution filter data from the current color buffer to read.
 @end defun
 
@@ -1555,9 +1555,9 @@ from the current color buffer to read.
 
 @defun gl-convolution-parameter target pname param
 [GL_ARB_imaging]
-Sets a parameter for a convolution filter @var{target}, which can 
+Sets a parameter for a convolution filter @var{target}, which can
 be either @code{GL_CONVOLUTION_2D}, @code{GL_SEPARABLE_2D},
-or @code{GL_CONVOLUTION_1D}.  Possible values of @var{pname} and 
+or @code{GL_CONVOLUTION_1D}.  Possible values of @var{pname} and
 their acceptable @var{param} are as follows.
 @table @asis
 @item @code{GL_CONVOLUTION_BORDER_MODE}
@@ -1648,12 +1648,12 @@ a boolean value) or @code{GL_MINMAX_FORMAT} (returns an integer).
 @defunx gl-tex-image-3d target level internalformat width height depth border format type texels
 Defines an 1D, 2D or 3D texture.   3D texture is available only
 if the GL version is 1.2 or later.
-The @var{target} parameter can be @code{GL_TEXTURE_1D} or 
+The @var{target} parameter can be @code{GL_TEXTURE_1D} or
 @code{GL_PROXY_TEXTURE_1D} for @code{gl-tex-image-1d}, etc.
 The @var{level} parameter can be used for multiresolution textures; if
 this is a single resolution texture, pass 0.
 
-@var{Width}, @var{height}, and @var{depth} specify 
+@var{Width}, @var{height}, and @var{depth} specify
 the dimensions of the texture.
 @var{Border} can be 0 or 1, specifying the border.
 
@@ -1715,17 +1715,17 @@ Obtains the parameter of the current texture, set by @code{gl-tex-parameter}.
 @end defun
 
 @defun gl-get-tex-level-parameter target level pname
-Obtains the parameter of the level @var{level} 
+Obtains the parameter of the level @var{level}
 of the current texture specified by @var{target},
-which can be either @code{GL_TEXTURE_1D}, @code{GL_TEXTURE_2D}, 
-@code{GL_TEXTURE_3D}, @code{GL_PROXY_TEXTURE_1D}, 
+which can be either @code{GL_TEXTURE_1D}, @code{GL_TEXTURE_2D},
+@code{GL_TEXTURE_3D}, @code{GL_PROXY_TEXTURE_1D},
 @code{GL_PROXY_TEXTURE_2D}, or @code{GL_PROXY_TEXTURE_3D}.
 
 Possible values for @var{pname} is either one of the
 following constants: @code{GL_TEXTURE_WIDTH}, @code{GL_TEXTURE_HEIGHT},
 @code{GL_TEXTURE_DEPTH}, @code{GL_TEXTURE_BORDER},
 @code{GL_TEXTURE_INTERNAL_FORMAT}, @code{GL_TEXTURE_RED_SIZE},
-@code{GL_TEXTURE_GREEN_SIZE}, @code{GL_TEXTURE_BLUE_SIZE}, 
+@code{GL_TEXTURE_GREEN_SIZE}, @code{GL_TEXTURE_BLUE_SIZE},
 @code{GL_TEXTURE_ALPHA_SIZE}, @code{GL_TEXTURE_LUMINANCE_SIZE}, or
 @code{GL_TEXTURE_INTENSITY_SIZE}.   This procedure returns an integer.
 @end defun
@@ -1784,13 +1784,13 @@ of the texture objects to be deleted.
 of the texture objects, and @var{residences} must be a GL boolean vector
 of the same length as @var{names}.  If all textures named in @var{names}
 are resident, @code{#t} is returned and @var{residences} is not
-modified.  Othewise, @code{#f} is returned and 
+modified.  Othewise, @code{#f} is returned and
 @var{residences} is modified to contain @code{#t} if the corresponding
 texture in @var{names} is resident, @code{#f} othewise.
 @end defun
 
 @defun gl-prioritize-textures names priorities
-Sets the prioridies of texture objects named by @var{names} to 
+Sets the prioridies of texture objects named by @var{names} to
 the corresponding entry of @var{priorities}
 @var{Names} must be a u32vectore and @var{priorities} must be an f32vector,
 and the lengths of both vectors must match.
@@ -1799,7 +1799,7 @@ and the lengths of both vectors must match.
 @subheading Texture environment and coordinates
 
 @defun gl-tex-env target pname param
-Sets the current texturing function.   @var{Target} must be 
+Sets the current texturing function.   @var{Target} must be
 @code{GL_TEXTURE_ENV}.  Possible values of @var{pname} and accepted
 @var{param} for each value is as follows.
 
@@ -1814,7 +1814,7 @@ f32vector of size 4 to specify the color.
 
 @defun gl-tex-gen coord pname param
 Specifies the functions for automatic texture coordinate generation.
-@var{Coord} specifies the coordinates, either one of @code{GL_S}, 
+@var{Coord} specifies the coordinates, either one of @code{GL_S},
 @code{GL_T}, @code{GL_R} or @code{GL_Q}.
 Possible values of @var{pname} and accepted
 @var{param} for each value is as follows.
@@ -1833,7 +1833,7 @@ An s32, f32 or f64vector of size 4 to specify the plane.
 @defun gl-active-texture-arb texunit
 [GL_ARB_multitexture]
 Selects the texture unit that is currently modified by
-texturing routines.  @var{Texunit} is a constant 
+texturing routines.  @var{Texunit} is a constant
 @code{GL_TEXTUREi_ARB}, where @var{i} is 0 to the maximum
 number of the supported texture units.
 @end defun
@@ -1866,7 +1866,7 @@ Each color value sould be a real number, and is clamped to
 
 @defun gl-clear-index c
 Sets the current clearing color (in color index mode).
-@var{c} must be a real number.  
+@var{c} must be a real number.
 @end defun
 
 @defun gl-clear-depth depth
@@ -1931,7 +1931,7 @@ be written or not.
 @end defun
 
 @defun gl-stencil-mask mask
-Sets the mask bit pattern for the stencil buffer.  @var{Mask} is 
+Sets the mask bit pattern for the stencil buffer.  @var{Mask} is
 an exact integer.
 @end defun
 
@@ -1971,14 +1971,14 @@ values independently: @code{GL_KEEP}, @code{GL_ZERO}, @code{GL_REPLACE},
 
 @defun gl-depth-func func
 Sets the comparison function for the depth test.  @var{Func} may
-be one of the following constant value: @code{GL_NEVER}, 
+be one of the following constant value: @code{GL_NEVER},
 @code{GL_ALWAYS}, @code{GL_LESS}, @code{GL_LEQUAL}, @code{GL_EQUAL},
 @code{GL_GEQUAL}, @code{GL_GREATER}, or @code{GL_NOTEQUAL}.
 @end defun
 
 @defun gl-depth-range nearv farv
 Defines an encoding for z-coordinates.  @var{Nearv} and @var{farv}
-define the minimum and maximum values that can be stored in the 
+define the minimum and maximum values that can be stored in the
 depth buffer.  By default, they're 0.0 and 1.0, respectively.
 @end defun
 
@@ -2221,8 +2221,8 @@ Deletes either a shader object or a program object specified by
 @defun gl-get-object-parameter-arb object pname
 [GL_ARB_shader_objects]
 Queries the value of @var{pname} of the shader or the program
-specified by @var{object}.  The following values are accepted 
-as @var{pname}: @code{GL_OBJECT_TYPE_ARB}, 
+specified by @var{object}.  The following values are accepted
+as @var{pname}: @code{GL_OBJECT_TYPE_ARB},
 @code{GL_OBJECT_SUBTYPE_ARB},
 @code{GL_OBJECT_DELETE_STATUS_ARB},
 @code{GL_OBJECT_COMPILE_STATUS_ARB},
@@ -2230,7 +2230,7 @@ as @var{pname}: @code{GL_OBJECT_TYPE_ARB},
 @code{GL_OBJECT_VALIDATE_STATUS_ARB},
 @code{GL_OBJECT_INFO_LOG_LENGTH_ARB},
 @code{GL_OBJECT_ATTACHED_OBJECTS_ARB},
-@code{GL_OBJECT_ACTIVE_ATTRIBUTES_ARB}, 
+@code{GL_OBJECT_ACTIVE_ATTRIBUTES_ARB},
 @code{GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB},
 @code{GL_OBJECT_ACTIVE_UNIFORMS_ARB},
 @code{GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB}, and
@@ -2274,7 +2274,7 @@ The result is stored in @var{program}'s log.
 @defunx gl-vertex-attrib-arb index v0 &rest v1 v2 v3
 [GL_ARB_vertex_program]
 Sets the generic vertex attribute specified by @var{index}.
-In the first form, you can pass f32, f64, or s16vector of size 
+In the first form, you can pass f32, f64, or s16vector of size
 1 to 4, or u8, s8, u16, s32, or u32vector of size 4.
 In the second form, you can pass 1 to 4 real numbers (they
 are interpreted as C doubles and @code{glVertexAttrib4dARB} is called).
@@ -2331,7 +2331,7 @@ in the @var{program}.  Must be called after @var{program} is linked.
 It returns three values: the size of the attribute (1, 2, 3 or 4),
 the type of the attribute (an integer that matches one of the following
 constants: @code{GL_FLOAT}, @code{GL_FLOAT_VEC2_ARB},
-@code{GL_FLOAT_VEC3_ARB}, @code{GL_FLOAT_VEC4_ARB}, 
+@code{GL_FLOAT_VEC3_ARB}, @code{GL_FLOAT_VEC4_ARB},
 @code{GL_FLOAT_MAT2_ARB}, @code{GL_FLOAT_MAT3_ARB}, or
 @code{GL_FLOAT_MAT4_ARB}.), and
 the name of the attribute.
@@ -2360,12 +2360,12 @@ Sets a value of the uniform variable specified by @var{location}.
 (e.g. @code{vec2}) etc.
 
 The first form of each function takes either an s32vector or f32vector.
-It can have a size multiple of the number of components to 
+It can have a size multiple of the number of components to
 set an array uniform variable (e.g. you can pass an f32vector of
 size 8 to fill @code{vec2[2]}).
 
 The second form just sets the component(s) of a single uniform variable.
-The arguments @var{v0} to @var{v3} must be real numbers, and 
+The arguments @var{v0} to @var{v3} must be real numbers, and
 coerced to C @code{float} (i.e. @code{glUniform*fARB} is used).
 @end defun
 
@@ -2376,7 +2376,7 @@ coerced to C @code{float} (i.e. @code{glUniform*fARB} is used).
 [GL_ARB_shader_objects]
 Sets a matrix uniform variable (or an array of matrix uniform variables)
 specified by @var{location}.
-A boolean flag @var{transpose} specifies whether the matrix should be 
+A boolean flag @var{transpose} specifies whether the matrix should be
 transposed.
 The @var{v} argument must be a f32vector of size multiple of 4, 9, or
 16, respectively.
@@ -2389,9 +2389,9 @@ Returns informaton about the @var{index}-th uniform variable of
 
 Returns three values.  The first one is the size, either 1, 2, 3 or 4.
 The second value is the type, which is an integer that matches
-one of the following constants: @code{GL_FLOAT}, 
-@code{GL_FLOAT_VEC(1|2|3|4)_ARB}, @code{GL_INT}, 
-@code{GL_INT_VEC(1|2|3|4)_ARB}, @code{GL_BOOL}, 
+one of the following constants: @code{GL_FLOAT},
+@code{GL_FLOAT_VEC(1|2|3|4)_ARB}, @code{GL_INT},
+@code{GL_INT_VEC(1|2|3|4)_ARB}, @code{GL_BOOL},
 @code{GL_BOOL_VEC(1|2|3|4)_ARB}, @code{GL_FLOAT_MAT(2|3|4)_ARB}.
 And the third value is the name of the uniform variable.
 @end defun
@@ -2419,14 +2419,14 @@ Returns @code{#t} if an integer @var{prog-id} refers to a valid program.
 @defun gl-bind-program-arb target prog-id
 [GL_ARB_vertex_program]
 Binds a program specified by @var{prog-id} to a @var{target},
-which is either @code{GL_VERTEX_PROGRAM_ARB} or 
+which is either @code{GL_VERTEX_PROGRAM_ARB} or
 @var{GL_FRAGMENT_PROGRAM_ARB}.
 @end defun
 
 @defun gl-program-string-arb target format text
 [GL_ARB_vertex_program]
 Sets the source code of the program currently bound to the
-@var{target} (@code{GL_VERTEX_PROGRAM_ARB} or 
+@var{target} (@code{GL_VERTEX_PROGRAM_ARB} or
 @var{GL_FRAGMENT_PROGRAM_ARB}).
 
 @var{Format} must be @code{GL_PROGRAM_FORMAT_ASCII_ARB}.
@@ -3094,7 +3094,7 @@ otherwise.
 @defun glut-extension-supported name
 @end defun
 
-@defun glut-get-modifiers 
+@defun glut-get-modifiers
 @end defun
 
 @defvr {Constant} GLUT_ACTIVE_SHIFT
@@ -3159,7 +3159,7 @@ otherwise.
 @defunx glut-solid-torus inner outer sides rings
 @end defun
 
-@defun glut-wire-dodecahedron 
+@defun glut-wire-dodecahedron
 @defunx glut-solid-dodecahedron
 @end defun
 
@@ -3202,7 +3202,7 @@ class in @code{gauche.array} provides much more generic
 structures, trading performance.
 
 Elements of vectors and matrices are represented in @code{float}
-internally.   When you retrieve each element individually, 
+internally.   When you retrieve each element individually,
 it is converted to @code{double}, so you might see some precision
 errors.   There are lots of operations directly manipulate group of
 elements without retrieving each element to Scheme world, avoiding
@@ -3232,18 +3232,18 @@ but as far as OpenGL concerns, both are just an array of four floats,
 These classes inherit @code{<sequence>} and @code{<collection>}
 classes.  So if you import @code{gauche.sequence} module,
 you can use generic function such as @code{ref} and @code{(setter ref)}
-to get/set individual elements.  The generic version of 
+to get/set individual elements.  The generic version of
 @code{map} and @code{for-each} can also be used on the vector4f and
 point4f instances.
 
-Aside from the type, 
+Aside from the type,
 the only difference is that the default value of @var{w} component---
 it's 0.0 for vectors, and 1.0 for points.  So usual transformation
 produces expected results; for example point plus vector
 becomes point, vector plus vector becomes vector,
 and translating point changes its coordinates but
 translating vectors doesn't, and so on.
-However, you can set @var{w} component to other value to do 
+However, you can set @var{w} component to other value to do
 nontrivial operations.
 @end deftp
 
@@ -3388,7 +3388,7 @@ Returns a normalized vector of vector4f @var{x}.
 @code{Vector4f-normalize} allocates a new vector, while
 @code{vector4f-normalize!} modifies the original vector.
 
-As a special case, 
+As a special case,
 if @var{x} is a vector of length 0, a vector of length 0 is returned.
 @end defun
 
@@ -3408,7 +3408,7 @@ a translated point.  The destructive version modifies @var{x}.
 
 @defun point4f-sub x y
 Subtracts either a vector4f or a point4f @var{y} from
-a point4f @var{x}.  If @var{y} is a vector4f, returns 
+a point4f @var{x}.  If @var{y} is a vector4f, returns
 a translated point.  If @var{y} is a point4f, returns
 a vector4f from point @var{y} to point @var{x}.
 @end defun
@@ -3557,7 +3557,7 @@ stored in column-major order.
 calls without overhead).
 
 Inherits @code{<sequence>} and @code{<collection>}.
-When a matrix4f is treated as a sequence, it works as if it is 
+When a matrix4f is treated as a sequence, it works as if it is
 a single sequence of floats in column-major order.
 @end deftp
 
@@ -3731,7 +3731,7 @@ The destructive version updates @var{m}.
 If @code{@i{T}}, @code{@i{R}} and @code{@i{S}}, are
 the matrices that represent translation, rotation and scale, respectively,
 then these procedures effectively calculates
-a matrix @code{@i{TRS}}. 
+a matrix @code{@i{TRS}}.
 @end defun
 
 @defun tqs->matrix4f translation rotation-quat scale
@@ -3780,10 +3780,10 @@ A scale vector @var{s}, in vector4f.  The first three elements
 of @var{s} are fof x, y, and z scale factors.
 @end itemize
 
-If @var{m} is singular, certain part of rotation matrix can't 
+If @var{m} is singular, certain part of rotation matrix can't
 be recovered.   In such a case, @var{r} becomes also singular matrix.
 
-If the original matrix has negative scale factor in any of 
+If the original matrix has negative scale factor in any of
 x, y, or z scale, the decomposed scale factor will have all negative
 components.  The signs of elements of @var{r} are adjusted accordingly.
 
@@ -3846,7 +3846,7 @@ External representation of quaternion
 @defun make-quatf &optional axis (angle 0)
 Returns a new unit quaternion that represents a rotation
 around vector @var{axis} by @var{angle} radians.
-@var{Axis} can be a vector4f, a point4f or 
+@var{Axis} can be a vector4f, a point4f or
 a f32vector (only first three component is used).
 @var{Axis} must be a unit vector; if @var{axis} is anormalized,
 the result is undefined.
@@ -3887,7 +3887,7 @@ Copies contents of a quaternion @var{srcq} to a quaternion @var{dstq}.
 @defun rotation->quatf! quat axis angle
 Sets a quaternion @var{quat} so that it represents a rotation
 around a unit vector @var{axis} by angle @var{angle} radians.
-@var{Axis} can be a vector4f, a point4f or 
+@var{Axis} can be a vector4f, a point4f or
 a f32vector (only first three component is used).
 @end defun
 
@@ -3901,7 +3901,7 @@ The destructive version @code{vectors->quatf!} modifies @var{q}.
 @defun axes->quatf v1 v2 w1 w2
 @defunx axes->quatf! q v1 v2 w1 w2
 The arguments must be all unit vectors,
-@var{v1} and @var{v2} must be perpendicular, 
+@var{v1} and @var{v2} must be perpendicular,
 and also @var{w1} and @var{w2} must be perpendicular.
 
 Calculates and returns a quaternion that represents a rotation
@@ -4073,7 +4073,7 @@ override it.
 
 If you call @code{simple-viewer-run}, it enters the event
 loop and never returns.  If you wish to keep REPL and/or
-other parts of your application run concurrently, 
+other parts of your application run concurrently,
 the convenient way is to run @code{simple-viewer-run}
 in a separate thread.
 
@@ -4093,7 +4093,7 @@ Creates a new GL window with @var{name}, which must be a symbol
 to identify the window later in the simple viewer framework.
 The window won't be shown until @code{simple-viewer-run} is called.
 
-Each window 
+Each window
 @end defun
 
 
@@ -4105,7 +4105,7 @@ any time, even while the viewer thread is running.
 If no argument is given, returns the current display thunk.
 It can be @code{#f} if no display thunk is set.
 
-When the display thunk is called, the matrix mode is 
+When the display thunk is called, the matrix mode is
 @code{MODELVIEW} and the camera transformation is already applied.
 The grid and axes are also drawn, unless you've customized them.
 
@@ -4135,7 +4135,7 @@ it only if you want a different behavior.
 
 @defun simple-viewer-grid &optional grid-proc
 @defunx simple-viewer-axis &optional axis-proc
-Gets/sets a procedure to draw a grid and axes.  
+Gets/sets a procedure to draw a grid and axes.
 You can change these procedures
 any time, even while the viewer thread is running.
 
@@ -4148,7 +4148,7 @@ is already applied, and lighting is disabled.
 The default grid proc draws 10x10 grid
 on X-Z plane centered at the origin.  The default axis proc
 draws a red line from origin to +X, a green line from origin to +Y,
-and a blue line from origin to +Z.  
+and a blue line from origin to +Z.
 
 You can pass @code{#f} to disable grid and/or axis display.
 
@@ -4208,4 +4208,3 @@ For readability, the surrounding @code{<} and @code{>} are stripped off.
 @c Local variables:
 @c outline-regexp: "@chap\\|@unnu\\|@\\(sub\\)*section"
 @c end:
-

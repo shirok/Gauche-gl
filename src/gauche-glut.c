@@ -2,11 +2,11 @@
  * gauche-glut.c - Gauche GLUT binding
  *
  *   Copyright (c) 2001-2014  Shiro Kawai  <shiro@acm.org>
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions
  *   are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *
@@ -96,7 +96,7 @@ static ScmObj get_callback(int type)
             Scm_ApplyRec(cb, args);                                     \
         }                                                               \
     }
-    
+
 define_callback(display, DISPLAY, (void), SCM_NIL)
 
 
@@ -275,7 +275,7 @@ void Scm_GlutRegisterCallback(int type, ScmObj closure, int xtra1, int xtra2)
         int win = glutGetWindow();
         ScmObj entry = Scm_HashTableRef(SCM_HASH_TABLE(ScmGlutCallbackTable),
                                         SCM_MAKE_INT(win), SCM_FALSE);
-        
+
         if (SCM_EQ(entry, SCM_FALSE)) {
             entry = Scm_MakeVector(SCM_GLUT_NUM_WINDOW_CBS, SCM_FALSE);
             Scm_HashTableSet(SCM_HASH_TABLE(ScmGlutCallbackTable),
@@ -312,7 +312,7 @@ void Scm_Init_libgauche_glut(void)
 
     /* Callback table */
     ScmGlutCallbackTable = Scm_MakeHashTableSimple(SCM_HASH_EQV, 0);
-    
+
     /* Glut built-in fonts */
 #define DEFFONT(name) Scm_DefineConst(mod, SCM_SYMBOL(SCM_INTERN(#name)), makeGlutFont(name))
     /* Stroke font constants (use these in GLUT program). */

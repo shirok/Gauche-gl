@@ -2,11 +2,11 @@
  * gauche-glfw.c - Gauche GLFW binding
  *
  *   Copyright (c) 2020  Shiro Kawai  <shiro@acm.org>
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions
  *   are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *
@@ -89,14 +89,14 @@ ScmGlfwWindowData *Scm_GlfwGetWindowData(GLFWwindow *w)
     glfwSetWindowUserPointer(w, d);
     return d;
 }
-    
+
 
 /*================================================================
  * GLFWwindow
  */
 ScmClass *Scm_GlfwWindowClass;
 
-static void glfw_window_print(ScmObj obj, ScmPort *sink, 
+static void glfw_window_print(ScmObj obj, ScmPort *sink,
                               ScmWriteContext *m SCM_UNUSED)
 {
     if (Scm_ForeignPointerInvalidP(SCM_FOREIGN_POINTER(obj))) {
@@ -109,7 +109,7 @@ static void glfw_window_print(ScmObj obj, ScmPort *sink,
 static void glfw_window_cleanup(ScmObj obj)
 {
     if (Scm_ForeignPointerInvalidP(SCM_FOREIGN_POINTER(obj))) return;
-    
+
     GLFWwindow *w = SCM_GLFW_WINDOW(obj);
     if (w != NULL) {
         Scm_ForeignPointerInvalidate(SCM_FOREIGN_POINTER(obj));
@@ -152,10 +152,10 @@ void Scm_GlfwWindowDestroy(ScmObj window)
 
 ScmClass *Scm_GlfwMonitorClass;
 
-static void glfw_monitor_print(ScmObj obj, ScmPort *sink, 
+static void glfw_monitor_print(ScmObj obj, ScmPort *sink,
                                ScmWriteContext *m SCM_UNUSED)
 {
-    Scm_Printf(sink, "#<glfw-monitor %s>", 
+    Scm_Printf(sink, "#<glfw-monitor %s>",
                glfwGetMonitorName(SCM_GLFW_MONITOR(obj)));
 }
 
@@ -173,7 +173,7 @@ ScmClass *Scm_GlfwCursorClass;
 /* user created cursor is marked with 'user-created attribute. */
 static ScmObj sym_user_created;
 
-static void glfw_cursor_print(ScmObj obj, ScmPort *sink, 
+static void glfw_cursor_print(ScmObj obj, ScmPort *sink,
                               ScmWriteContext *m SCM_UNUSED)
 {
     if (Scm_ForeignPointerInvalidP(SCM_FOREIGN_POINTER(obj))) {
@@ -221,17 +221,17 @@ void Scm_Init_libgauche_glfw(void)
     SCM_INIT_EXTENSION(libgauche_glfw);
     mod = SCM_MODULE(SCM_FIND_MODULE("gl.glfw", TRUE));
 
-    Scm_GlfwWindowClass = 
+    Scm_GlfwWindowClass =
         Scm_MakeForeignPointerClass(mod, "<glfw-window>",
                                     glfw_window_print,
                                     glfw_window_cleanup,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
-    Scm_GlfwMonitorClass = 
+    Scm_GlfwMonitorClass =
         Scm_MakeForeignPointerClass(mod, "<glfw-monitor>",
                                     glfw_monitor_print,
                                     NULL,
                                     SCM_FOREIGN_POINTER_KEEP_IDENTITY);
-    Scm_GlfwCursorClass = 
+    Scm_GlfwCursorClass =
         Scm_MakeForeignPointerClass(mod, "<glfw-cursor>",
                                     glfw_cursor_print,
                                     NULL,
@@ -241,4 +241,3 @@ void Scm_Init_libgauche_glfw(void)
     init_wtab();
     Scm_Init_glfw_lib(mod);
 }
-

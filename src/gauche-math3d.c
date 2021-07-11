@@ -2,11 +2,11 @@
  * gauche-math3d.c - 3D vector and matrix arithmetics
  *
  *   Copyright (c) 2002-2014  Shiro Kawai  <shiro@acm.org>
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions
  *   are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *
@@ -56,7 +56,7 @@ static ScmClass *sequenceCPL[] = {
                   (len), (v));                                  \
       }                                                         \
     } while (0)
-    
+
 /*=============================================================
  * Vector4f
  */
@@ -759,17 +759,17 @@ void Scm_TRSToMatrix4fv(float *m, const float *t,
     m[1]  = s[0] * ((1.0-cosp)*vxy + v[2]*sinp);
     m[2]  = s[0] * ((1.0-cosp)*vzx - v[1]*sinp);
     m[3]  = 0.0;
-    
+
     m[4]  = s[1] * ((1.0-cosp)*vxy - v[2]*sinp);
     m[5]  = s[1] * (cosp + (1.0-cosp)*vyy);
     m[6]  = s[1] * ((1.0-cosp)*vyz + v[0]*sinp);
     m[7]  = 0.0;
-    
+
     m[8]  = s[2] * ((1.0-cosp)*vzx + v[1]*sinp);
     m[9]  = s[2] * ((1.0-cosp)*vyz - v[0]*sinp);
     m[10] = s[2] * (cosp + (1.0-cosp)*vzz);
     m[11] = 0.0;
-    
+
     m[12] = t[0];
     m[13] = t[1];
     m[14] = t[2];
@@ -788,17 +788,17 @@ void Scm_TQSToMatrix4fv(float *m, const float *t,
     m[1]  = s[0] * 2*(xy+zw);
     m[2]  = s[0] * 2*(zx-yw);
     m[3]  = 0.0;
-    
+
     m[4]  = s[1] * 2*(xy-zw);
     m[5]  = s[1] * (1-2*(z2+x2));
     m[6]  = s[1] * 2*(yz+xw);
     m[7]  = 0.0;
-    
+
     m[8]  = s[2] * 2*(zx+yw);
     m[9]  = s[2] * 2*(yz-xw);
     m[10] = s[2] * (1-2*(x2+y2));
     m[11] = 0.0;
-    
+
     m[12] = t[0];
     m[13] = t[1];
     m[14] = t[2];
@@ -932,7 +932,7 @@ void Scm_EulerToMatrix4fv(float m[], float x, float y, float z, int order)
  * function.
  *
  *  T = [tx, ty, tz, 0]
- *  S = [sx, sy, sz, 0] 
+ *  S = [sx, sy, sz, 0]
  *  H = [shear_yz, shear_zx, shear_xy, 0]
  *
  * Returns TRUE if m is non-singular, or FALSE if m is singular.
@@ -965,7 +965,7 @@ int Scm_Matrix4fDecomposev(const float m[], float T[], float R[],
     r[1][0] -= H[0]*r[0][0];
     r[1][1] -= H[0]*r[0][1];
     r[1][2] -= H[0]*r[0][2];
-    
+
     /* Scale Y */
     S[1] = SCM_VECTOR4F_NORMV(r[1]);
     if (S[1] != 0.0) {
@@ -984,7 +984,7 @@ int Scm_Matrix4fDecomposev(const float m[], float T[], float R[],
     r[2][0] -= H[2]*r[1][0];
     r[2][1] -= H[2]*r[1][1];
     r[2][2] -= H[2]*r[1][2];
-    
+
     /* Scale Z */
     S[2] = SCM_VECTOR4F_NORMV(r[2]);
     if (S[2] != 0.0) {
@@ -992,7 +992,7 @@ int Scm_Matrix4fDecomposev(const float m[], float T[], float R[],
         H[1] /= S[2];
         H[2] /= S[2];
     }
-    
+
     S[3] = H[3] = 0.0;
 
     /* Adjust if flipped */
@@ -1029,7 +1029,7 @@ float Scm_Matrix4fToRotationv(const float m[], float v[])
 {
     float q[4];
     float theta, sint;
-    
+
     Scm_Matrix4fToQuatfv(q, m);
     theta = atan2f(sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]), q[3]);
     sint = sinf(theta);
@@ -1258,7 +1258,7 @@ void Scm_QuatfSlerp(float r[], const float p[], const float q[], float t)
 {
     double cosphi = p[0]*q[0]+p[1]*q[1]+p[2]*q[2]+p[3]*q[3], phi, sinphi;
     float cp, cq;
-        
+
     phi = acos(cosphi);
     sinphi = sin(phi);
     if (sinphi < 1.0e-5 && sinphi > -1.0e-5) {

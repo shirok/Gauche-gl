@@ -1,3 +1,8 @@
+2021-07-10  Shiro Kawai  <shiro@acm.org>
+
+	* Use <double> or <float> instead of <real> as the stub types.
+	  See shirok/Gauche@f9df8c81649d0eda4af68ce93c1bbf541069bff2
+
 2020-12-20  Shiro Kawai  <shiro@acm.org>
 
 	* src/defcstruct.scm: An extension for gauche.cgen.stub to easily
@@ -295,8 +300,8 @@
 2005-06-30  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.4
-	
-	* src/gauche-gl.h, src/gauche-gl.c, configure.in: Make 
+
+	* src/gauche-gl.h, src/gauche-gl.c, configure.in: Make
 	  Scm_GLGetProcAddress work on MacOSX by using glutGetProcAddress
 	  (Patch provided by Issac Trotts.)
 
@@ -333,9 +338,9 @@
 	  rely on glext.h and generate various files from this file, since
 	  we cannot count on the client's glext.h which may likely be out of
 	  date and cause so much headache.
-	
+
 	* src/gen-syms.scm, src/gen-ptrs.scm : from glext-api.scm, these
-	  scripts generates gl-syms.h, gl-ptrs.h and gl-syms.c, which 
+	  scripts generates gl-syms.h, gl-ptrs.h and gl-syms.c, which
 	  define all GL extension enums and function pointers.
 
 	* src/gl-syms.stub : removed, for the info is now generated
@@ -368,7 +373,7 @@
 2005-06-01  Shiro Kawai  <shiro@acm.org>
 
 	* examples/slbook : added OpenGL shading language book examples.
-	
+
 	* src/gauche-gl.h : define GL_GLEXT_PROTOTYPES to include gl
 	  extension procedure declarations properly.  (In futuer, we should
 	  use function-pointer-finding way instead of relying on compile-time
@@ -430,7 +435,7 @@
 2003-10-04  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.3
-	
+
 	* configure.in, lib/gl.scm, lib/gl/glut.scm, lib/gl/math3d.scm,
 	  src/* : adapted to Cygwin - works with Cygwin 1.5.5/opengl 1.1.0-6.
 
@@ -483,7 +488,7 @@
 	* src/gauche-gl.c : add brackets around GLU object classes
 	  for consistency.
 	* src/Makefile.in : install math3d.h under gauche subdirectory.
-	
+
 2002-11-12  Shiro Kawai  <shiro@acm.org>
 
 	* INSTALL.esc : added note about compiling on FreeBSD (based on
@@ -536,7 +541,7 @@
 2002-09-22  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.1.6
-	
+
 	* src/gl-lib.stub : added gl-select-buffer and gl-feedback-buffer.
 	* examples/glbook/ : more examples are added.  added code to
 	  terminate the demo by ESC key to all the examples.  added 'run'
@@ -586,7 +591,7 @@
 
 	* src/gl-lib.stub : added gl-call-lists
 	* src/gauche-glut.c, src/glut-lib.stub : rewrote using define-enum
-	* examples/glbook/example7-[125].scm : added 
+	* examples/glbook/example7-[125].scm : added
 
 2002-08-16  Shiro Kawai  <shiro@acm.org>
 
@@ -642,12 +647,12 @@
 2001-11-21  Shiro Kawai  <shiro@acm.org>
 
 	* src/glu-lib.stub : added more Nurbs support fns.
-	
+
 2001-11-20  Shiro Kawai  <shiro@acm.org>
 
 	* src/gauche-gl.h, src/gauche-gl.c, src/glu-lib.stub : added
 	  GLU quadrics, nurbs and tesselators (partially).
-	
+
 2001-10-19  Shiro Kawai  <shiro@acm.org>
 
 	* examples/mandelbrot.scm : added texturing sample.
@@ -659,4 +664,3 @@
 2001-10-14  Shiro Kawai  <shiro@acm.org>
 
 	* release 0.1
-

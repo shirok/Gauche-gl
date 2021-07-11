@@ -81,13 +81,13 @@
 ;;   (let* ([desc::(const char*)]
 ;;          [code::int (glfwGetError (& desc))])
 ;;     (return int
-;;             (?: (== desc NULL) 
+;;             (?: (== desc NULL)
 ;;                 SCM_FALSE
 ;;                 (SCM_MAKE_STR_COPYING desc)))))
 
 ;; (define-cproc glfw-get-error/code () ::<int>
 ;;   (return (glfwGetError NULL)))
-  
+
 
 ;;;
 ;;; Global callbacks
@@ -109,7 +109,7 @@
          (,(string->symbol (format "Scm_ApplyRec~a" (length args)))
           cb ,@args)))])
  (define-cise-stmt set-global-cb
-   [(_ enum proc) 
+   [(_ enum proc)
     `(let* ([prev (aref global_cbs ,enum)])
        (set! (aref global_cbs ,enum) ,proc)
        (return prev))])
@@ -187,7 +187,7 @@
   (let* ([v::(const GLFWvidmode*) (glfwGetVideoMode m)])
     (return (Scm_Make_glfw_vidmode v))))
 
-(define-cproc glfw-set-gamma (m::<glfw-monitor> gamma::<real>)
+(define-cproc glfw-set-gamma (m::<glfw-monitor> gamma::<double>)
   (glfwSetGamma m (cast float gamma)))
 
 ;; glfwGetGammaRamp
@@ -271,26 +271,26 @@
     (glfwGetFramebufferSize w (& width) (& height))
     (return width height)))
 
-(define-cproc glfw-get-window-frame-size (w::<glfw-window>) 
+(define-cproc glfw-get-window-frame-size (w::<glfw-window>)
   ::(<int> <int> <int> <int>)
   (let* ([left::int][top::int][right::int][bottom::int])
     (glfwGetWindowFrameSize w (& left) (& top) (& right) (& bottom))
     (return left top right bottom)))
 
 ;; from 3.3
-;; (define-cproc glfw-get-window-content-scale (w::<glfw-window>) 
+;; (define-cproc glfw-get-window-content-scale (w::<glfw-window>)
 ;;   ::(<real> <real>)
 ;;   (let* ([xscale::float][yscale::float])
 ;;     (glfwGetWindowContentScale w (& xscale) (& yscale))
 ;;     (return xscale yscale)))
 
 ;; from 3.3
-;; (define-cproc glfw-get-window-opacity (w::<glfw-window>) ::<real>
+;; (define-cproc glfw-get-window-opacity (w::<glfw-window>) ::<double>
 ;;   glfwGetWindowOpacity)
 
 ;; from 3.3
-;; (define-cproc glfw-set-window-opaticy (w::<glfw-window> 
-;;                                        opacity::<real>)
+;; (define-cproc glfw-set-window-opaticy (w::<glfw-window>
+;;                                        opacity::<double>)
 ;;   ::<void>
 ;;   glfwSetWindowOpacity)
 
@@ -332,14 +332,14 @@
   glfwGetWindowAttrib)
 
 ;; from 3.3
-;; (define-cproc glfw-set-window-attrib (w::<glfw-window> 
+;; (define-cproc glfw-set-window-attrib (w::<glfw-window>
 ;;                                       attrib::<int> value::<int>)
 ;;   ::<void>
 ;;   glfwSetWindowAttrib)
 
 (define-cproc glfw-poll-events () ::<void> glfwPollEvents)
 (define-cproc glfw-wait-events () ::<void> glfwWaitEvents)
-(define-cproc glfw-wait-events-timeout (to::<real>) ::<void>
+(define-cproc glfw-wait-events-timeout (to::<double>) ::<void>
   glfwWaitEventsTimeout)
 (define-cproc glfw-post-empty-event () ::<void> glfwPostEmptyEvent)
 (define-cproc glfw-swap-buffers (w::<glfw-window>) ::<void> glfwSwapBuffers)
@@ -359,7 +359,7 @@
          (,(string->symbol (format "Scm_ApplyRec~a" (+ (length args) 1)))
           cb (Scm_MakeGlfwWindow ,w) ,@args)))])
  (define-cise-stmt set-window-cb
-   [(_ w enum proc) 
+   [(_ w enum proc)
     `(let* ([d::ScmGlfwWindowData* (Scm_GlfwGetWindowData ,w)]
             [prev (aref (-> d window_cbs) ,enum)])
        (set! (aref (-> d window_cbs) ,enum) ,proc)
@@ -388,7 +388,7 @@
    (call-window-cb w SCM_GLFW_REFRESH_CALLBACK))
  (define-cproc glfw-set-window-refresh-callback (w::<glfw-window> proc)
    (set-window-cb w SCM_GLFW_REFRESH_CALLBACK proc))
- 
+
  (define-cfn focus-cb (w::GLFWwindow* focused::int) ::void
    (call-window-cb w SCM_GLFW_FOCUS_CALLBACK
                    (SCM_MAKE_BOOL (!= focused GLFW_FALSE))))
@@ -400,7 +400,7 @@
                    (SCM_MAKE_BOOL (!= iconified GLFW_FALSE))))
  (define-cproc glfw-set-window-iconify-callback (w::<glfw-window> proc)
    (set-window-cb w SCM_GLFW_ICONIFY_CALLBACK proc))
- 
+
  (define-cfn framesize-cb (w::GLFWwindow* width::int height::int) ::void
    (call-window-cb w SCM_GLFW_FRAMESIZE_CALLBACK
                    (Scm_MakeInteger width)
@@ -498,7 +498,7 @@
 
 (define-cproc glfw-get-key (w::<glfw-window> key::<int>) ::<int>
   glfwGetKey)
-  
+
 (define-cproc glfw-get-mouse-button (w::<glfw-window> button::<int>) ::<int>
   glfwGetMouseButton)
 
@@ -507,7 +507,7 @@
     (glfwGetCursorPos w (& xpos) (& ypos))
     (return xpos ypos)))
 
-(define-cproc glfw-set-cursor-pos (w::<glfw-window> xpos::<real> ypos::<real>)
+(define-cproc glfw-set-cursor-pos (w::<glfw-window> xpos::<double> ypos::<double>)
   ::<void>
   glfwSetCursorPos)
 
@@ -574,17 +574,17 @@
 ;; glfwGetGamepadState - from 3.3
 
 (define-cproc glfw-set-clipboard-string (w::<glfw-window>?
-                                         s::<const-cstring>) 
+                                         s::<const-cstring>)
   ::<void>
   glfwSetClipboardString)
 
 (define-cproc glfw-get-clipboard-string (w::<glfw-window>?) ::<const-cstring>?
   glfwGetClipboardString)
 
-(define-cproc glfw-get-time () ::<real>
+(define-cproc glfw-get-time () ::<double>
   glfwGetTime)
 
-(define-cproc glfw-set-time (time::<real>) ::<void>
+(define-cproc glfw-set-time (time::<double>) ::<void>
   glfwSetTime)
 
 (define-cproc glfw-get-timer-value ()

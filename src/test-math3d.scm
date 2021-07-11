@@ -134,7 +134,7 @@
 
 (test* "matrix4f" #,(matrix4f 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5)
        (matrix4f 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5))
-(test* "matrix4f row" 
+(test* "matrix4f row"
        '(#,(vector4f 0 4 8 2)
          #,(vector4f 1 5 9 3)
          #,(vector4f 2 6 0 4)
@@ -149,7 +149,7 @@
          (set! (matrix4f-row m 1) (vector4f 1 5 9 3))
          (set! (matrix4f-row m 0) (vector4f 0 4 8 2))
          m))
-(test* "matrix4f column" 
+(test* "matrix4f column"
        '(#,(vector4f 0 1 2 3)
          #,(vector4f 4 5 6 7)
          #,(vector4f 8 9 0 1)
@@ -402,6 +402,14 @@
          (list (make-quatf rotv (* 150 pi/180))
                (let1 q (make-quatf)
                  (rotation->quatf! q rotv (* 150 pi/180)))))
+       (^[a b]
+         (let1 q=? (^[qa qb]
+                     (every (^i (approx=? (quatf-ref qa i)
+                                          (quatf-ref qb i)
+                                          1e-6))
+                            '(0 1 2 3)))
+           (and (q=? (car a) (car b))
+                (q=? (cadr a) (cadr b)))))
        )
 
 

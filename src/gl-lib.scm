@@ -281,18 +281,18 @@
 ;; Depth Buffer
 ;;
 
-(define-cproc gl-clear-depth (depth::<real>)::<void> glClearDepth)
+(define-cproc gl-clear-depth (depth::<double>)::<void> glClearDepth)
 (define-cproc gl-depth-func (func::<fixnum>)::<void> glDepthFunc)
 (define-cproc gl-depth-mask (flag::<boolean>)::<void> glDepthMask)
-(define-cproc gl-depth-range (nearv::<real> farv::<real>)::<void> glDepthRange)
+(define-cproc gl-depth-range (nearv::<double> farv::<double>)::<void> glDepthRange)
 
 ;;=============================================================
 ;; Accumulation Buffer
 ;;
 
-(define-cproc gl-clear-accum (r::<real> g::<real> b::<real> a::<real>)
+(define-cproc gl-clear-accum (r::<double> g::<double> b::<double> a::<double>)
   ::<void> glClearAccum)
-(define-cproc gl-accum (op::<fixnum> value::<real>) ::<void> glAccum)
+(define-cproc gl-accum (op::<fixnum> value::<double>) ::<void> glAccum)
 
 ;;=============================================================
 ;; Transformation
@@ -300,14 +300,14 @@
 
 (define-cproc gl-matrix-mode (mode::<fixnum>) ::<void> glMatrixMode)
 
-(define-cproc gl-ortho (left::<real> right::<real>
-                        bottom::<real> top::<real>
-                        nearv::<real> farv::<real>)
+(define-cproc gl-ortho (left::<double> right::<double>
+                        bottom::<double> top::<double>
+                        nearv::<double> farv::<double>)
   ::<void> glOrtho)
 
-(define-cproc gl-frustum (left::<real> right::<real>
-                          bottom::<real> top::<real>
-                          nearv::<real> farv::<real>)
+(define-cproc gl-frustum (left::<double> right::<double>
+                          bottom::<double> top::<double>
+                          nearv::<double> farv::<double>)
   ::<void> glFrustum)
 
 (define-cproc gl-viewport (x::<fixnum> y::<fixnum>
@@ -328,11 +328,11 @@
            ((m4f) (f32 16) (f64 16))
            "matrix4f, or f32vector or f64vector of length 16 is required, but got %S"))
 
-(define-cproc gl-rotate (angle::<real> x::<real> y::<real> z::<real>)
+(define-cproc gl-rotate (angle::<double> x::<double> y::<double> z::<double>)
   ::<void> glRotated)
-(define-cproc gl-scale (x::<real> y::<real> z::<real>)
+(define-cproc gl-scale (x::<double> y::<double> z::<double>)
   ::<void> glScaled)
-(define-cproc gl-translate (x::<real> y::<real> z::<real>)
+(define-cproc gl-translate (x::<double> y::<double> z::<double>)
   ::<void> glTranslated)
 
 ;;=============================================================
@@ -454,7 +454,7 @@
             (s8 3 4) (s16 3 4) (s32 3 4) (args 3 4))
            "bad argument for color: %S, must be an uniform vector of \
             length 3 or 4"))
-            
+
 
 (define-cproc gl-tex-coord (v &rest args) ::<void>
   (gl-case (v args) "glTexCoord~n~v"
@@ -629,7 +629,7 @@
 ;; indices can be uvector or #f (using VBO).
 ;; if it's an uvector, count and type is derived from the vector.
 ;; if it's #f, count and type must be given.
-(define-cproc gl-draw-elements (mode::<fixnum> 
+(define-cproc gl-draw-elements (mode::<fixnum>
                                 indices
                                 &optional (count::<fixnum> 0)
                                           (type::<fixnum> 0)
@@ -664,7 +664,7 @@
   (glInterleavedArrays format (* stride (sizeof GLfloat))
                        (SCM_F32VECTOR_ELEMENTS vec)))
 
-  
+
 ;;=============================================================
 ;; Lighting
 ;;
@@ -746,7 +746,7 @@
 ;; Raster functions
 ;;
 
-(define-cproc gl-pixel-zoom (xfactor::<real> yfactor::<real>)
+(define-cproc gl-pixel-zoom (xfactor::<double> yfactor::<double>)
   ::<void> glPixelZoom)
 
 (define-cproc gl-pixel-store (pname::<fixnum> param) ::<void>
@@ -773,7 +773,7 @@
            "map value vector must be u16, u32 or f32 vector, but got %S")
   (return values))
 
-;; allocate the vector in it.  type can be a class 
+;; allocate the vector in it.  type can be a class
 ;; <u32vector> (default), <u16vector> or <f32vector>
 (define-cproc gl-get-pixel-map (map::<fixnum> &optional type)
   (let* ([size::int])

@@ -82,7 +82,7 @@
 (.unless (or (>= GLUT_API_VERSION 4)
              (>= GLUT_XLIB_IMPLEMENTATION 9))
   (.define "glutInitDisplayString(x)")) ;ignore
-  
+
 (define-cproc glut-init-display-string (string::<const-cstring>)
   ::<void> glutInitDisplayString)
 
@@ -187,7 +187,7 @@
 (define-cproc glut-show-overlay () ::<void>
   (.when (>= GLUT_API_VERSION 3)
      (glutShowOverlay)))
-  
+
 (define-cproc glut-hide-overlay () ::<void>
   (.when (>= GLUT_API_VERSION 3)
      (glutHideOverlay)))
@@ -374,33 +374,33 @@
 ;; pre-built models
 ;;
 
-(define-cproc glut-wire-sphere (radius::<real> slices::<int> stacks::<int>)
+(define-cproc glut-wire-sphere (radius::<double> slices::<int> stacks::<int>)
   ::<void> glutWireSphere)
-(define-cproc glut-solid-sphere (radius::<real> slices::<int> stacks::<int>)
+(define-cproc glut-solid-sphere (radius::<double> slices::<int> stacks::<int>)
   ::<void> glutSolidSphere)
 
-(define-cproc glut-wire-cone (radius::<real> height::<real>
+(define-cproc glut-wire-cone (radius::<double> height::<double>
                               slices::<int> stacks::<int>)
   ::<void> glutWireCone)
-(define-cproc glut-solid-cone (radius::<real> height::<real>
+(define-cproc glut-solid-cone (radius::<double> height::<double>
                                slices::<int> stacks::<int>)
   ::<void> glutSolidCone)
 
-(define-cproc glut-wire-cube (size::<real>) ::<void> glutWireCube)
-(define-cproc glut-solid-cube (size::<real>) ::<void> glutSolidCube)
+(define-cproc glut-wire-cube (size::<double>) ::<void> glutWireCube)
+(define-cproc glut-solid-cube (size::<double>) ::<void> glutSolidCube)
 
-(define-cproc glut-wire-torus (inner::<real> outer::<real>
+(define-cproc glut-wire-torus (inner::<double> outer::<double>
                                sides::<int> rings::<int>)
   ::<void> glutWireTorus)
-(define-cproc glut-solid-torus (inner::<real> outer::<real>
+(define-cproc glut-solid-torus (inner::<double> outer::<double>
                                 sides::<int> rings::<int>)
   ::<void> glutSolidTorus)
 
 (define-cproc glut-wire-dodecahedron () ::<void> glutWireDodecahedron)
 (define-cproc glut-solid-dodecahedron () ::<void> glutSolidDodecahedron)
 
-(define-cproc glut-wire-teapot (size::<real>) ::<void> glutWireTeapot)
-(define-cproc glut-solid-teapot (size::<real>) ::<void> glutSolidTeapot)
+(define-cproc glut-wire-teapot (size::<double>) ::<void> glutWireTeapot)
+(define-cproc glut-solid-teapot (size::<double>) ::<void> glutSolidTeapot)
 
 (define-cproc glut-wire-octahedron () ::<void> glutWireOctahedron)
 (define-cproc glut-solid-octahedron () ::<void> glutSolidOctahedron)

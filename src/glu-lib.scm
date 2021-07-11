@@ -48,20 +48,20 @@
 ;; Miscellaneous
 ;;
 
-(define-cproc glu-look-at (eyex::<real> eyey::<real> eyez::<real>
-                           ctrx::<real> ctry::<real> ctrz::<real>
-                           upx::<real> upy::<real> upz::<real>)
+(define-cproc glu-look-at (eyex::<double> eyey::<double> eyez::<double>
+                           ctrx::<double> ctry::<double> ctrz::<double>
+                           upx::<double> upy::<double> upz::<double>)
   ::<void> gluLookAt)
 
-(define-cproc glu-ortho-2d (left::<real> right::<real>
-                            bottom::<real> top::<real>)
+(define-cproc glu-ortho-2d (left::<double> right::<double>
+                            bottom::<double> top::<double>)
   ::<void> gluOrtho2D)
 
-(define-cproc glu-perspective (fovy::<real> aspect::<real>
-                               znear::<real> zfar::<real>)
+(define-cproc glu-perspective (fovy::<double> aspect::<double>
+                               znear::<double> zfar::<double>)
   ::<void> gluPerspective)
 
-(define-cproc glu-pick-matrix (x::<real> y::<real> w::<real> h::<real> vp)
+(define-cproc glu-pick-matrix (x::<double> y::<double> w::<double> h::<double> vp)
   ::<void> (gl-case (vp) (gluPickMatrix x y w h ~X) ((s32 4))
                     "s32 vector of size 4 required for vp, but got %S"))
 
@@ -86,12 +86,12 @@
         (result (Scm_MakeFlonum dstx)(Scm_MakeFlonum dsty)(Scm_MakeFlonum dstz))
         (result '#f '#f '#f)))])
 
-(define-cproc glu-project (objx::<real> objy::<real> objz::<real>
+(define-cproc glu-project (objx::<double> objy::<double> objz::<double>
                            model-mat proj-mat vp)
   ::(<top> <top> <top>)
   (glu-xproject gluProject objx objy objz))
 
-(define-cproc glu-un-project (winx::<real> winy::<real> winz::<real>
+(define-cproc glu-un-project (winx::<double> winy::<double> winz::<double>
                               model-mat proj-mat vp)
   ::(<top> <top> <top>)
   (glu-xproject gluUnProject winx winy winz))
@@ -179,27 +179,27 @@
 ;;   information, so it is practially impossible to implement this in
 ;;   reasonable way.
 
-(define-cproc glu-cylinder (quad::<glu-quadric> base-radius::<real>
-                            top-radius::<real> height::<real>
+(define-cproc glu-cylinder (quad::<glu-quadric> base-radius::<double>
+                            top-radius::<double> height::<double>
                             slices::<fixnum> stacks::<fixnum>)
   ::<void>
   (gluCylinder (-> quad quadric) base_radius top_radius height slices stacks))
 
-(define-cproc glu-sphere (quad::<glu-quadric> radius::<real>
+(define-cproc glu-sphere (quad::<glu-quadric> radius::<double>
                           slices::<fixnum> stacks::<fixnum>)
   ::<void>
   (gluSphere (-> quad quadric) radius slices stacks))
 
 (define-cproc glu-disk (quad::<glu-quadric>
-                        inner-radius::<real> outer-radius::<real>
+                        inner-radius::<double> outer-radius::<double>
                         slices::<fixnum> loops::<fixnum>)
   ::<void>
   (gluDisk (-> quad quadric) inner_radius outer_radius slices loops))
 
 (define-cproc glu-partial-disk (quad::<glu-quadric>
-                                inner-radius::<real> outer-radius::<real>
+                                inner-radius::<double> outer-radius::<double>
                                 slices::<fixnum> loops::<fixnum>
-                                start-angle::<real> sweep-angle::<real>)
+                                start-angle::<double> sweep-angle::<double>)
   ::<void>
   (gluPartialDisk (-> quad quadric) inner_radius outer_radius slices loops
                   start_angle sweep_angle))
@@ -227,7 +227,7 @@
                            (cast GLint* (SCM_S32VECTOR_ELEMENTS viewport))))
 
 (define-cproc glu-nurbs-property (nurbs::<glu-nurbs>
-                                  property::<fixnum> value::<real>)
+                                  property::<fixnum> value::<double>)
   ::<void> (gluNurbsProperty (-> nurbs nurbs) property value))
 
 (define-cproc glu-get-nurbs-property (nurbs::<glu-nurbs> property::<fixnum>)
@@ -376,18 +376,18 @@
 ;; Constants
 ;;
 
-;; Normal vectors 
+;; Normal vectors
 (define-enum GLU_SMOOTH)
 (define-enum GLU_FLAT)
 (define-enum GLU_NONE)
 
-;; Quadric draw styles 
+;; Quadric draw styles
 (define-enum GLU_POINT)
 (define-enum GLU_LINE)
 (define-enum GLU_FILL)
 (define-enum GLU_SILHOUETTE)
 
-;; Quadric orientation 
+;; Quadric orientation
 (define-enum GLU_OUTSIDE)
 (define-enum GLU_INSIDE)
 
@@ -400,7 +400,7 @@
       (define-enum GLU_ERROR)
       (define-enum GLU_EDGE_FLAG)))
 
-;; Contour types 
+;; Contour types
 (if "!defined(__CYGWIN__)"
     (begin
       (define-enum GLU_CW)
@@ -409,7 +409,7 @@
       (define-enum GLU_EXTERIOR)
       (define-enum GLU_UNKNOWN)))
 
-;; Tesselation errors 
+;; Tesselation errors
 (define-enum GLU_TESS_ERROR1)
 (define-enum GLU_TESS_ERROR2)
 (define-enum GLU_TESS_ERROR3)
@@ -420,7 +420,7 @@
 (define-enum GLU_TESS_ERROR8)
 ;(define-enum GLU_TESS_ERROR9)
 
-;; NURBS 
+;; NURBS
 (define-enum GLU_AUTO_LOAD_MATRIX)
 (define-enum GLU_CULLING)
 (define-enum GLU_PARAMETRIC_TOLERANCE)
@@ -478,7 +478,7 @@
 (define-enum GLU_NURBS_ERROR36)
 (define-enum GLU_NURBS_ERROR37)
 
-;; Errors 
+;; Errors
 (define-enum GLU_INVALID_ENUM)
 (define-enum GLU_INVALID_VALUE)
 (define-enum GLU_OUT_OF_MEMORY)
@@ -486,7 +486,7 @@
     (define-enum GLU_INCOMPATIBLE_GL_VERSION)
     )
 
-;; New in GLU 1.1 
+;; New in GLU 1.1
 (define-enum GLU_VERSION)
 (define-enum GLU_EXTENSIONS)
 

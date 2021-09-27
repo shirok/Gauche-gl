@@ -676,7 +676,7 @@
 (define (scan)
   ;; table of typedefname (PFN*PROC) -> typedef line
   (define typedeftab (make-hash-table 'string=?))
-  
+
   (let loop ([x '()] ;; extensions name
              [c (reverse *gl-syms*)] ;; constants [(name . value)]
              [p '()]) ;; entry points [(name PFNNAMEPROC . typedef)]
@@ -741,7 +741,3 @@
 (define (main args)
   (call-with-values scan emit)
   0)
-
-    
-                
-           

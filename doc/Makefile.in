@@ -4,7 +4,7 @@ VPATH       = $(srcdir)
 top_builddir = @top_builddir@
 top_srcdir   = @top_srcdir@
 
-MANPAGES = 
+MANPAGES =
 EXTRACTED = gauche-gl-refe.texi gauche-gl-refj.texi
 GENERATED = Makefile $(MANPAGES)
 

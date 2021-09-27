@@ -57,7 +57,7 @@
   (if (memq (~ type'name) '(<real> <float>))
     #"Scm_MakeFlonum(~c-expr)"
     #"~(cgen-boxer-name type)(~c-expr)"))
-  
+
 
 ;; (define-cstruct scheme-name c-struct-name
 ;;   (<slot-spec> ...)
@@ -67,7 +67,7 @@
 ;;   in a Scheme Object.  The C struct is embedded in the Scheme object,
 ;;   and its memory and lifetime are goverened by Gauche GC.
 ;;   This isn't a form for a C struct that is allocated and owned by
-;;   the external library. 
+;;   the external library.
 ;;
 ;;   - The C struct is defined elsewhere (e.g. defined by the API).
 ;;     We call it c_struct_t here.
@@ -133,7 +133,7 @@
                                #f #f BoxerName)]
          [initializer (assq 'initializer opts)]
          [cclass (make <cclass>
-                   :scheme-name scm-name 
+                   :scheme-name scm-name
                    :c-type #"~|c-struct-name|*"
                    :c-name ClassName
                    :qualifiers '()
@@ -181,11 +181,11 @@
                                                slot-name rtype
                                                c-field c-length c-init)]
           [('.array etype)
-           (make-array-getter-setter cclass cclass-cname 
+           (make-array-getter-setter cclass cclass-cname
                                      slot-name etype #f
                                      c-field c-length c-init)]
           [('.array* etype)
-           (make-array-getter-setter cclass cclass-cname 
+           (make-array-getter-setter cclass cclass-cname
                                      slot-name etype #t
                                      c-field c-length c-init)]
           [_ (values type #t #t)])
@@ -217,7 +217,7 @@
                   init)]
       [else
        (errorf "Bad c-spec ~s for a slot ~s of ~s" c-spec slot-name
-               (~ cclass'scheme-name))]))    
+               (~ cclass'scheme-name))]))
   (define (grok-1 slots)
     (match slots
       [((? symbol? y) . rest)
@@ -240,7 +240,7 @@
                               c-length c-init)
                         rest)))]
            [_  (receive (slot-name type) (parse-symbol::type y)
-                 (values (list slot-name type (x->string slot-name) #f #f) 
+                 (values (list slot-name type (x->string slot-name) #f #f)
                          rest))]))]
       [_ (error <cgen-stub-error> "bad slot spec in define-cstruct:" slots)]))
   (let loop ([slots slots] [r '()])

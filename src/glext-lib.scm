@@ -34,7 +34,7 @@
 (select-module gl)
 
 (inline-stub
- 
+
 (declcode "#include \"gauche-gl.h\""
           "#include \"gl-syms.h\""
           "#include \"gl-ptrs.h\"")
@@ -247,7 +247,7 @@
     (ENSURE glGetMinmax)
     (glGetMinmax target reset format type (SCM_UVECTOR_ELEMENTS vec))
     (result vec)))
-   
+
 (define-cproc gl-get-minmax-parameter (target::<fixnum>
                                        pname::<fixnum>)
   (ENSURE glGetMinmaxParameteriv)
@@ -273,7 +273,7 @@
       (Scm_Error "given vector is too short (minimum %d elements): %S"
                  size data))
     (ENSURE glConvolutionFilter2D)
-    (glConvolutionFilter2D target internal_format width height 
+    (glConvolutionFilter2D target internal_format width height
                            format type (SCM_UVECTOR_ELEMENTS data))))
 
 (define-cproc gl-copy-convolution-filter-2d (target::<fixnum>
@@ -308,7 +308,7 @@
       (Scm_Error "given vector is too short (minimum %d elements): %S"
                  size data))
     (ENSURE glConvolutionFilter1D)
-    (glConvolutionFilter1D target internal_format width 
+    (glConvolutionFilter1D target internal_format width
                            format type (SCM_UVECTOR_ELEMENTS data))))
 
 (define-cproc gl-copy-convolution-filter-1d (target::<fixnum>
@@ -630,7 +630,7 @@
   ::<void>
   (let* ([count::int (/ (SCM_F32VECTOR_SIZE v) 4)])
     (ENSURE glUniformMatrix2fvARB)
-    (glUniformMatrix2fvARB location count transpose 
+    (glUniformMatrix2fvARB location count transpose
                            (SCM_F32VECTOR_ELEMENTS v))))
 
 (define-cproc gl-uniform-matrix3-arb (location::<int>
@@ -639,7 +639,7 @@
   ::<void>
   (let* ([count::int (/ (SCM_F32VECTOR_SIZE v) 9)])
     (ENSURE glUniformMatrix3fvARB)
-    (glUniformMatrix3fvARB location count transpose 
+    (glUniformMatrix3fvARB location count transpose
                            (SCM_F32VECTOR_ELEMENTS v))))
 
 (define-cproc gl-uniform-matrix4-arb (location::<int>
@@ -648,7 +648,7 @@
   ::<void>
   (let* ([count::int (/ (SCM_F32VECTOR_SIZE v) 16)])
     (ENSURE glUniformMatrix4fvARB)
-    (glUniformMatrix4fvARB location count transpose 
+    (glUniformMatrix4fvARB location count transpose
                            (SCM_F32VECTOR_ELEMENTS v))))
 
 (define-cproc gl-get-object-parameter-arb (object::<gl-handle>
@@ -846,17 +846,17 @@
 
 ;; NB: We need size argument, for data can be #f (NULL).   You can pass
 ;; 0 to size to make gl-buffer-data calculate one from data.
-(define-cproc gl-buffer-data (target::<fixnum> 
+(define-cproc gl-buffer-data (target::<fixnum>
                               size::<ulong>
                               data
                               usage::<fixnum>)
   ::<void>
   (let* ([p::GLvoid* NULL]
          [isize::GLsizeiptr 0])
-    (cond [(SCM_UVECTORP data) 
+    (cond [(SCM_UVECTORP data)
            (set! p (SCM_UVECTOR_ELEMENTS data))
            (set! isize (Scm_UVectorSizeInBytes (SCM_UVECTOR data)))]
-          [(SCM_POINT4F_ARRAY_P data) 
+          [(SCM_POINT4F_ARRAY_P data)
            (set! p (SCM_POINT4F_ARRAY_D data))
            (set! isize (* (-> (SCM_POINT4F_ARRAY data) size)
                           (sizeof (float))
@@ -893,7 +893,7 @@
   (ENSURE glUnmapBuffer)
   (result (glUnmapBuffer target)))
 
-(define-cproc gl-map-buffer-range (target::<fixnum> 
+(define-cproc gl-map-buffer-range (target::<fixnum>
                                    offset::<fixnum>
                                    length::<ulong>
                                    access::<ulong>)
@@ -1012,7 +1012,7 @@
     (result (SCM_OBJ v))))
 
 ; target should be GL_FRAGMENT_PROGRAM_ARB or GL_VERTEX_PROGRAM_ARB
-(define-cproc gl-program-env-parameter-arb 
+(define-cproc gl-program-env-parameter-arb
   (target::<int> param-id::<int> arg0 &rest args) ::<void>
   (gl-case (arg0 args)
            (begin
@@ -1603,7 +1603,7 @@
   (ENSURE glDeleteFramebuffersEXT)
   (glDeleteFramebuffersEXT (SCM_U32VECTOR_SIZE fbs)
                            (cast GLuint* (SCM_U32VECTOR_ELEMENTS fbs))))
-       
+
 (define-cproc gl-gen-framebuffers-ext (size::<int>)
   (ENSURE glGenFramebuffersEXT)
   (when (<= size 0)
@@ -1624,7 +1624,7 @@
   ::<void>
   (ENSURE glFramebufferTexture1DEXT)
   (glFramebufferTexture1DEXT target attachment textarget texture level))
-  
+
 (define-cproc gl-framebuffer-texture-2d-ext (target::<int>
                                              attachment::<int>
                                              textarget::<int>
@@ -1633,7 +1633,7 @@
   ::<void>
   (ENSURE glFramebufferTexture2DEXT)
   (glFramebufferTexture2DEXT target attachment textarget texture level))
-  
+
 (define-cproc gl-framebuffer-texture-3d-ext (target::<int>
                                              attachment::<int>
                                              textarget::<int>
@@ -1644,7 +1644,7 @@
   (ENSURE glFramebufferTexture3DEXT)
   (glFramebufferTexture3DEXT target attachment textarget texture
                              level zoffset))
-  
+
 (define-cproc gl-framebuffer-renderbuffer-ext (target::<int>
                                                attachment::<int>
                                                renderbuffertarget::<int>

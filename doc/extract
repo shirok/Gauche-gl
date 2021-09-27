@@ -147,7 +147,7 @@
 
     (when (eq? *lang* 'jp)
       (with-input-from-file (car a) scan-nodes :encoding 'utf-8))
-    
+
     (with-input-from-file (car a)
       (lambda ()
         (if *outfile*

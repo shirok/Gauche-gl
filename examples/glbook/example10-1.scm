@@ -24,7 +24,7 @@
     (gl-material GL_FRONT GL_SPECULAR blue-specular)
     (gl-material GL_FRONT GL_SHININESS 45.0)
     (gl-end-list)
-    
+
     (gl-light GL_LIGHT0 GL_POSITION position-one)
 
     (gl-enable GL_LIGHT0)
@@ -101,6 +101,3 @@
   (glut-keyboard-func keyboard-proc)
   (glut-main-loop)
   0)
-
-                      
-

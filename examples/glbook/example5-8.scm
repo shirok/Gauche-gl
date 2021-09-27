@@ -118,7 +118,7 @@
   (gl-material GL_FRONT GL_EMISSION '#f32(0.0 0.0 0.0 1.0))
   (glut-solid-sphere 1.0 16 16)
   (gl-pop-matrix)
-  
+
   ;; colored ambient, diffuse and specular, low shininess
   (gl-push-matrix)
   (gl-translate -1.25 -3.0 0.0)

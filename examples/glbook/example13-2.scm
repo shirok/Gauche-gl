@@ -17,7 +17,7 @@
   (define (line x y)
     (gl-vertex x y (- z1))
     (gl-vertex x y (- z2)))
-  
+
   (gl-color 1.0 1.0 1.0)
   (gl-begin* GL_LINE_LOOP (line-loop (- z1)))
   (gl-begin* GL_LINE_LOOP (line-loop (- z2)))
@@ -109,4 +109,3 @@
   (glut-keyboard-func keyboard)
   (glut-main-loop)
   0)
-

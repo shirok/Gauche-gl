@@ -1,4 +1,3 @@
-
 struct appdata
 {
     float4 position : POSITION;
@@ -26,4 +25,3 @@ vfconn main(appdata IN,
 
     return OUT;
 } // main
-

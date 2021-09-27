@@ -1,8 +1,8 @@
 ;;;
 ;;; ogl2brick - OpenGL shading language demo
 ;;;
-;;; This is a pretty straightforward port of the C code provided 
-;;; by 3DLabs Inc under the BSD-license.  The original copyright 
+;;; This is a pretty straightforward port of the C code provided
+;;; by 3DLabs Inc under the BSD-license.  The original copyright
 ;;; notice follows.
 ;;;
 #|
@@ -124,7 +124,7 @@
   (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
 
   ((car *models*))
-  
+
   (gl-flush)
   (glut-swap-buffers)
   )
@@ -204,7 +204,7 @@
     (set! *xlastincr* 0)
     (set! *ylastincr* 0))
   )
-        
+
 (define (motion-proc x y)
   (unless (and (= *xlast* -1) (= *ylast* -1))
     (set! *xlastincr* (- x *xlast*))
@@ -227,7 +227,7 @@
     (gl-load-identity)
 
     (gl-frustum (- vp) vp (/ (- vp) aspect) (/ vp aspect) 3 10.0)
-    
+
     (gl-matrix-mode GL_MODELVIEW)
     (gl-load-identity)
     (gl-translate 0.0 0.0 -5.0)))
@@ -385,7 +385,7 @@
                                      'GL_ARB_vertex_shader
                                      'GL_ARB_shading_language_100)
       (error "OpenGL Shading Language extensions not available"))
-    
+
     (glut-idle-func play-proc)
     (glut-display-func display-proc)
     (glut-keyboard-func key-proc)

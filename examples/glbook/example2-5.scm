@@ -27,7 +27,7 @@
   (draw-one-line 150.0 125.0 250.0 125.0)
   (gl-line-stipple 1 #x1c47)            ;dash/dot/dash
   (draw-one-line 250.0 125.0 350.0 125.0)
-  
+
   (gl-line-width 5.0)
   (gl-line-stipple 1 #x0101)            ;dotted
   (draw-one-line 50.0 100.0 150.0 100.0)
@@ -78,8 +78,3 @@
   (glut-keyboard-func keyboard)
   (glut-main-loop)
   0)
-
-  
-    
-
-  

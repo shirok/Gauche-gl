@@ -40,7 +40,7 @@
     (gl-material GL_FRONT GL_SHININESS 50.0)
     (gl-light GL_LIGHT0 GL_POSITION light-position)
     (gl-light-model GL_LIGHT_MODEL_AMBIENT lm-ambient)
-    
+
     (gl-enable GL_LIGHT0)
     (gl-enable GL_LIGHTING)
     (gl-enable GL_DEPTH_TEST)
@@ -133,6 +133,3 @@
   (glut-keyboard-func keyboard-proc)
   (glut-main-loop)
   0)
-
-                      
-

@@ -1,38 +1,37 @@
-
 ; Basic example of the use of the Cg runtime in a simple OpenGL program.
-; 
+;
 ; This demo originated from examples/runtime_ogl_vertex_fragment/ in the Cg
 ; distribution.  It was ported to Gauche by Issac Trotts in 2005.
 ;
-; The port involved some changes.  
+; The port involved some changes.
 ; The function cgSetErrorCallback is
 ; not explicitly called, since the Gauche Cg binding automatically
 ; sets things up to generate an informative exception whenever a Cg
-; error occurs.  
+; error occurs.
 ; The vertex program and fragment program are
 ; kept in this file as strings rather than in separate files.
 ; Scheme's nice handling of multiline literal strings makes this a
-; reasonable thing to do, though it does seem to play havoc on 
+; reasonable thing to do, though it does seem to play havoc on
 ; syntax highlighting in emacs and Vim.
 ; The computation of the checkerboard was made more efficient to avoid a long
-; wait at startup.  
+; wait at startup.
 ; A display list was added to minimize the amount of traffic on the bus, in the hope
 ; that the occasional slow-downs would go away.  This didn't really work as well
-; as I had hoped.  The C version doesn't seem to have this problem, at least not 
+; as I had hoped.  The C version doesn't seem to have this problem, at least not
 ; as bad, so I guess it has something to do with garbage collection turning on from
 ; time to time.
-; 
+;
 ; -ijt
 
 ; Here is the original copyright notice:
-; 
+;
 ; Copyright NVIDIA Corporation 2002
 ; TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW THIS SOFTWARE IS PROVIDED
 ; *AS IS* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES EITHER EXPRESS
 ; OR IMPLIED INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY
 ; AND FITNESS FOR A PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS
 ; BE LIABLE FOR ANY SPECIAL INCIDENTAL INDIRECT OR CONSEQUENTIAL DAMAGES
-; WHATSOEVER (INCLUDING WITHOUT LIMITATION DAMAGES FOR LOSS OF BUSINESS PROFITS 
+; WHATSOEVER (INCLUDING WITHOUT LIMITATION DAMAGES FOR LOSS OF BUSINESS PROFITS
 ; BUSINESS INTERRUPTION LOSS OF BUSINESS INFORMATION OR ANY OTHER PECUNIARY LOSS)
 ; ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE EVEN IF NVIDIA HAS
 ; BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
@@ -46,7 +45,7 @@
 (use gauche.uvector)
 (use gauche.array)
 
-(define *context* #f) 
+(define *context* #f)
 
 ;; Choose the vertex and fragment profiles to use.  Try to use
 ;; CG_PROFILE_ARBVFP1 and CG_PROFILE_ARBFP1 depending on hardware support.
@@ -139,11 +138,11 @@ half4 main(float3 Peye         : TEXCOORD0,
          (diffuse(lighting) * Kd * tmp3 +
          specular(lighting) * Ks);
 
-    // Here is a way to do ad-hoc antialiasing by turning on alpha-blending 
+    // Here is a way to do ad-hoc antialiasing by turning on alpha-blending
     // wherever the normal is roughly perpendicular to the viewing vector.
     // -ijt
-    // half epsz = 0.2; 
-    // return half4(C, abs(N.z)<=epsz?0.2:1.0);  
+    // half epsz = 0.2;
+    // return half4(C, abs(N.z)<=epsz?0.2:1.0);
 
     return half4(C, 1);     // Set the alpha value to 1.
 }
@@ -206,17 +205,17 @@ half4 main(float3 Peye         : TEXCOORD0,
       (cg-gl-bind-program *fragment-program*)
 
       ;; Bind uniform parameters to vertex shader
-      (cg-gl-set-state-matrix-parameter 
-        (cg-get-named-parameter *vertex-program* "ModelViewProj") 
-        CG_GL_MODELVIEW_PROJECTION_MATRIX 
+      (cg-gl-set-state-matrix-parameter
+        (cg-get-named-parameter *vertex-program* "ModelViewProj")
+        CG_GL_MODELVIEW_PROJECTION_MATRIX
         CG_GL_MATRIX_IDENTITY)
-      (cg-gl-set-state-matrix-parameter 
-        (cg-get-named-parameter *vertex-program* "ModelView") 
-        CG_GL_MODELVIEW_MATRIX 
+      (cg-gl-set-state-matrix-parameter
+        (cg-get-named-parameter *vertex-program* "ModelView")
+        CG_GL_MODELVIEW_MATRIX
         CG_GL_MATRIX_IDENTITY)
-      (cg-gl-set-state-matrix-parameter 
-        (cg-get-named-parameter *vertex-program* "ModelViewIT") 
-        CG_GL_MODELVIEW_MATRIX 
+      (cg-gl-set-state-matrix-parameter
+        (cg-get-named-parameter *vertex-program* "ModelViewIT")
+        CG_GL_MODELVIEW_MATRIX
         CG_GL_MATRIX_INVERSE_TRANSPOSE)
 
       ;; We can also go ahead and bind varying parameters to vertex shader
@@ -224,31 +223,31 @@ half4 main(float3 Peye         : TEXCOORD0,
       ;; vertex shader could be modified so that these were uniform for
       ;; better efficiency but this gives us flexibility for the future.
       (cg-gl-set-parameter
-        (cg-get-named-parameter *vertex-program* "diffuse") 
+        (cg-get-named-parameter *vertex-program* "diffuse")
         '#f32(.7 .2 .2))
-      (cg-gl-set-parameter 
-        (cg-get-named-parameter *vertex-program* "specular") 
+      (cg-gl-set-parameter
+        (cg-get-named-parameter *vertex-program* "specular")
         '#f32(.9 .9 .9))
 
       ;; Now bind uniform parameters to fragment shader
-      (cg-gl-set-parameter 
-        (cg-get-named-parameter *fragment-program* "Plight") 
+      (cg-gl-set-parameter
+        (cg-get-named-parameter *fragment-program* "Plight")
         #,(vector4f 3 2 -3 1))
-      (cg-gl-set-parameter 
-        (cg-get-named-parameter *fragment-program* "lightColor") 
+      (cg-gl-set-parameter
+        (cg-get-named-parameter *fragment-program* "lightColor")
         '#f32(1 1 1))
-      (cg-gl-set-parameter (cg-get-named-parameter *fragment-program* "shininess") 
+      (cg-gl-set-parameter (cg-get-named-parameter *fragment-program* "shininess")
                            40)
 
       ;; And finally enable the approprate texture for fragment shader; the
       ;; texture was originally set up in load-textures).
-      (cg-gl-enable-texture-parameter 
+      (cg-gl-enable-texture-parameter
         (cg-get-named-parameter *fragment-program* "diffuseMap"))
 
       ;; And go ahead and draw the scene geometry
       (draw-geometry)
       ;; Disable the texture now that we're done with it.
-      (cg-gl-disable-texture-parameter 
+      (cg-gl-disable-texture-parameter
         (cg-get-named-parameter *fragment-program* "diffuseMap"))
 
       (glut-swap-buffers)
@@ -284,13 +283,13 @@ half4 main(float3 Peye         : TEXCOORD0,
             (array-set! data i j 0.7)
             )))
 
-      (gl-tex-image-2d GL_TEXTURE_2D 0 GL_LUMINANCE res res 0 GL_LUMINANCE GL_FLOAT 
+      (gl-tex-image-2d GL_TEXTURE_2D 0 GL_LUMINANCE res res 0 GL_LUMINANCE GL_FLOAT
                        (array->f32vector data))
 
       ;; Tell Cg which texture handle should be associated with the sampler2D
       ;; parameter to the fragment shader.
-      (cg-gl-set-texture-parameter 
-       (cg-get-named-parameter *fragment-program* "diffuseMap") 
+      (cg-gl-set-texture-parameter
+       (cg-get-named-parameter *fragment-program* "diffuseMap")
        handle)
       )))
 
@@ -361,7 +360,7 @@ half4 main(float3 Peye         : TEXCOORD0,
       ;; gets the right input information.
       (if first-time
           (begin
-            (cg-gl-set-parameter-pointer 
+            (cg-gl-set-parameter-pointer
              (cg-get-named-parameter *vertex-program* "Pobject")
              3 GL_FLOAT 0 P)
 
@@ -372,15 +371,15 @@ half4 main(float3 Peye         : TEXCOORD0,
             (cg-gl-set-parameter-pointer
              (cg-get-named-parameter *vertex-program* "TexUV")
              2 GL_FLOAT 0 uvs)
-            
+
             ;; In an earlier version of the ported demo, I was passing
             ;; in (array->f32vector uvs) since uvs was an array.
-            ;; This produced undesired results because the temporary f32vector 
-            ;; was then garbage collected after a few seconds.  
-            
+            ;; This produced undesired results because the temporary f32vector
+            ;; was then garbage collected after a few seconds.
+
             (set! first-time #f)))
 
-      (let ((names (list "Pobject" "Nobject" "TexUV")))  
+      (let ((names (list "Pobject" "Nobject" "TexUV")))
         ;; Enable the bindings to the parameters
         (for-each
          (lambda (name)
@@ -393,9 +392,9 @@ half4 main(float3 Peye         : TEXCOORD0,
          (cg-get-named-parameter *fragment-program* "diffuseMap"))
 
         ;; And now draw the geometry.
-        (cond 
+        (cond
          (display-list (gl-call-list display-list))
-         (else 
+         (else
           (set! display-list (gl-gen-lists 1))
           (gl-new-list display-list GL_COMPILE_AND_EXECUTE)
           (gl-draw-elements GL_TRIANGLES indices)
@@ -403,22 +402,22 @@ half4 main(float3 Peye         : TEXCOORD0,
           ))
 
         ;; Be a good citizen and disable the various bindings we set up above.
-        (for-each 
+        (for-each
          (lambda (name)
            (cg-gl-disable-client-state
             (cg-get-named-parameter *vertex-program* name)))
          names)
 
-        (cg-gl-disable-texture-parameter 
+        (cg-gl-disable-texture-parameter
          (cg-get-named-parameter *fragment-program* "diffuseMap"))
         ))))
 
 (define (keyboard key x y)
-  (let ((ikey (if (char? key) 
-               (char->integer key) 
+  (let ((ikey (if (char? key)
+               (char->integer key)
                key)))
     (case key
-      (('q' 'Q' #\escape) 
+      (('q' 'Q' #\escape)
        (cg-destroy-context *context*)
        (exit 0)))))
 
@@ -428,7 +427,7 @@ half4 main(float3 Peye         : TEXCOORD0,
     (cond
      ((cg-gl-is-profile-supported CG_PROFILE_ARBVP1) CG_PROFILE_ARBVP1)
      ((cg-gl-is-profile-supported CG_PROFILE_VP30) CG_PROFILE_VP30)
-     (else 
+     (else
       (error "Neither arbvp1 or vp30 vertex profiles supported on this system."))))
   (set! *fragment-profile*
     (cond
@@ -436,10 +435,10 @@ half4 main(float3 Peye         : TEXCOORD0,
      ((cg-gl-is-profile-supported CG_PROFILE_FP30) CG_PROFILE_FP30)
      (else
       (error "Neither arbfp1 nor fp30 fragment profiles supported"))))
-  (set! *vertex-program* (cg-create-program *context* 
+  (set! *vertex-program* (cg-create-program *context*
                                             CG_SOURCE *vertex-program-string*
                                             *vertex-profile* "main" '() ))
-  (set! *fragment-program* (cg-create-program *context* CG_SOURCE 
+  (set! *fragment-program* (cg-create-program *context* CG_SOURCE
                                               *fragment-program-string*
                                               *fragment-profile* "main" '() ))
   (cg-compile-program *vertex-program*)
@@ -449,4 +448,3 @@ half4 main(float3 Peye         : TEXCOORD0,
   (cg-gl-load-program   *vertex-program*)
   (cg-gl-load-program   *fragment-program*)
   )
-

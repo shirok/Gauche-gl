@@ -33,7 +33,7 @@
   (gl-polygon-mode GL_FRONT_AND_BACK GL_LINE)
   (gl-call-list *list*)
   (gl-polygon-mode GL_FRONT_AND_BACK GL_FILL)
-  
+
   (gl-pop-matrix)
   (gl-flush)
   )

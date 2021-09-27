@@ -89,13 +89,13 @@
   (unless (file-exists? *image-file*)
     (print "Couldn't find image file: " *image-file*)
     (exit 0))
-  
+
   (match-let1 (width height depth image)
       (read-sgi-image *image-file*)
     (set! *width* width)
     (set! *height* height)
     (set! *image* image)
-    
+
     (glut-init-window-size width height)
     (glut-init-window-position 100 100)
     (glut-create-window (car args))

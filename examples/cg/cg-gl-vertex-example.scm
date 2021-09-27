@@ -44,11 +44,11 @@
       5 6 2 1
       7 4 0 3))
 
-(define *cube-vertices* 
+(define *cube-vertices*
   (let* ((v (list-tabulate 8 (lambda (i) (vector4f 0 0 0))))
-         (multiset (lambda (indices val) 
-                     (for-each (lambda (ij) (set! (ref (list-ref v (car ij)) 
-                                                       (cadr ij)) 
+         (multiset (lambda (indices val)
+                     (for-each (lambda (ij) (set! (ref (list-ref v (car ij))
+                                                       (cadr ij))
                                               val))
                                indices))))
     (multiset '((0 0) (1 0) (2 0) (3 0)) -1)
@@ -70,10 +70,10 @@
   ;
   (if *kd-param*
     (cg-gl-set-parameter *kd-param* 1.0 1.0 0.0 1.0))
-    
-  ;; Set the concatenated modelview and projection matrices 
+
+  ;; Set the concatenated modelview and projection matrices
   (if *model-view-proj-param*
-    (cg-gl-set-state-matrix-parameter *model-view-proj-param* 
+    (cg-gl-set-state-matrix-parameter *model-view-proj-param*
                                       CG_GL_MODELVIEW_PROJECTION_MATRIX
                                       CG_GL_MATRIX_IDENTITY))
 
@@ -81,7 +81,7 @@
   (cg-gl-enable-profile *profile*)
 
   ;
-  ;; Create cube with per-vertex varying attributes 
+  ;; Create cube with per-vertex varying attributes
   ;
   (dotimes (i 6)
     (gl-begin GL_QUADS)
@@ -98,7 +98,7 @@
 
     (cg-gl-set-parameter *test-color-param* 1.0 1.0 1.0)
     (gl-vertex (list-ref *cube-vertices* (array-ref *cube-faces* i 3)))
-    
+
     (gl-end)
     )
 
@@ -117,28 +117,28 @@
   (glut-create-window *program-name*)
   (glut-display-func display)
 
-  ;; Enable a single Open-gL light. 
+  ;; Enable a single Open-gL light.
   (gl-light GL_LIGHT0  GL_DIFFUSE  *light-diffuse*)
   (gl-light GL_LIGHT0  GL_POSITION  *light-position*)
   (gl-enable GL_LIGHT0)
   (gl-enable GL_LIGHTING)
 
-  ;; Use depth buffering for hidden surface elimination. 
+  ;; Use depth buffering for hidden surface elimination.
   (gl-enable GL_DEPTH_TEST)
 
-  ;; Setup the view of the cube. 
+  ;; Setup the view of the cube.
   (gl-matrix-mode GL_PROJECTION)
-  (glu-perspective 40.0 ; field of view in degree 
-    1.0 ; aspect ratio 
+  (glu-perspective 40.0 ; field of view in degree
+    1.0 ; aspect ratio
     1.0 ; Z near
     10.0 ; zfar
     )
   (gl-matrix-mode GL_MODELVIEW)
-  (glu-look-at 0.0 0.0 5.0 ; eye is at (0 0 5) 
-               0.0 0.0 0.0 ; center is at (0 0 0) 
-               0.0 1.0 0.0) ; up is in positive Y direction 
+  (glu-look-at 0.0 0.0 5.0 ; eye is at (0 0 5)
+               0.0 0.0 0.0 ; center is at (0 0 0)
+               0.0 1.0 0.0) ; up is in positive Y direction
 
-  ;; Adjust cube position to be asthetic angle. 
+  ;; Adjust cube position to be asthetic angle.
   (gl-translate 0.0 0.0 -1.0)
   (gl-rotate 60 1.0 0.0 0.0)
   (gl-rotate -20 0.0 0.0 1.0)
@@ -155,12 +155,12 @@
         (format #t "Video card does not support vertex programs exiting...\n")
         (exit -1))))
 
-  ;; Test cg-context creation 
+  ;; Test cg-context creation
   (set! *context* (cg-create-context))
 
-  ;; Test adding source text to context 
+  ;; Test adding source text to context
   (set! *program*
-    (cg-create-program-from-file *context* CG_SOURCE "cg-gl-vertex-example.cg" 
+    (cg-create-program-from-file *context* CG_SOURCE "cg-gl-vertex-example.cg"
                                  *profile* "main" #f))
 
   (print "---- PROGRAM BEGIN ----")
@@ -180,7 +180,7 @@
       (set! *test-color-param* (cg-get-named-parameter *program* "IN.TestColor"))
       )
     (begin
-      (format #t "Invalid GPU program\n") 
+      (format #t "Invalid GPU program\n")
       (flush)
       (exit 1)))
 
@@ -190,4 +190,3 @@
   ; (cg-destroy-context *context*)
 
   0)
-

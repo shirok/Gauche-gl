@@ -39,14 +39,14 @@
   (gl-light GL_LIGHT0 GL_POSITION '#f32(0.0 3.0 3.0 0.0))
   (gl-light-model GL_LIGHT_MODEL_AMBIENT '#f32(0.2 0.2 0.2 1.0))
   (gl-light-model GL_LIGHT_MODEL_LOCAL_VIEWER '#f32(0.0))
-  
+
   (gl-front-face GL_CW)
   (gl-enable GL_LIGHTING)
   (gl-enable GL_LIGHT0)
   (gl-enable GL_AUTO_NORMAL)
   (gl-enable GL_NORMALIZE)
   (gl-enable GL_DEPTH_TEST)
-  
+
   (gl-clear-color 0.0 0.0 0.0 0.0)
   (gl-clear-accum 0.0 0.0 0.0 0.0)
 
@@ -89,20 +89,20 @@
                        (* 0.33 (car (ref J8 jitter)))
                        (* 0.33 (cadr (ref J8 jitter)))
                        5.0)
-      (render-teapot -1.1 -0.5 -4.5 0.1745 0.01175 
-                     0.01175 0.61424 0.04136 0.04136 
+      (render-teapot -1.1 -0.5 -4.5 0.1745 0.01175
+                     0.01175 0.61424 0.04136 0.04136
                      0.727811 0.626959 0.626959 0.6)
-      (render-teapot -0.5 -0.5 -5.0 0.24725 0.1995 
-                     0.0745 0.75164 0.60648 0.22648 
+      (render-teapot -0.5 -0.5 -5.0 0.24725 0.1995
+                     0.0745 0.75164 0.60648 0.22648
                      0.628281 0.555802 0.366065 0.4)
-      (render-teapot 0.2 -0.5 -5.5 0.19225 0.19225 
-                     0.19225 0.50754 0.50754 0.50754 
+      (render-teapot 0.2 -0.5 -5.5 0.19225 0.19225
+                     0.19225 0.50754 0.50754 0.50754
                      0.508273 0.508273 0.508273 0.4)
-      (render-teapot 1.0 -0.5 -6.0 0.0215 0.1745 0.0215 
-                     0.07568 0.61424 0.07568 0.633 
+      (render-teapot 1.0 -0.5 -6.0 0.0215 0.1745 0.0215
+                     0.07568 0.61424 0.07568 0.633
                      0.727811 0.633 0.6)
-      (render-teapot 1.8 -0.5 -6.5 0.0 0.1 0.06 0.0 
-                     0.50980392 0.50980392 0.50196078 
+      (render-teapot 1.8 -0.5 -6.5 0.0 0.1 0.06 0.0
+                     0.50980392 0.50980392 0.50196078
                      0.50196078 0.50196078 .25)
       (gl-accum GL_ACCUM (/ 8)))
     (gl-accum GL_RETURN 1.0)

@@ -32,7 +32,7 @@
 
 (define (init)
   (set! *buffers* (gl-gen-buffers NUM_BUFFERS))
-  
+
   (gl-bind-buffer GL_ARRAY_BUFFER (~ *buffers* VERTICES))
   (gl-buffer-data GL_ARRAY_BUFFER
                   0
@@ -91,4 +91,3 @@
   (glut-keyboard-func keyboard)
   (glut-main-loop)
   0)
-                     

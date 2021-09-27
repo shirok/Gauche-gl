@@ -39,4 +39,3 @@
   (glut-main-loop)
   0
   )
-

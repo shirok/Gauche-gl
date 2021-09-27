@@ -17,7 +17,7 @@
 
 (define (disp)
   (gl-clear GL_COLOR_BUFFER_BIT)
-  
+
   (gl-load-identity)
   (gl-color '#f32(1.0 1.0 1.0))
   (draw-triangle)

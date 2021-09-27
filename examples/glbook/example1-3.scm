@@ -60,5 +60,3 @@
   (glut-mouse-func mouse)
   (glut-main-loop)
   0)
-
-  

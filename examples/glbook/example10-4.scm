@@ -14,7 +14,7 @@
     (gl-material GL_FRONT GL_SHININESS 50.0)
     (gl-light GL_LIGHT0 GL_POSITION light-position)
     (gl-light-model GL_LIGHT_MODEL_AMBIENT lm-ambient)
-    
+
     (gl-enable GL_LIGHT0)
     (gl-enable GL_LIGHTING)
     (gl-enable GL_DEPTH_TEST)
@@ -80,7 +80,7 @@
       (gl-push-matrix*
        ;; Note that 4.5 is the distance in world space between
        ;; left and right and bottom and top.
-       ;; This formula converts fractional pixel movement to 
+       ;; This formula converts fractional pixel movement to
        ;; world coordinates.
        (gl-translate (/ (* (car (ref J8 jitter))  4.5) (ref viewport 2))
                      (/ (* (cadr (ref J8 jitter)) 4.5) (ref viewport 3))
@@ -117,6 +117,3 @@
   (glut-keyboard-func keyboard-proc)
   (glut-main-loop)
   0)
-
-                      
-

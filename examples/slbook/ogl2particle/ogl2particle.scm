@@ -1,8 +1,8 @@
 ;;;
 ;;; ogl2brick - OpenGL shading language demo
 ;;;
-;;; This is a pretty straightforward port of the C code provided 
-;;; by 3DLabs Inc under the BSD-license.  The original copyright 
+;;; This is a pretty straightforward port of the C code provided
+;;; by 3DLabs Inc under the BSD-license.  The original copyright
 ;;; notice follows.
 ;;;
 #|
@@ -121,7 +121,7 @@
   (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
 
   (draw-points)
-  
+
   (gl-flush)
   (glut-swap-buffers)
   )
@@ -208,7 +208,7 @@
     (set! *xlastincr* 0)
     (set! *ylastincr* 0))
   )
-        
+
 (define (motion-proc x y)
   (unless (and (= *xlast* -1) (= *ylast* -1))
     (set! *xlastincr* (- x *xlast*))
@@ -231,7 +231,7 @@
     (gl-load-identity)
 
     (gl-frustum (- vp) vp (/ (- vp) aspect) (/ vp aspect) 3 10.0)
-    
+
     (gl-matrix-mode GL_MODELVIEW)
     (gl-load-identity)
     (gl-translate 0.0 0.0 -5.0)))
@@ -287,11 +287,11 @@
           (set! (ref verts n)       i)
           (set! (ref verts (+ n 1)) 0.0)
           (set! (ref verts (+ n 2)) j)
-          
+
           (set! (ref colors n)       (/ (+ (random-real) 1) 2))
           (set! (ref colors (+ n 1)) (/ (+ (random-real) 1) 2))
           (set! (ref colors (+ n 2)) (/ (+ (random-real) 1) 2))
-          
+
           (set! (ref velocities n)       (+ (random-real) 3.0))
           (set! (ref velocities (+ n 1)) (* (random-real) 10.0))
           (set! (ref velocities (+ n 2)) (+ (random-real) 3.0))
@@ -313,7 +313,7 @@
       (gl-enable-client-state GL_COLOR_ARRAY)
       (gl-enable-vertex-attrib-array-arb VELOCITY_ARRAY)
       (gl-enable-vertex-attrib-array-arb START_TIME_ARRAY)
-      
+
       (gl-draw-arrays GL_POINTS 0 (* array-width array-height))
 
       (gl-disable-client-state GL_VERTEX_ARRAY)
@@ -412,7 +412,7 @@
                                      'GL_ARB_vertex_shader
                                      'GL_ARB_shading_language_100)
       (error "OpenGL Shading Language extensions not available"))
-    
+
     (glut-idle-func play-proc)
     (glut-display-func display-proc)
     (glut-keyboard-func key-proc)
@@ -435,4 +435,3 @@
       (and (install-particle-shaders vs fs)
            (glut-main-loop)))
     0))
-

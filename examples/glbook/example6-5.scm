@@ -10,7 +10,7 @@
   (gl-light GL_LIGHT0 GL_POSITION '#f32(0.5 0.5 3.0 0.0))
   (gl-enable GL_LIGHTING)
   (gl-enable GL_LIGHT0)
-  
+
   (gl-material GL_FRONT GL_AMBIENT '#f32(0.1745 0.01175 0.01175 0.0))
   (gl-material GL_FRONT GL_DIFFUSE '#f32(0.61424 0.04136 0.04136 0.0))
   (gl-material GL_FRONT GL_SPECULAR '#f32(0.727811 0.626959 0.626959 0.0))

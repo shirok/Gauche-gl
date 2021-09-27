@@ -4,7 +4,7 @@
 (use gl.glut)
 
 (define *fly*
-  '#u8(#x00 #x00 #x00 #x00 #x00 #x00 #x00 #x00 
+  '#u8(#x00 #x00 #x00 #x00 #x00 #x00 #x00 #x00
        #x03 #x80 #x01 #xc0 #x06 #xc0 #x03 #x60
        #x04 #x60 #x06 #x20 #x04 #x30 #x0c #x20
        #x04 #x18 #x18 #x20 #x04 #x0c #x30 #x20
@@ -80,8 +80,3 @@
   (glut-keyboard-func keyboard)
   (glut-main-loop)
   0)
-
-  
-    
-
-  

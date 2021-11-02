@@ -27,6 +27,7 @@
   ((cpa        :init-keyword :cpa       :init-value '())
    (c-type     :init-keyword :c-type)
    (qualifiers :init-keyword :qualifiers)
+   (metaclass  :init-keyword :metaclass :init-value #f)
    (allocator  :init-keyword :allocator :init-value #f)
    (printer    :init-keyword :printer   :init-value #f)
    (comparer   :init-keyword :comparer  :init-value #f)

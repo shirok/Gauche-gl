@@ -1,3 +1,8 @@
+2022-01-01  Shiro Kawai  <shiro@acm.org>
+
+	* Remove precomp-ex hack (it is incorporated into 0.9.11)
+	* package.scm: Now we require 0.9.11
+
 2021-07-10  Shiro Kawai  <shiro@acm.org>
 
 	* Use <double> or <float> instead of <real> as the stub types.

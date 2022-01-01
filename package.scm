@@ -7,7 +7,7 @@
   :description "Graphics library binding for Gauche\n\
                 This package provides binginds for OpenGL, GLUT, GLEW and Cg,\
                 plus some additional libraries useful for graphics programming."
-  :require (("Gauche" (>= "0.9.10")))
+  :require (("Gauche" (>= "0.9.11")))
   :providing-modules (gl gl.glut gl.math3d
                          gl.simple.image gl.simple.viewer
                          gl.glfw gl.cg)

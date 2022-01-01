@@ -12,7 +12,7 @@ top_builddir = @top_builddir@
 top_srcdir   = @top_srcdir@
 
 # These may be overridden by make invocators
-DESTDIR  = 
+DESTDIR  =
 
 # These are set by configure
 # NB: cc and various flags must match the ones used to compile Gauche,
@@ -41,14 +41,14 @@ ARCH_INSTALL_DIR    = "$(DESTDIR)`$(GAUCHE_CONFIG) --sitearchdir`"
 @USE_VULKAN_yes@LIBGAUCHE_VULKAN=libgauche-vulkan.$(SOEXT)
 @USE_VULKAN_no@LIBGAUCHE_VULKAN=
 
-PRECOMP = $(GOSH) $(srcdir)/precomp-ex
+PRECOMP = $(GOSH) precomp
 
 # build -----------------------------------------------
 
 ARCHFILES = libgauche-math3d.$(SOEXT) \
-            libgauche-gl.$(SOEXT) \
-            libgauche-glut.$(SOEXT) $(LIBGAUCHE_GLFW) $(LIBGAUCHE_VULKAN)
-SCMFILES = 
+	    libgauche-gl.$(SOEXT) \
+	    libgauche-glut.$(SOEXT) $(LIBGAUCHE_GLFW) $(LIBGAUCHE_VULKAN)
+SCMFILES =
 HEADERS = gauche/math3d.h
 
 TARGET = $(ARCHFILES)
@@ -76,7 +76,7 @@ libgauche-math3d.$(SOEXT) : $(math3d_SRCS) gauche/math3d.h
 
 # gl
 gl_SRCS     = gauche-gl.c gl-syms.c gl-lib.c glu-lib.c glext-lib.c @GLEW_SOURCE@
-gl_LIBS     = @GL_EXTRALIBS@ $(LIBS) 
+gl_LIBS     = @GL_EXTRALIBS@ $(LIBS)
 gl_HDRS     = gauche-gl.h gl-syms.h gl-ptrs.h gauche/math3d.h
 
 gl-lib.c : gl-lib.scm
@@ -119,7 +119,7 @@ libgauche-glut.$(SOEXT) : $(glut_SRCS) gauche-glut.h
 glfw_SRCS   = gauche-glfw.c glfw-lib.c
 glfw_LIBS   = @GLFW_LIBDIR@ $(LIBS)
 
-glfw-lib.c : glfw-lib.scm defcstruct.scm
+glfw-lib.c : glfw-lib.scm
 	$(PRECOMP) glfw-lib.scm
 
 libgauche-glfw.$(SOEXT) : $(glfw_SRCS) gauche-glfw.h
@@ -131,7 +131,7 @@ libgauche-glfw.$(SOEXT) : $(glfw_SRCS) gauche-glfw.h
 vulkan_SRCS   = gauche-vulkan.c vulkan-lib.c
 vulkan_LIBS   = $(LIBS)
 
-vulkan-lib.c : vulkan-lib.scm defcstruct.scm
+vulkan-lib.c : vulkan-lib.scm
 	$(PRECOMP) vulkan-lib.scm
 
 libgauche-vulkan.$(SOEXT) : $(vulkan_SRCS) gauche-vulkan.h

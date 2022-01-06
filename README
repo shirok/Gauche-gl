@@ -1,6 +1,6 @@
 This is Gauche-gl, Gauche Graphics Library.
 
-See INSTALL (English) or INSTALL.utf-8 (Japanese) for 
+See INSTALL (English) or INSTALL.utf-8 (Japanese) for
 installation instructions.
 
 Under doc/, you can find texinfo file of the documentation.
@@ -14,4 +14,3 @@ It contains freeglut-3.0.0-1, a precompiled binary
 of Pawel W. Olszta's FreeGlut, build for MinGW by Transmission Zero.
 The package can be obtained from:
 http://www.transmissionzero.co.uk/software/freeglut-devel/
-

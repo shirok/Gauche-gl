@@ -39,4 +39,3 @@ if [ "$tgz" = "yes" ]; then
 #  mv ../Gauche-gl-$VERSION.tgz $TGZ_DEST
   cp ChangeLog $CHANGELOG_DEST
 fi
-

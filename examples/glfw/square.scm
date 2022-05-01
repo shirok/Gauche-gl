@@ -47,7 +47,7 @@
           (gl-color '#f32(1.0 1.0 1.0))
           (gl-rect '#f32(-25.0 -25.0) '#f32(25.0 25.0))
           (gl-pop-matrix)
-          
+
           (glfw-swap-buffers window)
           (glfw-poll-events))
         (loop)))
@@ -56,9 +56,3 @@
     (glfw-terminate)
     (exit 0)
     ))
-
-      
-      
-        
-                          
-

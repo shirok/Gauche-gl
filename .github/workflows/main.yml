@@ -10,13 +10,11 @@ jobs:
       GET_GAUCHE_URL: https://raw.githubusercontent.com/shirok/get-gauche/master
     steps:
     - uses: actions/checkout@v3
+    - uses: shirok/setup-gauche@v1
     - name: Install dependencies
       run: |
         sudo apt install -yq libglu1-mesa-dev freeglut3-dev mesa-common-dev \
              libglew-dev libxmu-dev libxi-dev libglfw3-dev libvulkan-dev
-        curl -f -o get-gauche.sh $GET_GAUCHE_URL/get-gauche.sh
-        chmod +x get-gauche.sh
-        ./get-gauche.sh --sudo --auto --skip-tests --prefix=/usr
     - name: Build and check
       run: |
         ./configure

@@ -32,8 +32,8 @@
 ;;;
 
 (define-module gl.math3d
-  (use gauche.uvector)
   (use gauche.sequence)
+  (use gauche.uvector)
   (export-all))
 (select-module gl.math3d)
 (dynamic-load "libgauche-math3d" :export-symbols #t)

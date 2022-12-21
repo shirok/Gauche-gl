@@ -39,12 +39,12 @@
 ;; and testing with Gauche-gl alone.
 
 (define-module gl.simple.image
-  (export read-sgi-image read-sgi-image-from-port)
-  (use gauche.uvector)
-  (use gauche.sequence)
-  (use util.match)
   (use binary.pack)
-  (use srfi-42)
+  (use gauche.sequence)
+  (use gauche.uvector)
+  (use srfi.42)
+  (use util.match)
+  (export read-sgi-image read-sgi-image-from-port)
   )
 (select-module gl.simple.image)
 

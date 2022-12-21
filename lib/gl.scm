@@ -32,10 +32,10 @@
 ;;;
 
 (define-module gl
-  (use srfi-1)
+  (use gauche.sequence)
   (use gauche.uvector)
   (use gauche.version)
-  (use gauche.sequence)
+  (use scheme.list)
   (extend gl.math3d)
   (export-all)
   )

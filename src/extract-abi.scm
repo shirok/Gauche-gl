@@ -62,8 +62,8 @@
 ;;      (define-entry-point glBindProgramNV "... typedef ...")
 ;;
 
-(use srfi-1)
-(use srfi-13)
+(use scheme.list)
+(use srfi.13)
 
 ;; Predefined OpenGL 1.0 and 1.1 symbols
 

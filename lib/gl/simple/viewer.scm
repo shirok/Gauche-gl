@@ -78,9 +78,8 @@
   (use gl)
   (use gl.glut)
   (use gl.math3d)
+  (use srfi.42)
   (use util.match)
-  (use util.list)
-  (use srfi-42)
   (export simple-viewer-window
           simple-viewer-window-2d
           simple-viewer-set-window

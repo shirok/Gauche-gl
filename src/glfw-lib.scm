@@ -163,7 +163,7 @@
     (return wmm hmm)))
 
 ;; from 3.3
-;; (define-cproc glfw-get-monitor-content-scale (m::<glfw-monitor>)::(<real> <real>)
+;; (define-cproc glfw-get-monitor-content-scale (m::<glfw-monitor>)::(<double> <double>)
 ;;   (let* ([xscale::float] [yscale::float])
 ;;     (glfwGetMonitorContentScale m (& xscale) (& yscale))
 ;;     (return xscale yscale)))
@@ -279,7 +279,7 @@
 
 ;; from 3.3
 ;; (define-cproc glfw-get-window-content-scale (w::<glfw-window>)
-;;   ::(<real> <real>)
+;;   ::(<double> <double>)
 ;;   (let* ([xscale::float][yscale::float])
 ;;     (glfwGetWindowContentScale w (& xscale) (& yscale))
 ;;     (return xscale yscale)))
@@ -502,7 +502,7 @@
 (define-cproc glfw-get-mouse-button (w::<glfw-window> button::<int>) ::<int>
   glfwGetMouseButton)
 
-(define-cproc glfw-get-cursor-pos (w::<glfw-window>) ::(<real> <real>)
+(define-cproc glfw-get-cursor-pos (w::<glfw-window>) ::(<double> <double>)
   (let* ([xpos::double] [ypos::double])
     (glfwGetCursorPos w (& xpos) (& ypos))
     (return xpos ypos)))

@@ -32,6 +32,7 @@
 ;;;
 
 (define-module gl
+  (use data.queue)
   (use gauche.sequence)
   (use gauche.uvector)
   (use gauche.version)

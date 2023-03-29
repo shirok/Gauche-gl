@@ -34,47 +34,47 @@
 (select-module gl.math3d)
 
 (inline-stub
+ (declcode (.include <math.h>
+                     <gauche/uvector.h>
+                     "gauche/math3d.h"))
 
- (declcode "#include <math.h>"
-           "#include <gauche/uvector.h>"
-           "#include \"gauche/math3d.h\"")
+ (include "glcase.scm")
 
-(include "glcase.scm")
+ (declare-stub-type <vector4f> "ScmVector4f*" #f "SCM_VECTOR4FP" "SCM_VECTOR4F")
+ (declare-stub-type <vector4f-array> "ScmVector4fArray*" #f
+   "SCM_VECTOR4F_ARRAY_P" "SCM_VECTOR4F_ARRAY")
+ (declare-stub-type <point4f> "ScmPoint4f*" #f "SCM_POINT4FP" "SCM_POINT4F")
+ (declare-stub-type <point4f-array> "ScmPoint4fArray*" #f
+   "SCM_POINT4F_ARRAY_P" "SCM_POINT4F_ARRAY")
 
-(define-type <vector4f> "ScmVector4f*" #f "SCM_VECTOR4FP" "SCM_VECTOR4F")
-(define-type <vector4f-array> "ScmVector4fArray*" #f
-  "SCM_VECTOR4F_ARRAY_P" "SCM_VECTOR4F_ARRAY")
-(define-type <point4f> "ScmPoint4f*" #f "SCM_POINT4FP" "SCM_POINT4F")
-(define-type <point4f-array> "ScmPoint4fArray*" #f
-  "SCM_POINT4F_ARRAY_P" "SCM_POINT4F_ARRAY")
+ (declare-stub-type <matrix4f> "ScmMatrix4f*" #f "SCM_MATRIX4FP" "SCM_MATRIX4F")
+ (declare-stub-type <quatf> "ScmQuatf*" #f "SCM_QUATFP" "SCM_QUATF")
+ (declare-stub-type <f32vector> "ScmF32Vector*")
 
-(define-type <matrix4f> "ScmMatrix4f*" #f "SCM_MATRIX4FP" "SCM_MATRIX4F")
-(define-type <quatf> "ScmQuatf*" #f "SCM_QUATFP" "SCM_QUATF")
-(define-type <f32vector> "ScmF32Vector*")
+ ;; Use it as (when (index-ok? i 0 3) ...do-something...),
+ ;; although if it's not ok the macro throws an error instead of returning
+ ;; false.
+ (define-cise-expr index-ok?
+   [(_ var min max)
+    `(or (and (<= ,min ,var) (<= ,var ,max))
+         (begin (Scm_Error ,#`"index ,var out of range: %d" ,var) FALSE))])
 
-;; Use it as (when (index-ok? i 0 3) ...do-something...),
-;; although if it's not ok the macro throws an error instead of returning
-;; false.
-(define-cise-expr index-ok?
-  [(_ var min max)
-   `(or (and (<= ,min ,var) (<= ,var ,max))
-        (begin (Scm_Error ,#`"index ,var out of range: %d" ,var) FALSE))])
+ (define-cise-expr index-ok/fallback?
+   [(_ var min max fallback-var)
+    `(or (and (<= ,min ,var) (<= ,var ,max))
+         (and (SCM_UNBOUNDP ,fallback-var)
+              (begin (Scm_Error ,#`"index ,var out of range: %d" ,var) FALSE))
+         (begin (result ,fallback-var) FALSE))])
 
-(define-cise-expr index-ok/fallback?
-  [(_ var min max fallback-var)
-   `(or (and (<= ,min ,var) (<= ,var ,max))
-        (and (SCM_UNBOUNDP ,fallback-var)
-             (begin (Scm_Error ,#`"index ,var out of range: %d" ,var) FALSE))
-        (begin (result ,fallback-var) FALSE))])
-
-;; Check the 'start' offset against the uniform vector vec.
-;; Again, you can use it as (when (start-ok? ...) ...) but the failure
-;; case throws an error instead of returning false.
-(define-cise-expr start-ok?
-  [(_ start vec count)
-   `(or (and (<= 0 ,start) (<= (+ ,start ,count) (SCM_UVECTOR_SIZE ,vec)))
-        (begin (Scm_Error "uvector too small: %S (start=%d)" ,vec ,start)
-               FALSE))])
+ ;; Check the 'start' offset against the uniform vector vec.
+ ;; Again, you can use it as (when (start-ok? ...) ...) but the failure
+ ;; case throws an error instead of returning false.
+ (define-cise-expr start-ok?
+   [(_ start vec count)
+    `(or (and (<= 0 ,start) (<= (+ ,start ,count) (SCM_UVECTOR_SIZE ,vec)))
+         (begin (Scm_Error "uvector too small: %S (start=%d)" ,vec ,start)
+                FALSE))])
+ )
 
 ;;================================================================
 ;; Vector4f
@@ -130,16 +130,18 @@
   (Scm_Vector4fSubv (SCM_VECTOR4F_D x) (SCM_VECTOR4F_D x) (SCM_VECTOR4F_D y))
   (result (SCM_OBJ x)))
 
-(define-cise-stmt vec4-eltwise
-  [(_ stmts ...)
-   (letrec ((replace (lambda (form i)
-                       (match form
-                         ['_ i]
-                         [(xs ...) (map (cut replace <> i) xs)]
-                         [_ form]))))
-     `(begin ,@(append-map (lambda (stmt)
-                             (map (cute replace stmt <>) '(0 1 2 3)))
-                           stmts)))])
+(inline-stub
+ (define-cise-stmt vec4-eltwise
+   [(_ stmts ...)
+    (letrec ((replace (lambda (form i)
+                        (match form
+                          ['_ i]
+                          [(xs ...) (map (cut replace <> i) xs)]
+                          [_ form]))))
+      `(begin ,@(append-map (lambda (stmt)
+                              (map (cute replace stmt <>) '(0 1 2 3)))
+                            stmts)))])
+ )
 
 (define-cproc vector4f-mul (x::<vector4f> f::<float>)
   (let* ([r::(.array float (4))])
@@ -273,7 +275,8 @@
 
 ;; Matrix4f -------------------------------------------------------
 
-"static float matrix4f_unit[] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };"
+(inline-stub
+ "static float matrix4f_unit[] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };")
 
 (define-cproc make-matrix4f (&optional init)
   (if (SCM_UNBOUNDP init)
@@ -543,6 +546,7 @@
                                                 (SCM_VECTOR4F_D v))])
     (result (SCM_OBJ v) angle)))
 
+
 ;; Quatf ----------------------------------------------------
 
 (define-cproc quatf (x::<float> y::<float> z::<float> w::<float>) Scm_MakeQuatf)
@@ -710,8 +714,6 @@
                     (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
                     (SCM_VECTOR4F_D w1) (SCM_VECTOR4F_D w2))
   (result (SCM_OBJ q)))
-
-) ;; end inline-stub
 
 ;; Local variables:
 ;; mode: scheme

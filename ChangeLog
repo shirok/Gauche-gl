@@ -1,3 +1,8 @@
+2023-03-28  Shiro Kawai  <shiro@acm.org>
+
+	* src/math3d-lib.scm (ortho->matrix4f, frustum->matrix4f):
+	  Add projection matrix computation.
+
 2022-01-01  Shiro Kawai  <shiro@acm.org>
 
 	* Remove precomp-ex hack (it is incorporated into 0.9.11)

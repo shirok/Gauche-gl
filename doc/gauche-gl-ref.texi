@@ -3757,6 +3757,18 @@ The default value of @var{order} is @code{xyz}.
 The desrtuctive version modifies @var{m}.
 @end defun
 
+@defun ortho->matrix4f left right bottom top near far
+@defunx ortho->matrix4f! m left right bottom top near far
+Computes an orthographic projection matrix with the given parameters.
+The desrtuctive version modifies @var{m}.
+@end defun
+
+@defun frustum->matrix4f left right bottom top near far
+@defunx frustum->matrix4f! m left right bottom top near far
+Computes a perspective projection matrix with the given parameters.
+The desrtuctive version modifies @var{m}.
+@end defun
+
 @defun matrix4f-decompose m
 Matrix @var{m} is a composition of translation, rotation, shear and
 scale.  Suppose transformation is applied in the reverse order.

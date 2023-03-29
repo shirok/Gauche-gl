@@ -34,40 +34,31 @@
 (select-module gl)
 
 (inline-stub
+ (declcode (.include "gauche-gl.h"
+                     "gl-syms.h"
+                     "gl-ptrs.h"))
+ (include "glcase.scm")
 
-(declcode "#include \"gauche-gl.h\""
-          "#include \"gl-syms.h\""
-          "#include \"gl-ptrs.h\"")
+ ;; NB: Gauche 0.9.12 doesn't allow CiSE .define-d C macro to expand
+ ;; into C statements.  As a workaround, we use cise macro to expand
+ ;; CHECL_ERROR.
+ (define-cise-stmt CHECK_ERROR
+   [(_ msg)
+    (let1 e (gensym "e")
+      `(let* ([,e :: GLenum (glGetError)])
+         (when (!= ,e GL_NO_ERROR)
+           (Scm_Error "%s: %s" ,msg (gluErrorString ,e)))))])
 
-(include "glcase.scm")
+ ;; GLhandle is either typedef'ed to uint or void*;
+ ;; for the time being, we treat cast it to intptr_t
+ (declare-stub-type <gl-handle> "GLhandleARB" "glhandle"
+    "SCM_GL_HANDLE_P" "SCM_GL_HANDLE_VALUE" "SCM_MAKE_GL_HANDLE")
 
-"#define CHECK_ERROR(msg__)                            \\
-  do {                                                 \\
-    GLenum e = glGetError();                           \\
-    if (e != GL_NO_ERROR) {                            \\
-      Scm_Error(\"%s: %s\", msg__, gluErrorString(e)); \\
-    }                                                  \\
-  } while (0)
-
-/* GLhandle is either typedef'ed to uint or void*;
-   for the time being, we treat cast it to intptr_t
- */
-#define SCM_GL_HANDLE_P(obj)  SCM_INTEGERP(obj)
-#define SCM_MAKE_GL_HANDLE(handle)  Scm_MakeIntegerU((intptr_t)(handle))
-#define SCM_GL_HANDLE_VALUE(shandle) (GLhandleARB)(intptr_t)Scm_GetIntegerU(shandle)
-
-
-"
-
-;; NB: this should be taken care of by genstub.
-(define-type <uvector> "ScmUVector*" "uniform vector"
-  "SCM_UVECTORP" "SCM_UVECTOR")
-(define-type <u32vector> "ScmU32Vector*" "u32vector"
-  "SCM_U32VECTORP" "SCM_U32VECTOR")
-(define-type <s32vector> "ScmS32Vector*" "s32vector"
-  "SCM_S32VECTORP" "SCM_S32VECTOR")
-(define-type <f32vector> "ScmF32Vector*" "f32vector"
-  "SCM_F32VECTORP" "SCM_F32VECTOR")
+ (.define SCM_GL_HANDLE_P (obj)  (SCM_INTEGERP obj))
+ (.define SCM_MAKE_GL_HANDLE (handle)  (Scm_MakeIntegerU (cast intptr_t handle)))
+ (.define SCM_GL_HANDLE_VALUE (shandle)
+          (cast GLhandleARB (cast intptr_t (Scm_GetIntegerU shandle))))
+ )
 
 ;;=============================================================
 ;; GL 1.2
@@ -342,21 +333,23 @@
            ((f32 4) (s32 4))
            (Scm_Error "bad type of param value for %s (s32 or f32vector of size 4 required), but got: %S" pname-string param)))
 
-(define-cise-expr gl-convolution-parameter-dispatch
-  [(_ (enum-name type) ...)
-   (define (gen-call enum-name type)
-     (ecase type
-       [(s) ; scalar
-        `((,enum-name)
-          (gl-convolution-parameter-1
-           target ,enum-name ,(x->string enum-name) param))]
-       [(v) ; vector
-        `((,enum-name)
-          (gl-convolution-parameter-4
-           target ,enum-name ,(x->string enum-name) param))]))
-   `(case pname
-      ,@(map gen-call enum-name type)
-      [else (Scm_Error "Invalid pname parameter for gl-convolution-parameter: %d" pname)])])
+(inline-stub
+ (define-cise-expr gl-convolution-parameter-dispatch
+   [(_ (enum-name type) ...)
+    (define (gen-call enum-name type)
+      (ecase type
+        [(s) ; scalar
+         `((,enum-name)
+           (gl-convolution-parameter-1
+            target ,enum-name ,(x->string enum-name) param))]
+        [(v) ; vector
+         `((,enum-name)
+           (gl-convolution-parameter-4
+            target ,enum-name ,(x->string enum-name) param))]))
+    `(case pname
+       ,@(map gen-call enum-name type)
+       [else (Scm_Error "Invalid pname parameter for gl-convolution-parameter: %d" pname)])])
+ )
 
 (define-cproc gl-convolution-parameter (target::<fixnum>
                                         pname::<fixnum>
@@ -487,9 +480,6 @@
 ;;=============================================================
 ;; GL_ARB_shader_objects
 ;;
-
-(define-type <gl-handle> "GLhandleARB" "glhandle"
-  "SCM_GL_HANDLE_P" "SCM_GL_HANDLE_VALUE" "SCM_MAKE_GL_HANDLE")
 
 (define-cproc gl-delete-object-arb (h::<gl-handle>) ::<void>
   (ENSURE glDeleteObjectARB)
@@ -1049,7 +1039,8 @@
   (glBindAttribLocationARB program index (Scm_GetStringConst name)))
 
 ;; NB: should be dynamically adjusted, using GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB
-"#define MAXNAMEBUFLEN 1024"
+(inline-stub
+ (.define MAXNAMEBUFLEN 1024))
 
 ;; returns three values: size, type and name
 (define-cproc gl-get-active-attrib-arb (program::<gl-handle>
@@ -1675,8 +1666,6 @@
 (define-cproc gl-generate-mipmap-ext (target::<int>) ::<void>
   (ENSURE glGenerateMipmapEXT)
   (glGenerateMipmapEXT target))
-
-) ;; end inline-stub
 
 ;; Backward compatibility names
 ;; We define them to not break old code.

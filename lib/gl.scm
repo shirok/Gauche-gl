@@ -96,40 +96,54 @@
     ))
 
 ;; Check GL version and extensions
+;; gl-version and glsl-version just returns the version
+;; number, stripping additional info.
 
-(define-values
-  (gl-extension-available?
-   gl-version<? gl-version<=? gl-version>? gl-version>=? gl-version=?)
-  (let ([gl-vers #f]
-        [gl-exts #f])
-    (define (ensure-version)
-      (or gl-vers
-          (rlet1 v (and-let* ([verstr (gl-get-string GL_VERSION)]
-                              [m      (#/^\d+\.\d+\.\d+/ verstr)])
-                     (m 0))
-            (set! gl-vers v))))
-    (define (ensure-extensions)
-      (or gl-exts
-          (rlet1 exts (and-let* ([extstr (gl-get-string GL_EXTENSIONS)])
-                        (string-split extstr #[\s]))
-            (set! gl-exts exts))))
-    (define (gl-extension-available? . required)
-      (and-let* ([exts (ensure-extensions)])
-        (every (cut member <> exts)
-               (map x->string required))))
-    (define (gl-version<? v)
-      (and-let* ([vers (ensure-version)]) (version<? vers v)))
-    (define (gl-version<=? v)
-      (and-let* ([vers (ensure-version)]) (version<=? vers v)))
-    (define (gl-version>? v)
-      (and-let* ([vers (ensure-version)]) (version>? vers v)))
-    (define (gl-version>=? v)
-      (and-let* ([vers (ensure-version)]) (version>=? vers v)))
-    (define (gl-version=? v)
-      (and-let* ([vers (ensure-version)]) (version=? vers v)))
+(define-syntax caching
+  (syntax-rules []
+    [(_ expr ...)
+     (let1 cached #f
+       (^[] (unless cached
+              (set! cached (begin expr ...)))
+         cached))]))
 
-    (values gl-extension-available?
-            gl-version<? gl-version<=?
-            gl-version>? gl-version>=?
-            gl-version=?)
-    ))
+(define %gl-version
+  (caching (and-let* ([verstr (gl-get-string GL_VERSION)]
+                      [m      (#/^\d+\.\d+(\.\d+)?/ verstr)])
+             (m 0))))
+
+(define %glsl-version
+  (caching (and-let* ([verstr (gl-get-string GL_SHADING_LANGUAGE_VERSION)]
+                      [m      (#/^\d+\.\d+(\.\d+)?/ verstr)])
+             (m 0))))
+
+(define (gl-version<? v)
+  (and-let* ([vers (%gl-version)]) (version<? vers v)))
+(define (gl-version<=? v)
+  (and-let* ([vers (%gl-version)]) (version<=? vers v)))
+(define (gl-version>? v)
+  (and-let* ([vers (%gl-version)]) (version>? vers v)))
+(define (gl-version>=? v)
+  (and-let* ([vers (%gl-version)]) (version>=? vers v)))
+(define (gl-version=? v)
+  (and-let* ([vers (%gl-version)]) (version=? vers v)))
+
+(define (glsl-version<? v)
+  (and-let* ([vers (%glsl-version)]) (version<? vers v)))
+(define (glsl-version<=? v)
+  (and-let* ([vers (%glsl-version)]) (version<=? vers v)))
+(define (glsl-version>? v)
+  (and-let* ([vers (%glsl-version)]) (version>? vers v)))
+(define (glsl-version>=? v)
+  (and-let* ([vers (%glsl-version)]) (version>=? vers v)))
+(define (glsl-version=? v)
+  (and-let* ([vers (%glsl-version)]) (version=? vers v)))
+
+(define %gl-extensions
+  (caching (and-let* ([extstr (gl-get-string GL_EXTENSIONS)])
+             (string-split extstr #[\s]))))
+
+(define (gl-extension-available? . required)
+  (and-let* ([exts (%gl-extensions)])
+    (every (cut member <> exts)
+           (map x->string required))))

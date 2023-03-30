@@ -1,3 +1,7 @@
+2023-03-29  Shiro Kawai  <shiro@acm.org>
+
+	* lib/gl.scm (glsl-version>=? etc.): Added.
+
 2023-03-28  Shiro Kawai  <shiro@acm.org>
 
 	* src/math3d-lib.scm (ortho->matrix4f, frustum->matrix4f):

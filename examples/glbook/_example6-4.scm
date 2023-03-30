@@ -1,4 +1,6 @@
 ;; Example 6-4  Antialiasing in Color-Index mode
+;; NB: Color index mode is legacy - all current hardware support full-color.
+;; This is kept for the historical reference.
 
 (use gl)
 (use gl.glut)

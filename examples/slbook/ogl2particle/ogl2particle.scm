@@ -131,7 +131,7 @@
     (inc! *particle-time* 0.002)
     (when (> *particle-time* 15.0)
       (set! *particle-time* 0.0))
-    (gl-uniform1-arb location *particle-time*)
+    (gl-uniform1 location *particle-time*)
     (print-opengl-error)))
 
 (define (play-proc)
@@ -307,19 +307,19 @@
       (gl-point-size 2.0)
       (gl-vertex-pointer 3 verts)
       (gl-color-pointer 3 colors)
-      (gl-vertex-attrib-pointer-arb VELOCITY_ARRAY 3 velocities)
-      (gl-vertex-attrib-pointer-arb START_TIME_ARRAY 1 start-times)
+      (gl-vertex-attrib-pointer VELOCITY_ARRAY 3 velocities)
+      (gl-vertex-attrib-pointer START_TIME_ARRAY 1 start-times)
       (gl-enable-client-state GL_VERTEX_ARRAY)
       (gl-enable-client-state GL_COLOR_ARRAY)
-      (gl-enable-vertex-attrib-array-arb VELOCITY_ARRAY)
-      (gl-enable-vertex-attrib-array-arb START_TIME_ARRAY)
+      (gl-enable-vertex-attrib-array VELOCITY_ARRAY)
+      (gl-enable-vertex-attrib-array START_TIME_ARRAY)
 
       (gl-draw-arrays GL_POINTS 0 (* array-width array-height))
 
       (gl-disable-client-state GL_VERTEX_ARRAY)
       (gl-disable-client-state GL_COLOR_ARRAY)
-      (gl-disable-vertex-attrib-array-arb VELOCITY_ARRAY)
-      (gl-disable-vertex-attrib-array-arb START_TIME_ARRAY)
+      (gl-disable-vertex-attrib-array VELOCITY_ARRAY)
+      (gl-disable-vertex-attrib-array START_TIME_ARRAY)
       )
 
     (values create-points draw-points)))
@@ -329,67 +329,69 @@
 ;;;
 
 (define (get-uniloc program name)
-  (let1 loc (gl-get-uniform-location-arb program name)
+  (let1 loc (gl-get-uniform-location program name)
     (when (negative? loc)
       (error "No such uniform:" name))
     (print-opengl-error)
     loc))
 
-(define (print-info-log obj)
+(define (print-shader-log shader)
   (print-opengl-error)
-  (format #t "InfoLog:\n~a\n\n" (gl-get-info-log-arb obj))
+  (format #t "ShaderInfoLog:\n~a\n\n" (gl-get-shader-info-log shader))
+  (print-opengl-error))
+
+(define (print-program-log program)
+  (print-opengl-error)
+  (format #t "ProgramInfoLog:\n~a\n\n" (gl-get-program-info-log program))
   (print-opengl-error))
 
 (define (install-particle-shaders vsh fsh)
   ;; Create a vertex shader object and a fragment shader object
-  (let* ((vs (gl-create-shader-object-arb GL_VERTEX_SHADER_ARB))
-         (fs (gl-create-shader-object-arb GL_FRAGMENT_SHADER_ARB))
+  (let* ((vs (gl-create-shader GL_VERTEX_SHADER_ARB))
+         (fs (gl-create-shader GL_FRAGMENT_SHADER_ARB))
          (vert-compiled 1)
          (frag-compiled 1)
          (linked #f))
     ;; Load source code strings into shaders
-    (gl-shader-source-arb vs (list vsh))
-    (gl-shader-source-arb fs (list fsh))
+    (gl-shader-source vs (list vsh))
+    (gl-shader-source fs (list fsh))
     ;; Compile the brick vertex shader, and print out
     ;; the compiler log file.
-    (gl-compile-shader-arb vs)
+    (gl-compile-shader vs)
     (print-opengl-error) ;; Check for OpenGL errors
-    (set! vert-compiled
-          (gl-get-object-parameter-arb vs GL_OBJECT_COMPILE_STATUS_ARB))
-    (print-info-log vs)
+    (set! vert-compiled (gl-get-shader vs GL_COMPILE_STATUS))
+    (print-shader-log vs)
     ;; Compile the brick fragment shader, and print out
     ;; the compiler log file.
-    (gl-compile-shader-arb fs)
+    (gl-compile-shader fs)
     (print-opengl-error)
-    (set! frag-compiled
-          (gl-get-object-parameter-arb fs GL_OBJECT_COMPILE_STATUS_ARB))
-    (print-info-log fs)
+    (set! frag-compiled (gl-get-shader fs GL_COMPILE_STATUS))
+    (print-shader-log fs)
 
     (if (or (zero? vert-compiled) (zero? frag-compiled))
       #f ;; failure
       ;; Create a program object and attach the two compiled shaders
-      (let1 progobj (gl-create-program-object-arb)
+      (let1 progobj (gl-create-program)
         (set! *program-object* progobj)
-        (gl-attach-object-arb progobj vs)
-        (gl-attach-object-arb progobj fs)
+        (gl-attach-shader progobj vs)
+        (gl-attach-shader progobj fs)
         ;; Bind generic attribute indices
-        (gl-bind-attrib-location-arb progobj VELOCITY_ARRAY "Velocity")
-        (gl-bind-attrib-location-arb progobj START_TIME_ARRAY "StartTime")
+        (gl-bind-attrib-location progobj VELOCITY_ARRAY "Velocity")
+        (gl-bind-attrib-location progobj START_TIME_ARRAY "StartTime")
         ;; Link the program object and print out the info log
-        (gl-link-program-arb progobj)
+        (gl-link-program progobj)
         (print-opengl-error)
-        (set! linked
-              (gl-get-object-parameter-arb progobj GL_OBJECT_LINK_STATUS_ARB))
-        (print-info-log progobj)
+        (set! linked (gl-get-program progobj GL_LINK_STATUS))
+        (print-program-log progobj)
         (if (zero? linked)
           #f ;; failure
           (begin
             ;; Install program object as part of current state
-            (gl-use-program-object-arb progobj)
-            (gl-uniform4-arb (get-uniloc progobj "Background")
-                               0.0 0.0 0.0 1.0)
+            (gl-use-program progobj)
+            (gl-uniform4 (get-uniloc progobj "Background")
+                         0.0 0.0 0.0 1.0)
             (print-opengl-error)
-            (gl-uniform1-arb (get-uniloc progobj "Time") -5.0)
+            (gl-uniform1 (get-uniloc progobj "Time") -5.0)
             (print-opengl-error)
             #t ;; success
             ))
@@ -407,11 +409,8 @@
   (let* ((window (glut-create-window
                   "3Dlabs OpenGL Shading Language Particle System Demo")))
 
-    (unless (gl-extension-available? 'GL_ARB_shader_objects
-                                     'GL_ARB_fragment_shader
-                                     'GL_ARB_vertex_shader
-                                     'GL_ARB_shading_language_100)
-      (error "OpenGL Shading Language extensions not available"))
+    (unless (glsl-version>=? "1.0")
+      (error "OpenGL Shading Language not available"))
 
     (glut-idle-func play-proc)
     (glut-display-func display-proc)

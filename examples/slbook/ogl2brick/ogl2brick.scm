@@ -47,6 +47,7 @@
 
 (use srfi-1)
 (use gauche.uvector)
+(use gauche.version)
 (use gl)
 (use gl.glut)
 (use math.const)
@@ -302,69 +303,71 @@
 ;;;
 
 (define (get-uniloc program name)
-  (let1 loc (gl-get-uniform-location-arb program name)
+  (let1 loc (gl-get-uniform-location program name)
     (when (negative? loc)
       (error "No such uniform:" name))
     (print-opengl-error)
     loc))
 
-(define (print-info-log obj)
+(define (print-shader-log shader)
   (print-opengl-error)
-  (format #t "InfoLog:\n~a\n\n" (gl-get-info-log-arb obj))
+  (format #t "ShaderInfoLog:\n~a\n\n" (gl-get-shader-info-log shader))
+  (print-opengl-error))
+
+(define (print-program-log program)
+  (print-opengl-error)
+  (format #t "ProgramInfoLog:\n~a\n\n" (gl-get-program-info-log program))
   (print-opengl-error))
 
 (define (install-brick-shaders vsh fsh)
   ;; Create a vertex shader object and a fragment shader object
-  (let* ((brickvs (gl-create-shader-object-arb GL_VERTEX_SHADER_ARB))
-         (brickfs (gl-create-shader-object-arb GL_FRAGMENT_SHADER_ARB))
+  (let* ((brickvs (gl-create-shader GL_VERTEX_SHADER))
+         (brickfs (gl-create-shader GL_FRAGMENT_SHADER))
          (vert-compiled 1)
          (frag-compiled 1)
          (linked #f))
     ;; Load source code strings into shaders
-    (gl-shader-source-arb brickvs (list vsh))
-    (gl-shader-source-arb brickfs (list fsh))
+    (gl-shader-source brickvs (list vsh))
+    (gl-shader-source brickfs (list fsh))
     ;; Compile the brick vertex shader, and print out
     ;; the compiler log file.
-    (gl-compile-shader-arb brickvs)
+    (gl-compile-shader brickvs)
     (print-opengl-error) ;; Check for OpenGL errors
-    (set! vert-compiled
-          (gl-get-object-parameter-arb brickvs GL_OBJECT_COMPILE_STATUS_ARB))
-    (print-info-log brickvs)
+    (set! vert-compiled (gl-get-shader brickvs GL_COMPILE_STATUS))
+    (print-shader-log brickvs)
     ;; Compile the brick fragment shader, and print out
     ;; the compiler log file.
-    (gl-compile-shader-arb brickfs)
+    (gl-compile-shader brickfs)
     (print-opengl-error)
-    (set! frag-compiled
-          (gl-get-object-parameter-arb brickfs GL_OBJECT_COMPILE_STATUS_ARB))
-    (print-info-log brickfs)
+    (set! frag-compiled (gl-get-shader brickfs GL_COMPILE_STATUS))
+    (print-shader-log brickfs)
 
     (if (or (zero? vert-compiled) (zero? frag-compiled))
       #f ;; failure
       ;; Create a program object and attach the two compiled shaders
-      (let1 brickprog (gl-create-program-object-arb)
-        (gl-attach-object-arb brickprog brickvs)
-        (gl-attach-object-arb brickprog brickfs)
+      (let1 brickprog (gl-create-program)
+        (gl-attach-shader brickprog brickvs)
+        (gl-attach-shader brickprog brickfs)
         ;; Link the program object and print out the info log
-        (gl-link-program-arb brickprog)
+        (gl-link-program brickprog)
         (print-opengl-error)
-        (set! linked
-              (gl-get-object-parameter-arb brickprog GL_OBJECT_LINK_STATUS_ARB))
-        (print-info-log brickprog)
+        (set! linked (gl-get-program brickprog GL_LINK_STATUS))
+        (print-program-log brickprog)
         (if (zero? linked)
           #f ;; failure
           (begin
             ;; Install program object as part of current state
-            (gl-use-program-object-arb brickprog)
-            (gl-uniform3-arb (get-uniloc brickprog "BrickColor")
-                             1.0 0.3 0.2)
-            (gl-uniform3-arb (get-uniloc brickprog "MortarColor")
-                             0.85 0.86 0.84)
-            (gl-uniform2-arb (get-uniloc brickprog "BrickSize")
-                             0.30 0.15)
-            (gl-uniform2-arb (get-uniloc brickprog "BrickPct")
-                             0.90 0.85)
-            (gl-uniform3-arb (get-uniloc brickprog "LightPosition")
-                             0.0 0.0 4.0)
+            (gl-use-program brickprog)
+            (gl-uniform3 (get-uniloc brickprog "BrickColor")
+                         1.0 0.3 0.2)
+            (gl-uniform3 (get-uniloc brickprog "MortarColor")
+                         0.85 0.86 0.84)
+            (gl-uniform2 (get-uniloc brickprog "BrickSize")
+                         0.30 0.15)
+            (gl-uniform2 (get-uniloc brickprog "BrickPct")
+                         0.90 0.85)
+            (gl-uniform3 (get-uniloc brickprog "LightPosition")
+                         0.0 0.0 4.0)
             #t ;; success
             ))
         )))
@@ -380,11 +383,8 @@
   (glut-init-window-size 500 500)
   (let* ((window (glut-create-window "3Dlabs Brick Shader")))
 
-    (unless (gl-extension-available? 'GL_ARB_shader_objects
-                                     'GL_ARB_fragment_shader
-                                     'GL_ARB_vertex_shader
-                                     'GL_ARB_shading_language_100)
-      (error "OpenGL Shading Language extensions not available"))
+    (unless (glsl-version>=? "1.0")
+      (error "OpenGL Shading Language not available"))
 
     (glut-idle-func play-proc)
     (glut-display-func display-proc)

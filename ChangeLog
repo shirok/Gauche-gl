@@ -1,5 +1,12 @@
 2023-03-29  Shiro Kawai  <shiro@acm.org>
 
+	* lib/glext-lib.scm: Dropped *-arb procedures related to GLSL, in favor
+	  of the core API.  They've been in the core for years and there's
+	  no point using ARB API anymore.  This can break the old code,
+	  but they should be updated anyway.
+	  NB: <gl-handle> is no longer supported; it was only used by the
+	  legacy ARB API.
+
 	* lib/gl.scm (glsl-version>=? etc.): Added.
 
 2023-03-28  Shiro Kawai  <shiro@acm.org>

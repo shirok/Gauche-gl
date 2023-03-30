@@ -66,7 +66,7 @@
     ;     (let* ([r::GLenum (glewInit)])
     ;       (if (!= r GLEW_OK)
     ;         (Scm_Error "Initializing GLEW failed."))))
-    (result (Scm_CStringArrayToList (cast (const char**) argv) argc 0))))
+    (return (Scm_CStringArrayToList (cast (const char**) argv) argc 0))))
 
 ;; For debug purpose only - users shouldn't call this directly.
 ;; glewInit is called automatically when the first glut window is created.
@@ -100,7 +100,7 @@
       (let* ([r::GLenum (glewInit)])
         (if (!= r GLEW_OK)
           (Scm_Error "Initializing GLEW failed."))))
-    (result r1)))
+    (return r1)))
 
 (define-cproc glut-create-sub-window (win::<int> x::<int> y::<int>
                                       width::<int> height::<int>)
@@ -214,8 +214,8 @@
       (begin (set! menu_fn_assoc (Scm_Acons (SCM_MAKE_INT menu)
                                             (SCM_OBJ callback)
                                             menu_fn_assoc))
-             (result (SCM_MAKE_INT menu)))
-      (result '#f))))
+             (return (SCM_MAKE_INT menu)))
+      (return '#f))))
 
 (define-cproc glut-destroy-menu (menu::<fixnum>) ::<void>
   (set! menu_fn_assoc
@@ -307,7 +307,7 @@
   ::<void> glutSetColor)
 
 (define-cproc glut-get-color (index::<int> component::<fixnum>)
-  ::<double> (result (cast double (glutGetColor index component))))
+  ::<double> (return (cast double (glutGetColor index component))))
 
 (define-cproc glut-copy-colormap (win::<int>) ::<void> glutCopyColormap)
 
@@ -346,20 +346,20 @@
   ::<void> (glutBitmapCharacter (-> font font) character))
 
 (define-cproc glut-bitmap-width (font::<glut-font> character::<int>) ::<int>
-  (result (glutBitmapWidth (-> font font) character)))
+  (return (glutBitmapWidth (-> font font) character)))
 
 (define-cproc glut-stroke-character (font::<glut-font> character::<int>)
   ::<void> (glutStrokeCharacter (-> font font) character))
 
 (define-cproc glut-stroke-width (font::<glut-font> character::<int>)
-  ::<int> (result (glutStrokeWidth (-> font font) character)))
+  ::<int> (return (glutStrokeWidth (-> font font) character)))
 
 (.unless (or (>= GLUT_API_VERSION 4)
              (>= GLUT_XLIB_IMPLEMENTATION 9))
   (.define "glutBitmapLength(x, y)" 0))
 
 (define-cproc glut-bitmap-length (font::<glut-font> string::<const-cstring>)
-  ::<int> (result (glutBitmapLength (-> font font)
+  ::<int> (return (glutBitmapLength (-> font font)
                                     (cast (const unsigned char*) string))))
 
 (.unless (or (>= GLUT_API_VERSION 4)
@@ -367,7 +367,7 @@
   (.define "glutStrokeLength(x, y)" 0))
 
 (define-cproc glut-stroke-length (font::<glut-font> string::<const-cstring>)
-  ::<int> (result (glutStrokeLength (-> font font)
+  ::<int> (return (glutStrokeLength (-> font font)
                                     (cast (const unsigned char*) string))))
 
 ;;========================================================

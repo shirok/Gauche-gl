@@ -59,12 +59,16 @@
     `(or (and (<= ,min ,var) (<= ,var ,max))
          (begin (Scm_Error ,#`"index ,var out of range: %d" ,var) FALSE))])
 
- (define-cise-expr index-ok/fallback?
-   [(_ var min max fallback-var)
-    `(or (and (<= ,min ,var) (<= ,var ,max))
-         (and (SCM_UNBOUNDP ,fallback-var)
-              (begin (Scm_Error ,#`"index ,var out of range: %d" ,var) FALSE))
-         (begin (result ,fallback-var) FALSE))])
+ ;; Like (when (index-ok? ...) but allows fallback var.  Throws error only
+ ;; when fallback var is unbound.
+ (define-cise-stmt when-index-ok/fallback
+   [(_ (var min max fallback-var) then-stmts ...)
+    `(if (or (and (<= ,min ,var) (<= ,var ,max))
+             (and (SCM_UNBOUNDP ,fallback-var)
+                  (begin (Scm_Error ,#`"index ,var out of range: %d" ,var)
+                         FALSE)))
+       (begin ,@then-stmts)
+       (return ,fallback-var))])
 
  ;; Check the 'start' offset against the uniform vector vec.
  ;; Again, you can use it as (when (start-ok? ...) ...) but the failure
@@ -83,31 +87,31 @@
 (define-cproc vector4f (x::<float> y::<float> z::<float> &optional (w::<float> 0.0))
   Scm_MakeVector4f)
 (define-cproc vector4f? (obj) ::<boolean> SCM_VECTOR4FP)
-(define-cproc make-vector4f () (result (Scm_MakeVector4fv NULL)))
+(define-cproc make-vector4f () (return (Scm_MakeVector4fv NULL)))
 (define-cproc list->vector4f (l::<list>) Scm_ListToVector4f)
 (define-cproc vector4f->list (v::<vector4f>) Scm_Vector4fToList)
 
 (define-cproc f32vector->vector4f (v::<f32vector>
                                    &optional (start::<fixnum> 0))
   (when (start-ok? start v 4)
-    (result (Scm_MakeVector4fv (+ (SCM_F32VECTOR_ELEMENTS v) start)))))
+    (return (Scm_MakeVector4fv (+ (SCM_F32VECTOR_ELEMENTS v) start)))))
 
 (define-cproc vector4f->f32vector (v::<vector4f>)
-  (result (Scm_MakeF32VectorFromArray 4 (SCM_VECTOR4F_D v))))
+  (return (Scm_MakeF32VectorFromArray 4 (SCM_VECTOR4F_D v))))
 
 (define-cproc vector4f-copy (v::<vector4f>)
-  (result (Scm_MakeVector4fv (SCM_VECTOR4F_D v))))
+  (return (Scm_MakeVector4fv (SCM_VECTOR4F_D v))))
 
 (define-cproc vector4f-copy! (dst::<vector4f> src::<vector4f>)
-  (result (Scm_Vector4fSetv dst (SCM_VECTOR4F_D src))))
+  (return (Scm_Vector4fSetv dst (SCM_VECTOR4F_D src))))
 
 (define-cproc vector4f-set! (x::<vector4f> i::<fixnum> v::<float>) ::<void>
   (when (index-ok? i 0 3) (set! (aref (SCM_VECTOR4F_D x) i) v)))
 
 (define-cproc vector4f-ref (x::<vector4f> i::<fixnum> &optional fallback)
   (setter vector4f-set!)
-  (when (index-ok/fallback? i 0 3 fallback)
-    (result (Scm_MakeFlonum (SCM_VECTOR4F_REF x i)))))
+  (when-index-ok/fallback [i 0 3 fallback]
+    (return (Scm_MakeFlonum (SCM_VECTOR4F_REF x i)))))
 
 (define-cproc vector4f-dot (x::<vector4f> y::<vector4f>) ::<float>
   Scm_Vector4fDot)
@@ -115,7 +119,7 @@
 (define-cproc vector4f-cross (x::<vector4f> y::<vector4f>) Scm_Vector4fCross)
 
 (define-cproc vector4f-norm (v::<vector4f>) ::<double>
-  (result (SCM_VECTOR4F_NORMV (SCM_VECTOR4F_D v))))
+  (return (SCM_VECTOR4F_NORMV (SCM_VECTOR4F_D v))))
 
 (define-cproc vector4f-normalize (x::<vector4f>) Scm_Vector4fNormalize)
 (define-cproc vector4f-normalize! (x::<vector4f>) Scm_Vector4fNormalizeX)
@@ -123,12 +127,12 @@
 (define-cproc vector4f-add (x::<vector4f> y::<vector4f>) Scm_Vector4fAdd)
 (define-cproc vector4f-add! (x::<vector4f> y::<vector4f>)
   (Scm_Vector4fAddv (SCM_VECTOR4F_D x) (SCM_VECTOR4F_D x) (SCM_VECTOR4F_D y))
-  (result (SCM_OBJ x)))
+  (return (SCM_OBJ x)))
 
 (define-cproc vector4f-sub (x::<vector4f> y::<vector4f>) Scm_Vector4fSub)
 (define-cproc vector4f-sub! (x::<vector4f> y::<vector4f>)
   (Scm_Vector4fSubv (SCM_VECTOR4F_D x) (SCM_VECTOR4F_D x) (SCM_VECTOR4F_D y))
-  (result (SCM_OBJ x)))
+  (return (SCM_OBJ x)))
 
 (inline-stub
  (define-cise-stmt vec4-eltwise
@@ -146,29 +150,29 @@
 (define-cproc vector4f-mul (x::<vector4f> f::<float>)
   (let* ([r::(.array float (4))])
     (vec4-eltwise (set! (aref r _) (* (SCM_VECTOR4F_REF x _) f)))
-    (result (Scm_MakeVector4fv r))))
+    (return (Scm_MakeVector4fv r))))
 
 (define-cproc vector4f-mul! (x::<vector4f> f::<float>)
   (vec4-eltwise (set! (SCM_VECTOR4F_REF x _) (* (SCM_VECTOR4F_REF x _) f)))
-  (result (SCM_OBJ x)))
+  (return (SCM_OBJ x)))
 
 (define-cproc vector4f-div (x::<vector4f> f::<float>)
   (let* ([r::(.array float [4])])
     (vec4-eltwise (set! (aref r _) (/ (SCM_VECTOR4F_REF x _) f)))
-    (result (Scm_MakeVector4fv r))))
+    (return (Scm_MakeVector4fv r))))
 
 (define-cproc vector4f-div! (x::<vector4f> f::<float>)
   (vec4-eltwise (set! (SCM_VECTOR4F_REF x _) (/ (SCM_VECTOR4F_REF x _) f)))
-  (result (SCM_OBJ x)))
+  (return (SCM_OBJ x)))
 
 ;; VectorArray --------------------------------------------------
 
 (define-cproc make-vector4f-array (len::<fixnum> &optional init)
   (when (< len 0) (Scm_Error "vector4f-array length must be positive: %d" len))
   (cond [(SCM_VECTOR4FP init)
-         (result (Scm_MakeVector4fArrayv len (SCM_VECTOR4F_D init)))]
+         (return (Scm_MakeVector4fArrayv len (SCM_VECTOR4F_D init)))]
         [(SCM_UNBOUNDP init)
-         (result (Scm_MakeVector4fArrayv len NULL))]
+         (return (Scm_MakeVector4fArrayv len NULL))]
         [else
          (Scm_Error "bad initializer for vector array: must be <vector4f>, but got %S" init)]))
 
@@ -181,7 +185,7 @@
   Scm_MakeVector4fArrayV)
 
 (define-cproc vector4f-array->f32vector (a::<vector4f-array>)
-  (result (Scm_MakeF32VectorFromArray (* (SCM_VECTOR4F_ARRAY_SIZE a) 4)
+  (return (Scm_MakeF32VectorFromArray (* (SCM_VECTOR4F_ARRAY_SIZE a) 4)
                                       (SCM_VECTOR4F_ARRAY_D a))))
 
 (define-cproc vector4f-array-set! (a::<vector4f-array>
@@ -202,35 +206,35 @@
 (define-cproc point4f (x::<float> y::<float> z::<float> &optional (w::<float> 1.0))
   Scm_MakePoint4f)
 (define-cproc point4f? (obj) ::<boolean> SCM_POINT4FP)
-(define-cproc make-point4f () (result (Scm_MakePoint4fv NULL)))
+(define-cproc make-point4f () (return (Scm_MakePoint4fv NULL)))
 (define-cproc list->point4f (l::<list>) Scm_ListToPoint4f)
 (define-cproc point4f->list (x::<point4f>) Scm_Point4fToList)
 
 (define-cproc f32vector->point4f (v::<f32vector> &optional (start::<fixnum> 0))
   (when (start-ok? start v 4)
-    (result (Scm_MakePoint4fv (+ (SCM_F32VECTOR_ELEMENTS v) start)))))
+    (return (Scm_MakePoint4fv (+ (SCM_F32VECTOR_ELEMENTS v) start)))))
 
 (define-cproc point4f->f32vector (v::<point4f>)
-  (result (Scm_MakeF32VectorFromArray 4 (SCM_POINT4F_D v))))
+  (return (Scm_MakeF32VectorFromArray 4 (SCM_POINT4F_D v))))
 
 (define-cproc point4f-copy (v::<point4f>)
-  (result (Scm_MakePoint4fv (SCM_POINT4F_D v))))
+  (return (Scm_MakePoint4fv (SCM_POINT4F_D v))))
 
 (define-cproc point4f-copy! (dst::<point4f> src::<point4f>)
-  (result (Scm_Point4fSetv dst (SCM_POINT4F_D src))))
+  (return (Scm_Point4fSetv dst (SCM_POINT4F_D src))))
 
 (define-cproc point4f-set! (x::<point4f> i::<fixnum> v::<float>) ::<void>
   (when (index-ok? i 0 3) (set! (aref (SCM_POINT4F_D x) i) v)))
 
 (define-cproc point4f-ref (x::<point4f> i::<fixnum>)
   (setter point4f-set!)
-  (when (index-ok? i 0 3) (result (Scm_MakeFlonum (SCM_POINT4F_REF x i)))))
+  (when (index-ok? i 0 3) (return (Scm_MakeFlonum (SCM_POINT4F_REF x i)))))
 
 (define-cproc point4f-add (x::<point4f> y::<vector4f>) Scm_Point4fAdd)
 
 (define-cproc point4f-add! (x::<point4f> y::<vector4f>)
   (Scm_Vector4fAddv (SCM_POINT4F_D x) (SCM_POINT4F_D x) (SCM_VECTOR4F_D y))
-  (result (SCM_OBJ x)))
+  (return (SCM_OBJ x)))
 
 (define-cproc point4f-sub (x::<point4f> y) Scm_Point4fSub)
 
@@ -241,9 +245,9 @@
 (define-cproc make-point4f-array (len::<fixnum> &optional init)
   (when (< len 0) (Scm_Error "point4f-array length must be positive: %d" len))
   (cond [(SCM_POINT4FP init)
-         (result (Scm_MakePoint4fArrayv len (SCM_POINT4F_D init)))]
+         (return (Scm_MakePoint4fArrayv len (SCM_POINT4F_D init)))]
         [(SCM_UNBOUNDP init)
-         (result (Scm_MakePoint4fArrayv len NULL))]
+         (return (Scm_MakePoint4fArrayv len NULL))]
         [else
          (Scm_Error "bad initializer for point array: must be <point4f>, but got %S" init)]))
 
@@ -256,7 +260,7 @@
   Scm_MakePoint4fArrayV)
 
 (define-cproc point4f-array->f32vector (a::<point4f-array>)
-  (result (Scm_MakeF32VectorFromArray (* (SCM_POINT4F_ARRAY_SIZE a) 4)
+  (return (Scm_MakeF32VectorFromArray (* (SCM_POINT4F_ARRAY_SIZE a) 4)
                                       (SCM_POINT4F_ARRAY_D a))))
 
 (define-cproc point4f-array-set! (a::<point4f-array>
@@ -280,9 +284,9 @@
 
 (define-cproc make-matrix4f (&optional init)
   (if (SCM_UNBOUNDP init)
-    (result (Scm_MakeMatrix4fv matrix4f_unit))
+    (return (Scm_MakeMatrix4fv matrix4f_unit))
     (begin (assert-vector-type&size f32 16 init)
-           (result (Scm_MakeMatrix4fv (SCM_F32VECTOR_ELEMENTS init))))))
+           (return (Scm_MakeMatrix4fv (SCM_F32VECTOR_ELEMENTS init))))))
 
 (define-cproc matrix4f (&rest args) Scm_ListToMatrix4f)
 (define-cproc matrix4f? (obj)::<boolean> SCM_MATRIX4FP)
@@ -292,47 +296,47 @@
 (define-cproc f32vector->matrix4f (v::<f32vector>
                                    &optional (start::<fixnum> 0))
   (when (start-ok? start v 16)
-    (result (Scm_MakeMatrix4fv (+ (SCM_F32VECTOR_ELEMENTS v) start)))))
+    (return (Scm_MakeMatrix4fv (+ (SCM_F32VECTOR_ELEMENTS v) start)))))
 
 (define-cproc f32vector->matrix4f! (m::<matrix4f>
                                     v::<f32vector>
                                     &optional (start::<fixnum> 0))
   (when (start-ok? start v 16)
     (Scm_Matrix4fSetv m (+ (SCM_F32VECTOR_ELEMENTS v) start))
-    (result (SCM_OBJ m))))
+    (return (SCM_OBJ m))))
 
 (define-cproc matrix4f->f32vector (m::<matrix4f>)
-  (result (Scm_MakeF32VectorFromArray 16 (SCM_MATRIX4F_D m))))
+  (return (Scm_MakeF32VectorFromArray 16 (SCM_MATRIX4F_D m))))
 
 (define-cproc matrix4f-copy (m::<matrix4f>)
-  (result (Scm_MakeMatrix4fv (SCM_MATRIX4F_D m))))
+  (return (Scm_MakeMatrix4fv (SCM_MATRIX4F_D m))))
 (define-cproc matrix4f-copy! (dst::<matrix4f> src::<matrix4f>)
-  (result (Scm_Matrix4fSetv dst (SCM_MATRIX4F_D src))))
+  (return (Scm_Matrix4fSetv dst (SCM_MATRIX4F_D src))))
 
 (define-cproc matrix4f-mul (p::<matrix4f> q)
   (cond
-   [(SCM_MATRIX4FP q) (result (Scm_Matrix4fMulMatrix4f p (SCM_MATRIX4F q)))]
-   [(SCM_VECTOR4FP q) (result (Scm_Matrix4fMulVector4f p (SCM_VECTOR4F q)))]
-   [(SCM_POINT4FP q) (result (Scm_Matrix4fMulPoint4f p (SCM_POINT4F q)))]
-   [(SCM_REALP q) (result (Scm_Matrix4fScale p (Scm_GetDouble q)))]
+   [(SCM_MATRIX4FP q) (return (Scm_Matrix4fMulMatrix4f p (SCM_MATRIX4F q)))]
+   [(SCM_VECTOR4FP q) (return (Scm_Matrix4fMulVector4f p (SCM_VECTOR4F q)))]
+   [(SCM_POINT4FP q) (return (Scm_Matrix4fMulPoint4f p (SCM_POINT4F q)))]
+   [(SCM_REALP q) (return (Scm_Matrix4fScale p (Scm_GetDouble q)))]
    [else (Scm_Error "bad object, matrix4f, vector4f, point4f or real number required, but got %S" q)]))
 
 (define-cproc matrix4f-mul! (p::<matrix4f> q::<matrix4f>)
   (let* ([r::(.array float (16))])
     (Scm_Matrix4fMulMatrix4fv r (SCM_MATRIX4F_D p) (SCM_MATRIX4F_D q))
     (Scm_Matrix4fSetv p r)
-    (result (SCM_OBJ p))))
+    (return (SCM_OBJ p))))
 
 (define-cproc matrix4f-transpose (m::<matrix4f>)
   (let* ([r::(.array float (16))])
     (Scm_Matrix4fTransposev r (SCM_MATRIX4F_D m))
-    (result (Scm_MakeMatrix4fv r))))
+    (return (Scm_MakeMatrix4fv r))))
 
 (define-cproc matrix4f-transpose! (m::<matrix4f>)
   (let* ([r::(.array float (16))] [p::float* (SCM_MATRIX4F_D m)])
     (Scm_Matrix4fTransposev r p)
     (Scm_Matrix4fSetv m r)
-    (result (SCM_OBJ m))))
+    (return (SCM_OBJ m))))
 
 (define-cproc matrix4f-set! (m::<matrix4f> i::<fixnum> v::<float>) ::<void>
   (when (index-ok? i 0 15) (set! (aref (SCM_MATRIX4F_D m) i) v)))
@@ -342,8 +346,8 @@
 
 (define-cproc matrix4f-ref (m::<matrix4f> i::<fixnum> &optional fallback)
   (setter matrix4f-set!)
-  (when (index-ok/fallback? i 0 15 fallback)
-    (result (Scm_MakeFlonum (aref (SCM_MATRIX4F_D m) i)))))
+  (when-index-ok/fallback [i 0 15 fallback]
+    (return (Scm_MakeFlonum (aref (SCM_MATRIX4F_D m) i)))))
 
 (define-cproc matrix4f-set2! (m::<matrix4f> i::<fixnum> j::<fixnum> v::<float>)
   ::<void>
@@ -355,7 +359,7 @@
   (setter matrix4f-set2!)
   (when (index-ok? i 0 3)
     (when (index-ok? j 0 3)
-      (result (SCM_MATRIX4F_REF m i j)))))
+      (return (SCM_MATRIX4F_REF m i j)))))
 
 (define-cproc matrix4f-row (m::<matrix4f> i::<fixnum>)
   (setter (m::<matrix4f> i::<fixnum> v) ::<void>
@@ -367,7 +371,7 @@
         (SCM_MATRIX4F_SET m i 2 (aref fv 2))
         (SCM_MATRIX4F_SET m i 3 (aref fv 3)))))
   (when (index-ok? i 0 3)
-    (result (Scm_MakeVector4f (SCM_MATRIX4F_REF m i 0)
+    (return (Scm_MakeVector4f (SCM_MATRIX4F_REF m i 0)
                               (SCM_MATRIX4F_REF m i 1)
                               (SCM_MATRIX4F_REF m i 2)
                               (SCM_MATRIX4F_REF m i 3)))))
@@ -382,15 +386,15 @@
         (SCM_MATRIX4F_SET m 2 i (aref fv 2))
         (SCM_MATRIX4F_SET m 3 i (aref fv 3)))))
   (when (index-ok? i 0 3)
-    (result (Scm_MakeVector4fv (SCM_MATRIX4F_COLVEC m i)))))
+    (return (Scm_MakeVector4fv (SCM_MATRIX4F_COLVEC m i)))))
 
 (define-cproc matrix4f-column/shared (m::<matrix4f> i::<fixnum>)
   (when (index-ok? i 0 3)
-    (result (Scm_MakeVector4fvShared (SCM_MATRIX4F_COLVEC m i)))))
+    (return (Scm_MakeVector4fvShared (SCM_MATRIX4F_COLVEC m i)))))
 
 ;; determinant and inverse
 (define-cproc matrix4f-determinant (m::<matrix4f>) ::<double>
-  (result (Scm_Matrix4fDeterminantv (SCM_MATRIX4F_D m))))
+  (return (Scm_Matrix4fDeterminantv (SCM_MATRIX4F_D m))))
 
 (define-cproc matrix4f-inverse (m::<matrix4f> &optional (error-on-singular #t))
   (let* ([r (Scm_MakeMatrix4fv NULL)]
@@ -398,7 +402,7 @@
           (Scm_Matrix4fInversev (SCM_MATRIX4F_D r) (SCM_MATRIX4F_D m))])
     (when (and (not code) (not (SCM_FALSEP error-on-singular)))
       (Scm_Error "attempt to inverse singular matrix: %S" m))
-    (result (?: code r SCM_FALSE))))
+    (return (?: code r SCM_FALSE))))
 
 (define-cproc matrix4f-inverse! (m::<matrix4f> &optional (error-on-singular #t))
   (let* ([r::(.array float (16))]
@@ -407,8 +411,8 @@
       (Scm_Error "attempt to inverse singular matrix: %S" m))
     (cond [code
            (dotimes [i 16] (set! (aref (SCM_MATRIX4F_D m) i) (aref r i)))
-           (result (SCM_OBJ m))]
-          [else (result '#f)])))
+           (return (SCM_OBJ m))]
+          [else (return '#f)])))
 
 ;; basic transformation
 
@@ -416,34 +420,34 @@
   (let* ([r::(.array float [16])] [p::float*])
     (SCM_MATH3D_X3FP p t)
     (Scm_TranslationToMatrix4fv r p)
-    (result (Scm_MakeMatrix4fv r))))
+    (return (Scm_MakeMatrix4fv r))))
 (define-cproc translation->matrix4f! (m::<matrix4f> t)
   (let* ([p::float*])
     (SCM_MATH3D_X3FP p t)
     (Scm_TranslationToMatrix4fv (SCM_MATRIX4F_D m) p)
-    (result (SCM_OBJ m))))
+    (return (SCM_OBJ m))))
 
 (define-cproc rotation->matrix4f (v angle::<float>)
   (let* ([r::(.array float [16])] [p::float*])
     (SCM_MATH3D_X3FP p v)
     (Scm_RotationToMatrix4fv r p angle)
-    (result (Scm_MakeMatrix4fv r))))
+    (return (Scm_MakeMatrix4fv r))))
 (define-cproc rotation->matrix4f! (m::<matrix4f> v angle::<float>)
   (let* ([p::float*])
     (SCM_MATH3D_X3FP p v)
     (Scm_RotationToMatrix4fv (SCM_MATRIX4F_D m) p angle)
-    (result (SCM_OBJ m))))
+    (return (SCM_OBJ m))))
 
 (define-cproc scale->matrix4f (s)
   (let* ([r::(.array float[16])] [p::float* NULL])
     (SCM_MATH3D_X3FP p s)
     (Scm_ScaleToMatrix4fv r p)
-    (result (Scm_MakeMatrix4fv r))))
+    (return (Scm_MakeMatrix4fv r))))
 (define-cproc scale->matrix4f! (m::<matrix4f> s)
   (let* ([p::float*])
     (SCM_MATH3D_X3FP p s)
     (Scm_ScaleToMatrix4fv (SCM_MATRIX4F_D m) p)
-    (result (SCM_OBJ m))))
+    (return (SCM_OBJ m))))
 
 (define-cproc trs->matrix4f (t v angle::<float> s)
   (let* ([r::(.array float [16])] [pt::float*] [pv::float*] [ps::float*])
@@ -451,14 +455,14 @@
     (SCM_MATH3D_X3FP pv v)
     (SCM_MATH3D_X3FP ps s)
     (Scm_TRSToMatrix4fv r pt pv angle ps)
-    (result (Scm_MakeMatrix4fv r))))
+    (return (Scm_MakeMatrix4fv r))))
 (define-cproc trs->matrix4f! (m::<matrix4f> t v angle::<float> s)
   (let* ([pt::float*] [pv::float*] [ps::float*])
     (SCM_MATH3D_X3FP pt t)
     (SCM_MATH3D_X3FP pv v)
     (SCM_MATH3D_X3FP ps s)
     (Scm_TRSToMatrix4fv (SCM_MATRIX4F_D m) pt pv angle ps)
-    (result (SCM_OBJ m))))
+    (return (SCM_OBJ m))))
 
 (define-cproc tqs->matrix4f (t q s)
   (let* ([r::(.array float [16])] [pt::float*] [pq::float*] [ps::float*])
@@ -466,14 +470,14 @@
     (SCM_MATH3D_X4FP pq q)
     (SCM_MATH3D_X3FP ps s)
     (Scm_TQSToMatrix4fv r pt pq ps)
-    (result (Scm_MakeMatrix4fv r))))
+    (return (Scm_MakeMatrix4fv r))))
 (define-cproc tqs->matrix4f! (m::<matrix4f> t q s)
   (let* ([pt::float*] [pq::float*] [ps::float*])
     (SCM_MATH3D_X3FP pt t)
     (SCM_MATH3D_X4FP pq q)
     (SCM_MATH3D_X3FP ps s)
     (Scm_TQSToMatrix4fv (SCM_MATRIX4F_D m) pt pq ps)
-    (result (SCM_OBJ m))))
+    (return (SCM_OBJ m))))
 
 (define-cfn rotation-order (sym) ::int
   (cond [(SCM_UNBOUNDP sym) (return SCM_MATH3D_ROTATE_XYZ)] ;; default
@@ -490,7 +494,7 @@
                                      &optional order)
   (let* ([m::(.array float[16])])
     (Scm_EulerToMatrix4fv m x y z (rotation_order order))
-    (result (Scm_MakeMatrix4fv m))))
+    (return (Scm_MakeMatrix4fv m))))
 
 (define-cproc euler-angle->matrix4f! (m::<matrix4f>
                                       x::<float> y::<float> z::<float>
@@ -504,7 +508,7 @@
          [H::(.array float[4])] [R::(.array float[16])]
          [r::int (Scm_Matrix4fDecomposev (SCM_MATRIX4F_D m) T R H S)])
     ;; NB: This should be
-    ;; (result r (Scm_MakeVector4fv T) (Scm_MakeMatrix4fv R)
+    ;; (return r (Scm_MakeVector4fv T) (Scm_MakeMatrix4fv R)
     ;;           (Scm_MakeVector4fv H) (Scm_MakeVector4fv S))))
     ;; but 0.9.3.3's cise doesn't support this many return values.
     (set! SCM_RESULT0 r
@@ -516,14 +520,14 @@
 (define-cproc matrix4f-decompose! (m::<matrix4f> T::<vector4f> R::<matrix4f>
                                    H::<vector4f> S::<vector4f>)
   ::<boolean>
-  (result (Scm_Matrix4fDecomposev (SCM_MATRIX4F_D m)
+  (return (Scm_Matrix4fDecomposev (SCM_MATRIX4F_D m)
                                   (SCM_VECTOR4F_D T)
                                   (SCM_MATRIX4F_D R)
                                   (SCM_VECTOR4F_D H)
                                   (SCM_VECTOR4F_D S))))
 
 (define-cproc matrix4f->translation (m::<matrix4f>)
-  (result (Scm_MakeVector4f (aref (SCM_MATRIX4F_D m) 12)
+  (return (Scm_MakeVector4f (aref (SCM_MATRIX4F_D m) 12)
                             (aref (SCM_MATRIX4F_D m) 13)
                             (aref (SCM_MATRIX4F_D m) 14)
                             0.0)))
@@ -533,18 +537,18 @@
   (set! (SCM_VECTOR4F_REF v 1) (aref (SCM_MATRIX4F_D m) 13))
   (set! (SCM_VECTOR4F_REF v 2) (aref (SCM_MATRIX4F_D m) 14))
   (set! (SCM_VECTOR4F_REF v 3) 0.0)
-  (result (SCM_OBJ v)))
+  (return (SCM_OBJ v)))
 
 (define-cproc matrix4f->rotation (m::<matrix4f>) ::(<top> <float>)
   (let* ([v::(.array float[4])]
          [angle::float (Scm_Matrix4fToRotationv (SCM_MATRIX4F_D m) v)])
-    (result (Scm_MakeVector4fv v) angle)))
+    (return (Scm_MakeVector4fv v) angle)))
 
 (define-cproc matrix4f->rotation! (v::<vector4f> m::<matrix4f>)
   ::(<top> <float>)
   (let* ([angle::float (Scm_Matrix4fToRotationv (SCM_MATRIX4F_D m)
                                                 (SCM_VECTOR4F_D v))])
-    (result (SCM_OBJ v) angle)))
+    (return (SCM_OBJ v) angle)))
 
 ;; projection matrix
 (define (ortho->matrix4f left right bottom top near far)
@@ -621,12 +625,12 @@
 
 (define-cproc make-quatf (&optional vec (angle::<float> 0))
   (if (SCM_UNBOUNDP vec)
-    (result (Scm_MakeQuatf 0.0 0.0 0.0 1.0))
+    (return (Scm_MakeQuatf 0.0 0.0 0.0 1.0))
     (let* ([q::float*])
       (SCM_MATH3D_X3FP q vec)
       (let* ([sint::double (sin (/ angle 2.0))]
              [cost::double (cos (/ angle 2.0))])
-        (result (Scm_MakeQuatf (* sint (aref q 0))
+        (return (Scm_MakeQuatf (* sint (aref q 0))
                                (* sint (aref q 1))
                                (* sint (aref q 2))
                                cost))))))
@@ -636,30 +640,30 @@
 (define-cproc f32vector->quatf (x::<f32vector>
                                 &optional (start::<fixnum> 0))
   (when (start-ok? start x 4)
-    (result (Scm_MakeQuatfv (+ (SCM_F32VECTOR_ELEMENTS x) start)))))
+    (return (Scm_MakeQuatfv (+ (SCM_F32VECTOR_ELEMENTS x) start)))))
 (define-cproc quatf->f32vector (q::<quatf>)
-  (result (Scm_MakeF32VectorFromArray 4 (SCM_QUATF_D q))))
+  (return (Scm_MakeF32VectorFromArray 4 (SCM_QUATF_D q))))
 
 (define-cproc quatf-copy (q::<quatf>)
-  (result (Scm_MakeQuatfv (SCM_QUATF_D q))))
+  (return (Scm_MakeQuatfv (SCM_QUATF_D q))))
 (define-cproc quatf-copy! (dst::<quatf> src::<quatf>)
-  (result (Scm_QuatfSetv dst (SCM_QUATF_D src))))
+  (return (Scm_QuatfSetv dst (SCM_QUATF_D src))))
 
 (define-cproc quatf-ref (q::<quatf> i::<fixnum> &optional fallback)
-  (when (index-ok/fallback? i 0 3 fallback)
-    (result (Scm_MakeFlonum (aref (SCM_QUATF_D q) i)))))
+  (when-index-ok/fallback [i 0 3 fallback]
+    (return (Scm_MakeFlonum (aref (SCM_QUATF_D q) i)))))
 
 (define-cproc quatf-set! (q::<quatf> i::<fixnum> val::<float>)
   (when (index-ok? i 0 3)
     (set! (aref (SCM_QUATF_D q) i) (cast float val))
-    (result (SCM_OBJ q))))
+    (return (SCM_OBJ q))))
 
 (define-cproc quatf-set4! (q::<quatf> x::<float> y::<float> z::<float> w::<float>)
   (set! (aref (SCM_QUATF_D q) 0) x
         (aref (SCM_QUATF_D q) 1) y
         (aref (SCM_QUATF_D q) 2) z
         (aref (SCM_QUATF_D q) 3) w)
-  (result (SCM_OBJ q)))
+  (return (SCM_OBJ q)))
 
 (define-cproc rotation->quatf! (q::<quatf> v angle::<float>)
   (let* ([qv::float* (SCM_QUATF_D q)] [vv::float*])
@@ -670,59 +674,59 @@
       (set! (aref qv 1) (* sint (aref vv 1)))
       (set! (aref qv 2) (* sint (aref vv 2)))
       (set! (aref qv 3) cost)))
-  (result (SCM_OBJ q)))
+  (return (SCM_OBJ q)))
 
 (define-cproc quatf-add (p::<quatf> q::<quatf>) Scm_QuatfAdd)
 (define-cproc quatf-add! (p::<quatf> q::<quatf>)
   (let* ([r::(.array float [4])])
     (Scm_QuatfAddv r (SCM_QUATF_D p) (SCM_QUATF_D q))
-    (result (Scm_QuatfSetv p r))))
+    (return (Scm_QuatfSetv p r))))
 
 (define-cproc quatf-sub (p::<quatf> q::<quatf>) Scm_QuatfSub)
 (define-cproc quatf-sub! (p::<quatf> q::<quatf>)
   (let* ([r::(.array float [4])])
     (Scm_QuatfSubv r (SCM_QUATF_D p) (SCM_QUATF_D q))
-    (result (Scm_QuatfSetv p r))))
+    (return (Scm_QuatfSetv p r))))
 
 (define-cproc quatf-scale (q::<quatf> s::<float>)
   (let* ([d::float* (SCM_QUATF_D q)])
     (when (== s 0.0) (Scm_Error "divide by zero"))
-    (result (Scm_MakeQuatf (/ (aref d 0) s) (/ (aref d 1) s)
+    (return (Scm_MakeQuatf (/ (aref d 0) s) (/ (aref d 1) s)
                            (/ (aref d 2) s) (/ (aref d 3) s)))))
 (define-cproc quatf-scale! (q::<quatf> s::<float>)
   (let* ([d::float* (SCM_QUATF_D q)])
     (when (== s 0.0) (Scm_Error "divide by zero"))
     (dotimes [i 4] (/= (aref d i) s))
-    (result (SCM_OBJ q))))
+    (return (SCM_OBJ q))))
 
 (define-cproc quatf-mul (p::<quatf> q::<quatf>) Scm_QuatfMul)
 (define-cproc quatf-mul! (p::<quatf> q::<quatf>)
   (let* ([r::(.array float [4])])
     (Scm_QuatfMulv r (SCM_QUATF_D p) (SCM_QUATF_D q))
-    (result (Scm_QuatfSetv p r))))
+    (return (Scm_QuatfSetv p r))))
 
 ;; calculate qpq*
 (define-cproc quatf-transform (quat::<quatf> v)
   (let* ([d::float*] [r::(.array float [4])])
     (SCM_MATH3D_X4FP d v)
     (Scm_QuatfTransformv r (SCM_QUATF_D quat) d)
-    (cond [(SCM_VECTOR4FP v) (result (Scm_MakeVector4fv r))]
-          [(SCM_POINT4FP v)  (result (Scm_MakePoint4fv r))]
-          [else (result (Scm_MakeF32VectorFromArray 4 r))])))
+    (cond [(SCM_VECTOR4FP v) (return (Scm_MakeVector4fv r))]
+          [(SCM_POINT4FP v)  (return (Scm_MakePoint4fv r))]
+          [else (return (Scm_MakeF32VectorFromArray 4 r))])))
 
 (define-cproc quatf-conjugate (q::<quatf>)
   (let* ([d::float* (SCM_QUATF_D q)])
-    (result (Scm_MakeQuatf (- (aref d 0)) (- (aref d 1)) (- (aref d 2))
+    (return (Scm_MakeQuatf (- (aref d 0)) (- (aref d 1)) (- (aref d 2))
                            (aref d 3)))))
 
 (define-cproc quatf-conjugate! (q::<quatf> p::<quatf>)
   (let* ([s::float* (SCM_QUATF_D p)]
          [d::float* (SCM_QUATF_D q)])
     (SCM_QUATF_CONJUGATEV d s)
-    (result (SCM_OBJ q))))
+    (return (SCM_OBJ q))))
 
 (define-cproc quatf-norm (q::<quatf>)
-  (result (Scm_MakeFlonum (SCM_QUATF_NORMV (SCM_QUATF_D q)))))
+  (return (Scm_MakeFlonum (SCM_QUATF_NORMV (SCM_QUATF_D q)))))
 
 (define-cproc quatf-normalize (q::<quatf>) Scm_QuatfNormalize)
 (define-cproc quatf-normalize! (q::<quatf>) Scm_QuatfNormalizeX)
@@ -730,37 +734,37 @@
 (define-cproc quatf->matrix4f (q::<quatf>)
   (let* ([m::(.array float [16])])
     (Scm_QuatfToMatrix4fv m (SCM_QUATF_D q))
-    (result (Scm_MakeMatrix4fv m))))
+    (return (Scm_MakeMatrix4fv m))))
 (define-cproc quatf->matrix4f! (m::<matrix4f> q::<quatf>)
   (Scm_QuatfToMatrix4fv (SCM_MATRIX4F_D m) (SCM_QUATF_D q))
-  (result (SCM_OBJ m)))
+  (return (SCM_OBJ m)))
 
 (define-cproc matrix4f->quatf (m::<matrix4f>)
   (let* ([q::(.array float [4])])
     (Scm_Matrix4fToQuatfv q (SCM_MATRIX4F_D m))
-    (result (Scm_MakeQuatfv q))))
+    (return (Scm_MakeQuatfv q))))
 
 (define-cproc matrix4f->quatf! (q::<quatf> m::<matrix4f>)
   (Scm_Matrix4fToQuatfv (SCM_QUATF_D q) (SCM_MATRIX4F_D m))
-  (result (SCM_OBJ q)))
+  (return (SCM_OBJ q)))
 
 (define-cproc quatf-slerp (p::<quatf> q::<quatf> t::<float>)
   (let* ([r::(.array float [4])])
     (Scm_QuatfSlerp r (SCM_QUATF_D p) (SCM_QUATF_D q) t)
-    (result (Scm_MakeQuatfv r))))
+    (return (Scm_MakeQuatfv r))))
 
 (define-cproc quatf-slerp! (r::<quatf> p::<quatf> q::<quatf> t::<float>)
   (Scm_QuatfSlerp (SCM_QUATF_D r) (SCM_QUATF_D p) (SCM_QUATF_D q) t)
-  (result (SCM_OBJ r)))
+  (return (SCM_OBJ r)))
 
 (define-cproc vectors->quatf (v::<vector4f> w::<vector4f>)
   (let* ([r::(.array float [4])])
     (Scm_VectorsToQuatfv r (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
-    (result (Scm_MakeQuatfv r))))
+    (return (Scm_MakeQuatfv r))))
 
 (define-cproc vectors->quatf! (q::<quatf> v::<vector4f> w::<vector4f>)
   (Scm_VectorsToQuatfv (SCM_QUATF_D q) (SCM_VECTOR4F_D v) (SCM_VECTOR4F_D w))
-  (result (SCM_OBJ q)))
+  (return (SCM_OBJ q)))
 
 (define-cproc axes->quatf (v1::<vector4f>
                            v2::<vector4f>
@@ -769,7 +773,7 @@
   (let* ([r::(.array float [4])])
     (Scm_AxesToQuatfv r (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
                       (SCM_VECTOR4F_D w1) (SCM_VECTOR4F_D w2))
-    (result (Scm_MakeQuatfv r))))
+    (return (Scm_MakeQuatfv r))))
 
 (define-cproc axes->quatf! (q::<quatf>
                                 v1::<vector4f>
@@ -779,7 +783,7 @@
   (Scm_AxesToQuatfv (SCM_QUATF_D q)
                     (SCM_VECTOR4F_D v1) (SCM_VECTOR4F_D v2)
                     (SCM_VECTOR4F_D w1) (SCM_VECTOR4F_D w2))
-  (result (SCM_OBJ q)))
+  (return (SCM_OBJ q)))
 
 ;; Local variables:
 ;; mode: scheme

@@ -160,7 +160,7 @@
   ;; TODO: check the type and size vailidity of data
   (ENSURE glGetColorTable)
   (glGetColorTable target format type (SCM_UVECTOR_ELEMENTS data))
-  (result (SCM_OBJ data)))
+  (return (SCM_OBJ data)))
 
 ; gl-get-color-table-parameter
 
@@ -196,7 +196,7 @@
       (unless (SCM_UVECTORP vec)
         (Scm_Error "invalid format or type (%S, %S)" format type))
       (glGetHistogram target reset format type (SCM_UVECTOR_ELEMENTS vec))
-      (result vec))))
+      (return vec))))
 
 (define-cproc gl-get-histogram-parameter (target::<fixnum>
                                           pname::<fixnum>)
@@ -205,10 +205,10 @@
     (case pname
       [(GL_HISTOGRAM_SINK)
        (glGetHistogramParameteriv target pname (& param))
-       (result (SCM_MAKE_BOOL param))]
+       (return (SCM_MAKE_BOOL param))]
       [else
        (glGetHistogramParameteriv target pname (& param))
-       (result (Scm_MakeInteger param))])))
+       (return (Scm_MakeInteger param))])))
 
 (define-cproc gl-minmax (target::<fixnum> internal-format::<fixnum> sink::<boolean>) ::<void>
   (ENSURE glMinmax)
@@ -228,7 +228,7 @@
       (Scm_Error "invalid format or type (%S, %S)" format type))
     (ENSURE glGetMinmax)
     (glGetMinmax target reset format type (SCM_UVECTOR_ELEMENTS vec))
-    (result vec)))
+    (return vec)))
 
 (define-cproc gl-get-minmax-parameter (target::<fixnum>
                                        pname::<fixnum>)
@@ -237,10 +237,10 @@
     (case pname
       [(GL_MINMAX_SINK)
        (glGetMinmaxParameteriv target pname (& param))
-       (result (SCM_MAKE_BOOL param))]
+       (return (SCM_MAKE_BOOL param))]
       [else
        (glGetMinmaxParameteriv target pname (& param))
-       (result (Scm_MakeInteger param))])))
+       (return (Scm_MakeInteger param))])))
 
 (define-cproc gl-convolution-filter-2d (target::<fixnum>
                                         internal-format::<fixnum>
@@ -367,14 +367,14 @@
      (ENSURE glGetConvolutionParameteriv)
      (let* ([r::GLint])
        (glGetConvolutionParameteriv target pname (& r))
-       (result (Scm_MakeInteger r)))]
+       (return (Scm_MakeInteger r)))]
     [(GL_CONVOLUTION_BORDER_COLOR
       GL_CONVOLUTION_FILTER_SCALE
       GL_CONVOLUTION_FILTER_BIAS)
      (ENSURE glGetConvolutionParameterfv)
      (let* ([v (Scm_MakeF32Vector 4 0)])
        (glGetConvolutionParameterfv target pname (SCM_F32VECTOR_ELEMENTS v))
-       (result v))]
+       (return v))]
     [else
      (Scm_Error "Invalid pname parameter for gl-get-convolution-parameter: %d" pname)]))
 
@@ -439,7 +439,7 @@
 
 (define-cproc gl-is-query (query::<uint>) ::<boolean>
   (ENSURE glIsQuery)
-  (result (glIsQuery query)))
+  (return (glIsQuery query)))
 
 (define-cproc gl-begin-query (op::<uint> query::<uint>) ::<void>
   (ENSURE glBeginQuery)
@@ -470,7 +470,7 @@
 
 (define-cproc gl-create-shader (type::<uint>) ::<uint>
   (ENSURE glCreateShader)
-  (result (glCreateShader type)))
+  (return (glCreateShader type)))
 
 (define-cproc gl-shader-source (shader::<uint> strings) ::<void>
   (let* ([nstrings::GLint (Scm_Length strings)]
@@ -504,7 +504,7 @@
 
 (define-cproc gl-create-program () ::<uint>
   (ENSURE glCreateProgram)
-  (result (glCreateProgram)))
+  (return (glCreateProgram)))
 
 (define-cproc gl-attach-shader (program::<uint> shader::<uint>)
   ::<void>
@@ -763,7 +763,7 @@
       (glGetShaderSource shader srclen NULL srcstr)
       (CHECK_ERROR "glGetShadeSource")
       (= (aref srcstr srclen) 0)
-      (result (Scm_MakeString (cast (const char*) srcstr) (- srclen 1) -1 0)))))
+      (return (Scm_MakeString (cast (const char*) srcstr) (- srclen 1) -1 0)))))
 
 
 
@@ -852,11 +852,11 @@
   (let* ([v (Scm_MakeU32Vector n 0)])
     (ENSURE glGenBuffers)
     (glGenBuffers n (SCM_U32VECTOR_ELEMENTS v))
-    (result v)))
+    (return v)))
 
 (define-cproc gl-is-buffer (buffer::<uint>) ::<boolean>
   (ENSURE glIsBuffer)
-  (result (glIsBuffer buffer)))
+  (return (glIsBuffer buffer)))
 
 ;; NB: We need size argument, for data can be #f (NULL).   You can pass
 ;; 0 to size to make gl-buffer-data calculate one from data.
@@ -905,7 +905,7 @@
 
 (define-cproc gl-unmap-buffer (target::<int>) ::<boolean>
   (ENSURE glUnmapBuffer)
-  (result (glUnmapBuffer target)))
+  (return (glUnmapBuffer target)))
 
 (define-cproc gl-map-buffer-range (target::<fixnum>
                                    offset::<fixnum>
@@ -1510,7 +1510,7 @@
 
 (define-cproc gl-is-renderbuffer-ext (renderbuffer::<uint>) ::<boolean>
   (ENSURE glIsRenderbufferEXT)
-  (result (glIsRenderbufferEXT renderbuffer)))
+  (return (glIsRenderbufferEXT renderbuffer)))
 
 (define-cproc gl-bind-renderbuffer-ext (target::<int> renderbuffer::<uint>)
   ::<void>
@@ -1523,7 +1523,7 @@
     (Scm_Error "size must be a positive integer, but got %d" size))
   (let* ([vec (Scm_MakeU32Vector size 0)])
     (glGenRenderbuffersEXT size (cast GLuint* (SCM_U32VECTOR_ELEMENTS vec)))
-    (result vec)))
+    (return vec)))
 
 (define-cproc gl-renderbuffer-storage-ext (target::<int>
                                            internalformat::<int>
@@ -1547,7 +1547,7 @@
       GL_RENDERBUFFER_STENCIL_SIZE_EXT)
      (let* ([val::GLint])
        (glGetRenderbufferParameterivEXT target pname (& val))
-       (result (Scm_MakeInteger val)))]
+       (return (Scm_MakeInteger val)))]
     [else
      (Scm_Error "unsupported pname for gl-get-renderbuffer-parameter-ext: %S"
                 pname)]))
@@ -1568,11 +1568,11 @@
     (Scm_Error "size must be a positive integer, but got %d" size))
   (let* ([vec (Scm_MakeU32Vector size 0)])
     (glGenFramebuffersEXT size (cast GLuint* (SCM_U32VECTOR_ELEMENTS vec)))
-    (result vec)))
+    (return vec)))
 
 (define-cproc gl-check-framebuffer-status-ext (target::<int>) ::<int>
   (ENSURE glCheckFramebufferStatusEXT)
-  (result (glCheckFramebufferStatusEXT target)))
+  (return (glCheckFramebufferStatusEXT target)))
 
 (define-cproc gl-framebuffer-texture-1d-ext (target::<int>
                                              attachment::<int>
@@ -1625,7 +1625,7 @@
      (let* ([val::GLint])
        (glGetFramebufferAttachmentParameterivEXT target attachment pname
                                                  (& val))
-       (result (Scm_MakeInteger val)))]
+       (return (Scm_MakeInteger val)))]
     [else
      (Scm_Error "unsupported pname for gl-get-renderbuffer-parameter-ext: %S"
                 pname)]))

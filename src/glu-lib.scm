@@ -35,14 +35,11 @@
 (select-module gl)
 
 (inline-stub
+ (declcode (.include <gauche/uvector.h>
+                     "gauche-gl.h"))
 
-(declcode "#include <gauche/uvector.h>"
-          "#include \"gauche-gl.h\"")
-
-(include "glcase.scm")
-
-(define-type <uvector> "ScmUVector*" "uniform vector"
-  "SCM_UVECTORP" "SCM_UVECTOR")
+ (include "glcase.scm")
+ )
 
 ;;================================================================
 ;; Miscellaneous
@@ -68,23 +65,25 @@
 (define-cproc glu-error-string (code::<int>)
   (let* ([s::(const GLubyte*) (gluErrorString code)])
     (if s
-      (result (Scm_MakeString (cast (const char*) s) -1 -1 0))
-      (result SCM_FALSE))))
+      (return (Scm_MakeString (cast (const char*) s) -1 -1 0))
+      (return SCM_FALSE))))
 
 ;; common routine for glu-project and glu-un-project
-(define-cise-stmt glu-xproject
-  [(_ fn srcx srcy srcz)
-   `(let* ([dstx::GLdouble] [dsty::GLdouble] [dstz::GLdouble])
-      (assert-vector-type&size f64 16 model-mat)
-      (assert-vector-type&size f64 16 proj-mat)
-      (assert-vector-type&size s32 4 vp)
-      (if (== GL_TRUE (,fn ,srcx ,srcy ,srcz
-                           (SCM_F64VECTOR_ELEMENTS model-mat)
-                           (SCM_F64VECTOR_ELEMENTS proj-mat)
-                           (cast GLint* (SCM_S32VECTOR_ELEMENTS vp))
-                           (& dstx) (& dsty) (& dstz)))
-        (result (Scm_MakeFlonum dstx)(Scm_MakeFlonum dsty)(Scm_MakeFlonum dstz))
-        (result '#f '#f '#f)))])
+(inline-stub
+ (define-cise-stmt glu-xproject
+   [(_ fn srcx srcy srcz)
+    `(let* ([dstx::GLdouble] [dsty::GLdouble] [dstz::GLdouble])
+       (assert-vector-type&size f64 16 model-mat)
+       (assert-vector-type&size f64 16 proj-mat)
+       (assert-vector-type&size s32 4 vp)
+       (if (== GL_TRUE (,fn ,srcx ,srcy ,srcz
+                            (SCM_F64VECTOR_ELEMENTS model-mat)
+                            (SCM_F64VECTOR_ELEMENTS proj-mat)
+                            (cast GLint* (SCM_S32VECTOR_ELEMENTS vp))
+                            (& dstx) (& dsty) (& dstz)))
+         (return (Scm_MakeFlonum dstx)(Scm_MakeFlonum dsty)(Scm_MakeFlonum dstz))
+         (return '#f '#f '#f)))])
+ )
 
 (define-cproc glu-project (objx::<double> objy::<double> objz::<double>
                            model-mat proj-mat vp)
@@ -97,44 +96,46 @@
   (glu-xproject gluUnProject winx winy winz))
 
 ;; common routine for glu-project! and glu-un-project!
-(define-cise-stmt glu-xproject!
-  [(_ fn dst src)
-   `(let* ([dstfp::float* NULL] [srcfp::float* NULL]
-           [dstdp::double* NULL] [srcdp::double* NULL]
-           [dstx::GLdouble] [dsty::GLdouble] [dstz::GLdouble])
-      ;; We allow f64 vector as well as float vector-likes (f32, point4f,
-      ;; vector4f, quatf), so it's a bit complicated here.
-      (if (and (SCM_F64VECTORP ,dst) (== (SCM_F64VECTOR_SIZE ,dst) 4))
-        (set! dstdp (SCM_F64VECTOR_ELEMENTS ,dst))
-        (SCM_MATH3D_X4FP dstfp ,dst))
-      (if (and (SCM_F64VECTORP ,src) (== (SCM_F64VECTOR_SIZE ,src) 4))
-        (set! srcdp (SCM_F64VECTOR_ELEMENTS ,src))
-        (SCM_MATH3D_X4FP srcfp ,src))
-      (assert-vector-type&size f64 16 model-mat)
-      (assert-vector-type&size f64 16 proj-mat)
-      (assert-vector-type&size s32 4 vp)
-      (if (== GL_TRUE
-              (?: srcfp
-                  (,fn (aref srcfp 0) (aref srcfp 1) (aref srcfp 2)
-                       (SCM_F64VECTOR_ELEMENTS model-mat)
-                       (SCM_F64VECTOR_ELEMENTS proj-mat)
-                       (cast GLint* (SCM_S32VECTOR_ELEMENTS vp))
-                       (& dstx) (& dsty) (& dstz))
-                  (,fn (aref srcdp 0) (aref srcdp 1) (aref srcdp 2)
-                       (SCM_F64VECTOR_ELEMENTS model-mat)
-                       (SCM_F64VECTOR_ELEMENTS proj-mat)
-                       (cast GLint* (SCM_S32VECTOR_ELEMENTS vp))
-                       (& dstx) (& dsty) (& dstz))))
-        (begin
-          (if dstfp
-            (set! (aref dstfp 0) dstx
-                  (aref dstfp 1) dsty
-                  (aref dstfp 2) dstz)
-            (set! (aref dstdp 0) dstx
-                  (aref dstdp 1) dsty
-                  (aref dstdp 2) dstz))
-          (result (SCM_OBJ ,dst)))
-        (result '#f)))])
+(inline-stub
+ (define-cise-stmt glu-xproject!
+   [(_ fn dst src)
+    `(let* ([dstfp::float* NULL] [srcfp::float* NULL]
+            [dstdp::double* NULL] [srcdp::double* NULL]
+            [dstx::GLdouble] [dsty::GLdouble] [dstz::GLdouble])
+       ;; We allow f64 vector as well as float vector-likes (f32, point4f,
+       ;; vector4f, quatf), so it's a bit complicated here.
+       (if (and (SCM_F64VECTORP ,dst) (== (SCM_F64VECTOR_SIZE ,dst) 4))
+         (set! dstdp (SCM_F64VECTOR_ELEMENTS ,dst))
+         (SCM_MATH3D_X4FP dstfp ,dst))
+       (if (and (SCM_F64VECTORP ,src) (== (SCM_F64VECTOR_SIZE ,src) 4))
+         (set! srcdp (SCM_F64VECTOR_ELEMENTS ,src))
+         (SCM_MATH3D_X4FP srcfp ,src))
+       (assert-vector-type&size f64 16 model-mat)
+       (assert-vector-type&size f64 16 proj-mat)
+       (assert-vector-type&size s32 4 vp)
+       (if (== GL_TRUE
+               (?: srcfp
+                   (,fn (aref srcfp 0) (aref srcfp 1) (aref srcfp 2)
+                        (SCM_F64VECTOR_ELEMENTS model-mat)
+                        (SCM_F64VECTOR_ELEMENTS proj-mat)
+                        (cast GLint* (SCM_S32VECTOR_ELEMENTS vp))
+                        (& dstx) (& dsty) (& dstz))
+                   (,fn (aref srcdp 0) (aref srcdp 1) (aref srcdp 2)
+                        (SCM_F64VECTOR_ELEMENTS model-mat)
+                        (SCM_F64VECTOR_ELEMENTS proj-mat)
+                        (cast GLint* (SCM_S32VECTOR_ELEMENTS vp))
+                        (& dstx) (& dsty) (& dstz))))
+         (begin
+           (if dstfp
+             (set! (aref dstfp 0) dstx
+                   (aref dstfp 1) dsty
+                   (aref dstfp 2) dstz)
+             (set! (aref dstdp 0) dstx
+                   (aref dstdp 1) dsty
+                   (aref dstdp 2) dstz))
+           (return (SCM_OBJ ,dst)))
+         (return '#f)))])
+ )
 
 (define-cproc glu-project! (win obj model-mat proj-mat vp)
   (glu-xproject! gluProject win obj))
@@ -157,8 +158,9 @@
 ;; Quadrics
 ;;
 
-(define-type <glu-quadric> "ScmGluQuadric*" #f
-  "SCM_GLU_QUADRIC_P" "SCM_GLU_QUADRIC")
+(inline-stub
+ (declare-stub-type <glu-quadric> "ScmGluQuadric*" #f
+   "SCM_GLU_QUADRIC_P" "SCM_GLU_QUADRIC"))
 
 ;; gluNewQuadric : (make <glu-quadric>)
 ;; gluDeleteQuadric : GC takes care of this
@@ -209,8 +211,9 @@
 ;; Nurbs
 ;;
 
-(define-type <glu-nurbs> "ScmGluNurbs*" #f
-  "SCM_GLU_NURBS_P" "SCM_GLU_NURBS")
+(inline-stub
+ (declare-stub-type <glu-nurbs> "ScmGluNurbs*" #f
+   "SCM_GLU_NURBS_P" "SCM_GLU_NURBS"))
 
 ;; glu-new-nurbs-renderer : (make <glu-nurbs>)
 ;; glu-delete-nurbs-renderer : GC takes care of this.
@@ -234,7 +237,7 @@
   ::<float>
   (let* ([value::GLfloat])
     (gluGetNurbsProperty (-> nurbs nurbs) property (& value))
-    (result value)))
+    (return value)))
 
 (define-cproc glu-begin-curve (nurbs::<glu-nurbs>) ::<void>
   (gluBeginCurve (-> nurbs nurbs)))
@@ -262,8 +265,9 @@
 ;; Polygon tesselation
 ;;
 
-(define-type <glu-tesselator> "ScmGluTesselator*" #f
-  "SCM_GLU_TESSELATOR_P" "SCM_GLU_TESSELATOR")
+(inline-stub
+ (declare-stub-type <glu-tesselator> "ScmGluTesselator*" #f
+   "SCM_GLU_TESSELATOR_P" "SCM_GLU_TESSELATOR"))
 
 ;;=============================================================
 ;; Mipmapping and image scaling
@@ -279,7 +283,7 @@
   (let* ([elttype::int]
          [size::int (Scm_GLPixelDataSize width 1 format type (& elttype) NULL)]
          [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
-    (result (gluBuild1DMipmaps target internalformat width format
+    (return (gluBuild1DMipmaps target internalformat width format
                                type texelptr))))
 
 (define-cproc glu-build-2d-mipmaps (target::<fixnum>
@@ -292,75 +296,78 @@
          [size::int (Scm_GLPixelDataSize width height format type
                                          (& elttype) NULL)]
          [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
-    (result (gluBuild2DMipmaps target internalformat width height format
+    (return (gluBuild2DMipmaps target internalformat width height format
                                type texelptr))))
 
 ;; NB: We exclude HAVE_GL_GLEW_H case since glew defines GL_VERSION_1_2,
 ;; although MinGW's glu header doesn't have entry for these APIs.
-(if "defined(GL_VERSION_1_2) && !defined(HAVE_GL_GLEW_H)" (begin
+(inline-stub
+(.when (and (defined GL_VERSION_1_2)
+            (not (defined HAVE_GL_GLEW_H)))
 
-(define-cproc glu-build-3d-mipmaps (target::<fixnum>
-                                    internalformat::<fixnum>
-                                    width::<fixnum> height::<fixnum>
-                                    depth::<fixnum> format::<fixnum>
-                                    type::<fixnum> texels)
-  ::<int>
-  ;; NB: does Scm_GLPxielDataSize work to pass height*depth as height?
-  ;; need to think over it.
-  (let* ([elttype::int]
-         [size::int (Scm_GLPixelDataSize width (* height depth) format type
-                                         (& elttype) NULL)]
-         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
-    (result (gluBuild3DMipmaps target internalformat width height depth format
-                               type texelptr))))
+  (define-cproc glu-build-3d-mipmaps (target::<fixnum>
+                                      internalformat::<fixnum>
+                                      width::<fixnum> height::<fixnum>
+                                      depth::<fixnum> format::<fixnum>
+                                      type::<fixnum> texels)
+    ::<int>
+    ;; NB: does Scm_GLPxielDataSize work to pass height*depth as height?
+    ;; need to think over it.
+    (let* ([elttype::int]
+           [size::int (Scm_GLPixelDataSize width (* height depth) format type
+                                           (& elttype) NULL)]
+           [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+      (return (gluBuild3DMipmaps target internalformat width height depth format
+                                 type texelptr))))
 
-(define-cproc glu-build-1d-mipmap-levels (target::<fixnum>
-                                          internalformat::<fixnum>
-                                          width::<fixnum>
-                                          format::<fixnum> type::<fixnum>
-                                          level::<fixnum> base::<fixnum>
-                                          max::<fixnum>
-                                          texels)
-  ::<int>
-  (let* ([elttype::int]
-         [size::int (Scm_GLPixelDataSize width 1 format type (& elttype) NULL)]
-         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
-    (result (gluBuild1DMipmapLevels target internalformat width format
-                                    type level base max texelptr))))
+  (define-cproc glu-build-1d-mipmap-levels (target::<fixnum>
+                                            internalformat::<fixnum>
+                                            width::<fixnum>
+                                            format::<fixnum> type::<fixnum>
+                                            level::<fixnum> base::<fixnum>
+                                            max::<fixnum>
+                                            texels)
+    ::<int>
+    (let* ([elttype::int]
+           [size::int (Scm_GLPixelDataSize width 1 format type (& elttype) NULL)]
+           [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+      (return (gluBuild1DMipmapLevels target internalformat width format
+                                      type level base max texelptr))))
 
-(define-cproc glu-build-2d-mipmap-levels (target::<fixnum>
-                                          internalformat::<fixnum>
-                                          width::<fixnum> height::<fixnum>
-                                          format::<fixnum> type::<fixnum>
-                                          level::<fixnum> base::<fixnum>
-                                          max::<fixnum>
-                                          texels)
-  ::<int>
-  (let* ([elttype::int]
-         [size::int (Scm_GLPixelDataSize width height format type
-                                         (& elttype) NULL)]
-         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
-    (result (gluBuild2DMipmapLevels target internalformat width height format
-                                    type level base max texelptr))))
+  (define-cproc glu-build-2d-mipmap-levels (target::<fixnum>
+                                            internalformat::<fixnum>
+                                            width::<fixnum> height::<fixnum>
+                                            format::<fixnum> type::<fixnum>
+                                            level::<fixnum> base::<fixnum>
+                                            max::<fixnum>
+                                            texels)
+    ::<int>
+    (let* ([elttype::int]
+           [size::int (Scm_GLPixelDataSize width height format type
+                                           (& elttype) NULL)]
+           [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+      (return (gluBuild2DMipmapLevels target internalformat width height format
+                                      type level base max texelptr))))
 
-(define-cproc glu-build-3d-mipmap-levels (target::<fixnum>
-                                          internalformat::<fixnum>
-                                          width::<fixnum> height::<fixnum>
-                                          depth::<fixnum> format::<fixnum>
-                                          type::<fixnum> level::<fixnum>
-                                          base::<fixnum> max::<fixnum>
-                                          texels)
-  ::<int>
-  ;; NB: does Scm_GLPxielDataSize work to pass height*depth as height?
-  ;; need to think over it.
-  (let* ([elttype::int]
-         [size::int (Scm_GLPixelDataSize width (* height depth) format type
-                                         (& elttype) NULL)]
-         [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
-    (result (gluBuild3DMipmapLevels target internalformat width height depth
-                                    format type level base max texelptr))))
+  (define-cproc glu-build-3d-mipmap-levels (target::<fixnum>
+                                            internalformat::<fixnum>
+                                            width::<fixnum> height::<fixnum>
+                                            depth::<fixnum> format::<fixnum>
+                                            type::<fixnum> level::<fixnum>
+                                            base::<fixnum> max::<fixnum>
+                                            texels)
+    ::<int>
+    ;; NB: does Scm_GLPxielDataSize work to pass height*depth as height?
+    ;; need to think over it.
+    (let* ([elttype::int]
+           [size::int (Scm_GLPixelDataSize width (* height depth) format type
+                                           (& elttype) NULL)]
+           [texelptr::void* (Scm_GLPixelDataCheck texels elttype size)])
+      (return (gluBuild3DMipmapLevels target internalformat width height depth
+                                      format type level base max texelptr))))
 
-)) ;; if defined(GL_VERSION_1_2)
+  )
+)
 
 ;;================================================================
 ;; New function in GLU 1.1
@@ -369,8 +376,8 @@
 (define-cproc glu-get-string (name::<fixnum>)
   (let* ([p::(const GLubyte*) (gluGetString name)])
     (if p
-      (result (Scm_MakeString (cast (const char*) p) -1 -1 0))
-      (result SCM_FALSE))))
+      (return (Scm_MakeString (cast (const char*) p) -1 -1 0))
+      (return SCM_FALSE))))
 
 ;;================================================================
 ;; Constants
@@ -392,22 +399,22 @@
 (define-enum GLU_INSIDE)
 
 ;; Tesselator
-(if "!defined(__CYGWIN__)"
-    (begin
-      (define-enum GLU_BEGIN)
-      (define-enum GLU_VERTEX)
-      (define-enum GLU_END)
-      (define-enum GLU_ERROR)
-      (define-enum GLU_EDGE_FLAG)))
+(inline-stub
+ (.unless (defined __CYGWIN__)
+   (define-enum GLU_BEGIN)
+   (define-enum GLU_VERTEX)
+   (define-enum GLU_END)
+   (define-enum GLU_ERROR)
+   (define-enum GLU_EDGE_FLAG)))
 
 ;; Contour types
-(if "!defined(__CYGWIN__)"
-    (begin
-      (define-enum GLU_CW)
-      (define-enum GLU_CCW)
-      (define-enum GLU_INTERIOR)
-      (define-enum GLU_EXTERIOR)
-      (define-enum GLU_UNKNOWN)))
+(inline-stub
+ (.unless (defined __CYGWIN__)
+   (define-enum GLU_CW)
+   (define-enum GLU_CCW)
+   (define-enum GLU_INTERIOR)
+   (define-enum GLU_EXTERIOR)
+   (define-enum GLU_UNKNOWN)))
 
 ;; Tesselation errors
 (define-enum GLU_TESS_ERROR1)
@@ -482,15 +489,14 @@
 (define-enum GLU_INVALID_ENUM)
 (define-enum GLU_INVALID_VALUE)
 (define-enum GLU_OUT_OF_MEMORY)
-(if "defined(GLU_INCOMPATIBLE_GL_VERSION)"
-    (define-enum GLU_INCOMPATIBLE_GL_VERSION)
-    )
+
+(inline-stub
+ (.when (defined GLU_INCOMPATIBLE_GL_VERSION)
+   (define-enum GLU_INCOMPATIBLE_GL_VERSION)))
 
 ;; New in GLU 1.1
 (define-enum GLU_VERSION)
 (define-enum GLU_EXTENSIONS)
-
-) ;; end of inline-stub
 
 ;; Local variables:
 ;; mode: scheme

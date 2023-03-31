@@ -59,47 +59,49 @@
     (glfw-swap-interval 1)
 
     (let ([vertex-buffer (gl-gen-buffers 1)]
-          [vertex-shader (gl-create-shader-object-arb GL_VERTEX_SHADER)]
-          [fragment-shader (gl-create-shader-object-arb GL_FRAGMENT_SHADER)]
-          [program (gl-create-program-object-arb)]
+          [vertex-shader (gl-create-shader GL_VERTEX_SHADER)]
+          [fragment-shader (gl-create-shader GL_FRAGMENT_SHADER)]
+          [program (gl-create-program)]
           [m (make-matrix4f)]
           [p (make-matrix4f)]
           [mvp (make-matrix4f)])
       (gl-bind-buffer GL_ARRAY_BUFFER (u32vector-ref vertex-buffer 0))
       (gl-buffer-data GL_ARRAY_BUFFER 0 *vertices* GL_STATIC_DRAW)
 
-      (gl-shader-source-arb vertex-shader *vertex-shader-text*)
-      (gl-compile-shader-arb vertex-shader)
+      (gl-shader-source vertex-shader *vertex-shader-text*)
+      (gl-compile-shader vertex-shader)
 
-      (gl-shader-source-arb fragment-shader *fragment-shader-text*)
-      (gl-compile-shader-arb fragment-shader)
+      (gl-shader-source fragment-shader *fragment-shader-text*)
+      (gl-compile-shader fragment-shader)
 
-      (gl-attach-object-arb program vertex-shader)
-      (gl-attach-object-arb program fragment-shader)
-      (gl-link-program-arb program)
+      (gl-attach-shader program vertex-shader)
+      (gl-attach-shader program fragment-shader)
+      (gl-link-program program)
 
-      (let ([mvp-location (gl-get-uniform-location-arb program "MVP")]
-            [vpos-location (gl-get-attrib-location-arb program "vPos")]
-            [vcol-location (gl-get-attrib-location-arb program "vCol")])
-        (gl-enable-vertex-attrib-array-arb vpos-location)
-        (gl-vertex-attrib-pointer-arb vpos-location 2 *vertices*
+      (let ([mvp-location (gl-get-uniform-location program "MVP")]
+            [vpos-location (gl-get-attrib-location program "vPos")]
+            [vcol-location (gl-get-attrib-location program "vCol")]
+            [flag #f])
+        (gl-enable-vertex-attrib-array vpos-location)
+        (gl-vertex-attrib-pointer vpos-location 2 GL_FLOAT
                                   #f (* 5 4) 0)
-        (gl-vertex-attrib-pointer-arb vcol-location 3 *vertices*
+        (gl-enable-vertex-attrib-array vcol-location)
+        (gl-vertex-attrib-pointer vcol-location 3 GL_FLOAT
                                   #f (* 5 4) (* 2 4))
 
         (until (glfw-window-should-close window)
           (receive (w h) (glfw-get-framebuffer-size window)
-            (let ([ratio (/ w h)])
+            (let ([ratio (/. w h)])
               (gl-viewport 0 0 w h)
               (gl-clear GL_COLOR_BUFFER_BIT)
 
-              (euler-angle->matrix4f! mvp 0 0 (glfw-get-time))
-              (ortho->matrix4f! p (- ratio) ratio -1.0 1.0 1.0 -1.0)
-              (matrix4f-mul! mvp p)
+              (euler-angle->matrix4f! m 0 0 (glfw-get-time))
+              (ortho->matrix4f! mvp (- ratio) ratio -1.0 1.0 1.0 -1.0)
+              (matrix4f-mul! mvp m)
 
-              (gl-use-program-object-arb program)
-              (gl-uniform-matrix4-arb mvp-location #f
-                                      (matrix4f->f32vector mvp))
+              (gl-use-program program)
+              (gl-uniform-matrix4 mvp-location #f
+                                  (matrix4f->f32vector mvp))
               (gl-draw-arrays GL_TRIANGLES 0 3)
 
               (glfw-swap-buffers window)
@@ -108,5 +110,5 @@
         (glfw-destroy-window window)
 
         (glfw-terminate)
-        (exit EXIT_SUCCESS)))
+        (exit 0)))
     ))

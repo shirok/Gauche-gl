@@ -955,7 +955,7 @@
 
 (define-cproc gl-vertex-attrib-pointer (index::<uint>
                                         size::<int>
-                                        vec
+                                        type::<int>
                                         &optional
                                         (normalized::<boolean> #f)
                                         (stride::<fixnum> 0)
@@ -963,13 +963,9 @@
   ::<void>
   (unless (and (<= 1 size) (<= size 4))
     (Scm_Error "bad argument for size: %d, must be 1, 2, 3 or 4" size))
-  (gl-case (vec)
-           (begin
-             (ENSURE glVertexAttribPointer)
-             (glVertexAttribPointer index size ~E normalized stride
-                                    (cast GLvoid* (+ ~X offset))))
-           ((p4farray) (v4farray) (f32) (f64) (s32) (u32) (s16) (u16) (s8) (u8))
-           "bad argument for vec: %S, must be an uniform vector, <pointer4f-array> or <vector4f-array>"))
+  (ENSURE glVertexAttribPointer)
+  (glVertexAttribPointer index size type normalized stride
+                         (cast GLvoid* offset)))
 
 (define-cproc gl-is-program (program::<uint>) ::<boolean>
   (ENSURE glIsProgram)

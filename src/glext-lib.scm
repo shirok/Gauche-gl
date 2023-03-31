@@ -953,6 +953,7 @@
                   (Scm_Error "bad arguments for gl-vertex-attrib-4n: %S"
                              (Scm_Cons arg0 args))])))
 
+;; NB: stride and offset are in bytes, to allow
 (define-cproc gl-vertex-attrib-pointer (index::<uint>
                                         size::<int>
                                         type::<int>
@@ -964,7 +965,7 @@
   (unless (and (<= 1 size) (<= size 4))
     (Scm_Error "bad argument for size: %d, must be 1, 2, 3 or 4" size))
   (ENSURE glVertexAttribPointer)
-  (glVertexAttribPointer index size type normalized stride
+  (glVertexAttribPointer index size type (?: normalized GL_TRUE GL_FALSE) stride
                          (cast GLvoid* offset)))
 
 (define-cproc gl-is-program (program::<uint>) ::<boolean>

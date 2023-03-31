@@ -588,9 +588,9 @@
     (frustum->matrix4f! m left right bottom top near far)))
 
 (define-cproc frustum->matrix4f! (m::<matrix4f>
-                                left::<float> right::<float>
-                                bottom::<float> top::<float>
-                                nearVal::<float> farVal::<float>)
+                                  left::<float> right::<float>
+                                  bottom::<float> top::<float>
+                                  nearVal::<float> farVal::<float>)
   ::<matrix4f>
   (let* ([r_l::float (- right left)]
          [t_b::float (- top bottom)]
@@ -607,6 +607,37 @@
 
     (set! (aref (SCM_MATRIX4F_D m)  8) (/ (+ right left) r_l))
     (set! (aref (SCM_MATRIX4F_D m)  9) (/ (+ top bottom) t_b))
+    (set! (aref (SCM_MATRIX4F_D m) 10) (- (/ (+ farVal nearVal) f_n)))
+    (set! (aref (SCM_MATRIX4F_D m) 11) -1.0)
+
+    (set! (aref (SCM_MATRIX4F_D m) 12) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m) 13) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m) 14) (/ (* -2.0 farVal nearVal) f_n))
+    (set! (aref (SCM_MATRIX4F_D m) 15) 0.0)
+    (return m)))
+
+(define (perspective->matrix4f y_fov aspect near far)
+  (rlet1 m (make-matrix4f)
+    (perspective->matrix4f! m y_fov aspect near far)))
+
+(define-cproc perspective->matrix4f! (m::<matrix4f>
+                                      y_fov::<float> aspect::<float>
+                                      nearVal::<float> farVal::<float>)
+  ::<matrix4f>
+  (let* ([f_n::float (- farVal nearVal)]
+         [a::float (cast float (/ 1.0 (tan (/ (* y_fov M_PI) 360.0))))])
+    (set! (aref (SCM_MATRIX4F_D m)  0) (/ a aspect))
+    (set! (aref (SCM_MATRIX4F_D m)  1) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  2) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  3) 0.0)
+
+    (set! (aref (SCM_MATRIX4F_D m)  4) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  5) a)
+    (set! (aref (SCM_MATRIX4F_D m)  6) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  7) 0.0)
+
+    (set! (aref (SCM_MATRIX4F_D m)  8) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  9) 0.0)
     (set! (aref (SCM_MATRIX4F_D m) 10) (- (/ (+ farVal nearVal) f_n)))
     (set! (aref (SCM_MATRIX4F_D m) 11) -1.0)
 

@@ -843,6 +843,12 @@
     (glGenBuffers n (SCM_U32VECTOR_ELEMENTS v))
     (return v)))
 
+(define-cproc gl-create-buffers (n::<uint>) ;; OpenGL 4.5
+  (let* ([v (Scm_MakeU32Vector n 0)])
+    (ENSURE glCreateBuffers)
+    (glCreateBuffers n (SCM_U32VECTOR_ELEMENTS v))
+    (return v)))
+
 (define-cproc gl-is-buffer (buffer::<uint>) ::<boolean>
   (ENSURE glIsBuffer)
   (return (glIsBuffer buffer)))
@@ -887,6 +893,32 @@
                        but got %S" data)])
     (ENSURE glBufferSubData)
     (glBufferSubData target offset size p)))
+
+(define-cproc gl-buffer-storage (target::<fixnum>
+                                 size::<fixnum>   ; can be 0 if data is given
+                                 data::<uvector>?
+                                 flags::<fixnum>)
+  ::<void>
+  (ENSURE glBufferStorage)
+  (if (== data NULL)
+    (glBufferStorage target size NULL flags)
+    (glBufferStorage target
+                     (?: size size (Scm_UVectorSizeInBytes data))
+                     (SCM_UVECTOR_ELEMENTS data)
+                     flags)))
+
+(define-cproc gl-named-buffer-storage (target::<fixnum>
+                                       size::<fixnum>   ; can be 0 if data is given
+                                       data::<uvector>?
+                                       flags::<fixnum>)
+  ::<void>
+  (ENSURE glNamedBufferStorage)
+  (if (== data NULL)
+    (glNamedBufferStorage target size NULL flags)
+    (glNamedBufferStorage target
+                          (?: size size (Scm_UVectorSizeInBytes data))
+                          (SCM_UVECTOR_ELEMENTS data)
+                          flags)))
 
 (define-cproc gl-map-buffer (target::<fixnum> access::<ulong>) ::<void>
   (ENSURE glMapBuffer)
@@ -953,14 +985,14 @@
                   (Scm_Error "bad arguments for gl-vertex-attrib-4n: %S"
                              (Scm_Cons arg0 args))])))
 
-;; NB: stride and offset are in bytes, to allow
+;; NB: stride and offset are in bytes, to allow heterogeneous structure
+;; in the buffer storage.
 (define-cproc gl-vertex-attrib-pointer (index::<uint>
                                         size::<int>
                                         type::<int>
-                                        &optional
-                                        (normalized::<boolean> #f)
-                                        (stride::<fixnum> 0)
-                                        (offset::<fixnum> 0))
+                                        normalized::<boolean>
+                                        stride::<fixnum>
+                                        offset::<fixnum>)
   ::<void>
   (unless (and (<= 1 size) (<= size 4))
     (Scm_Error "bad argument for size: %d, must be 1, 2, 3 or 4" size))
@@ -1619,6 +1651,31 @@
 (define-cproc gl-generate-mipmap-ext (target::<int>) ::<void>
   (ENSURE glGenerateMipmapEXT)
   (glGenerateMipmapEXT target))
+
+;;
+;; Misc.
+;;
+
+;; (gl-clear-buffer buffer drawbuffer uvector)
+;; (gl-clrea-buffer buffer drawbuffer depth stencil)
+(define-cproc gl-clear-buffer (buffer::<fixnum>
+                               drawbuffer::<int>
+                               value
+                               :optional (stencil::<int> 0))
+  ::<void>
+  (gl-case (value)
+           (begin
+             (ENSURE "glClearBuffer~v")
+             ("glClearBuffer~v" buffer drawbuffer ~X))
+           ((u32) (s32) (f32))
+           (if (SCM_REALP value)
+             (begin
+               (ENSURE glClearBufferfi)
+               (glClearBufferfi buffer drawbuffer
+                                (cast float (Scm_GetDouble value))
+                                (cast int (SCM_INT_VALUE stencil))))
+             (Scm_Error "Bad value for gl-clear-buffer: %S" value))))
+
 
 ;; Local variables:
 ;; mode: scheme

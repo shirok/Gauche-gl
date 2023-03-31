@@ -35,20 +35,14 @@
 
 (inline-stub
 
-(declcode "#include \"gauche-gl.h\""
-          "#include \"gl-syms.h\"")
+ (declcode (.include "gauche-gl.h"
+                     "gl-syms.h"))
 
-(include "glcase.scm")
+ (include "glcase.scm")
 
-;; NB: this should be taken care of by genstub.
-(define-type <uvector> "ScmUVector*" "uniform vector"
-  "SCM_UVECTORP" "SCM_UVECTOR")
-(define-type <u32vector> "ScmU32Vector*" "u32vector"
-  "SCM_U32VECTORP" "SCM_U32VECTOR")
-(define-type <f32vector> "ScmF32Vector*" "f32vector"
-  "SCM_F32VECTORP" "SCM_F32VECTOR")
-(define-type <gl-boolean-vector> "ScmGLBooleanVector*" "GL boolean vector"
-  "SCM_GL_BOOLEAN_VECTOR_P" "SCM_GL_BOOLEAN_VECTOR")
+ (declare-stub-type <gl-boolean-vector> "ScmGLBooleanVector*" "GL boolean vector"
+   "SCM_GL_BOOLEAN_VECTOR_P" "SCM_GL_BOOLEAN_VECTOR")
+ )
 
 ;;=============================================================
 ;; <gl-boolean-vector> stuff
@@ -156,12 +150,14 @@
 (define-cproc gl-state-vector-size (state::<fixnum>)
   ::<int> Scm_GLStateInfoSize)
 
-(define-cise-stmt with-state-info-size
-  [(_ var state name . body)
-   `(let* ([,var :: int (Scm_GLStateInfoSize ,state)])
-      (when (<= ,var 0)
-        (Scm_Error ,#`"you can't query state %x by ,name" ,state))
-      ,@body)])
+(inline-stub
+ (define-cise-stmt with-state-info-size
+   [(_ var state name . body)
+    `(let* ([,var :: int (Scm_GLStateInfoSize ,state)])
+       (when (<= ,var 0)
+         (Scm_Error ,#`"you can't query state %x by ,name" ,state))
+       ,@body)])
+ )
 
 (define-cproc gl-get-boolean (state::<fixnum>)
   (with-state-info-size
@@ -865,22 +861,18 @@
 
 ;; Trick: CYGWIN GL missing some parameters.  We define dummy here---even
 ;; with correct values, they'll fail at runtime anyway.
-"#ifndef GL_TEXTURE_WRAP_R
-#define GL_TEXTURE_WRAP_R 0
-#endif
-#ifndef GL_TEXTURE_WRAP_BASE_LEVEL
-#define GL_TEXTURE_WRAP_BASE_LEVEL 0
-#endif
-#ifndef GL_TEXTURE_WRAP_MAX_LEVEL
-#define GL_TEXTURE_WRAP_MAX_LEVEL 0
-#endif
-#ifndef GL_TEXTURE_MIN_LOD
-#define GL_TEXTURE_MIN_LOD 0
-#endif
-#ifndef GL_TEXTURE_MAX_LOD
-#define GL_TEXTURE_MAX_LOD 0
-#endif
-"
+(inline-stub
+ (.unless (defined GL_TEXTURE_WRAP_R)
+   (.define GL_TEXTURE_WRAP_R 0))
+ (.unless (defined GL_TEXTURE_WRAP_BASE_LEVEL)
+   (.define GL_TEXTURE_WRAP_BASE_LEVEL 0))
+ (.unless (defined GL_TEXTURE_WRAP_MAX_LEVEL)
+   (.define GL_TEXTURE_WRAP_MAX_LEVEL 0))
+ (.unless (defined GL_TEXTURE_MIN_LOD)
+   (.define GL_TEXTURE_MIN_LOD 0))
+ (.unless (defined GL_TEXTURE_MAX_LOD)
+   (.define GL_TEXTURE_MAX_LOD 0))
+ )
 
 (define-cproc gl-tex-parameter (target::<fixnum> pname::<fixnum> param)::<void>
   (case pname
@@ -1106,8 +1098,6 @@
 (define-cproc gl-load-name (name::<int>) ::<void> glLoadName)
 (define-cproc gl-push-name (name::<int>) ::<void> glPushName)
 (define-cproc gl-pop-name () ::<void> glPopName)
-
-) ;; end inline-stub
 
 ;; Local variables:
 ;; mode: scheme

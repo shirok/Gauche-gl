@@ -49,7 +49,6 @@
 
  (declare-stub-type <matrix4f> "ScmMatrix4f*" #f "SCM_MATRIX4FP" "SCM_MATRIX4F")
  (declare-stub-type <quatf> "ScmQuatf*" #f "SCM_QUATFP" "SCM_QUATF")
- (declare-stub-type <f32vector> "ScmF32Vector*")
 
  ;; Use it as (when (index-ok? i 0 3) ...do-something...),
  ;; although if it's not ok the macro throws an error instead of returning

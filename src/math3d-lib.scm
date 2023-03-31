@@ -562,19 +562,19 @@
   (let* ([r_l::float (- right left)]
          [t_b::float (- top bottom)]
          [f_n::float (- farVal nearVal)])
-    (set! (aref (SCM_MATRIX4F_D m) 0) (/ 2.0 r_l))
-    (set! (aref (SCM_MATRIX4F_D m) 1) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 2) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 3) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  0) (/ 2.0 r_l))
+    (set! (aref (SCM_MATRIX4F_D m)  1) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  2) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  3) 0.0)
 
-    (set! (aref (SCM_MATRIX4F_D m) 4) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 5) (/ 2.0 t_b))
-    (set! (aref (SCM_MATRIX4F_D m) 6) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 7) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  4) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  5) (/ 2.0 t_b))
+    (set! (aref (SCM_MATRIX4F_D m)  6) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  7) 0.0)
 
-    (set! (aref (SCM_MATRIX4F_D m) 8) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 9) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 10) (/ 2.0 f_n))
+    (set! (aref (SCM_MATRIX4F_D m)  8) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  9) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m) 10) (/ -2.0 f_n))
     (set! (aref (SCM_MATRIX4F_D m) 11) 0.0)
 
     (set! (aref (SCM_MATRIX4F_D m) 12) (- (/ (+ right left) r_l)))
@@ -595,25 +595,25 @@
   (let* ([r_l::float (- right left)]
          [t_b::float (- top bottom)]
          [f_n::float (- farVal nearVal)])
-    (set! (aref (SCM_MATRIX4F_D m) 0) (/ (* 2.0 nearVal) r_l))
-    (set! (aref (SCM_MATRIX4F_D m) 1) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 2) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 3) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  0) (/ (* 2.0 nearVal) r_l))
+    (set! (aref (SCM_MATRIX4F_D m)  1) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  2) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  3) 0.0)
 
-    (set! (aref (SCM_MATRIX4F_D m) 4) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 5) (/ (* 2.0 nearVal) t_b))
-    (set! (aref (SCM_MATRIX4F_D m) 6) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 7) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  4) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  5) (/ (* 2.0 nearVal) t_b))
+    (set! (aref (SCM_MATRIX4F_D m)  6) 0.0)
+    (set! (aref (SCM_MATRIX4F_D m)  7) 0.0)
 
-    (set! (aref (SCM_MATRIX4F_D m) 8) (/ (+ right left) r_l))
-    (set! (aref (SCM_MATRIX4F_D m) 9) (/ (+ top bottom) t_b))
+    (set! (aref (SCM_MATRIX4F_D m)  8) (/ (+ right left) r_l))
+    (set! (aref (SCM_MATRIX4F_D m)  9) (/ (+ top bottom) t_b))
     (set! (aref (SCM_MATRIX4F_D m) 10) (- (/ (+ farVal nearVal) f_n)))
     (set! (aref (SCM_MATRIX4F_D m) 11) -1.0)
 
     (set! (aref (SCM_MATRIX4F_D m) 12) 0.0)
     (set! (aref (SCM_MATRIX4F_D m) 13) 0.0)
-    (set! (aref (SCM_MATRIX4F_D m) 14) (- (/ (* 2 farVal nearVal) f_n)))
-    (set! (aref (SCM_MATRIX4F_D m) 15) 1.0)
+    (set! (aref (SCM_MATRIX4F_D m) 14) (/ (* -2.0 farVal nearVal) f_n))
+    (set! (aref (SCM_MATRIX4F_D m) 15) 0.0)
     (return m)))
 
 ;; Quatf ----------------------------------------------------

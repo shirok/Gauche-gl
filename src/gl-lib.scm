@@ -542,7 +542,8 @@
 
 (define-cproc gl-normal-pointer (vec
                                  &optional (stride::<fixnum> 0)
-                                           (offset::<fixnum> 0))
+                                           (offset::<fixnum> 0)
+                                           (type::<fixnum> 0))
   ::<void>
   (when (< stride 0)
     (Scm_Error "bad argument for stride: %d, must be 0 or positive" stride))
@@ -552,11 +553,20 @@
            ("glNormalPointer" ~E (* stride (sizeof ~T))
             (cast void* (+ ~X offset)))
            ((v4farray) (f32) (f64) (s32) (s16) (s8))
-           "bad argument for vec: %S, must be f32, f64, s8, s16 or s32vector"))
+           (cond
+            [(SCM_FALSEP vec)
+             (when (== type 0)
+               (Scm_Error "gl-normal-pointer requires type enum (GL_FLOAT etc) \
+                           if VEC argument is #f."))
+             (glNormalPointer type stride (+ (cast GLubyte* 0) offset))]
+            [else
+             (Scm_Error "bad argument for vec: %S, must be f32, f64, s8, s16, \
+                         s32vector, or #f, but got: %S" vec)])))
 
 (define-cproc gl-color-pointer (size::<fixnum> vec
                                 &optional (stride::<fixnum> 0)
-                                          (offset::<fixnum> 0))
+                                          (offset::<fixnum> 0)
+                                          (type::<fixnum> 0))
   ::<void>
   (when (or (< size 2) (> size 4))
     (Scm_Error "bad argument for size: %d, must be 2, 3 or 4" size))
@@ -568,11 +578,20 @@
            ("glColorPointer" size ~E (* stride (sizeof ~T))
             (cast void* (+ ~X offset)))
            ((f32) (f64) (u32) (u16) (u8) (s32) (s16) (s8))
-           "bad argument for vec: %S, must be f32, f64, s8, u8, s16, u16, s32 or u32vector"))
+           (cond
+            [(SCM_FALSEP vec)
+             (when (== type 0)
+               (Scm_Error "gl-color-pointer requires type enum (GL_FLOAT etc) \
+                           if VEC argument is #f."))
+             (glColorPointer size type stride (+ (cast GLubyte* 0) offset))]
+            [else
+             (Scm_Error "bad argument for vec: %S, must be f32, f64, s8, u8, \
+                         s16, u16, s32, u32vector, or #f, but got: %S" vec)])))
 
 (define-cproc gl-index-pointer (vec
                                 &optional (stride::<fixnum> 0)
-                                          (offset::<fixnum> 0))
+                                          (offset::<fixnum> 0)
+                                          (type::<fixnum> 0))
   ::<void>
   (when (< stride 0)
     (Scm_Error "bad argument for stride: %d, must be 0 or positive" stride))
@@ -582,11 +601,20 @@
            ("glIndexPointer" ~E (* stride (sizeof ~T))
             (cast void* (+ ~X offset)))
            ((s32) (s16) (u8) (f32) (f64))
-           "bad argument for vec: %S, must be f32, f64, u8, s16 or s32 vector"))
+           (cond
+            [(SCM_FALSEP vec)
+             (when (== type 0)
+               (Scm_Error "gl-index-pointer requires type enum (GL_UNSIGNED_BYTE etc) \
+                           if VEC argument is #f."))
+             (glIndexPointer type stride (+ (cast GLubyte* 0) offset))]
+            [else
+             (Scm_Error "bad argument for vec: %S, must be f32, f64, u8, s16, \
+                         s32vector, or #f, but got: %S" vec)])))
 
 (define-cproc gl-tex-coord-pointer (size::<fixnum> vec
                                     &optional (stride::<fixnum> 0)
-                                              (offset::<fixnum> 0))
+                                              (offset::<fixnum> 0)
+                                              (type::<fixnum> 0))
   ::<void>
   (when (or (< size 1) (> size 4))
     (Scm_Error "bad argument for size: %d, must be 1, 2, 3 or 4" size))
@@ -598,15 +626,27 @@
            ("glTexCoordPointer" size ~E (* stride (sizeof ~T))
             (cast void* (+ ~X offset)))
            ((f32) (f64) (s32) (s16))
-           "bad argument for vec: %S, must be f32, f64, s16 or s32vector"))
+           (cond
+            [(SCM_FALSEP vec)
+             (when (== type 0)
+               (Scm_Error "gl-tex-coord-pointer requires type enum (GL_FLOAT etc) \
+                           if VEC argument is #f."))
+             (glTexCoordPointer size type stride (+ (cast GLubyte* 0) offset))]
+            [else
+             (Scm_Error "bad argument for vec: %S, must be f32, f64, s16, \
+                         s32vector, or #f, but got %S" vec)])))
 
 (define-cproc gl-edge-flag-pointer (vec
                                     &optional (stride::<fixnum> 0)
                                               (offset::<fixnum> 0))
   ::<void>
-  (if (SCM_GL_BOOLEAN_VECTOR_P vec)
-    (glEdgeFlagPointer stride (+ (SCM_GL_BOOLEAN_VECTOR_ELEMENTS vec) offset))
-    (Scm_Error "gl-boolean-vector required for vec, but got %S" vec)))
+  (cond
+   [(SCM_GL_BOOLEAN_VECTOR_P vec)
+    (glEdgeFlagPointer stride (+ (SCM_GL_BOOLEAN_VECTOR_ELEMENTS vec) offset))]
+   [(SCM_FALSEP vec)
+    (glEdgeFlagPointer stride (+ (cast void* 0) offset))]
+   [else
+    (Scm_Error "gl-boolean-vector or #f required for vec, but got %S" vec)]))
 
 (define-cproc gl-array-element (ith::<fixnum>) ::<void>
   (glArrayElement ith))

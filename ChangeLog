@@ -1,5 +1,8 @@
 2023-03-31  Shiro Kawai  <shiro@acm.org>
 
+	* examples/redbook: Start adding examples from OpenGL Programming
+	  Guide 9th Edition
+
 	* src/glext-abi.scm: Updated with the latest glext.h
 
 2023-03-29  Shiro Kawai  <shiro@acm.org>

@@ -42,7 +42,7 @@
 ;;
 ;; This program scans glext.h as the authoritative source of GL
 ;; extension ABI.  We can use the most recent version from here:
-;;  http://oss.sgi.com/projects/ogl-sample/ABI/
+;;  https://registry.khronos.org/OpenGL/ABI/
 ;;
 ;; It generates glext-abi.scm, which contains necessary information
 ;; in S-expressions.
@@ -716,7 +716,7 @@
   (print ";; This file should reflect the newest OpenGL extension ABI")
   (print ";; You can regenarate this by feeding glext.h to extract-abi.scm")
   (print ";; To obtain the newest glext.h, see")
-  (print ";;   http://oss.sgi.com/projects/ogl-sample/ABI/")
+  (print ";;   https://registry.khronos.org/OpenGL/ABI/")
   (print)
   (print ";; Extensions")
   (dolist (e extensions)

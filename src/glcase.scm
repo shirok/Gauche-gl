@@ -238,3 +238,11 @@
           [msg #`",type of size ,size required,, but got %S"])
      `(when (or (not (,pred ,var)) (!= (,getsize ,var) ,size))
         (Scm_Error ,msg ,var)))])
+
+;; common error check macro
+(define-cise-stmt CHECK_ERROR
+  [(_ msg)
+   (let1 e (gensym "e")
+     `(let* ([,e :: GLenum (glGetError)])
+        (when (!= ,e GL_NO_ERROR)
+          (Scm_Error "%s: %s" ,msg (gluErrorString ,e)))))])

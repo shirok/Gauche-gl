@@ -40,17 +40,6 @@
 
 (include "glcase.scm")
 
-;; The functions are ordered in the same way as Mesa's header file.
-
-"#define CHECK_ERROR(msg__)                            \\
-  do {                                                 \\
-    GLenum e = glGetError();                           \\
-    if (e != GL_NO_ERROR) {                            \\
-      Scm_Error(\"%s: %s\", msg__, gluErrorString(e)); \\
-    }                                                  \\
-  } while (0)
-"
-
 ;; NB: this should be taken care of by genstub.
 (define-type <uvector> "ScmUVector*" "uniform vector"
   "SCM_UVECTORP" "SCM_UVECTOR")

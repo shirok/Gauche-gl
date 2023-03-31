@@ -38,17 +38,6 @@
                      "gl-syms.h"
                      "gl-ptrs.h"))
  (include "glcase.scm")
-
- ;; NB: Gauche 0.9.12 doesn't allow CiSE .define-d C macro to expand
- ;; into C statements.  As a workaround, we use cise macro to expand
- ;; CHECL_ERROR.
- (define-cise-stmt CHECK_ERROR
-   [(_ msg)
-    (let1 e (gensym "e")
-      `(let* ([,e :: GLenum (glGetError)])
-         (when (!= ,e GL_NO_ERROR)
-           (Scm_Error "%s: %s" ,msg (gluErrorString ,e)))))])
-
  )
 
 ;;=============================================================

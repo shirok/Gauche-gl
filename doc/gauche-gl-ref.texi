@@ -3769,6 +3769,13 @@ Computes a perspective projection matrix with the given parameters.
 The desrtuctive version modifies @var{m}.
 @end defun
 
+@defun perspective->matrix4f y-fov aspect near far
+@defunx perspective->matrix4f! m y-fov aspect near far
+Computs a perspective projection matrix with the FOV (in degrees),
+aspect ratio, near and far planes.
+The destructive vresion modifies @var{m}.
+@end defun
+
 @defun matrix4f-decompose m
 Matrix @var{m} is a composition of translation, rotation, shear and
 scale.  Suppose transformation is applied in the reverse order.

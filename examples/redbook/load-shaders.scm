@@ -10,10 +10,11 @@
 
 ;; Read <filename> relative to the source
 (define (read-shader filename)
-  (let1 path (if (relative-path? filename)
-               (build-path *source-dir* filename)
-               filename)
-    (list (file->string path :if-does-not-exist #f))))
+  (and-let* ([path (if (relative-path? filename)
+                     (build-path *source-dir* filename)
+                     filename)]
+             [src (file->string path :if-does-not-exist #f)])
+    (list src)))
 
 ;; shaders :
 ;;   ((type filename) ...)

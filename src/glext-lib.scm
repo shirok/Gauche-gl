@@ -97,6 +97,34 @@
            (glDrawRangeElements mode start end (SCM_UVECTOR_SIZE indices) ~E ~X)
            ((u8) (u16) (u32))
            "bad argument for indices; must be u8, u16 or u32vector, but got %S"))
+
+(define-cproc gl-draw-elements-base-vertex (mode::<fixnum>
+                                            indices
+                                            :optional (count::<fixnum> 0)
+                                                      (type::<fixnum> 0)
+                                                      (base-vertex::<fixnum> 0))
+  ::<void>
+  (ENSURE glDrawElementsBaseVertex)
+  (gl-case (indices)
+           (glDrawElementsBaseVertex mode (SCM_UVECTOR_SIZE indices) ~E ~X
+                                     base-vertex)
+           ((u8) (u16) (u32))
+           (if (not (SCM_FALSEP indices))
+             (Scm_Error "bad argument for indices: %S, must be u8, u16, \
+                         u32vector or #f" indices)
+             (begin
+               (when (== type 0)
+                 (Scm_Error "gl-draw-elements-base-vertex requires type when using VBO"))
+               (glDrawElementsBaseVertex mode count type NULL 1)))))
+
+(define-cproc gl-draw-arrays-instanced (mode::<fixnum>
+                                        first::<fixnum>
+                                        count::<fixnum>
+                                        instance-count::<fixnum>)
+  ::<void>
+  (ENSURE glDrawArraysInstanced)
+  (glDrawArraysInstanced mode first count instance-count))
+
 ;;=============================================================
 ;; GL_ARB_imaging
 ;;

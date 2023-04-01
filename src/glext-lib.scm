@@ -634,12 +634,17 @@
 
 (define-cproc gl-uniform-matrix4 (location::<int>
                                   transpose::<boolean>
-                                  v::<f32vector>)
+                                  v)
   ::<void>
-  (let* ([count::int (/ (SCM_F32VECTOR_SIZE v) 16)])
-    (ENSURE glUniformMatrix4fv)
-    (glUniformMatrix4fv location count transpose
-                        (SCM_F32VECTOR_ELEMENTS v))))
+  (ENSURE glUniformMatrix4fv)
+  (cond
+   [(SCM_F32VECTORP v)
+    (let* ([count::int (/ (SCM_F32VECTOR_SIZE v) 16)])
+      (glUniformMatrix4fv location count transpose (SCM_F32VECTOR_ELEMENTS v)))]
+   [(SCM_MATRIX4FP v)
+    (glUniformMatrix4fv location 1 transpose (SCM_MATRIX4F_D v))]
+   [else
+    (Scm_Error "f32vector or matrix4f is expected, but got: %S" v)]))
 
 (define-cproc gl-get-shader (shader::<uint>
                              pname::<uint>)

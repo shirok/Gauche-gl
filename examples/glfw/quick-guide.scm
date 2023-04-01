@@ -100,8 +100,7 @@
               (matrix4f-mul! mvp m)
 
               (gl-use-program program)
-              (gl-uniform-matrix4 mvp-location #f
-                                  (matrix4f->f32vector mvp))
+              (gl-uniform-matrix4 mvp-location #f mvp)
               (gl-draw-arrays GL_TRIANGLES 0 3)
 
               (glfw-swap-buffers window)

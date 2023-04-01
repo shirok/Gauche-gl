@@ -1,3 +1,8 @@
+2023-04-01  Shiro Kawai  <shiro@acm.org>
+
+	* src/glext-lib.scm (gl-uniform-matrix4): Allow matrix4f as well as
+	  f32vector.
+
 2023-03-31  Shiro Kawai  <shiro@acm.org>
 
 	* examples/redbook: Start adding examples from OpenGL Programming

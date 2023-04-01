@@ -75,30 +75,25 @@
   (gl-use-program *render-prog*)
 
   (frustum->matrix4f! mat -1.0 1.0 (- *aspect*) *aspect* 1.0 500.0)
-  (gl-uniform-matrix4 *render-projection-matrix-loc* #f
-                      (matrix4f->f32vector mat))
+  (gl-uniform-matrix4 *render-projection-matrix-loc* #f mat)
 
   (gl-bind-vertex-array (~ *vao* 0))
   (gl-bind-buffer GL_ELEMENT_ARRAY_BUFFER (~ *ebo* 0))
 
   (translation->matrix4f! mat '#f32(-3.0 0.0 -5.0))
-  (gl-uniform-matrix4 *render-model-matrix-loc* #f
-                      (matrix4f->f32vector mat))
+  (gl-uniform-matrix4 *render-model-matrix-loc* #f mat)
   (gl-draw-arrays GL_TRIANGLES 0 3)
 
   (translation->matrix4f! mat '#f32(-1.0 0.0 -5.0))
-  (gl-uniform-matrix4 *render-model-matrix-loc* #f
-                      (matrix4f->f32vector mat))
+  (gl-uniform-matrix4 *render-model-matrix-loc* #f mat)
   (gl-draw-elements GL_TRIANGLES #f 3 GL_UNSIGNED_SHORT)
 
   (translation->matrix4f! mat '#f32(1.0 0.0 -5.0))
-  (gl-uniform-matrix4 *render-model-matrix-loc* #f
-                      (matrix4f->f32vector mat))
+  (gl-uniform-matrix4 *render-model-matrix-loc* #f mat)
   (gl-draw-elements-base-vertex GL_TRIANGLES #f 3 GL_UNSIGNED_SHORT 1)
 
   (translation->matrix4f! mat '#f32(3.0 0.0 -5.0))
-  (gl-uniform-matrix4 *render-model-matrix-loc* #f
-                      (matrix4f->f32vector mat))
+  (gl-uniform-matrix4 *render-model-matrix-loc* #f mat)
   (gl-draw-arrays-instanced GL_TRIANGLES 0 3 1)
 
   (glfw-swap-buffers window)

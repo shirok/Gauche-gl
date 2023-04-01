@@ -2378,8 +2378,10 @@ Sets a matrix uniform variable (or an array of matrix uniform variables)
 specified by @var{location}.
 A boolean flag @var{transpose} specifies whether the matrix should be
 transposed.
-The @var{v} argument must be a f32vector of size multiple of 4, 9, or
-16, respectively.
+The @var{v} argument must be af f32vector of size multiple of 4 and 9
+for @code{gl-uniform-matrix2} and @code{gl-uniform-matrix3}, respectively.
+For @code{gl-uniform-matrix4}, @var{v} can be either
+an f32vector of size multiple of 16, or a @code{<matrix4f>}.
 @end defun
 
 @defun gl-get-active-uniform-arb program index

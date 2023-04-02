@@ -1024,7 +1024,6 @@ are as follows.
 @end defun
 
 @defun gl-blend-equation mode
-[GL_ARB_imaging]
 By default, the source and destination colors are added after
 processed as specified by @var{gl-blend-func}.  With this extension API
 you can change the function.  @var{Mode} can be one of the
@@ -1039,7 +1038,6 @@ following values:
 @end defun
 
 @defun gl-blend-color red green blue alpha
-[GL_ARB_imaging]
 Sets the constant color used in the blending function.
 @end defun
 
@@ -1473,14 +1471,12 @@ It is a caller's responsibility to ensure @var{values} has enough size.
 @subheading Color tables
 
 @defun gl-color-table target internal-format width format type data
-[GL_ARB_imaging]
 Specifies one of the color table @var{target}.
 @var{Data} should be a uniform vector compatible to the
 @var{format} and @var{type} parameters.
 @end defun
 
 @defun gl-color-table-parameter target pname param
-[GL_ARB_imaging]
 Sets the color table parameter @var{pname}
 (either @code{GL_COLOR_TABLE_SCALE} or @code{GL_COLOR_TABLE_BIAS}),
 of the color table @var{target}.  @var{Param} must be
@@ -1488,25 +1484,22 @@ an f32 or s32vector of size 4.
 @end defun
 
 @defun gl-copy-color-table target internal-format x y width
-[GL_ARB_imaging]
 Creates a color table @var{target} using framebuffer data.
 The pixels are
 read from the current buffer for read (specified by @code{glReadBuffer}).
 @end defun
 
 @defun gl-color-sub-table target start count format type data
-[GL_ARB_imaging]
 Replaces a part of color table @var{target}, starting @var{start}
 and @var{count} entries.  Values are given in @var{data} as a
 uniform vector compatible to the @var{format} and @var{type} arguments.
 @end defun
 
 @defun gl-copy-color-sub-table target start x y width
-[GL_ARB_imaging] Replaces a part of color table entries using framebuffer data.
+Replaces a part of color table entries using framebuffer data.
 @end defun
 
 @defun gl-get-color-table! target format type data
-[GL_ARB_imaging]
 Reads the color table @var{target} and store it in @var{data},
 in the format specified by @var{format} and @var{type}.
 @var{Data} must be a uniform vector compatible to the
@@ -1517,7 +1510,6 @@ that @var{data} has enough size to contain the result.
 @subheading Convolutions
 
 @defun gl-convolution-filter-2d target internal-format width height format type data
-[GL_ARB_imaging]
 Defines a 2D convolution filter.  @var{Target} must be GL_CONVOLUTION_2D.
 @code{Data} must be a uniform vector
 compatible to the @var{format} and @var{type} arguments, and must have
@@ -1525,13 +1517,11 @@ enough size.
 @end defun
 
 @defun gl-copy-convolution-filter-2d target internal-format x y width height
-[GL_ARB_imaging]
 Defines a 2D convolution filter,
 taking the convolution filter data from the current color buffer to read.
 @end defun
 
 @defun gl-separable-filetr-2d target internal-format width height format type row column
-[GL_ARB_imaging]
 Defines a 2D convolution filter by a product of a 1D row vector and
 1D column vector.  @var{Target} must be GL_SEPARABLE_2D.
 Both @var{row} and @var{column} must be a uniform
@@ -1540,7 +1530,6 @@ and must have enough size.
 @end defun
 
 @defun gl-convolution-filter-1d target internal-format width format type data
-[GL_ARB_imaging]
 Defines 1D convolution filter.  @var{Target} must be GL_CONVOLUTION_1D.
 @code{Data} must be a uniform vector
 compatible to the @var{format} and @var{type} arguments, and must have
@@ -1548,13 +1537,11 @@ enough size.
 @end defun
 
 @defun gl-copy-convolution-filter-1d target internal-format x y width
-[GL_ARB_imaging]
 Defines 1D convolution filter, taking the convolution filter data
 from the current color buffer to read.
 @end defun
 
 @defun gl-convolution-parameter target pname param
-[GL_ARB_imaging]
 Sets a parameter for a convolution filter @var{target}, which can
 be either @code{GL_CONVOLUTION_2D}, @code{GL_SEPARABLE_2D},
 or @code{GL_CONVOLUTION_1D}.  Possible values of @var{pname} and
@@ -1572,7 +1559,6 @@ An s32 or f32vector of size 4, specifying color values.
 @subheading Histogram
 
 @defun gl-histogram target width internal-format sink
-[GL_ARB_imaging]
 Specifies the way the histogram data is stored.
 @var{Target} must be either @code{GL_HISTOGRAM} or @code{GL_PROXY_HISTOGRAM}.
 @var{Width} is the number of entires of the histogram, and has to be
@@ -1582,12 +1568,10 @@ discarded or sent down further to the pipeline.
 @end defun
 
 @defun gl-reset-histogram target
-[GL_ARB_imaging]
 Resets the histogram counters.  @var{Target} must be @code{GL_HISTOGRAM}.
 @end defun
 
 @defun gl-get-histogram target reset format type
-[GL_ARB_imaging]
 Returns histogram data in a uniform vector, whose type and size
 are determined by @var{format} and @var{type}.
 A boolean value @var{reset} specifies whether the histogram should
@@ -1595,7 +1579,6 @@ be reset or not.
 @end defun
 
 @defun gl-get-histogram-parameter target pname
-[GL_ARB_imaging]
 Returns the parameter value of the histogram.
 @var{Pname} can be either one of @code{GL_HISTOGRAM_WIDTH},
 @code{GL_HISTOGRAM_FORMAT}, @code{GL_HISTOGRAM_RED_SIZE},
@@ -1609,7 +1592,6 @@ except the case of @code{GL_HISTOGRAM_SINK}, which returns a boolean value.
 @subheading Minmax
 
 @defun gl-minmax target internal-format sink
-[GL_ARB_imaging]
 Computes the minimum and maximum pixel values for an image.
 @var{Target} must be @code{GL_MINMAX}.
 @var{Sink} is a boolean value to indicate whether pixels should be
@@ -1617,7 +1599,6 @@ discarded or sent down further to the pipeline.
 @end defun
 
 @defun gl-get-minmax target reset format type
-[GL_ARB_imaging]
 Returns the results of the minmax operation in a uniform vector,
 whose type and size are determined by the @var{format} and
 @var{type} arguments.
@@ -1626,12 +1607,10 @@ be reset or not.
 @end defun
 
 @defun gl-reset-minmax target
-[GL_ARB_imaging]
 Resets the minmax counter.
 @end defun
 
 @defun gl-get-minmax-parameter target pname
-[GL_ARB_imaging]
 Returns the parameter value of the histogram.
 @var{Pname} can be either @code{GL_MINMAX_SINK} (returns
 a boolean value) or @code{GL_MINMAX_FORMAT} (returns an integer).
@@ -1830,24 +1809,22 @@ An s32, f32 or f64vector of size 4 to specify the plane.
 
 @subheading Multitexturing
 
-@defun gl-active-texture-arb texunit
-[GL_ARB_multitexture]
+@defun gl-active-texture texunit
 Selects the texture unit that is currently modified by
 texturing routines.  @var{Texunit} is a constant
 @code{GL_TEXTUREi_ARB}, where @var{i} is 0 to the maximum
 number of the supported texture units.
 @end defun
 
-@defun gl-multi-tex-coord-arb texunit coords
-@defunx gl-multi-tex-coord-arb texunit s &optional t r q
-[GL_ARB_multitexture]
+@defun gl-multi-tex-coord texunit coords
+@defunx gl-multi-tex-coord texunit s &optional t r q
 Specifies the texture coordinate of the texture unit @var{texunit}.
 In the first form, you can pass either an f32, f64, s32, or s16vector
 of length 1 to 4.  In the second form, @var{s}, @var{t}, @var{r}
 and @var{q} must be real numbers.
 @end defun
 
-@defun gl-client-active-texture-arb texunit
+@defun gl-client-active-texture texunit
 Selects the current texture unit for specifying texutre-coordinate
 data with vertex arrays.
 @end defun
@@ -2160,119 +2137,122 @@ it back.  The result value is clamped to [-1.0, 1.0].
 
 @subheading Shader objects
 
-@defun gl-create-shader-object-arb type
-[GL_ARB_shader_objects]
-Creates a new shader object and returns its handle.
-@var{Type} can be either @code{GL_VERTEX_SHADER_ARB} or
-@code{GL_FRAGMENT_SHADER_ARB}.
+@defun gl-create-shader type
+Creates a new shader object and returns its id.
+@var{Type} can be either @code{GL_VERTEX_SHADER},
+@code{GL_FRAGMENT_SHADER}, @code{GL_COMPUTE_SHADER},
+@code{GL_TESS_CONTROL_SHADER}, @code{GL_TESS_EVALUATION_SHADER}, or
+@code{GL_GEOMETRY_SHADER}.
 @end defun
 
-@defun gl-shader-source-arb shader strings
-[GL_ARB_shader_objects]
-Sets the source code of the shader, whose handle is @var{shader}.
+@defun gl-shader-source shader strings
+Sets the source code of the shader, whose id is @var{shader}.
 You can give the source code as a list of strings to @var{strings}.
 All strings are concatenated internally in the OpenGL driver.
 @end defun
 
-@defun gl-compile-shader-arb shader
-[GL_ARB_shader_objects]
-Compile the source code attached to the shader, whose handle is @var{shader}.
+@defun gl-compile-shader shader
+Compiles the source code attached to the shader, whose id is @var{shader}.
 You can query the result of the compilation by passing
-@code{GL_OBJECT_COMPILE_STATUS_ARB} to @code{gl-get-object-parameter-arb};
-it returns @code{#t} if the compilation succeeded, or @code{#f} if failed.
+@code{GL_COMPILE_STATUS} to @code{gl-get-shader}.
 The information about the compilation can be obtained by
-@code{gl-get-info-log-arb}.
+@code{gl-get-hader-info-log}.
 @end defun
 
-@defun gl-create-program-object-arb
-[GL_ARB_shader_objects]
-Creates a new program object and returns its handle.
+@defun gl-delete-shader shader
+Deletes the specified shader.
 @end defun
 
-@defun gl-attach-object-arb program shader
-[GL_ARB_shader_objects]
-Attach a shader whose handle is @var{shader} to the program whose handle
-is @var{program}.
+@defun gl-create-program
+Creates a new program object and returns its id.
 @end defun
 
-@defun gl-detach-object-arb program shader
-[GL_ARB_shader_objects]
+@defun gl-attach-shader program shader
+Attach the @var{shader} to the @var{program}.
+@end defun
+
+@defun gl-detach-shader program shader
 Detach a shader from a program.
 @end defun
 
-@defun gl-link-program-arb program
-[GL_ARB_shader_objects]
-Link the program object.  The result of linking can be queried
-by passing @code{GL_OBJECT_LINK_STATUS_ARB} to
-@code{gl-get-object-parameter-arb}.
+@defun gl-link-program program
+Link the program.  The result of linking can be queried
+by passing @code{GL_LINK_STATUS} to
+@code{gl-get-prgoram}.
 @end defun
 
-@defun gl-use-program-object-arb program
-[GL_ARB_shader_objects]
+@defun gl-use-program program
 Installs the program to the current rendering state.
 @end defun
 
-@defun gl-delete-object-arb handle
-[GL_ARB_shader_objects]
-Deletes either a shader object or a program object specified by
-@var{handle}.
+@defun gl-delete-program program
+Deletes the speficied program.
 @end defun
 
-@defun gl-get-object-parameter-arb object pname
-[GL_ARB_shader_objects]
-Queries the value of @var{pname} of the shader or the program
-specified by @var{object}.  The following values are accepted
-as @var{pname}: @code{GL_OBJECT_TYPE_ARB},
-@code{GL_OBJECT_SUBTYPE_ARB},
-@code{GL_OBJECT_DELETE_STATUS_ARB},
-@code{GL_OBJECT_COMPILE_STATUS_ARB},
-@code{GL_OBJECT_LINK_STATUS_ARB},
-@code{GL_OBJECT_VALIDATE_STATUS_ARB},
-@code{GL_OBJECT_INFO_LOG_LENGTH_ARB},
-@code{GL_OBJECT_ATTACHED_OBJECTS_ARB},
-@code{GL_OBJECT_ACTIVE_ATTRIBUTES_ARB},
-@code{GL_OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB},
-@code{GL_OBJECT_ACTIVE_UNIFORMS_ARB},
-@code{GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB}, and
-@code{GL_OBJECT_SHADER_SOURCE_LENGTH_ARB}.
+@defun gl-get-shader shader pname
+Queries the value of @var{pname} of the shader
+specified by @var{shader}.  The following values are accepted
+as @var{pname}: @code{GL_SHADER_TYPE},
+@code{GL_DELETE_STATUS},
+@code{GL_COMPILE_STATUS},
+@code{GL_INFO_LOG_LENGTH},
+@code{GL_SHADER_SOURCE_LENGTH}.
 The procedure returns an integer value.
 @end defun
 
-@defun gl-get-shader-source-arb shader
-[GL_ARB_shader_objects]
+@defun gl-get-shader-source shader
 Returns the shader source code of a shader object @var{shader}
 in a string.
 @end defun
 
-@defun gl-get-info-log-arb handle
-[GL_ARB_shader_objects]
-Returns the information log of an object pointed by @var{handle}.
+@defun gl-get-shader-info-log shader
+Returns the information log of the shader as a string.
 @end defun
 
-@defun gl-get-handle-arb pname
-[GL_ARB_shader_objects]
-Returns the handle to an object that is used in the current state.
-The only argument accepted currently as @var{pname} is
-@code{GL_PROGRAM_OBJECT_ARB}, which returns the handle to the current
-program object.
+@defun gl-get-program program pname
+Queries the value of @var{pname} of the program
+specified by @var{program}.  The following values are accepted
+as @var{pname}:
+@code{GL_DELETE_STATUS},
+@code{GL_LINK_STATUS},
+@code{GL_VALIDATE_STATUS},
+@code{GL_INFO_LOG_LENGTH},
+@code{GL_ATTACHED_SHADERS},
+@code{GL_ACTIVE_ATOMIC_COUNTER_BUFFERS},
+@code{GL_ACTIVE_ATTRIBUTES},
+@code{GL_ACTIVE_ATTRIBUTE_MAX_LENGTH},
+@code{GL_ACTIVE_UNIFORMS},
+@code{GL_ACTIVE_UNIFORM_MAX_LENGTH},
+@code{GL_PROGRAM_BINARY_LENGTH},
+@code{GL_COMPUTE_WORK_GROUP_SIZE},
+@code{GL_TRANSFORM_FEEDBACK_BUFFER_MODE},
+@code{GL_TRANSFORM_FEEDBACK_VARYINGS},
+@code{GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH},
+@code{GL_GEOMETRY_VERTICES_OUT},
+@code{GL_GEOMETRY_INPUT_TYPE},
+@code{GL_GEOMETRY_OUTPUT_TYPE}.
+The procedure returns an integer value.
 @end defun
 
-@defun gl-get-attached-objects-arb program
-[GL_ARB_shader_objects]
-Rethrns a vector of GL object handles that are attached to the @var{program}.
+@defun gl-get-program-info-log program
+Returns the information log of the program as a string.
 @end defun
 
-@defun gl-validate-program-arb program
-[GL_ARB_shader_objects]
+@defun gl-get-attached-shaders program :optional max-count
+Returns a vector of shader ids that are attached to the @var{program}.
+If @var{max-count} is given and not zero, the length of result
+is limited to that value.
+@end defun
+
+@defun gl-validate-program program
 Checks whether the @var{program} can execute in the current GL state.
 The result is stored in @var{program}'s log.
 @end defun
 
 @subheading Specifying vertex attributes
 
-@defun gl-vertex-attrib-arb index values
-@defunx gl-vertex-attrib-arb index v0 &rest v1 v2 v3
-[GL_ARB_vertex_program]
+@defun gl-vertex-attrib index values
+@defunx gl-vertex-attrib index v0 &rest v1 v2 v3
 Sets the generic vertex attribute specified by @var{index}.
 In the first form, you can pass f32, f64, or s16vector of size
 1 to 4, or u8, s8, u16, s32, or u32vector of size 4.
@@ -2280,17 +2260,15 @@ In the second form, you can pass 1 to 4 real numbers (they
 are interpreted as C doubles and @code{glVertexAttrib4dARB} is called).
 @end defun
 
-@defun gl-vertex-attrib-4n-arb index values
-@defunx gl-vertex-attrib-4n-arb index v0 v1 v2 v3
-[GL_ARB_vertex_program]
+@defun gl-vertex-attrib-4n index values
+@defunx gl-vertex-attrib-4n index v0 v1 v2 v3
 These variations can be used to pass normalized values.
 The first form accepts s8, u8, s16, u16, s32, u32, f32 and f64vector
 of size 4.  The second value takes four integers, whose lower 8bits
 are taken as unsigned byte and passed to @code{glVertexAttrib4NubARB}.
 @end defun
 
-@defun gl-vertex-attrib-pointer-arb index size vec &optional normalized stride offset
-[GL_ARB_vertex_program]
+@defun gl-vertex-attrib-pointer index size vec &optional normalized stride offset
 This is the generic version of vertex arrays.  @var{Index} names
 the attribute, @var{size} specifies the number of components (1, 2, 3 or 4),
 and @var{vec} is a uniform vector that contains the array of values.
@@ -2303,28 +2281,24 @@ The optional @var{offset} argument tells GL to take values beginning
 from the @var{offset}-th element of @var{vec}.
 @end defun
 
-@defun gl-enable-vertex-attrib-array-arb index
-@defunx gl-disable-vertex-attrib-array-arb index
-[GL_ARB_vertex_program]
+@defun gl-enable-vertex-attrib-array index
+@defunx gl-disable-vertex-attrib-array index
 Enable or disable a vertex attribute array specified by @var{index}.
 @end defun
 
-@defun gl-bind-attrib-location-arb program index name
-[GL_ARB_vertex_shader]
+@defun gl-bind-attrib-location program index name
 Associates a user-defined attribute variable in the program object
 @var{program} with an @var{index}-th generic vertex attribute.
 @var{Name} is a string of the name of user-defined attribute as appears
 in the shader program.
 @end defun
 
-@defun gl-get-attrib-location-arb program name
-[GL_ARB_vertex_shader]
+@defun gl-get-attrib-location program name
 Returns an integer index of the user-defined attribute @var{name}
 in the @var{program}.  Must be called after @var{program} is linked.
 @end defun
 
-@defun gl-get-active-attrib-arb program index
-[GL_ARB_vertex_shader]
+@defun gl-get-active-attrib program index
 Obtains information about the @var{index}-th user-defined attribute
 in the @var{program}.  Must be called after @var{program} is linked.
 
@@ -2339,24 +2313,22 @@ the name of the attribute.
 
 @subheading Specifying uniform variables
 
-@defun gl-get-uniform-location-arb program name
-[GL_ARB_shader_objects]
+@defun gl-get-uniform-location program name
 Returns an integer location of the uniform variable @var{name}
 of the program @var{program}.
 @end defun
 
-@defun gl-uniform1-arb location vec
-@defunx gl-uniform1-arb location v0
-@defunx gl-uniform2-arb location vec
-@defunx gl-uniform2-arb location v0 v1
-@defunx gl-uniform3-arb location vec
-@defunx gl-uniform3-arb location v0 v1 v2
-@defunx gl-uniform4-arb location vec
-@defunx gl-uniform4-arb location v0 v1 v1 v3
-[GL_ARB_shader_objects]
+@defun gl-uniform1 location vec
+@defunx gl-uniform1 location v0
+@defunx gl-uniform2 location vec
+@defunx gl-uniform2 location v0 v1
+@defunx gl-uniform3 location vec
+@defunx gl-uniform3 location v0 v1 v2
+@defunx gl-uniform4 location vec
+@defunx gl-uniform4 location v0 v1 v1 v3
 Sets a value of the uniform variable specified by @var{location}.
-@var{gl-uniform1-arb} sets a single component value (e.g. @code{float})
-@var{gl-uniform2-arb} sets a double component value
+@var{gl-uniform1} sets a single component value (e.g. @code{float})
+@var{gl-uniform2} sets a double component value
 (e.g. @code{vec2}) etc.
 
 The first form of each function takes either an s32vector or f32vector.
@@ -2370,10 +2342,9 @@ coerced to C @code{float} (i.e. @code{glUniform*fARB} is used).
 @end defun
 
 
-@defun gl-uniform-matrix2-arb location transpose v
-@defunx gl-uniform-matrix3-arb location transpose v
-@defunx gl-uniform-matrix4-arb location transpose v
-[GL_ARB_shader_objects]
+@defun gl-uniform-matrix2 location transpose v
+@defunx gl-uniform-matrix3 location transpose v
+@defunx gl-uniform-matrix4 location transpose v
 Sets a matrix uniform variable (or an array of matrix uniform variables)
 specified by @var{location}.
 A boolean flag @var{transpose} specifies whether the matrix should be
@@ -2384,8 +2355,7 @@ For @code{gl-uniform-matrix4}, @var{v} can be either
 an f32vector of size multiple of 16, or a @code{<matrix4f>}.
 @end defun
 
-@defun gl-get-active-uniform-arb program index
-[GL_ARB_shader_objects]
+@defun gl-get-active-uniform program index
 Returns informaton about the @var{index}-th uniform variable of
 @var{program}.
 
@@ -2402,31 +2372,26 @@ And the third value is the name of the uniform variable.
 
 These APIs are for low-level vertex/fragment pipeline programming.
 
-@defun gl-gen-programs-arb n
-[GL_ARB_vertex_program]
+@defun gl-gen-programs n
 Generates @var{N} names (integers) for the new programs and
 returns them in an s32vector.
 @end defun
 
-@defun gl-delete-programs-arb programs
-[GL_ARB_vertex_program]
+@defun gl-delete-programs programs
 Deletes programs whose names are specified by an s32vector @var{programs}.
 @end defun
 
-@defun gl-is-program-arb prog-id
-[GL_ARB_vertex_program]
+@defun gl-is-program prog-id
 Returns @code{#t} if an integer @var{prog-id} refers to a valid program.
 @end defun
 
-@defun gl-bind-program-arb target prog-id
-[GL_ARB_vertex_program]
+@defun gl-bind-program target prog-id
 Binds a program specified by @var{prog-id} to a @var{target},
 which is either @code{GL_VERTEX_PROGRAM_ARB} or
 @var{GL_FRAGMENT_PROGRAM_ARB}.
 @end defun
 
-@defun gl-program-string-arb target format text
-[GL_ARB_vertex_program]
+@defun gl-program-string target format text
 Sets the source code of the program currently bound to the
 @var{target} (@code{GL_VERTEX_PROGRAM_ARB} or
 @var{GL_FRAGMENT_PROGRAM_ARB}).
@@ -2435,11 +2400,10 @@ Sets the source code of the program currently bound to the
 @var{Text} is a string for the program source.
 @end defun
 
-@defun gl-program-env-parameter-arb target param-id args
-@defunx gl-program-env-parameter-arb target param-id arg0 arg1 arg2 arg3
-@defunx gl-program-local-parameter-arb target param-id args
-@defunx gl-program-local-parameter-arb target param-id arg0 arg1 arg2 arg3
-[GL_ARB_vertex_program]
+@defun gl-program-env-parameter target param-id args
+@defunx gl-program-env-parameter target param-id arg0 arg1 arg2 arg3
+@defunx gl-program-local-parameter target param-id args
+@defunx gl-program-local-parameter target param-id arg0 arg1 arg2 arg3
 Sets the value of the environment and local parameter
 specified by @var{param-id} of the program currently bount to the @var{target}.
 In the first form of each, @var{args} must be either f32 or

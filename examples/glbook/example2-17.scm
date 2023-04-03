@@ -54,9 +54,7 @@
   (gl-load-identity)
   (gl-translate 0.0 0.0 -5.0)
   (gl-rotate *angle* 1.0 1.0 1.0)
-  (gl-draw-elements GL_QUADS #f
-                    (u8vector-length *indices*)
-                    GL_UNSIGNED_BYTE)
+  (gl-draw-elements GL_QUADS (u8vector-length *indices*) GL_UNSIGNED_BYTE)
   (let1 e (gl-get-error)
     (unless (zero? e) (print e)))
   (gl-flush))

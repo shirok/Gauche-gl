@@ -651,27 +651,24 @@
 (define-cproc gl-array-element (ith::<fixnum>) ::<void>
   (glArrayElement ith))
 
-;; indices can be uvector or #f (using VBO).
-;; if it's an uvector, count and type is derived from the vector.
-;; if it's #f, count and type must be given.
-(define-cproc gl-draw-elements (mode::<fixnum>
-                                indices
-                                &optional (count::<fixnum> 0)
-                                          (type::<fixnum> 0)
-                                          (offset::<fixnum> 0))
+(define gl-draw-elements
+  (case-lambda
+    [(mode indices) (%gl-draw-elements/direct mode indices)]
+    [(mode count type :optional (offset 0))
+     (%gl-draw-elements/vbo mode count type offset)]))
+
+(define-cproc %gl-draw-elements/direct (mode::<fixnum> indices)
   ::<void>
   (gl-case (indices)
            ("glDrawElements" mode (SCM_UVECTOR_SIZE indices) ~E ~X)
            ((u8) (u16) (u32))
-           ""
-           (if (not (SCM_FALSEP indices))
-             (Scm_Error "bad argument for indices: %S, must be u8, u16, \
-                         u32vector or #f" indices)
-             (begin
-               (when (== type 0)
-                 (Scm_Error "gl-draw-elements requires type when using VBO"))
-               (glDrawElements mode count type
-                               (+ (cast GLubyte* 0) offset))))))
+           "bad argument for indices: u8, u16, or u32vector expected, but got: %S"))
+
+(define-cproc %gl-draw-elements/vbo (mode::<fixnum>
+                                     count::<fixnum>
+                                     type::<fixnum>
+                                     offset::<fixnum>)
+  (glDrawElements mode count type (+ (cast GLvoid* 0) offset)))
 
 (define-cproc gl-draw-arrays (mode::<fixnum> first::<fixnum> count::<fixnum>)
   ::<void> glDrawArrays)

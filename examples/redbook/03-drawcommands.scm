@@ -86,11 +86,11 @@
 
   (translation->matrix4f! mat '#f32(-1.0 0.0 -5.0))
   (gl-uniform-matrix4 *render-model-matrix-loc* #f mat)
-  (gl-draw-elements GL_TRIANGLES #f 3 GL_UNSIGNED_SHORT)
+  (gl-draw-elements GL_TRIANGLES 3 GL_UNSIGNED_SHORT)
 
   (translation->matrix4f! mat '#f32(1.0 0.0 -5.0))
   (gl-uniform-matrix4 *render-model-matrix-loc* #f mat)
-  (gl-draw-elements-base-vertex GL_TRIANGLES #f 3 GL_UNSIGNED_SHORT 1)
+  (gl-draw-elements-base-vertex GL_TRIANGLES 3 GL_UNSIGNED_SHORT 1)
 
   (translation->matrix4f! mat '#f32(3.0 0.0 -5.0))
   (gl-uniform-matrix4 *render-model-matrix-loc* #f mat)

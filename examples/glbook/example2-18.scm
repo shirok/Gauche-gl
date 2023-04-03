@@ -143,11 +143,7 @@
                (~ *xform* i 'axis 1)
                (~ *xform* i 'axis 2))
     (gl-bind-vertex-array (~ *vao* i))
-    (gl-draw-elements (~ *prim-types* i)
-                      #f
-                      (~ *num-elements* i)
-                      GL_UNSIGNED_BYTE
-                      0)
+    (gl-draw-elements (~ *prim-types* i) (~ *num-elements* i) GL_UNSIGNED_BYTE)
     (let1 e (gl-get-error)
       (unless (zero? e) (print e)))
     (gl-pop-matrix))

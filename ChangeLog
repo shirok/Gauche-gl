@@ -1,3 +1,10 @@
+2023-04-02  Shiro Kawai  <shiro@acm.org>
+
+	* src/gl-lib.scm (gl-draw-elements),
+	  src/glext-lib.scm (gl-draw-elements-base-vertex):
+	  INCOMPATIBLE-CHANGE: Changed argument order so that it follow
+	  C API more closely.
+
 2023-04-01  Shiro Kawai  <shiro@acm.org>
 
 	* src/glext-lib.scm (gl-uniform-matrix4): Allow matrix4f as well as

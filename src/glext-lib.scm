@@ -88,9 +88,16 @@
   (ENSURE glCopyTexSubImage3D)
   (glCopyTexSubImage3D target level xoffset yoffset zoffset x y width height))
 
-(define-cproc gl-draw-range-elements (mode::<fixnum>
-                                      start::<uint> end::<uint>
-                                      indices)
+(define gl-draw-range-elements
+  (case-lambda
+    [(mode start end indices)
+     (%gl-draw-range-elements/direct mode start end indices)]
+    [(mode start end count type :optional (offset 0))
+     (%gl-draw-range-elements/vbo mode start end count type offset)]))
+
+(define-cproc %gl-draw-range-elements/direct (mode::<fixnum>
+                                              start::<uint> end::<uint>
+                                              indices)
   ::<void>
   (ENSURE glDrawRangeElements)
   (gl-case (indices)
@@ -98,24 +105,41 @@
            ((u8) (u16) (u32))
            "bad argument for indices; must be u8, u16 or u32vector, but got %S"))
 
-(define-cproc gl-draw-elements-base-vertex (mode::<fixnum>
-                                            indices
-                                            :optional (count::<fixnum> 0)
-                                                      (type::<fixnum> 0)
-                                                      (base-vertex::<fixnum> 0))
+(define-cproc %gl-draw-range-elements/vbo (mode::<fixnum>
+                                           start::<uint> end::<uint>
+                                           count::<fixnum> type::<fixnum>
+                                           offset::<fixnum>)
+  (ENSURE glDrawRangeElements)
+  (glDrawRangeElements mode start end count type (+ (cast GLvoid* 0) offset)))
+
+
+(define gl-draw-elements-base-vertex
+  (case-lambda
+    [(mode indices base-vertex)
+     (%gl-draw-elements-base-vertex/direct mode indices base-vertex)]
+    [(mode count type base-vertex :optional (offset 0))
+     (%gl-draw-elements-base-vertex/vbo mode count type base-vertex)]))
+
+(define-cproc %gl-draw-elements-base-vertex/direct (mode::<fixnum>
+                                                    indices
+                                                    base-vertex::<fixnum>)
   ::<void>
   (ENSURE glDrawElementsBaseVertex)
   (gl-case (indices)
            (glDrawElementsBaseVertex mode (SCM_UVECTOR_SIZE indices) ~E ~X
                                      base-vertex)
            ((u8) (u16) (u32))
-           (if (not (SCM_FALSEP indices))
-             (Scm_Error "bad argument for indices: %S, must be u8, u16, \
-                         u32vector or #f" indices)
-             (begin
-               (when (== type 0)
-                 (Scm_Error "gl-draw-elements-base-vertex requires type when using VBO"))
-               (glDrawElementsBaseVertex mode count type NULL 1)))))
+           "bad argument for indices; must be u8, u16 or u32vector, but got %S"))
+
+(define-cproc %gl-draw-elements-base-vertex/vbo (mode::<fixnum>
+                                                 count::<fixnum>
+                                                 type::<fixnum>
+                                                 base-vertex::<fixnum>
+                                                 offset::<fixnum>)
+  (ENSURE glDrawElementsBaseVertex)
+  (glDrawElementsBaseVertex mode count type
+                            (+ (cast GLvoid* 0) offset)
+                            base-vertex))
 
 (define-cproc gl-draw-arrays-instanced (mode::<fixnum>
                                         first::<fixnum>

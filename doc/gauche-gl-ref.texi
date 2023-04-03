@@ -1302,17 +1302,49 @@ Dereference @var{ith} vertex information of the currently enabled arrays.
 @end defun
 
 @defun gl-draw-elements mode indices
+@defunx gl-draw-elements mode count type :optional offset
 Issues geometric primitive calls consists of the vertex information
 of the currently enabled arrays, each of which is specified
 by @var{indices}, which should be either a u8, u16 or u32vector.
+NB: The element count and element type are deduced from the
+tyep of @var{indices} vector.
+
+The second form can be used to refer to the data in the currently
+bound vertex buffer.  You need to give element @var{count}
+(the number of @emph{elements} to be used) and element @var{type}
+(@code{GL_UNSIGNED_BYTE} etc.),
+for the call can't know them.
+The optional @var{offset} specifis the byte offset of the elements
+in the vertex buffer.
 
 @var{Mode} is the same as of @code{gl-begin}.
 @end defun
 
 @defun gl-draw-range-elements mode start end indices
+@defunx gl-draw-range-elements mode start end count type :optional offset
 [GL1.2] Like @code{gl-draw-elements}, but limits the range of indices
 between @var{start} and @var{end}, inclusive.  GL driver may take
 advantage of the information for better performance.
+NB: The element count and element type are deduced from the
+tyep of @var{indices} vector.
+
+The second form can be used to refer to the data in the currently
+bound vertex buffer. You need to give element @var{count}
+(the number of @emph{elements} to be used) and element @var{type}
+(@code{GL_UNSIGNED_BYTE} etc.),
+for the call can't know them.
+The optional @var{offset} specifis the byte offset of the elements
+in the vertex buffer.
+
+@var{Mode} is the same as of @code{gl-begin}.
+@end defun
+
+@defun gl-draw-elements-base-vertex mode indices base-vertex
+@defunx gl-draw-elements-base-vertex mode count type base-vertex :optional offset
+Like @code{gl-draw-elements} but @var{base-vertex} is added to
+the value of each index.  The second form can be used to refer to
+the data in the currenty bound vertex buffer.  See @code{gl-draw-element}
+above for the details.
 @end defun
 
 @defun gl-draw-arrays mode first count

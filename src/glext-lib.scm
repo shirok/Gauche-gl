@@ -118,7 +118,7 @@
     [(mode indices base-vertex)
      (%gl-draw-elements-base-vertex/direct mode indices base-vertex)]
     [(mode count type base-vertex :optional (offset 0))
-     (%gl-draw-elements-base-vertex/vbo mode count type base-vertex)]))
+     (%gl-draw-elements-base-vertex/vbo mode count type base-vertex offset)]))
 
 (define-cproc %gl-draw-elements-base-vertex/direct (mode::<fixnum>
                                                     indices

@@ -35,6 +35,7 @@
 #include <gauche/extend.h>
 
 #if MacOSX
+#define GL_SILENCE_DEPRECATION  /* OSX deprecated GL */
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>

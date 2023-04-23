@@ -37,6 +37,7 @@
 #include "gauche/gl-config.h"
 
 #if MacOSX
+#define GL_SILENCE_DEPRECATION  /* OSX deprecated GL */
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h> /* for glutGetProcAddress. */

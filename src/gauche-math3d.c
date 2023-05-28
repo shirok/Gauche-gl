@@ -108,7 +108,7 @@ ScmObj Scm_MakeVector4fvShared(float d[])
     return SCM_OBJ(v);
 }
 
-ScmObj Scm_MakeVector4fv(const float *d)
+ScmObj Scm_MakeVector4fv(const float d[])
 {
     if (d) return Scm_MakeVector4f(d[0], d[1], d[2], d[3]);
     else   return Scm_MakeVector4f(0.0, 0.0, 0.0, 0.0);
@@ -1092,13 +1092,13 @@ ScmObj Scm_MakeQuatf(float x, float y, float z, float w)
     return SCM_OBJ(v);
 }
 
-ScmObj Scm_MakeQuatfv(const float d[])
+ScmObj Scm_MakeQuatfv(const float d[4])
 {
     if (d) return Scm_MakeQuatf(d[0], d[1], d[2], d[3]);
     else   return Scm_MakeQuatf(0.0, 0.0, 0.0, 1.0);
 }
 
-ScmObj Scm_MakeQuatfvShared(float d[])
+ScmObj Scm_MakeQuatfvShared(float d[4])
 {
     ScmQuatf *v = SCM_NEW(ScmQuatf);
     SCM_SET_CLASS(v, SCM_CLASS_QUATF);
@@ -1106,7 +1106,7 @@ ScmObj Scm_MakeQuatfvShared(float d[])
     return SCM_OBJ(v);
 }
 
-ScmObj Scm_QuatfSetv(ScmQuatf *q, const float d[])
+ScmObj Scm_QuatfSetv(ScmQuatf *q, const float d[4])
 {
     float *fv = SCM_QUATF_D(q);
     fv[0]=d[0]; fv[1]=d[1]; fv[2]=d[2]; fv[3]=d[3];

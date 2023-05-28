@@ -1,7 +1,7 @@
 ;;;
 ;;; math3d-lib.scm - 3d vector arithmetics
 ;;;
-;;;  Copyright (c) 2002-2015  Shiro Kawai  <shiro@acm.org>
+;;;  Copyright (c) 2002-2023  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Redistribution and use in source and binary forms, with or without
 ;;;  modification, are permitted provided that the following conditions

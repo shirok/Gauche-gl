@@ -1,7 +1,7 @@
 ;;;
 ;;; Common cise macros
 ;;;
-;;;  Copyright (c) 2012-2014  Shiro Kawai  <shiro@acm.org>
+;;;  Copyright (c) 2012-2023  Shiro Kawai  <shiro@acm.org>
 ;;;
 ;;;  Redistribution and use in source and binary forms, with or without
 ;;;  modification, are permitted provided that the following conditions

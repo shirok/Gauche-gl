@@ -1,6 +1,9 @@
 (define-module vbm
   (use binary.io)
   (use gauche.uvector)
+  (use gauche.vport)
+  (use gl.math3d)
+  (export load-vbm)
   )
 (select-module vbm)
 
@@ -19,6 +22,37 @@
    (index-type :init-keyword :index-type)
    (num-materials :init-keyword :num-materials)
    (flags :init-keyword :flags)))
+
+(define-class <vbm-attrib> ()
+  ((name :init-keyword :name)
+   (type :init-keyword :type)
+   (components :init-keyword :components)
+   (flags :init-keyword :flags)))
+
+(define-class <vbm-frame> ()
+  ((first :init-keyword :first)
+   (count :init-keyword :count)
+   (flags :init-keyword :flags)))
+
+(define-class <vbm-render-chunk> ()
+  ((material-index :init-keyword :material-index)
+   (first :init-keyword :first)
+   (count :init-keyword :count)))
+
+(define-class <vbm-material> ()
+  ((name :init-keyword :name)
+   (ambient :init-keyword :ambient)           ; vector4f
+   (diffuse :init-keyword :diffuse)           ; vector4f
+   (specular :init-keyword :specular)         ; vector4f
+   (specular-exp :init-keyword :specular-exp) ; vector4f
+   (shininess :init-keyword :shininess)       ; real
+   (alpha :init-keyword :alpha)               ; real
+   (transmission :init-keyword :transmission) ; vector4f
+   (ior :init-keyword :ior)                   ; real, index of refraction
+   (ambient-map :init-keyword :ambient-map)   ; texture
+   (diffuse-map :init-keyword :diffuse-map)   ; texture
+   (normal-map :init-keyword :normal-map)     ; texture
+   ))
 
 ;; Reaad the header
 ;; num-chunks field only exists in the old VBM header and no longer used
@@ -46,3 +80,11 @@
       :index-type index-type
       :num-materials num-materials
       :flags flags)))
+
+(define (parse-vbm bytes)
+  (let ([header (read-vbm-header (open-input-uvector bytes))])
+    header))
+
+;; API
+(define (load-vbm filename)
+  (parse-vbm (call-with-input-file filename port->uvector)))

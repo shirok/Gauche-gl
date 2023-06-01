@@ -506,15 +506,8 @@
   (let* ([T::(.array float[4])] [S::(.array float[4])]
          [H::(.array float[4])] [R::(.array float[16])]
          [r::int (Scm_Matrix4fDecomposev (SCM_MATRIX4F_D m) T R H S)])
-    ;; NB: This should be
-    ;; (return r (Scm_MakeVector4fv T) (Scm_MakeMatrix4fv R)
-    ;;           (Scm_MakeVector4fv H) (Scm_MakeVector4fv S))))
-    ;; but 0.9.3.3's cise doesn't support this many return values.
-    (set! SCM_RESULT0 r
-          SCM_RESULT1 (Scm_MakeVector4fv T)
-          SCM_RESULT2 (Scm_MakeMatrix4fv R)
-          SCM_RESULT3 (Scm_MakeVector4fv H)
-          SCM_RESULT4 (Scm_MakeVector4fv S))))
+    (return r (Scm_MakeVector4fv T) (Scm_MakeMatrix4fv R)
+            (Scm_MakeVector4fv H) (Scm_MakeVector4fv S))))
 
 (define-cproc matrix4f-decompose! (m::<matrix4f> T::<vector4f> R::<matrix4f>
                                    H::<vector4f> S::<vector4f>)

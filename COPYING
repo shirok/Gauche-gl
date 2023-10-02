@@ -1,4 +1,3 @@
-
      Copyright (c) 2001-2023  Shiro Kawai  <shiro@acm.org>
 
      Permission is hereby granted, free of charge, to any person
@@ -21,3 +20,8 @@
      OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
      IN THE SOFTWARE.
 
+
+
+Note: 'win32' subdirectory contains a few third-party packages, each
+of which has its own license.  They're all compatible to 3-clause BSD
+license.

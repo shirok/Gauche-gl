@@ -35,6 +35,13 @@
 
 (inline-stub
  (declcode (.include "gauche-glfw.h"))
+
+ ;; Kludge - define-cstruct generates declaration including SCM_EXTERN
+ ;; unconditionally.  It gets in our way here.  Egentually genstub
+ ;; will take care of it.
+ (declcode (.undef "SCM_EXTERN")
+           (.define "SCM_EXTERN extern"))
+
  (define-type <glfw-window> GLFWwindow*
    "GLFWwindow"
    "SCM_GLFW_WINDOW_P"
@@ -64,7 +71,10 @@
 ;;;
 
 (define-cproc glfw-init () ::<boolean>
-  (return (glfwInit)))
+  (let* ([r::int (glfwInit)])
+    (unless (== r GLFW_TRUE)
+      (Scm_GlfwError "glfwInit"))
+    (return TRUE)))
 
 (define-cproc glfw-terminate () ::<void>
   (glfwTerminate))
@@ -419,7 +429,7 @@
  (define-cproc glfw-set-key-callback (w::<glfw-window> proc)
    (set-window-cb w SCM_GLFW_KEY_CALLBACK proc))
 
- (define-cfn char-cb (w::GLFWwindow* codepoint::uint) ::void
+ (define-cfn char-cb (w::GLFWwindow* codepoint::u_int) ::void
    (call-window-cb w SCM_GLFW_CHAR_CALLBACK
                    (SCM_MAKE_CHAR (Scm_UcsToChar codepoint))))
  (define-cproc glfw-set-char-callback (w::<glfw-window> proc)

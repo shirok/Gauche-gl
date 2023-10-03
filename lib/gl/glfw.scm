@@ -32,6 +32,7 @@
 ;;;
 
 (define-module gl.glfw
+  (use gl)
   (export-all))
 (select-module gl.glfw)
 (dynamic-load "libgauche-glfw")

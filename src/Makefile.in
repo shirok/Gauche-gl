@@ -22,7 +22,7 @@ LDFLAGS  = @LDFLAGS@
 OBJEXT   = @OBJEXT@
 SOEXT    = @SOEXT@
 OLIBS    = @LIBS@
-LIBS     = @GL_LIBS@ @LIBS@
+LIBS     = @LIBS@ @GL_LIBS@
 
 GOSH           = "@GOSH@"
 GAUCHE_CONFIG  = "@GAUCHE_CONFIG@"

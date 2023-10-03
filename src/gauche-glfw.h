@@ -36,27 +36,29 @@
 
 #include <GLFW/glfw3.h>
 
-SCM_EXTERN ScmClass *Scm_GlfwWindowClass; /* foreign pointer class */
+extern ScmClass *Scm_GlfwWindowClass; /* foreign pointer class */
 #define SCM_GLFW_WINDOW_P(obj) SCM_ISA(obj, Scm_GlfwWindowClass)
 #define SCM_GLFW_WINDOW(obj)   SCM_FOREIGN_POINTER_REF(GLFWwindow*, obj)
 
-SCM_EXTERN GLFWwindow *Scm_CreateGlfwWindow(int, int, const char *,
+extern GLFWwindow *Scm_CreateGlfwWindow(int, int, const char *,
                                             GLFWmonitor*, GLFWwindow*);
-SCM_EXTERN ScmObj Scm_MakeGlfwWindow(GLFWwindow*);
-SCM_EXTERN void Scm_GlfwWindowDestroy(ScmObj);
+extern ScmObj Scm_MakeGlfwWindow(GLFWwindow*);
+extern void Scm_GlfwWindowDestroy(ScmObj);
 
-SCM_EXTERN ScmClass *Scm_GlfwMonitorClass; /* foreign pointer class */
+extern ScmClass *Scm_GlfwMonitorClass; /* foreign pointer class */
 #define SCM_GLFW_MONITOR_P(obj) SCM_ISA(obj, Scm_GlfwMonitorClass)
 #define SCM_GLFW_MONITOR(obj)   SCM_FOREIGN_POINTER_REF(GLFWmonitor*, obj)
 
-SCM_EXTERN ScmObj Scm_MakeGlfwMonitor(GLFWmonitor*);
+extern ScmObj Scm_MakeGlfwMonitor(GLFWmonitor*);
 
-SCM_EXTERN ScmClass *Scm_GlfwCursorClass; /* foreign pointer class */
+extern ScmClass *Scm_GlfwCursorClass; /* foreign pointer class */
 #define SCM_GLFW_CURSOR_P(obj) SCM_ISA(obj, Scm_GlfwCursorClass)
 #define SCM_GLFW_CURSOR(obj)   SCM_FOREIGN_POINTER_REF(GLFWcursor*, obj)
 
-SCM_EXTERN ScmObj Scm_MakeGlfwCursor(GLFWcursor*);
-SCM_EXTERN void Scm_GlfwCursorDestroy(ScmObj);
+extern ScmObj Scm_MakeGlfwCursor(GLFWcursor*);
+extern void Scm_GlfwCursorDestroy(ScmObj);
+
+extern void Scm_GlfwError(const char *prefix);
 
 /*
  * This structure is associated to each window.
@@ -91,8 +93,8 @@ typedef struct ScmGlfwWindowDataRec {
     ScmObj window_cbs[SCM_GLFW_NUM_WINDOW_CALLBACKS];
 } ScmGlfwWindowData;
 
-SCM_EXTERN void Scm__SetupWindowCallbacks(GLFWwindow *);
-SCM_EXTERN ScmGlfwWindowData *Scm_GlfwGetWindowData(GLFWwindow *);
+extern void Scm__SetupWindowCallbacks(GLFWwindow *);
+extern ScmGlfwWindowData *Scm_GlfwGetWindowData(GLFWwindow *);
 
 /*
  * Global callbacks

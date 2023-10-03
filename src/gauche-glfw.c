@@ -39,6 +39,22 @@
 extern void Scm_Init_glfw_lib(ScmModule *mod);
 
 /*================================================================
+ * Error handling
+ */
+
+void Scm_GlfwError(const char *prefix)
+{
+    const char *desc;
+    int code = glfwGetError(&desc);
+    if (code == GLFW_NO_ERROR) {
+        Scm_Error("%s: GLFW no error", prefix);
+    } else {
+        Scm_Error("%s: GLFW Error (%d): %s", prefix, code, desc);
+    }
+}
+
+
+/*================================================================
  * windowdata management
  */
 
@@ -125,10 +141,10 @@ GLFWwindow *Scm_CreateGlfwWindow(int width, int height, const char *title,
                                  GLFWwindow *share)
 {
     GLFWwindow *w = glfwCreateWindow(width, height, title, monitor, share);
-    if (w != NULL) {
-        (void)Scm_GlfwGetWindowData(w); /* attach WindowData */
-        Scm__SetupWindowCallbacks(w);
-    }
+    if (w == NULL) Scm_GlfwError("glfwCreateWindow");
+
+    (void)Scm_GlfwGetWindowData(w); /* attach WindowData */
+    Scm__SetupWindowCallbacks(w);
     return w;
 }
 

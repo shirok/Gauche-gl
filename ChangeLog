@@ -1,6 +1,6 @@
-2023-10-02  Shiro Kawai  <shiro@acm.org>
+2023-10-14  Shiro Kawai  <shiro@acm.org>
 
-	* win32/glfw-3.3.8: Bundle this for Windows build.
+	* package.scm: 0.7_pre3.  Requires Gauche 0.9.13.
 
 2023-04-02  Shiro Kawai  <shiro@acm.org>
 

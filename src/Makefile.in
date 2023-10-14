@@ -41,7 +41,7 @@ ARCH_INSTALL_DIR    = "$(DESTDIR)`$(GAUCHE_CONFIG) --sitearchdir`"
 @USE_VULKAN_yes@LIBGAUCHE_VULKAN=libgauche-vulkan.$(SOEXT)
 @USE_VULKAN_no@LIBGAUCHE_VULKAN=
 
-PRECOMP = $(GOSH) precomp
+PRECOMP = $(GOSH) tools/precomp
 
 # build -----------------------------------------------
 

@@ -1,3 +1,8 @@
+2024-04-07  Shiro Kawai  <shiro@acm.org>
+
+	* lib/gl/math3d.scm: Add methods for unary + and *, adapting to the
+	  future versions of Gauche.  (This has no effect with 0.9.14).
+
 2023-10-14  Shiro Kawai  <shiro@acm.org>
 
 	* package.scm: 0.7_pre3.  Requires Gauche 0.9.13.

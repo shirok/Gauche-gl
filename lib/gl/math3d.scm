@@ -285,6 +285,8 @@
   (point4f-add x y))
 (define-method object-+ ((x <quatf>) (y <quatf>))
   (quatf-add x y))
+(define-method object-+ ((x <vector4f>)) x)
+(define-method object-+ ((x <quatf>)) x)
 
 (define-method object-- ((x <vector4f>) (y <vector4f>))
   (vector4f-sub x y))
@@ -317,3 +319,6 @@
   (matrix4f-mul m s))
 (define-method object-* ((x <quatf>) (y <quatf>))
   (quatf-mul x y))
+
+(define-method object-* ((x <matrix4f>)) x)
+(define-method object-* ((x <quatf>)) x)

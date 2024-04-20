@@ -49,11 +49,11 @@
 ;;
 
 (define-cproc list->gl-boolean-vector (lis) Scm_ListToGLBooleanVector)
-(define-cproc gl-boolean-vector (&rest lis) Scm_ListToGLBooleanVector)
+(define-cproc gl-boolean-vector (:rest lis) Scm_ListToGLBooleanVector)
 (define-cproc gl-boolean-vector? (obj) ::<boolean> SCM_GL_BOOLEAN_VECTOR_P)
 
 (define-cproc make-gl-boolean-vector (size::<uint>
-                                      &optional (init::<boolean> #f))
+                                      :optional (init::<boolean> #f))
   Scm_MakeGLBooleanVector)
 
 (define-cproc gl-boolean-vector-copy (bv::<gl-boolean-vector>)
@@ -61,7 +61,7 @@
 
 (define-cproc gl-boolean-vector-ref (bv::<gl-boolean-vector>
                                      k::<int>
-                                     &optional fallback)
+                                     :optional fallback)
   (cond [(or (< k 0) (>= k (-> bv size)))
          (when (SCM_UNBOUNDP fallback)
            (Scm_Error "argument out of bound: %d" k))
@@ -335,7 +335,7 @@
 ;;  (gl-call-lists array)
 ;;  (gl-call-lists size array)
 ;;  (gl-call-lists size type array)
-(define-cproc gl-call-lists (arg0 &optional arg1 arg2) ::<void>
+(define-cproc gl-call-lists (arg0 :optional arg1 arg2) ::<void>
   (let* ([size::GLsizei 0] [type::int -1] [array] [bad])
     (if (SCM_UNBOUNDP arg2)
       (if (SCM_UNBOUNDP arg1)
@@ -410,14 +410,14 @@
 (define-cproc gl-begin (mode::<int>) ::<void> glBegin)
 (define-cproc gl-end () ::<void> glEnd)
 
-(define-cproc gl-vertex (v &rest args)
+(define-cproc gl-vertex (v :rest args)
   (gl-case (v args) "glVertex~n~v"
            ((p4f 3) (v4f 3) (f32 3 2 4) (f64 3 2 4) (s32 3 2 4) (s16 3 2 4)
             (args 3 2 4))
            "bad argument for v: %S, must be one of point4f, vector4f, \
             or f32, f64, s32 or s16 vector of length 2, 3, or 4."))
 
-(define-cproc gl-normal (v &rest args)
+(define-cproc gl-normal (v :rest args)
   (gl-case (v args) "glNormal3~v"
            ((v4f) (f32 3) (f64 3) (s32 3) (s16 3) (args 3))
            "bad argument for v: %S, must be one of vector4f, \
@@ -433,7 +433,7 @@
    [else
     (SCM_TYPE_ERROR v "real number or s16, s32, f32, f64 or u8vector of at least one element")]))
 
-(define-cproc gl-color (v &rest args) ::<void>
+(define-cproc gl-color (v :rest args) ::<void>
   (gl-case (v args) "glColor~n~v"
            ((f32 3 4) (f64 3 4) (u8 3 4) (u16 3 4) (u32 3 4)
             (s8 3 4) (s16 3 4) (s32 3 4) (args 3 4))
@@ -441,18 +441,18 @@
             length 3 or 4"))
 
 
-(define-cproc gl-tex-coord (v &rest args) ::<void>
+(define-cproc gl-tex-coord (v :rest args) ::<void>
   (gl-case (v args) "glTexCoord~n~v"
            ((f32 2 1 3 4) (f64 2 1 3 4) (s32 2 1 3 4) (s16 2 1 3 4)
             (args 2 1 3 4))
            "bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 1, 2, 3, or 4."))
 
-(define-cproc gl-raster-pos (v &rest args)
+(define-cproc gl-raster-pos (v :rest args)
   (gl-case (v args) "glRasterPos~n~v"
            ((f32 3 2 4) (f64 3 2 4) (s32 3 2 4) (s16 3 2 4) (args 3 2 4))
            "bad argument for v: %S, must be one of f32, f64, s32 or s16 vector of length 2, 3, or 4."))
 
-(define-cproc gl-rect (v1 v2 &rest args)
+(define-cproc gl-rect (v1 v2 :rest args)
   (cond
    [(SCM_POINT4FP v1)
     (unless (SCM_POINT4FP v2) (goto badarg2))
@@ -507,7 +507,7 @@
 ;;    except when vec is #f or u8vector, in which case it is in bytes.
 
 (define-cproc gl-vertex-pointer (size::<fixnum> vec
-                                 &optional (stride::<fixnum> 0)
+                                 :optional (stride::<fixnum> 0)
                                            (offset::<fixnum> 0)
                                            (type::<fixnum> 0))
   ::<void>
@@ -541,7 +541,7 @@
                         vec)])))
 
 (define-cproc gl-normal-pointer (vec
-                                 &optional (stride::<fixnum> 0)
+                                 :optional (stride::<fixnum> 0)
                                            (offset::<fixnum> 0)
                                            (type::<fixnum> 0))
   ::<void>
@@ -564,7 +564,7 @@
                          s32vector, or #f, but got: %S" vec)])))
 
 (define-cproc gl-color-pointer (size::<fixnum> vec
-                                &optional (stride::<fixnum> 0)
+                                :optional (stride::<fixnum> 0)
                                           (offset::<fixnum> 0)
                                           (type::<fixnum> 0))
   ::<void>
@@ -589,7 +589,7 @@
                          s16, u16, s32, u32vector, or #f, but got: %S" vec)])))
 
 (define-cproc gl-index-pointer (vec
-                                &optional (stride::<fixnum> 0)
+                                :optional (stride::<fixnum> 0)
                                           (offset::<fixnum> 0)
                                           (type::<fixnum> 0))
   ::<void>
@@ -612,7 +612,7 @@
                          s32vector, or #f, but got: %S" vec)])))
 
 (define-cproc gl-tex-coord-pointer (size::<fixnum> vec
-                                    &optional (stride::<fixnum> 0)
+                                    :optional (stride::<fixnum> 0)
                                               (offset::<fixnum> 0)
                                               (type::<fixnum> 0))
   ::<void>
@@ -637,7 +637,7 @@
                          s32vector, or #f, but got %S" vec)])))
 
 (define-cproc gl-edge-flag-pointer (vec
-                                    &optional (stride::<fixnum> 0)
+                                    :optional (stride::<fixnum> 0)
                                               (offset::<fixnum> 0))
   ::<void>
   (cond
@@ -676,7 +676,7 @@
 ;; Note: we don't allow non-uniform vector for the interleaved arrays, so
 ;; the color component must be float.
 (define-cproc gl-interleaved-arrays (format::<fixnum> vec
-                                     &optional (stride::<fixnum> 0))
+                                     :optional (stride::<fixnum> 0))
   ::<void>
   (case format
     [(GL_C4UB_V2F GL_C4UB_V3F GL_T2F_C4UB_V3F)
@@ -797,7 +797,7 @@
 
 ;; allocate the vector in it.  type can be a class
 ;; <u32vector> (default), <u16vector> or <f32vector>
-(define-cproc gl-get-pixel-map (map::<fixnum> &optional type)
+(define-cproc gl-get-pixel-map (map::<fixnum> :optional type)
   (let* ([size::int])
     (glGetIntegerv map (& size))
     (CHECK_ERROR "couldn't get pixel map size")

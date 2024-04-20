@@ -462,7 +462,7 @@
   (ENSURE glClientActiveTexture)
   (glClientActiveTexture texture))
 
-(define-cproc gl-multi-tex-coord (texunit::<int> v &rest args) ::<void>
+(define-cproc gl-multi-tex-coord (texunit::<int> v :rest args) ::<void>
   (gl-case (v args)
            (begin
              (ENSURE "glMultiTexCoord~n~v")
@@ -583,7 +583,7 @@
     (ENSURE glUniform1f)
     (glUniform1f location (cast GLfloat (Scm_GetDouble v0)))]))
 
-(define-cproc gl-uniform2 (location::<int> v0 &optional v1) ::<void>
+(define-cproc gl-uniform2 (location::<int> v0 :optional v1) ::<void>
   (cond
    [(SCM_F32VECTORP v0)
     (let* ([count::int (/ (SCM_F32VECTOR_SIZE v0) 2)])
@@ -601,7 +601,7 @@
                  (cast GLfloat (Scm_GetDouble v0))
                  (cast GLfloat (Scm_GetDouble v1)))]))
 
-(define-cproc gl-uniform3 (location::<int> v0 &optional v1 v2) ::<void>
+(define-cproc gl-uniform3 (location::<int> v0 :optional v1 v2) ::<void>
   (cond
    [(SCM_F32VECTORP v0)
     (let* ([count::int (/ (SCM_F32VECTOR_SIZE v0) 3)])
@@ -619,7 +619,7 @@
                  (cast GLfloat (Scm_GetDouble v1))
                  (cast GLfloat (Scm_GetDouble v2)))]))
 
-(define-cproc gl-uniform4 (location::<int> v0 &optional v1 v2 v3) ::<void>
+(define-cproc gl-uniform4 (location::<int> v0 :optional v1 v2 v3) ::<void>
   (cond
    [(SCM_F32VECTORP v0)
     (let* ([count::int (/ (SCM_F32VECTOR_SIZE v0) 4)])
@@ -1014,7 +1014,7 @@
 ;; GL_ARB_vertex_program
 ;;
 
-(define-cproc gl-vertex-attrib (index::<uint> arg0 &rest args) ::<void>
+(define-cproc gl-vertex-attrib (index::<uint> arg0 :rest args) ::<void>
   (gl-case (arg0 args)
            (begin (ENSURE "glVertexAttrib~n~v")
                   ("glVertexAttrib~n~v" index ~X))
@@ -1022,7 +1022,7 @@
             (s8 4) (u8 4) (u16 4) (s32 4) (u32 4) (args 1 2 3 4))
            "bad argument for gl-vertex-attrib: %S"))
 
-(define-cproc gl-vertex-attrib-4n (index::<uint> arg0 &rest args) ::<void>
+(define-cproc gl-vertex-attrib-4n (index::<uint> arg0 :rest args) ::<void>
   (gl-case (arg0)
            (begin (ENSURE "glVertexAttrib4N~v")
                   ("glVertexAttrib4N~v" index ~X))
@@ -1106,7 +1106,7 @@
 ;; GL_ARB_window_pos
 ;;
 
-(define-cproc gl-window-pos (arg0 &rest args) ::<void>
+(define-cproc gl-window-pos (arg0 :rest args) ::<void>
   (gl-case (arg0 args) (begin (ENSURE "glWindowPos~n~v")
                               ("glWindowPos~n~v" ~X))
            ((f32 2 3) (s32 2 3) (s16 2 3) (f64 2 3) (args 2 3))

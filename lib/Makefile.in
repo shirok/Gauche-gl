@@ -23,6 +23,7 @@ SCMFILES = gl.scm        \
 	   gl/simple-image.scm \
 	   gl/simple/viewer.scm \
 	   gl/simple/image.scm \
+	   gl/simple/scene-time.scm \
 	   $(GLFW_SCMS) $(VULKAN_SCMS)
 
 CONFIG_GENERATED = Makefile

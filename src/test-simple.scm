@@ -17,4 +17,9 @@
 (use gl.simple.image)
 (test-module 'gl.simple.image)
 
+(test-section "gl.simple.scene-time")
+
+(use gl.simple.scene-time)
+(test-module 'gl.simple.scene-time)
+
 (test-end)

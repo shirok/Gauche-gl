@@ -41,7 +41,9 @@
           reset-scene-time!
           current-scene-time
           toggle-scene-time-mode!
-          step-scene-time!))
+          step-scene-time!
+          scene-time-speed-factor
+          scene-time-stepper))
 (select-module gl.simple.scene-time)
 
 ;; Represents absolute time in the scene
@@ -50,8 +52,9 @@
 (define-class <scene-time> ()
   ((mode :init-keyword :mode :init-value :run)
    (stepper :init-keyword :stepper :init-value 1.0) ;seconds
+   (speed-factor :init-keyword :speed-factor :init-value 1.0)
 
-   (start-time :init-form (current-jiffy)) ;jiffies
+   (prev-jiffy :init-form (current-jiffy)) ;jiffies
    (current-time :init-value 0)))       ;seconds
 
 (define *default-scene-time* (make <scene-time>))
@@ -66,9 +69,7 @@
        [<scene-time> (reset-scene-time! arg 0.0)]
        [<real> (reset-scene-time! *default-scene-time* arg)])]
     [(T time-in-sec)
-     (set! (~ T'start-time)
-           (- (current-jiffy)
-              (round->exact (* time-in-sec (jiffies-per-second)))))
+     (set! (~ T'prev-jiffy) (current-jiffy))
      (set! (~ T'current-time) time-in-sec)]))
 
 (define current-scene-time
@@ -76,8 +77,12 @@
     [() (current-scene-time *default-scene-time*)]
     [(T)
      (case (~ T'mode)
-       [(:run) (rlet1 t (/. (- (current-jiffy) (~ T'start-time)) (jiffies-per-second))
-                 (set! (~ T'current-time) t))]
+       [(:run) (let* ([now (current-jiffy)]
+                      [dt (/. (* (- now (~ T'prev-jiffy)) (~ T'speed-factor))
+                              (jiffies-per-second))])
+                 (set! (~ T'prev-jiffy) now)
+                 (inc! (~ T'current-time) dt)
+                 (~ T'current-time))]
        [(:step) (~ T'current-time)])]))
 
 (define step-scene-time!
@@ -98,4 +103,22 @@
     [(T)
      (case (~ T'mode)
        [(:run)  (set! (~ T'mode) :step)]
-       [(:step) (set! (~ T'mode) :run) (reset-scene-time! T (~ T'current-time))])]))
+       [(:step) (set! (~ T'mode) :run) (set! (~ T'prev-jiffy) (current-jiffy))])]))
+
+(define scene-time-speed-factor
+  (getter-with-setter
+   (case-lambda
+     [()  (scene-time-speed-factor *default-scene-time*)]
+     [(T) (~ T'speed-factor)])
+   (case-lambda
+     [(val) (set! (scene-time-speed-factor *default-scene-time*) val)]
+     [(T val) (set! (~ T'speed-factor) val)])))
+
+(define scene-time-stepper
+  (getter-with-setter
+   (case-lambda
+     [()  (scene-time-stepper *default-scene-time*)]
+     [(T) (~ T'stepper)])
+   (case-lambda
+     [(val) (set! (scene-time-stepper *default-scene-time*) val)]
+     [(T val) (set! (~ T'stepper) val)])))

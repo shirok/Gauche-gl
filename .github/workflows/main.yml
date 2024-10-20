@@ -9,7 +9,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: practical-scheme/setup-gauche@v6
-      with: prebuilt-binary: true
+      with:
+        prebuilt-binary: true
     - name: Install dependencies
       run: |
         sudo apt install -yq libglu1-mesa-dev freeglut3-dev mesa-common-dev \

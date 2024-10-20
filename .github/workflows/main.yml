@@ -6,11 +6,10 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      GET_GAUCHE_URL: https://raw.githubusercontent.com/shirok/get-gauche/master
     steps:
     - uses: actions/checkout@v3
-    - uses: shirok/setup-gauche@v1
+    - uses: practical-scheme/setup-gauche@v6
+      with: prebuilt-binary: true
     - name: Install dependencies
       run: |
         sudo apt install -yq libglu1-mesa-dev freeglut3-dev mesa-common-dev \

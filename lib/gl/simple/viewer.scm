@@ -134,10 +134,16 @@
    rx ry rz                             ; Rotation
    sx sy sz                             ; Scale
    br bg bb ba                          ; Background color
-   gr gg gb ga                          ; Gruond color (only in 3d)
+   gr gg gb ga                          ; Ground color (only in 3d)
    ))
 
+(define (viewer-projection-mode viewer-info)
+  (if (= (viewer-projection viewer-info) *projection-perspective*)
+    :perspective
+    :orthographic))
 
+(define (viewer-draw-ground? viewer-info)
+  (> (viewer-ga viewer-info) 0.0))
 
 ;;=============================================================
 ;; Wrapper of GLUT window
@@ -266,7 +272,7 @@
     (gl-translate xlatx xlaty 0.0))
   (define (display-common)
     (gl-disable GL_LIGHTING)
-    (when (> (viewer-ga viewer-info) 0.0)
+    (when (viewer-draw-ground? viewer-info)
       (draw-ground-plane viewer-info))
     (and grid-proc (grid-proc viewer-info))
     (and axis-proc (axis-proc viewer-info))
@@ -514,14 +520,16 @@
 
 (define (default-grid3 v)
   (default-grid-common v)
-  ;; For 3D: we draw planes near the origin
-  (gl-begin* GL_LINES
-    (do-ec (: i -5 6)
-           (begin
-             (gl-vertex i 0 -5)
-             (gl-vertex i 0 5)
-             (gl-vertex -5 0 i)
-             (gl-vertex 5  0 i)))))
+  ;; For 3D: we draw a grid plane near the origin
+  ;; If we also draw the ground, we offset Y a bit to avoid flashing
+  (let1 y (if (viewer-draw-ground? v) 0.002 0.0)
+    (gl-begin* GL_LINES
+      (do-ec (: i -5 6)
+             (begin
+               (gl-vertex i y -5)
+               (gl-vertex i y 5)
+               (gl-vertex -5 y i)
+               (gl-vertex 5  y i))))))
 
 (define (draw-ground-plane v)
   (gl-color (viewer-gr v) (viewer-gg v) (viewer-gb v) (viewer-ga v))

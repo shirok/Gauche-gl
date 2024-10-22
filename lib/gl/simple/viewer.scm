@@ -120,11 +120,24 @@
           [modify (string->symbol #`"viewer-,|slot|-set!")])
       `((define-inline (,access v) (f32vector-ref v ,k))
         (define-inline (,modify v n) (f32vector-set! v ,k n)))))
-  `(begin ,@(append-ec (: slot (index k) slots) (gen slot k))))
+  `(begin ,@(append-ec (: slot (index k) slots) (gen slot k))
+          (define (make-viewer-info)
+            (make-f32vector ,(length slots)))))
 
+;; The order of slots may change between versions; the user should always use
+;; accessors.
+;; The ground is only drawn when ga > 0
 (define-viewer-accessors
-  (projection left right bottom top near far
-   tx ty tz rx ry rz sx sy sz))
+  (projection                           ; 0.0 or 1.0
+   left right bottom top near far       ; View frustum
+   tx ty tz                             ; Translation
+   rx ry rz                             ; Rotation
+   sx sy sz                             ; Scale
+   br bg bb ba                          ; Background color
+   gr gg gb ga                          ; Gruond color (only in 3d)
+   ))
+
+
 
 ;;=============================================================
 ;; Wrapper of GLUT window
@@ -179,7 +192,10 @@
                      (height 300)
                      (x      #f)
                      (y      #f)
-                     (zoom   1.0))
+                     (zoom   1.0)
+                     (background-color '#f32(0.0 0.0 0.0 0.0))
+                     (ground-color '#f32(0.0 0.0 0.0 0.0))
+                     )
   (define proj-mode
     (ecase projection
       [(:perspective)  *projection-perspective*]
@@ -199,11 +215,24 @@
 
   ;; Viewer info to pass to callbacks
   (define viewer-info
-    (rlet1 v (make-f32vector 16)
+    (rlet1 v (make-viewer-info)
       (viewer-projection-set! v proj-mode)
       (viewer-sx-set! v zoom)
       (viewer-sy-set! v zoom)
-      (viewer-sz-set! v (proj-choose zoom 1))))
+      (viewer-sz-set! v (proj-choose zoom 1))
+      (viewer-br-set! v (f32vector-ref background-color 0))
+      (viewer-bg-set! v (f32vector-ref background-color 1))
+      (viewer-bb-set! v (f32vector-ref background-color 2))
+      (viewer-ba-set! v (if (<= 4 (f32vector-length background-color))
+                          (f32vector-ref background-color 3)
+                          1.0))
+      (viewer-gr-set! v (f32vector-ref ground-color 0))
+      (viewer-gg-set! v (f32vector-ref ground-color 1))
+      (viewer-gb-set! v (f32vector-ref ground-color 2))
+      (viewer-ga-set! v (if (<= 4 (f32vector-length ground-color))
+                          (f32vector-ref ground-color 3)
+                          1.0))
+      ))
 
   (define key-handlers (hash-table-copy *default-key-handlers*))
   (define grid-proc    (proj-choose *default-grid3-proc* *default-grid2-proc*))
@@ -219,6 +248,8 @@
       *default-reshape2-proc*))
 
   (define (display-setup-3d)
+    (gl-clear-color (viewer-br viewer-info) (viewer-bg viewer-info)
+                    (viewer-bb viewer-info) (viewer-ba viewer-info))
     (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
     (gl-push-matrix)
     (gl-scale zoom zoom zoom)
@@ -227,12 +258,16 @@
     (gl-rotate roty 0.0 1.0 0.0)
     (gl-rotate rotz 0.0 0.0 1.0))
   (define (display-setup-2d)
+    (gl-clear-color (viewer-br viewer-info) (viewer-bg viewer-info)
+                    (viewer-bb viewer-info) (viewer-ba viewer-info))
     (gl-clear (logior GL_COLOR_BUFFER_BIT))
     (gl-push-matrix)
     (gl-scale zoom zoom 1.0)
     (gl-translate xlatx xlaty 0.0))
   (define (display-common)
     (gl-disable GL_LIGHTING)
+    (when (> (viewer-ga viewer-info) 0.0)
+      (draw-ground-plane viewer-info))
     (and grid-proc (grid-proc viewer-info))
     (and axis-proc (axis-proc viewer-info))
     (gl-color 1.0 1.0 1.0 1.0)
@@ -487,6 +522,23 @@
              (gl-vertex i 0 5)
              (gl-vertex -5 0 i)
              (gl-vertex 5  0 i)))))
+
+(define (draw-ground-plane v)
+  (gl-color (viewer-gr v) (viewer-gg v) (viewer-gb v) (viewer-ga v))
+  (gl-begin* GL_TRIANGLES
+    (gl-vertex  0 0  0 1)
+    (gl-vertex  0 0  1 0)
+    (gl-vertex  1 0  0 0)
+    (gl-vertex  0 0  0 1)
+    (gl-vertex  0 0 -1 0)
+    (gl-vertex -1 0  0 0)
+    (gl-vertex  0 0  0 1)
+    (gl-vertex  1 0  0 0)
+    (gl-vertex  0 0 -1 0)
+    (gl-vertex  0 0  0 1)
+    (gl-vertex -1 0  0 0)
+    (gl-vertex  0 0  1 0)
+    ))
 
 (define (default-axis v)
   (if (= (viewer-projection v) *projection-perspective*)

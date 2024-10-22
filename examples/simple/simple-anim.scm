@@ -55,7 +55,9 @@
   (simple-viewer-display (^[state]
                            (trajectory)
                            (glut-post-redisplay)))
-  (simple-viewer-window 'demo)
+  (simple-viewer-window 'demo
+                        :background-color '#f32(0.3 0.5 0.9)
+                        :ground-color '#f32(0.3 0.3 0.3))
   (simple-viewer-run)
   0)
 

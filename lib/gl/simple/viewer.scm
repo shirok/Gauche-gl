@@ -60,13 +60,24 @@
 ;;          simple-viewer-axis
 ;;          simple-viewer-set-key!
 ;;
-;;   Those callback receives a vector as the state of the viewer.
-;;   The first element is the dimension (2 or 3), followed by
-;;   elements about projection, and the following 9
-;;   elements about camera position & orientation.
+;;   Those callback receives a vector ('vinfo') as the state of the viewer.
+;;   We use a vector instead of a struct or an instance to minimize overhead
+;;   of accessing it.  Provided accessor/mutator are inlined.
 ;;
-;;     #f32(<dim> <left> <right> <bottom> <top> <near> <far>
-;;          <tx> <ty> <tz> <rx> <ry> <rz> <sx> <sy> <sz>)
+;;     API: vinfo-projection-mode
+;;
+;;          vinfo-left vinfo-right vinfo-bottom
+;;          vinfo-top vinfo-near vinfo-far
+;;
+;;          vinfo-tx vinfo-ty vinfo-tz
+;;          vinfo-rx vinfo-ry vinfo-rz
+;;          vinfo-sx vinfo-sy vinfo-sz
+;;
+;;          vinfo-br vinfo-bg vinfo-bb vinfo-ba
+;;          vinfo-gr vinfo-gg vinfo-gb vinfo-ga
+;;          vinfo-draw-ground?
+;;
+;;          make-vinfo
 ;;
 ;; * Calling simple-viewer-run enters main loop.
 ;;
@@ -114,20 +125,20 @@
 (define-constant *projection-perspective* 0.0)
 (define-constant *projection-orthographic* 1.0)
 
-(define-macro (define-viewer-accessors slots)
+(define-macro (define-vinfo-accessors slots)
   (define (gen slot k)
-    (let ([access (string->symbol #`"viewer-,|slot|")]
-          [modify (string->symbol #`"viewer-,|slot|-set!")])
+    (let ([access (string->symbol #`"vinfo-,|slot|")]
+          [modify (string->symbol #`"vinfo-,|slot|-set!")])
       `((define-inline (,access v) (f32vector-ref v ,k))
         (define-inline (,modify v n) (f32vector-set! v ,k n)))))
   `(begin ,@(append-ec (: slot (index k) slots) (gen slot k))
-          (define (make-viewer-info)
+          (define (make-vinfo)
             (make-f32vector ,(length slots)))))
 
 ;; The order of slots may change between versions; the user should always use
 ;; accessors.
 ;; The ground is only drawn when ga > 0
-(define-viewer-accessors
+(define-vinfo-accessors
   (projection                           ; 0.0 or 1.0
    left right bottom top near far       ; View frustum
    tx ty tz                             ; Translation
@@ -137,13 +148,13 @@
    gr gg gb ga                          ; Ground color (only in 3d)
    ))
 
-(define (viewer-projection-mode viewer-info)
-  (if (= (viewer-projection viewer-info) *projection-perspective*)
+(define-inline (vinfo-projection-mode vinfo)
+  (if (= (vinfo-projection vinfo) *projection-perspective*)
     :perspective
     :orthographic))
 
-(define (viewer-draw-ground? viewer-info)
-  (> (viewer-ga viewer-info) 0.0))
+(define-inline (vinfo-draw-ground? vinfo)
+  (> (vinfo-ga vinfo) 0.0))
 
 ;;=============================================================
 ;; Wrapper of GLUT window
@@ -220,22 +231,22 @@
   (define xlaty 0.0)
 
   ;; Viewer info to pass to callbacks
-  (define viewer-info
-    (rlet1 v (make-viewer-info)
-      (viewer-projection-set! v proj-mode)
-      (viewer-sx-set! v zoom)
-      (viewer-sy-set! v zoom)
-      (viewer-sz-set! v (proj-choose zoom 1))
-      (viewer-br-set! v (f32vector-ref background-color 0))
-      (viewer-bg-set! v (f32vector-ref background-color 1))
-      (viewer-bb-set! v (f32vector-ref background-color 2))
-      (viewer-ba-set! v (if (<= 4 (f32vector-length background-color))
+  (define vinfo
+    (rlet1 v (make-vinfo)
+      (vinfo-projection-set! v proj-mode)
+      (vinfo-sx-set! v zoom)
+      (vinfo-sy-set! v zoom)
+      (vinfo-sz-set! v (proj-choose zoom 1))
+      (vinfo-br-set! v (f32vector-ref background-color 0))
+      (vinfo-bg-set! v (f32vector-ref background-color 1))
+      (vinfo-bb-set! v (f32vector-ref background-color 2))
+      (vinfo-ba-set! v (if (<= 4 (f32vector-length background-color))
                           (f32vector-ref background-color 3)
                           1.0))
-      (viewer-gr-set! v (f32vector-ref ground-color 0))
-      (viewer-gg-set! v (f32vector-ref ground-color 1))
-      (viewer-gb-set! v (f32vector-ref ground-color 2))
-      (viewer-ga-set! v (if (<= 4 (f32vector-length ground-color))
+      (vinfo-gr-set! v (f32vector-ref ground-color 0))
+      (vinfo-gg-set! v (f32vector-ref ground-color 1))
+      (vinfo-gb-set! v (f32vector-ref ground-color 2))
+      (vinfo-ga-set! v (if (<= 4 (f32vector-length ground-color))
                           (f32vector-ref ground-color 3)
                           1.0))
       ))
@@ -254,8 +265,8 @@
       *default-reshape2-proc*))
 
   (define (display-setup-3d)
-    (gl-clear-color (viewer-br viewer-info) (viewer-bg viewer-info)
-                    (viewer-bb viewer-info) (viewer-ba viewer-info))
+    (gl-clear-color (vinfo-br vinfo) (vinfo-bg vinfo)
+                    (vinfo-bb vinfo) (vinfo-ba vinfo))
     (gl-clear (logior GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
     (gl-push-matrix)
     (gl-scale zoom zoom zoom)
@@ -264,21 +275,21 @@
     (gl-rotate roty 0.0 1.0 0.0)
     (gl-rotate rotz 0.0 0.0 1.0))
   (define (display-setup-2d)
-    (gl-clear-color (viewer-br viewer-info) (viewer-bg viewer-info)
-                    (viewer-bb viewer-info) (viewer-ba viewer-info))
+    (gl-clear-color (vinfo-br vinfo) (vinfo-bg vinfo)
+                    (vinfo-bb vinfo) (vinfo-ba vinfo))
     (gl-clear (logior GL_COLOR_BUFFER_BIT))
     (gl-push-matrix)
     (gl-scale zoom zoom 1.0)
     (gl-translate xlatx xlaty 0.0))
   (define (display-common)
     (gl-disable GL_LIGHTING)
-    (when (viewer-draw-ground? viewer-info)
-      (draw-ground-plane viewer-info))
-    (and grid-proc (grid-proc viewer-info))
-    (and axis-proc (axis-proc viewer-info))
+    (when (vinfo-draw-ground? vinfo)
+      (draw-ground-plane vinfo))
+    (and grid-proc (grid-proc vinfo))
+    (and axis-proc (axis-proc vinfo))
     (gl-color 1.0 1.0 1.0 1.0)
     (gl-line-width 1.0)
-    (and display-proc (display-proc viewer-info))
+    (and display-proc (display-proc vinfo))
     (gl-pop-matrix)
     (glut-swap-buffers))
 
@@ -293,7 +304,7 @@
 
   (define (reshape-fn w h)
     (set! height h) (set! width w)
-    (and reshape-proc (reshape-proc w h viewer-info)))
+    (and reshape-proc (reshape-proc w h vinfo)))
 
   (define (mouse-fn button state x y)
     (cond [(= state GLUT_UP)
@@ -305,20 +316,20 @@
     (cond [(eqv? prev-b GLUT_LEFT_BUTTON)
            (inc! rotx (* (/. (- y prev-y) height) 90.0))
            (inc! roty (* (/. (- x prev-x) width) 90.0))
-           (viewer-rx-set! viewer-info rotx)
-           (viewer-ry-set! viewer-info roty)]
+           (vinfo-rx-set! vinfo rotx)
+           (vinfo-ry-set! vinfo roty)]
           [(eqv? prev-b GLUT_MIDDLE_BUTTON)
            (inc! xlatx (* (/. (- x prev-x) width (sqrt zoom)) 12.0))
            (inc! xlaty (* (/. (- prev-y y) height (sqrt zoom)) 12.0))
-           (viewer-tx-set! viewer-info xlatx)
-           (viewer-ty-set! viewer-info xlaty)]
+           (vinfo-tx-set! vinfo xlatx)
+           (vinfo-ty-set! vinfo xlaty)]
           [(eqv? prev-b GLUT_RIGHT_BUTTON)
            (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
                                 zoom)
                              0.1 1000.0))
-           (viewer-sx-set! viewer-info zoom)
-           (viewer-sy-set! viewer-info zoom)
-           (viewer-sz-set! viewer-info zoom)])
+           (vinfo-sx-set! vinfo zoom)
+           (vinfo-sy-set! vinfo zoom)
+           (vinfo-sz-set! vinfo zoom)])
     (set! prev-x x) (set! prev-y y)
     (glut-post-redisplay))
 
@@ -327,14 +338,14 @@
                (= prev-b GLUT_MIDDLE_BUTTON))
            (inc! xlatx (/. (* 2 (- x prev-x)) zoom))
            (inc! xlaty (/. (* 2 (- prev-y y)) zoom))
-           (viewer-tx-set! viewer-info xlatx)
-           (viewer-ty-set! viewer-info xlaty)]
+           (vinfo-tx-set! vinfo xlatx)
+           (vinfo-ty-set! vinfo xlaty)]
           [(= prev-b GLUT_RIGHT_BUTTON)
            (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
                                 zoom)
                              0.1 1000.0))
-           (viewer-sx-set! viewer-info zoom)
-           (viewer-sy-set! viewer-info zoom)])
+           (vinfo-sx-set! vinfo zoom)
+           (vinfo-sy-set! vinfo zoom)])
     (set! prev-x x) (set! prev-y y)
     (glut-post-redisplay))
 
@@ -472,12 +483,12 @@
     (gl-matrix-mode GL_PROJECTION)
     (gl-load-identity)
     (gl-frustum -1.0 1.0 (- ratio) ratio 5.0 10000.0)
-    (viewer-left-set! v -1.0)
-    (viewer-right-set! v -1.0)
-    (viewer-bottom-set! v (- ratio))
-    (viewer-top-set! v ratio)
-    (viewer-near-set! v 5.0)
-    (viewer-far-set! v 10000.0)
+    (vinfo-left-set! v -1.0)
+    (vinfo-right-set! v -1.0)
+    (vinfo-bottom-set! v (- ratio))
+    (vinfo-top-set! v ratio)
+    (vinfo-near-set! v 5.0)
+    (vinfo-far-set! v 10000.0)
 
     (gl-matrix-mode GL_MODELVIEW)
     (gl-load-identity)
@@ -489,12 +500,12 @@
   (gl-matrix-mode GL_PROJECTION)
   (gl-load-identity)
   (glu-ortho-2d (- w) w (- h) h)
-  (viewer-left-set! v (- w))
-  (viewer-right-set! v w)
-  (viewer-bottom-set! v (- h))
-  (viewer-top-set! v h)
-  (viewer-near-set! v 1.0)
-  (viewer-far-set! v -1.0)
+  (vinfo-left-set! v (- w))
+  (vinfo-right-set! v w)
+  (vinfo-bottom-set! v (- h))
+  (vinfo-top-set! v h)
+  (vinfo-near-set! v 1.0)
+  (vinfo-far-set! v -1.0)
   (gl-matrix-mode GL_MODELVIEW)
   (gl-load-identity)
   (gl-translate 0.0 0.0 1.0))
@@ -506,12 +517,12 @@
 (define (default-grid2 v)
   (default-grid-common v)
   ;; For 2D: we draw grid to cover entire viewport
-  (let ([sx (viewer-sx v)]
-        [sy (viewer-sy v)])
-    (let ([xmin (floor   (- (/ (viewer-left v) sx) (viewer-tx v)))]
-          [xmax (ceiling (- (/ (viewer-right v) sx) (viewer-tx v)))]
-          [ymin (floor   (- (/ (viewer-bottom v) sy) (viewer-ty v)))]
-          [ymax (ceiling (- (/ (viewer-top v) sy) (viewer-ty v)))])
+  (let ([sx (vinfo-sx v)]
+        [sy (vinfo-sy v)])
+    (let ([xmin (floor   (- (/ (vinfo-left v) sx) (vinfo-tx v)))]
+          [xmax (ceiling (- (/ (vinfo-right v) sx) (vinfo-tx v)))]
+          [ymin (floor   (- (/ (vinfo-bottom v) sy) (vinfo-ty v)))]
+          [ymax (ceiling (- (/ (vinfo-top v) sy) (vinfo-ty v)))])
       (gl-begin* GL_LINES
         (do-ec (: x xmin (+ xmax 1))
                (begin (gl-vertex x ymin) (gl-vertex x ymax)))
@@ -522,7 +533,7 @@
   (default-grid-common v)
   ;; For 3D: we draw a grid plane near the origin
   ;; If we also draw the ground, we offset Y a bit to avoid flashing
-  (let1 y (if (viewer-draw-ground? v) 0.002 0.0)
+  (let1 y (if (vinfo-draw-ground? v) 0.002 0.0)
     (gl-begin* GL_LINES
       (do-ec (: i -5 6)
              (begin
@@ -532,7 +543,7 @@
                (gl-vertex 5  y i))))))
 
 (define (draw-ground-plane v)
-  (gl-color (viewer-gr v) (viewer-gg v) (viewer-gb v) (viewer-ga v))
+  (gl-color (vinfo-gr v) (vinfo-gg v) (vinfo-gb v) (vinfo-ga v))
   (gl-begin* GL_TRIANGLES
     (gl-vertex  0 0  0 1)
     (gl-vertex  0 0  1 0)
@@ -549,7 +560,7 @@
     ))
 
 (define (default-axis v)
-  (if (= (viewer-projection v) *projection-perspective*)
+  (if (= (vinfo-projection v) *projection-perspective*)
     (let ()
       (define (axis a b c)
         (gl-color a b c)
@@ -564,12 +575,12 @@
       (gl-line-width 1.0)
       (gl-color 1 0 0)
       (gl-begin* GL_LINES
-        (gl-vertex (- (/ (viewer-left v) (viewer-sx v)) (viewer-tx v)) 0)
-        (gl-vertex (- (/ (viewer-right v) (viewer-sx v)) (viewer-tx v)) 0))
+        (gl-vertex (- (/ (vinfo-left v) (vinfo-sx v)) (vinfo-tx v)) 0)
+        (gl-vertex (- (/ (vinfo-right v) (vinfo-sx v)) (vinfo-tx v)) 0))
       (gl-color 0 1 0)
       (gl-begin* GL_LINES
-        (gl-vertex 0 (- (/ (viewer-bottom v) (viewer-sy v)) (viewer-ty v)))
-        (gl-vertex 0 (- (/ (viewer-top v) (viewer-sy v)) (viewer-ty v)))))))
+        (gl-vertex 0 (- (/ (vinfo-bottom v) (vinfo-sy v)) (vinfo-ty v)))
+        (gl-vertex 0 (- (/ (vinfo-top v) (vinfo-sy v)) (vinfo-ty v)))))))
 
 (define (quit-loop)
   (cond-expand

@@ -102,6 +102,15 @@
           simple-viewer-set-key!
           simple-viewer-run
 
+          vinfo-projection-mode
+          vinfo-left vinfo-right vinfo-top vinfo-bottom vinfo-near vinfo-far
+          vinfo-tx vinfo-ty vinfo-tz
+          vinfo-rx vinfo-ry vinfo-rz
+          vinfo-sx vinfo-sy vinfo-sz
+          vinfo-br vinfo-bg vinfo-bb vinfo-ba
+          vinfo-gr vinfo-gg vinfo-gb vinfo-ga
+          vinfo-draw-ground?
+
           *projection-perspective*
           *projection-orthographic*
           )
@@ -127,10 +136,17 @@
 
 (define-macro (define-vinfo-accessors slots)
   (define (gen slot k)
-    (let ([access (string->symbol #`"vinfo-,|slot|")]
-          [modify (string->symbol #`"vinfo-,|slot|-set!")])
-      `((define-inline (,access v) (f32vector-ref v ,k))
-        (define-inline (,modify v n) (f32vector-set! v ,k n)))))
+    (let ([int-access (string->symbol #"%vinfo-~|slot|")]
+          [int-modify (string->symbol #"%vinfo-~|slot|-set!")]
+          [access (string->symbol #"vinfo-~|slot|")])
+      ;; TRANSIENT: This verbose definition is to allow setter
+      ;; to be inlined. As of 0.9.15, Gauche doens't inline
+      ;; when you give lambda exprs directly to getter-with-setter.
+      ;; See https://github.com/shirok/Gauche/issues/1076
+      `((define-inline (,int-access v) (f32vector-ref v ,k))
+        (define-inline (,int-modify v n) (f32vector-set! v ,k n))
+        (define-inline ,access
+          (getter-with-setter ,int-access ,int-modify)))))
   `(begin ,@(append-ec (: slot (index k) slots) (gen slot k))
           (define (make-vinfo)
             (make-f32vector ,(length slots)))))
@@ -233,20 +249,20 @@
   ;; Viewer info to pass to callbacks
   (define vinfo
     (rlet1 v (make-vinfo)
-      (vinfo-projection-set! v proj-mode)
-      (vinfo-sx-set! v zoom)
-      (vinfo-sy-set! v zoom)
-      (vinfo-sz-set! v (proj-choose zoom 1))
-      (vinfo-br-set! v (f32vector-ref background-color 0))
-      (vinfo-bg-set! v (f32vector-ref background-color 1))
-      (vinfo-bb-set! v (f32vector-ref background-color 2))
-      (vinfo-ba-set! v (if (<= 4 (f32vector-length background-color))
+      (set! (vinfo-projection v) proj-mode)
+      (set! (vinfo-sx v) zoom)
+      (set! (vinfo-sy v) zoom)
+      (set! (vinfo-sz v) (proj-choose zoom 1))
+      (set! (vinfo-br v) (f32vector-ref background-color 0))
+      (set! (vinfo-bg v) (f32vector-ref background-color 1))
+      (set! (vinfo-bb v) (f32vector-ref background-color 2))
+      (set! (vinfo-ba v) (if (<= 4 (f32vector-length background-color))
                           (f32vector-ref background-color 3)
                           1.0))
-      (vinfo-gr-set! v (f32vector-ref ground-color 0))
-      (vinfo-gg-set! v (f32vector-ref ground-color 1))
-      (vinfo-gb-set! v (f32vector-ref ground-color 2))
-      (vinfo-ga-set! v (if (<= 4 (f32vector-length ground-color))
+      (set! (vinfo-gr v) (f32vector-ref ground-color 0))
+      (set! (vinfo-gg v) (f32vector-ref ground-color 1))
+      (set! (vinfo-gb v) (f32vector-ref ground-color 2))
+      (set! (vinfo-ga v) (if (<= 4 (f32vector-length ground-color))
                           (f32vector-ref ground-color 3)
                           1.0))
       ))
@@ -316,20 +332,20 @@
     (cond [(eqv? prev-b GLUT_LEFT_BUTTON)
            (inc! rotx (* (/. (- y prev-y) height) 90.0))
            (inc! roty (* (/. (- x prev-x) width) 90.0))
-           (vinfo-rx-set! vinfo rotx)
-           (vinfo-ry-set! vinfo roty)]
+           (set! (vinfo-rx vinfo) rotx)
+           (set! (vinfo-ry vinfo) roty)]
           [(eqv? prev-b GLUT_MIDDLE_BUTTON)
            (inc! xlatx (* (/. (- x prev-x) width (sqrt zoom)) 12.0))
            (inc! xlaty (* (/. (- prev-y y) height (sqrt zoom)) 12.0))
-           (vinfo-tx-set! vinfo xlatx)
-           (vinfo-ty-set! vinfo xlaty)]
+           (set! (vinfo-tx vinfo) xlatx)
+           (set! (vinfo-ty vinfo) xlaty)]
           [(eqv? prev-b GLUT_RIGHT_BUTTON)
            (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
                                 zoom)
                              0.1 1000.0))
-           (vinfo-sx-set! vinfo zoom)
-           (vinfo-sy-set! vinfo zoom)
-           (vinfo-sz-set! vinfo zoom)])
+           (set! (vinfo-sx vinfo) zoom)
+           (set! (vinfo-sy vinfo) zoom)
+           (set! (vinfo-sz vinfo) zoom)])
     (set! prev-x x) (set! prev-y y)
     (glut-post-redisplay))
 
@@ -338,14 +354,14 @@
                (= prev-b GLUT_MIDDLE_BUTTON))
            (inc! xlatx (/. (* 2 (- x prev-x)) zoom))
            (inc! xlaty (/. (* 2 (- prev-y y)) zoom))
-           (vinfo-tx-set! vinfo xlatx)
-           (vinfo-ty-set! vinfo xlaty)]
+           (set! (vinfo-tx vinfo) xlatx)
+           (set! (vinfo-ty vinfo) xlaty)]
           [(= prev-b GLUT_RIGHT_BUTTON)
            (set! zoom (clamp (* (+ 1.0 (* (/. (- prev-y y) height) 2.0))
                                 zoom)
                              0.1 1000.0))
-           (vinfo-sx-set! vinfo zoom)
-           (vinfo-sy-set! vinfo zoom)])
+           (set! (vinfo-sx vinfo) zoom)
+           (set! (vinfo-sy vinfo) zoom)])
     (set! prev-x x) (set! prev-y y)
     (glut-post-redisplay))
 
@@ -483,12 +499,12 @@
     (gl-matrix-mode GL_PROJECTION)
     (gl-load-identity)
     (gl-frustum -1.0 1.0 (- ratio) ratio 5.0 10000.0)
-    (vinfo-left-set! v -1.0)
-    (vinfo-right-set! v -1.0)
-    (vinfo-bottom-set! v (- ratio))
-    (vinfo-top-set! v ratio)
-    (vinfo-near-set! v 5.0)
-    (vinfo-far-set! v 10000.0)
+    (set! (vinfo-left v) -1.0)
+    (set! (vinfo-right v) -1.0)
+    (set! (vinfo-bottom v) (- ratio))
+    (set! (vinfo-top v) ratio)
+    (set! (vinfo-near v) 5.0)
+    (set! (vinfo-far v) 10000.0)
 
     (gl-matrix-mode GL_MODELVIEW)
     (gl-load-identity)
@@ -500,12 +516,12 @@
   (gl-matrix-mode GL_PROJECTION)
   (gl-load-identity)
   (glu-ortho-2d (- w) w (- h) h)
-  (vinfo-left-set! v (- w))
-  (vinfo-right-set! v w)
-  (vinfo-bottom-set! v (- h))
-  (vinfo-top-set! v h)
-  (vinfo-near-set! v 1.0)
-  (vinfo-far-set! v -1.0)
+  (set! (vinfo-left v) (- w))
+  (set! (vinfo-right v) w)
+  (set! (vinfo-bottom v) (- h))
+  (set! (vinfo-top v) h)
+  (set! (vinfo-near v) 1.0)
+  (set! (vinfo-far v) -1.0)
   (gl-matrix-mode GL_MODELVIEW)
   (gl-load-identity)
   (gl-translate 0.0 0.0 1.0))

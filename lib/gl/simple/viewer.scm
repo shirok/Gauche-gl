@@ -226,7 +226,7 @@
                      (x      #f)
                      (y      #f)
                      (zoom   1.0)
-                     (background-color '#f32(0.0 0.0 0.0 0.0))
+                     (background-color '#f32(0.0 0.0 0.0 1.0))
                      (ground-color '#f32(0.0 0.0 0.0 0.0))
                      )
   (define proj-mode

@@ -4069,7 +4069,7 @@ A typical way of using the viewer is like the following:
 
 (define (main args)
   (glut-init args)
-  (simple-viewer-display <your-display-thunk>)
+  (simple-viewer-display <your-display-callback>)
   (simple-viewer-set-key! <key> <handler> ...)
   (simple-viewer-window <name> :title <title> ...)
   (simple-viewer-run) ; loop forever.  type ESC to exit.
@@ -4078,7 +4078,7 @@ A typical way of using the viewer is like the following:
 
 The viewer handles mouse drag (to move the camera),
 and also draws reference grid and axes by default for
-your convenience.  You have to provide a thunk, which
+your convenience.  You have to provide a callback, which
 must draw your 3D object.
 
 For the keyboard events, you can use a convenient API
@@ -4105,28 +4105,85 @@ See also the code under @file{examples/simple} directory
 of the source tree for more examples.
 @end deftp
 
-@defun simple-viewer-window name &key title mode parent width height x y
+@menu
+* Creating simple viewer window::
+* Simple viewer info record::
+* Simple viewer callbacks::
+@end menu
+
+@node Creating simple viewer window, Simple viewer info record, Simple viewer, Simple viewer
+@subsection Creating simple viewer window
+
+@defun simple-viewer-window name &key title mode parent width height x y zoom @
+                                      background-color ground-color
+@defunx simple-viewer-window-2d name &key title mode parent width height x y zoom @
+                                      background-color ground-color
 Creates a new GL window with @var{name}, which must be a symbol
 to identify the window later in the simple viewer framework.
 The window won't be shown until @code{simple-viewer-run} is called.
 
-Each window
+@code{simple-viewer-window} sets up the window suitable for
+3D view, while @code{simple-viewer-window-2d} sets up one
+for 2D view.
+
+Returns @var{name}.
+
+The following keyword arguments are recognized:
+
+@table @var
+@item mode
+A bitmask of GLUT display mode.  The default is
+@code{(logior GLUT_DOUBLE GLUT_RGBA GLUT_DEPTH)} for the 3D view,
+and @code{(logior GLUT_DOUBLE GLUT_RGBA)} for the 2D view.
+
+@item parent
+A symbol to name the parent window, or @code{#f}.
+If it is a symbol, the procedure creates a sub-window
+in the specified parent window.
+
+@item width
+@itemx height
+The window's initial screen dimensions in pixels.
+
+@item x
+@itemx y
+If @var{parent} is given, specifies the sub-window's location
+in the parent.
+
+@item zoom
+Initial zoom factor.
+
+@item background-color
+An f32vector of length 3 (for RGB) or length 4 (RGBA) to specify
+the background color.  The default is @code{#f32(0.0 0.0 0.0 1.0)}.
+
+@item ground-color
+An f32vector of length 3 (for RGB) or length 4 (RGBA) to specify the
+color of the ground plane.  A ground plane is an infinitely large
+plane with @var{x} = @var{z} = 0.  It is only drawn when its alpha
+channel is not zero.  The default is @code{#f32(0.0 0.0 0.0 0.0)}.
+@end table
 @end defun
 
+@node Simple viewer info record, Simple viewer callbacks, Creating simple viewer window, Simple viewer
+@subsection Simple viewer info record
 
-@defun simple-viewer-display &optional display-thunk
-Gets/sets the display thunk, which is called every time
-the GL window is redrawn.  You can change the display thunk
+@node Simple viewer callbacks,  , Simple viewer info record, Simple viewer
+@subsection Simple viewer callbacks
+
+@defun simple-viewer-display &optional display-callback target
+Gets/sets the display callback, which is called every time
+the GL window is redrawn.  You can change the display callback
 any time, even while the viewer thread is running.
 
-If no argument is given, returns the current display thunk.
-It can be @code{#f} if no display thunk is set.
+If no argument is given, returns the current default display callback.
+It can be @code{#f} if no display callback is set.
 
-When the display thunk is called, the matrix mode is
+When the display callback is called, the matrix mode is
 @code{MODELVIEW} and the camera transformation is already applied.
 The grid and axes are also drawn, unless you've customized them.
 
-In the display thunk you can just write your model in the
+In the display callback you can just write your model in the
 world coordinate system.  It is guaranteed that
 the current color is white and line width is 1.0, but
 the states of other GL contexts are undefined,
@@ -4157,7 +4214,7 @@ You can change these procedures
 any time, even while the viewer thread is running.
 
 The @var{grid-proc} and @var{axis-proc} are called with no arguments
-every time the GL window is redrawn, before the display thunk
+every time the GL window is redrawn, before the display callback
 is invoked.
 The matrix mode is @code{MODELVIEW}, the camera transformation
 is already applied, and lighting is disabled.

@@ -60,8 +60,8 @@ gauche-gl-refe.dvi : gauche-gl-refe.texi
 gauche-gl-refe.pdf : gauche-gl-refe.texi
 	makeinfo --pdf --Xopt --tidy gauche-gl-refe.texi
 
-gauche-gl-refe.texi : gauche-gl-ref.texi extract
-	gosh ./extract -en -o gauche-gl-refe.texi gauche-gl-ref.texi
+gauche-gl-refe.texi : gauche-gl-ref.texi
+	gosh tools/docprep -en -o gauche-gl-refe.texi gauche-gl-ref.texi
 
 gauche-gl-refe.info.gz : gauche-gl-refe.texi
 	if test "X$(MAKEINFO)" != X -a "X$(GZIP_PROGRAM)" != X; then \
@@ -82,8 +82,8 @@ gauche-gl-refj.dvi : gauche-gl-refj.texi
 gauche-gl-refj.pdf : gauche-gl-refj.texi
 	makeinfo --pdf --Xopt --dity gauche-gl-refj.texi
 
-gauche-gl-refj.texi : gauche-gl-ref.texi extract
-	gosh ./extract -jp -o gauche-gl-refj.texi gauche-gl-ref.texi
+gauche-gl-refj.texi : gauche-gl-ref.texi
+	gosh tools/docprep -jp -o gauche-gl-refj.texi gauche-gl-ref.texi
 
 gauche-gl-refj.info.gz : gauche-gl-refj.texi
 	if test "X$(MAKEINFO)" != X -a "X$(GZIP_PROGRAM)" != X; then \

@@ -11,17 +11,14 @@
 (define *glut-path* #f)
 (cf-arg-with 'glut
              (cf-help-string
-              "--with-glut[=yes|no|mingw-static|PATH]"
+              "--with-glut[=yes|no|PATH]"
               "Use GLUT library installed under PATH. \
   By default, Gauche-gl assumes GLUT is installed in the system standard \
-  location.  If you do not want to use GLUT support, specify --with-glut=no.  \
-  On MinGW you can statically link freeglut included in the source. \
-  If you want to choose so, say --with-glut=mingw-static.")
+  location.  If you do not want to use GLUT support, specify --with-glut=no.")
              (^[val]
                (rxmatch-case val
                  [#/^no$/  (_) (set! *use-glut* #f)]
                  [#/^yes$/ (_) (set! *use-glut* #t)]
-                 [#/^mingw-static$/ (_) (set! *use-glut* 'mingw-static)]
                  [else (set! *glut-path* val)])))
 
 ;; glfw
@@ -60,30 +57,26 @@
 ;; command-line args and sets up default values.
 (cf-init-gauche-extension)
 
+;; MinGW (MSYS2) detection
+(define *mingw-target* (#/.*-mingw.*/ (cf$ 'target)))
+
 ;; Check target-dependent glut library
-(case *use-glut*
-  [(mingw-static)
-   ;; We use internal freeglut
-   (cf-subst 'GLUT_LIB "-lfreeglut_static -lgdi32 -lwinmm")
-   (cf-subst 'GLUT_INCDIR "-I../win32/freeglut-3.0.0-1/include -DFREEGLUT_STATIC")
-   ;; MSYS2 config.guess reports x86_64-pc-mingw64 on 64bit system,
-   ;; but MSYS2/mingw-w64 toolchain canonically use x86_64-w64-mingw32.
-   (rxmatch-case (cf$ 'target)
-     [#/x86_64-.*mingw.*/ (_)
-      (cf-subst 'GLUT_LIBDIR "-L../win32/freeglut-3.0.0-1/lib/x64")]
-     [else
-      (cf-subst 'GLUT_LIBDIR "-L../win32/freeglut-3.0.0-1/lib")])]
-  [(#t)
-   (cf-subst 'GLUT_LIB "-lglut")
-   (if *glut-path*
-     (begin (cf-subst 'GLUT_INCDIR #"-I~|*glut-path*|/include")
-            (cf-subst 'GLUT_LIBDIR #"-L~|*glut-path*|/lib"))
-     (begin (cf-subst 'GLUT_INCDIR "")
-            (cf-subst 'GLUT_LIBDIR "")))]
-  [(#f)
-   (cf-subst 'GLUT_LIB "")
-   (cf-subst 'GLUT_INCDIR "")
-   (cf-subst 'GLUT_LIBDIR "")])
+(cond [*use-glut*
+       (cond [*mingw-target*
+              (cf-subst 'GLUT_LIB "-Wl,-Bstatic -lfreeglut -Wl,-Bdynamic -lgdi32 -lwinmm")
+              (cf-subst 'GLUT_INCDIR "-DFREEGLUT_STATIC")
+              (cf-subst 'GLUT_LIBDIR "")]
+             [else
+              (cf-subst 'GLUT_LIB "-lglut")
+              (if *glut-path*
+                (begin (cf-subst 'GLUT_INCDIR #"-I~|*glut-path*|/include")
+                       (cf-subst 'GLUT_LIBDIR #"-L~|*glut-path*|/lib"))
+                (begin (cf-subst 'GLUT_INCDIR "")
+                       (cf-subst 'GLUT_LIBDIR "")))])]
+      [else
+       (cf-subst 'GLUT_LIB "")
+       (cf-subst 'GLUT_INCDIR "")
+       (cf-subst 'GLUT_LIBDIR "")])
 
 ;; Set appropriate libraries
 (cf-check-headers '("GL/glx.h")
@@ -100,11 +93,10 @@
 
 ;; Link opengl libs
 (unless (cf-ref 'GL_LIBS #f)
-  (rxmatch-case (cf$ 'target)
-    [#/.*-mingw.*/ (_)
-     (cf-subst 'GL_LIBS "-lglu32 -lopengl32 -lgdi32 -luser32 -lkernel32")]
-    [else
-     (cf-subst 'GL_LIBS "-lGLU -lGL")]))
+  (cond [*mingw-target*
+         (cf-subst 'GL_LIBS "-lglu32 -lopengl32 -lgdi32 -luser32 -lkernel32")]
+        [else
+         (cf-subst 'GL_LIBS "-lGLU -lGL")]))
 
 ;; Check GLFW availability
 (when *use-glfw*
@@ -112,8 +104,13 @@
     (cf-subst-append 'CPPFLAGS #"-I~|*glfw-path*|/include")
     (cf-subst-append 'LDFLAGS #"-L~|*glfw-path*|/lib"))
   (cf-check-headers '("GLFW/glfw3.h"))
-  (when (cf-search-libs "glfwInit" '("glfw" "glfw3"))
-    (cf-define 'HAVE_LIBGLFW)))
+  (when (cf-defined? 'HAVE_GLFW_GLFW3_H)
+    (cond [*mingw-target*
+           (cf-subst-prepend 'LIBS "-Wl,-Bstatic -lglfw3 -Wl,-Bdynamic")
+           (cf-define 'HAVE_LIBGLFW)]
+          [else
+           (when (cf-search-libs "glfwInit" '("glfw" "glfw3"))
+             (cf-define 'HAVE_LIBGLFW))])))
 
 (cond [(and (cf-defined? 'HAVE_GLFW_GLFW3_H)
             (cf-defined? 'HAVE_LIBGLFW))
@@ -148,25 +145,27 @@
 ;; TODO: We might add --with-glew configure option so that we can use glew
 ;; on other platforms.  At this moment, though, Gauche-gl has its own
 ;; runtime name lookup system, so having glew isn't vital on other platforms.
-(cond [(#/.*-mingw.*/ (cf$ 'target))
+(cond [*mingw-target*
        (cf-define 'HAVE_GL_GLEW_H)
-       (cf-subst 'GLEW_INCDIR "-I../win32/glew-2.1.0/include -DGLEW_STATIC")
-       (cf-subst 'GLEW_SOURCE "../win32/glew-2.1.0/src/glew.c")]
+       (cf-subst 'GLEW_CFLAGS "-DGLEW_STATIC")
+       (cf-subst 'GLEW_LIB    "-Wl,-Bstatic -lglew32 -Wl,-Bdynamic")]
       [else
-       (cf-subst 'GLEW_INCDIR "")
-       (cf-subst 'GLEW_SOURCE "")])
+       (cf-subst 'GLEW_CFLAGS "")
+       (cf-subst 'GLEW_LIB    "")])
 
 ;; Check for other programs.
 (cf-check-prog 'MAKEINFO "makeinfo" :default "")
 (cf-check-prog 'GZIP_PROGRAM "gzip" :default "")
 
 ;; On Windows, we need several extra -l flags.
-(cond [(#/.*-mingw.*/ (cf$ 'target))
+(cond [*mingw-target*
        (cf-subst 'GL_EXTRALIBS "-L. -lgauche-math3d")
-       (cf-subst 'GLUT_EXTRALIBS "-L. -lgauche-gl -lgauche-math3d")]
+       (cf-subst 'GLUT_EXTRALIBS "-L. -lgauche-gl -lgauche-math3d")
+       (cf-subst 'GLFW_EXTRALIBS "-L. -lgauche-gl -lgauche-math3d")]
       [else
        (cf-subst 'GL_EXTRALIBS "")
-       (cf-subst 'GLUT_EXTRALIBS "")])
+       (cf-subst 'GLUT_EXTRALIBS "")
+       (cf-subst 'GLFW_EXTRALIBS "")])
 
 ;; Output
 (cf-config-headers "src/gauche/gl-config.h")

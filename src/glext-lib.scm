@@ -1049,13 +1049,22 @@
                                         type::<int>
                                         normalized::<boolean>
                                         stride::<fixnum>
-                                        offset::<fixnum>)
+                                        offset)
   ::<void>
   (unless (and (<= 1 size) (<= size 4))
     (Scm_Error "bad argument for size: %d, must be 1, 2, 3 or 4" size))
   (ENSURE glVertexAttribPointer)
-  (glVertexAttribPointer index size type (?: normalized GL_TRUE GL_FALSE) stride
-                         (cast GLvoid* offset)))
+  (let* ([offset1::GLvoid* 0])
+    (cond
+     [(SCM_UVECTORP offset)
+      (set! offset1 (SCM_UVECTOR_ELEMENTS offset))]
+     [(SCM_INTEGERP offset)
+      (set! offset1 (cast GLvoid* (cast intptr_t (Scm_GetInteger offset))))]
+     [else
+      (Scm_Error "bad argument for offset: must be integer or uvector, but got: %S"
+                 offset)])
+    (glVertexAttribPointer index size type (?: normalized GL_TRUE GL_FALSE)
+                           stride offset1)))
 
 (define-cproc gl-is-program (program::<uint>) ::<boolean>
   (ENSURE glIsProgram)

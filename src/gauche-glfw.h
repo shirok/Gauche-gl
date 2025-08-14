@@ -34,6 +34,12 @@
 #ifndef GAUCHE_GLFW_H
 #define GAUCHE_GLFW_H
 
+#include "gauche/gl-config.h"
+
+#if HAVE_GL_GLEW_H
+#include <GL/glew.h>
+#endif /* HAVE_GL_GLEW_H */
+
 #include <GLFW/glfw3.h>
 
 extern ScmClass *Scm_GlfwWindowClass; /* foreign pointer class */

@@ -609,7 +609,11 @@
 ;;;
 
 (define-cproc glfw-make-context-current (w::<glfw-window>) ::<void>
-  glfwMakeContextCurrent)
+  (glfwMakeContextCurrent w)
+  (.when (defined HAVE_GL_GLEW_H)
+    (let* ([r::GLenum (glewInit)])
+      (if (!= r GLEW_OK)
+        (Scm_Error "Initializing GLEW failed.")))))
 
 (define-cproc glfw-get-current-context () ::<glfw-window>?
   glfwGetCurrentContext)

@@ -6,11 +6,3 @@ installation instructions.
 Under doc/, you can find texinfo file of the documentation.
 It is incomplete but may be of some use.
 
-Under win32/, there are some auxiliary libraries required for
-win32 platform.   Things under this directory has its own
-copyright notices; check each subdirectories.
-
-It contains freeglut-3.0.0-1, a precompiled binary
-of Pawel W. Olszta's FreeGlut, build for MinGW by Transmission Zero.
-The package can be obtained from:
-http://www.transmissionzero.co.uk/software/freeglut-devel/

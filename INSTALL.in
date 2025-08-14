@@ -24,18 +24,31 @@ Prerequisites
 @c JP
 * Gauche 0.9.11 以降がインストールされている必要があります。
 * OpenGL 1.1以降が必要です。4.5以降を推奨します。
-* GLUT 3.7以降が必要です。(ただし、MinGW上でのコンパイル時には
-  必要ありません。以下で説明します)
+* GLUT 3.7以降が必要です。
 * GLFW 3.2以降を推奨します。
 * X11ベースの環境では、libXmuとlibXi。
 @c EN
 * Gauche 0.9.11 or later must be installed.
 * OpenGL 1.1 or later is required.  OpenGL 4.5 or later is recommended.
-* GLUT 3.7 or later is required (except when you compile
-  on MinGW; see below.)
+* GLUT 3.7 or later is required.
 * GLFW 3.2 or later is recommended.
 * On X11-based environment, have libXmu and libXi.
 @c COMMON
+
+
+@c JP
+* Windows の MSYS2 環境では、
+  freeglut, glew および glfw のパッケージをインストールしてください。
+  例えば、UCRT64 でビルドする場合、次のコマンドを実行します。
+@c EN
+* On Windows MSYS2 environment,
+  please install freeglut, glew and glfw packages.
+  For example, to build for UCRT64, run the following command:
+@c COMMON
+
+    pacman -S mingw-w64-ucrt-x86_64-freeglut
+    pacman -S mingw-w64-ucrt-x86_64-glew
+    pacman -S mingw-w64-ucrt-x86_64-glfw
 
 
 @c JP
@@ -75,32 +88,6 @@ tell the configure script where it is.
 @c COMMON
 
   ./configure --with-glut=DIR
-
-
-@c JP
-MinGWでは、別にGLUTをインストールするかわりに、ソースツリーに含まれるfreeglut-3.0
-を使うこともできます。この方法を使った場合、freeglutライブラリはスタティックに
-リンクされるため、スクリプトを配布する際にglutライブラリを別に含める必要は
-ありません。この方法を選ぶ場合は次のオプションでconfigureしてください。
-@c EN
-On MinGW, you can choose an option to use freeglut-3.0 binary included
-in the source tree instead of a separate GLUT library.  The freeglut
-library is statically linked, which is convenient if you want to distribute
-your script.   If you choose to do so, configure with the following option.
-@c COMMON
-
-  ./configure --with-glut=mingw-static
-
-
-@c JP
-freeglutをリンクしたlibgauche-glut.dllをアプリケーションと共に配布する場合は、
-win32/freeglut-3.0.0-1/Copying.txt をチェックしてください。freeglutは
-MITライセンス的な条件で使えますが、配布物には著作権表示を含めなければなりません。
-@c EN
-If you distribute compiled libgauche-glut.dll with statically linked freeglut,
-check win32/freeglut-3.0.0-1/Copying.txt.  Freeglut is basically a MIT-like
-license, but you need to include the copyright notice in your distribution.
-@c COMMON
 
 
 @c JP
